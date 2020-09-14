@@ -511,7 +511,6 @@ input[type=submit]:focus {
 }
 
 .header .copyrights {
-	background-color: #444;
 	color: #bbb;
 	width: 380px;
 	position: absolute;

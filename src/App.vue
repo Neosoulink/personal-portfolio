@@ -5,8 +5,8 @@
 			<vue-particles
 				color="#e0fffe"
 				:particleOpacity="1"
-				:particlesNumber="120"
-				shapeType="triangle"
+				:particlesNumber="100"
+				shapeType="edge"
 				:particleSize="8"
 				linesColor="#e0fffe"
 				:linesWidth="1"
@@ -72,12 +72,12 @@
 					<div class="social-links">
 						<ul>
 							<li>
-								<a href="#" target="_blank">
+								<a href="https://www.linkedin.com/in/nathan-mandemvo-87b0b2196/" target="_blank">
 									<font-awesome-icon :icon="['fab', 'linkedin']" class="menu-icon" />
 								</a>
 							</li>
 							<li>
-								<a href="#" target="_blank">
+								<a href="https://twitter.com/nsl_nathan" target="_blank">
 									<font-awesome-icon :icon="['fab', 'twitter']" class="menu-icon" />
 								</a>
 							</li>
@@ -90,14 +90,17 @@
 								</a>
 							</li>
 							<li>
-								<a href="#" target="_blank">
+								<a href="https://web.facebook.com/NSL.Solaris" target="_blank">
 									<font-awesome-icon :icon="['fab', 'facebook']" class="menu-icon" />
 								</a>
 							</li>
 							<li>
-								<a href="#" target="_blank">
+								<a href="https://github.com/Neosoulink" target="_blank">
 									<font-awesome-icon :icon="['fab', 'github']" class="menu-icon" />
 								</a>
+							</li>
+							<li>
+								<a href="https://www.instagram.com/destinyofnath/" target="_blank"><font-awesome-icon :icon="['fab', 'instagram']" class="menu-icon" /></a>
 							</li>
 						</ul>
 					</div>

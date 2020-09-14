@@ -9,31 +9,45 @@
 			<div class="row">
 				<div class="col-12 col-sm-7">
 					<div class="block-title">
-						<h3>Education</h3>
+						<h3>Experience</h3>
 					</div>
 
 					<div class="timeline timeline-second-style clearfix">
 						<div class="timeline-item clearfix">
 							<div class="left-part">
-								<h5 class="item-period">2019</h5>
-								<span class="item-company">Institus superieur de commerce</span>
+								<h5 class="item-period">2019 - Current</h5>
+								<span class="item-company">African Law Repport</span>
 							</div>
 							<div class="divider"></div>
 							<div class="right-part">
-								<h4 class="item-title">Informatic graduat</h4>
-								<p>Maecenas finibus nec sem ut imperdiet. Ut tincidunt est ac dolor aliquam sodales. Phasellus sed mauris hendrerit, laoreet sem in, lobortis ante.</p>
+								<h4 class="item-title">Full-Stack Developper</h4>
+								<p>
+									Creation of a management platform for
+									lawyers.
+									Maintenance of the official website of the cabinet of Emery
+									Mukendi W. (cabemery.org).
+									Update of the juriDocs.org software (web and mobile) and
+									Cabemery.org website.
+								</p>
+								<p>
+									In direct partnership with
+									<a href="https://www.cabemery.org/" target="_blank">
+										www.cabemry.org
+										<font-awesome-icon icon="external-link-alt" />
+									</a>.
+								</p>
 							</div>
 						</div>
 
 						<div class="timeline-item clearfix">
 							<div class="left-part">
-								<h5 class="item-period">2007</h5>
-								<span class="item-company">University of Studies</span>
+								<h5 class="item-period">2019 - 2020</h5>
+								<span class="item-company">Aktif Office</span>
 							</div>
 							<div class="divider"></div>
 							<div class="right-part">
-								<h4 class="item-title">Graphic Design</h4>
-								<p>Aliquam tincidunt malesuada tortor vitae iaculis. In eu turpis iaculis, feugiat risus quis, aliquet urna. Quisque fringilla mollis risus, eu pulvinar dolor.</p>
+								<h4 class="item-title">Consultant Programmer Engineer</h4>
+								<p></p>
 							</div>
 						</div>
 					</div>
@@ -41,43 +55,31 @@
 					<div class="white-space-50"></div>
 
 					<div class="block-title">
-						<h3>Experience</h3>
+						<h3>Education</h3>
 					</div>
 
 					<div class="timeline timeline-second-style clearfix">
 						<div class="timeline-item clearfix">
 							<div class="left-part">
-								<h5 class="item-period">2016 - Current</h5>
-								<span class="item-company">Google</span>
+								<h5 class="item-period">2020 - Current</h5>
+								<span class="item-company">ISC</span>
 							</div>
 							<div class="divider"></div>
 							<div class="right-part">
-								<h4 class="item-title">Lead Ui/Ux Designer</h4>
-								<p>Praesent dignissim sollicitudin justo, sed elementum quam lacinia quis. Phasellus eleifend tristique posuere. Sed vitae dui nec magna.</p>
+								<h4 class="item-title">Licence study</h4>
+								<p></p>
 							</div>
 						</div>
 
 						<div class="timeline-item clearfix">
 							<div class="left-part">
-								<h5 class="item-period">2013 - 2016</h5>
-								<span class="item-company">Adobe</span>
+								<h5 class="item-period">2019</h5>
+								<span class="item-company">Institus superieur de commerce</span>
 							</div>
 							<div class="divider"></div>
 							<div class="right-part">
-								<h4 class="item-title">Senior Ui/Ux Designer</h4>
-								<p>Maecenas tempus faucibus rutrum. Duis eu aliquam urna. Proin vitae nulla tristique, ornare felis id, congue libero. Nam volutpat euismod quam.</p>
-							</div>
-						</div>
-
-						<div class="timeline-item clearfix">
-							<div class="left-part">
-								<h5 class="item-period">2011 - 2013</h5>
-								<span class="item-company">Google</span>
-							</div>
-							<div class="divider"></div>
-							<div class="right-part">
-								<h4 class="item-title">Junior Ui/Ux Designer</h4>
-								<p>Duis mollis nunc quis quam viverra venenatis. Nulla nulla arcu, congue vitae nunc ac, sodales ultricies diam. Nullam justo leo, tincidunt sit amet.</p>
+								<h4 class="item-title">Informatic graduate</h4>
+								<p>End of my graduate study (graduation).</p>
 							</div>
 						</div>
 					</div>
@@ -85,25 +87,6 @@
 
 				<!-- Skills & Certificates -->
 				<div class="col-12 col-sm-5">
-					<!-- Design Skills -->
-					<div class="block-title">
-						<h3>
-							Design
-							<span>Skills</span>
-						</h3>
-					</div>
-
-					<div class="skills-info skills-second-style">
-						<Skill title="HTML/CSS" :percentage="10"></Skill>
-
-						<Skill title="HTML/CSS" :percentage="50"></Skill>
-
-						<Skill title="HTML/CSS" :percentage="90"></Skill>
-					</div>
-					<!-- End of Design Skills -->
-
-					<div class="white-space-10"></div>
-
 					<!-- Coding Skills -->
 					<div class="block-title">
 						<h3>
@@ -113,7 +96,32 @@
 					</div>
 
 					<div class="skills-info skills-second-style">
-						<Skill title="JavaScript" :percentage="90"></Skill>
+						<Skill title="WordPress" :percentage="70"></Skill>
+						<Skill title="HTLM, CSS" :percentage="85"></Skill>
+						<Skill title="PHP(Poo)" :percentage="80"></Skill>
+						<Skill title="JS(ES6-ES2020)" :percentage="70"></Skill>
+						<Skill title="ReactNative" :percentage="70"></Skill>
+						<Skill title="Laravel" :percentage="75"></Skill>
+						<Skill title="Vuejs (& nuxtjs)" :percentage="85"></Skill>
+						<Skill title="Nodejs" :percentage="70"></Skill>
+						<Skill title="React (& nextjs)" :percentage="60"></Skill>
+					</div>
+					<!-- End of Coding Skills -->
+
+					<div class="white-space-10"></div>
+
+					<div class="block-title">
+						<h3>
+							Database
+							<span>Used</span>
+						</h3>
+					</div>
+
+					<div class="skills-info skills-second-style">
+						<Skill title="MySQL" :percentage="75"></Skill>
+						<Skill title="Oracle" :percentage="65"></Skill>
+						<Skill title="Firebase" :percentage="70"></Skill>
+						<Skill title="MongoDB" :percentage="75"></Skill>
 					</div>
 					<!-- End of Coding Skills -->
 
@@ -125,15 +133,10 @@
 					</div>
 
 					<ul class="knowledges">
-						<li>Marketing</li>
-						<li>Print</li>
-						<li>Digital Design</li>
-						<li>Social Media</li>
-						<li>Time Management</li>
-						<li>Communication</li>
-						<li>Problem-Solving</li>
-						<li>Social Networking</li>
-						<li>Flexibility</li>
+						<li>Marketing Digital</li>
+						<li>Print Software</li>
+						<li>SEO</li>
+						<li>System Conception</li>
 					</ul>
 					<!-- End of Knowledges -->
 				</div>
@@ -156,21 +159,12 @@
 				<div class="col-12 col-sm-6">
 					<div class="certificate-item clearfix">
 						<div class="certi-logo">
-							<img src="img/clients/client-1.png" alt="logo" />
+							<img src="https://skillvalue.com/assets/img/logo.pentalog-company-white.svg" alt="logo" />
 						</div>
 
 						<div class="certi-content">
 							<div class="certi-title">
-								<h4>Psyhology of Intertnation Design</h4>
-							</div>
-							<div class="certi-id">
-								<span>Membership ID: XXXX</span>
-							</div>
-							<div class="certi-date">
-								<span>19 April 2018</span>
-							</div>
-							<div class="certi-company">
-								<span></span>
+								<h4><a href="https://skillvalue.com/fr/user/certificate/1IIwT7FONwBlJCrOjaL3piDfp8LAzUaJJfmubKhJPPw1rJoBODiAGGAbaC2e" target="_blank">Vuejs Certificate</a></h4>
 							</div>
 						</div>
 					</div>
@@ -181,21 +175,28 @@
 				<div class="col-12 col-sm-6">
 					<div class="certificate-item clearfix">
 						<div class="certi-logo">
-							<img src="img/clients/client-1.png" alt="logo" />
+							<img src="https://skillvalue.com/assets/img/logo.pentalog-company-white.svg" alt="logo" />
 						</div>
 
 						<div class="certi-content">
 							<div class="certi-title">
-								<h4>Psyhology of Intertnation Design</h4>
+								<h4><a href="https://skillvalue.com/fr/user/certificate/6xgAFXiInVW8HNONdMe8J84I7Zc0SV07MUdwokborxf2C4tEJkCXV5pmWPRr" target="_blank">Laravel Certificate</a></h4>
 							</div>
-							<div class="certi-id">
-								<span>Membership ID: XXXX</span>
-							</div>
-							<div class="certi-date">
-								<span>19 April 2018</span>
-							</div>
-							<div class="certi-company">
-								<span></span>
+						</div>
+					</div>
+				</div>
+				<!-- End of Certificate 2 -->
+
+				<!-- Certificate 2 -->
+				<div class="col-12 col-sm-6">
+					<div class="certificate-item clearfix">
+						<div class="certi-logo">
+							<img src="https://skillvalue.com/assets/img/logo.pentalog-company-white.svg" alt="logo" />
+						</div>
+
+						<div class="certi-content">
+							<div class="certi-title">
+								<h4><a href="https://skillvalue.com/fr/user/certificate/uMKjt1g4GJgYuIiq4tRtnW60PsuIVL7w94dyfd39yoBpMcvC6SBqn8CkpXKg" target="_blank">JavaScript ES6 Certificate</a></h4>
 							</div>
 						</div>
 					</div>

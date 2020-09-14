@@ -9,50 +9,83 @@
 			<!-- Contact Info -->
 			<div class="info-block-container">
 				<div class="lm-info-block gray-default">
-					<font-awesome-icon icon="map-marker-alt" class />
-					<h4>RDCongo - Kinshasa</h4>
-					<span class="lm-info-block-value"></span>
-					<span class="lm-info-block-text"></span>
+					<font-awesome-icon icon="phone-alt" />
+					<h4>
+						<a href="tel:+243 823 132 630" target="_blank">Call me: +243 823 132 630</a>
+					</h4>
 				</div>
 
 				<div class="lm-info-block gray-default">
-					<font-awesome-icon icon="phone-alt" class />
-					<h4>+243 823 132 630</h4>
-					<span class="lm-info-block-value"></span>
-					<span class="lm-info-block-text"></span>
-				</div>
-
-				<div class="lm-info-block gray-default">
-					<font-awesome-icon icon="envelope" class />
+					<font-awesome-icon :icon="['fab', 'whatsapp']" />
 					<h4>
 						<a
-							href="/cdn-cgi/l/email-protection"
-							class="__cf_email__"
-							data-cfemail="e1808d8499a18499808c918d84cf828e8c"
-						>nathaninbusines2.0@gmail.com</a>
+							href="https://wa.me/+243823132630?text=I'm%20interested%20about%20your%20profile"
+							target="_blank"
+						>Contact me in Whatsapp</a>
 					</h4>
-					<span class="lm-info-block-value"></span>
-					<span class="lm-info-block-text"></span>
 				</div>
 
 				<div class="lm-info-block gray-default">
-					<font-awesome-icon icon="check-circle" class />
-					<h4>Freelance Available</h4>
-					<span class="lm-info-block-value"></span>
-					<span class="lm-info-block-text"></span>
-				</div>
-
-				<div class="lm-info-block gray-default">
-					<font-awesome-icon icon="envelope" class />
+					<font-awesome-icon :icon="['fab', 'linkedin']" />
 					<h4>
 						<a
-							href="/cdn-cgi/l/email-protection"
-							class="__cf_email__"
-							data-cfemail="e1808d8499a18499808c918d84cf828e8c"
+							href="https://www.linkedin.com/in/nathan-mandemvo-87b0b2196/"
+							target="_blank"
+						>Join me in Linkedin</a>
+					</h4>
+				</div>
+
+				<div class="lm-info-block gray-default">
+					<font-awesome-icon :icon="['fab', 'twitter']" />
+					<h4>
+						<a href="https://twitter.com/nsl_nathan" target="_blank">Follow me on Twitter</a>
+					</h4>
+				</div>
+
+				<div class="lm-info-block gray-default">
+					<font-awesome-icon :icon="['fab', 'facebook']" />
+					<h4>
+						<a href="https://web.facebook.com/NSL.Solaris" target="_blank">Be freind on Facebook</a>
+					</h4>
+				</div>
+
+				<div class="lm-info-block gray-default">
+					<font-awesome-icon :icon="['fab', 'github']" />
+					<h4>
+						<a href="https://github.com/Neosoulink" target="_blank">Follow me on Github</a>
+					</h4>
+				</div>
+
+				<div class="lm-info-block gray-default">
+					<font-awesome-icon :icon="['fab', 'instagram']" />
+					<h4>
+						<a href="https://www.instagram.com/destinyofnath/" target="_blank">Follow me on Instagram</a>
+					</h4>
+				</div>
+
+				<div class="lm-info-block gray-default">
+					<font-awesome-icon icon="laptop-code" />
+					<h4>
+						<a href="https://www.codingame.com/profile/cc01af57cefe78a2e220ceeb2cc838a09672843" target="_blank">challenge ourselves on codingame</a>
+					</h4>
+				</div>
+
+
+				<div class="lm-info-block gray-default">
+					<font-awesome-icon icon="at" />
+					<h4>
+						<a
+							href="mailto:name@rapidtables.com?subject=I'm%20interested%20about%20your%20profile"
+							target="_blank"
 						>nathaninbusines2.0@gmail.com</a>
 					</h4>
-					<span class="lm-info-block-value"></span>
-					<span class="lm-info-block-text"></span>
+				</div>
+
+				<div class="lm-info-block gray-default">
+					<font-awesome-icon :icon="['fab', 'stack-overflow']" class />
+					<h4>
+						<a href="mhttps://stackoverflow.com/users/11686855/neosoulink" target="_blank">stackoverflow</a>
+					</h4>
 				</div>
 			</div>
 			<!-- End of Contact Info -->
@@ -66,6 +99,7 @@
 					<h3>
 						How Can I
 						<span>Help You?</span>
+						<small class="text-danger">(	<font-awesome-icon icon="exclamation-triangle" class /> Actualy not available)</small>
 					</h3>
 				</div>
 
