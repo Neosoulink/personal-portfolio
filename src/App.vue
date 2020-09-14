@@ -9,15 +9,10 @@
 				shapeType="edge"
 				:particleSize="8"
 				linesColor="#e0fffe"
-				:linesWidth="1"
 				:lineLinked="true"
 				:lineOpacity="0.6"
-				:linesDistance="150"
-				:moveSpeed="3"
-				:hoverEffect="true"
-				hoverMode="grab"
-				:clickEffect="true"
-				clickMode="push"
+				:hoverEffect="false"
+				:clickEffect="false"
 			></vue-particles>
 		</div>
 
