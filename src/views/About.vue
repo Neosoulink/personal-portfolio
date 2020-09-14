@@ -20,7 +20,7 @@
 						programming. As for the work itself, I
 						am pragmatic. I adapt very quickly to a new
 						work environment and I am comfortable with
-						teamwork (Actually I'm pretty calm 🙂)
+						teamwork (I'm pretty calm 🙂)
 					</p>
 				</div>
 
@@ -42,7 +42,7 @@
 									<font-awesome-icon icon="envelope" />
 								</span>
 								<span class="value">
-									<a href="mailto: nathaninbusiness2.0@gmail.com">nathaninbusiness2.0@gmail.com</a>
+									<a href="mailto:nathaninbusines2.0@gmail.com?subject=I'm%20interested%20about%20your%20profile">nathaninbusiness2.0@gmail.com</a>
 								</span>
 							</li>
 

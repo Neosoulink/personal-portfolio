@@ -66,7 +66,7 @@
 				<div class="lm-info-block gray-default">
 					<font-awesome-icon icon="laptop-code" />
 					<h4>
-						<a href="https://www.codingame.com/profile/cc01af57cefe78a2e220ceeb2cc838a09672843" target="_blank">challenge ourselves on codingame</a>
+						<a href="https://www.codingame.com/profile/cc01af57cefe78a2e220ceeb2cc838a09672843" target="_blank">challenge me on codingame</a>
 					</h4>
 				</div>
 
@@ -75,7 +75,7 @@
 					<font-awesome-icon icon="at" />
 					<h4>
 						<a
-							href="mailto:name@rapidtables.com?subject=I'm%20interested%20about%20your%20profile"
+							href="mailto:nathaninbusines2.0@gmail.com?subject=I'm%20interested%20about%20your%20profile"
 							target="_blank"
 						>nathaninbusines2.0@gmail.com</a>
 					</h4>
@@ -84,7 +84,7 @@
 				<div class="lm-info-block gray-default">
 					<font-awesome-icon :icon="['fab', 'stack-overflow']" class />
 					<h4>
-						<a href="mhttps://stackoverflow.com/users/11686855/neosoulink" target="_blank">stackoverflow</a>
+						<a href="https://stackoverflow.com/users/11686855/neosoulink" target="_blank">stackoverflow</a>
 					</h4>
 				</div>
 			</div>
