@@ -19,6 +19,7 @@
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.16.0",
     "core-js": "^3.6.5",
+    "firebase": "^8.2.1",
     "install": "^0.13.0",
     "particles.js": "^2.0.0",
     "vue": "^2.6.12",
