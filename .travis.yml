@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+  - 4
+	script:
+	- echo "Deploying!"
+	install:
+	- npm install -g firebase-tools
+	after_success:
+	-firebase deploy -- token $FIREBASE_TOKEN
+#notifications:
+#  email:
+#    recipients:
+#      - one@example.com
+#      - other@example.com
+#    on_success: never # default: change
+#    on_failure: always # default: always
