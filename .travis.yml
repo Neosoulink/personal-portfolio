@@ -7,6 +7,7 @@ node_js:
 	- npm install -g firebase-tools
 	after_success:
 	-firebase deploy -- token $FIREBASE_TOKEN
+
 #notifications:
 #  email:
 #    recipients:
