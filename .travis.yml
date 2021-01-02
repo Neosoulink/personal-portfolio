@@ -1,8 +1,12 @@
-deploy:
-  provider: firebase
-	  token:
-    	secure: "$FIREBASE_TOKEN"
-  message: "Successful deployment"
+language: node_js
+node_js:
+  - "node"
+	script:
+	- echo "Deploying!"
+	install:
+	- npm install -g firebase-tools
+	after_success:
+	-firebase deploy -- token $FIREBASE_TOKEN
 #notifications:
 #  email:
 #    recipients:
