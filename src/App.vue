@@ -1,5 +1,5 @@
 <template>
-	<div id="app">
+	<div id="app" class="dangerTheme">
 		<!-- Animated Background -->
 		<div class="img-animated-bg" :style="{transform: imgAnimatedBgTransformStyle}">
 			<vue-particles
