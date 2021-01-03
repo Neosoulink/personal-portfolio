@@ -11,9 +11,15 @@ export function initialize(store, router) {
 	firebase.initializeApp(firebaseConfig());
 	firebase.analytics();
 
-	firebase.firestore().collection('skills').get().then(ref => {
-		//console.log(ref.docs)
-		store.commit('author/SET_SKILLS', ref.docs)
+	firebase.firestore().collection('skills').get().then(async ref => {
+		let skills = [];
+		 await ref.docs.forEach((skill) => {
+			skills.push({
+				percentage: skill.data().percentage,
+				title: skill.data().title
+			})
+		});
+		store.commit('author/SET_SKILLS', skills)
 	}).catch(err => {
 		console.log(err)
 	})
