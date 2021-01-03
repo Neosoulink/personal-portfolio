@@ -12,6 +12,8 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import { fab } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import 'vue2-animate/dist/vue2-animate.min.css';
+import { initialize } from './helpers/guard'
+
 
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
@@ -21,6 +23,7 @@ library.add(fas, fab)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 Vue.config.productionTip = false;
+initialize(store, router);
 
 new Vue({
 	router,

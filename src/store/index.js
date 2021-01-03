@@ -1,14 +1,11 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
-import author from './modules/author';
+import Vue from "vue";
+import Vuex from "vuex";
 
 Vue.use(Vuex);
 
-const debug = process.env.NODE_ENV !== 'production';
-
 export default new Vuex.Store({
-	modules: {
-		author,
-	},
-	strict: debug,
+	state: {},
+	mutations: {},
+	actions: {},
+	modules: {}
 });
