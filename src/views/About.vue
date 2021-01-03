@@ -29,7 +29,7 @@
 						<ul>
 							<li>
 								<span class="title">Age</span>
-								<span class="value">22</span>
+								<span class="value">{{age}}</span>
 							</li>
 
 							<li>
@@ -50,7 +50,7 @@
 								<span class="title">
 									<font-awesome-icon icon="phone" />
 								</span>
-								<span class="value">+243 823 132 630</span>
+								<span class="value">+243 900 335 958</span>
 							</li>
 						</ul>
 					</div>
@@ -141,3 +141,16 @@
 	</section>
 	<!-- End of About Me Subpage -->
 </template>
+
+<script>
+export default {
+	data() {
+		return {
+			age : 0
+		}
+	},
+	mounted() {
+		this.age = new Date().getFullYear() - 1998
+	},
+}
+</script>
