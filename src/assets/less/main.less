@@ -1,3 +1,7 @@
+//@primary: #04b4e0;
+//@danger: #f03434;
+//@light: #f5f5f5;
+
 /* width */
 ::-webkit-scrollbar {
 	width: 10px;
@@ -491,6 +495,41 @@ input[type=submit]:focus {
 .social-links ul li a:focus {
 	opacity: 1;
 	background-color: rgba(255, 255, 255, .2)
+}
+
+.themes-buttons{
+	&>* {
+		display: inline-block;
+		height: 25px;
+		width: 25px;
+		border-radius: 100%;
+		border-width: 2px;
+		border-style: solid;
+		padding: 0;
+		margin: 0;
+		margin-right: 5px;
+		opacity: .9;
+		&.theme-primary {
+			background-color: @primary;
+			border-color: @primary;
+			&:hover, &:focus,&.active{
+			background-color: @primary;
+			border-color: @light;
+		}
+		}
+		&.theme-danger {
+			background-color: @danger;
+			border-color: @danger;
+			&:hover, &:focus,&.active{
+			background-color: @danger;
+			border-color: @light;
+		}
+		}
+		&:hover, &:focus,&.active{
+			opacity: 1;
+			border-color: @light;
+		}
+	}
 }
 
 .header-buttons {

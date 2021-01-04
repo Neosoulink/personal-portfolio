@@ -2,7 +2,7 @@
   <div id="app" ref="app">
     <!-- Animated Background -->
     <div class="img-animated-bg" :style="{ transform: imgAnimatedBgTransformStyle }">
-      <vue-particles
+      <!--<vue-particles
         color="#e0fffe"
         :particleOpacity="1"
         :particlesNumber="100"
@@ -13,7 +13,7 @@
         :lineOpacity="0.6"
         :hoverEffect="false"
         :clickEffect="false"
-      ></vue-particles>
+      ></vue-particles>-->
     </div>
 
     <!-- Loading animation -->
@@ -107,6 +107,15 @@
                 /></a>
               </li>
             </ul>
+          </div>
+
+          <div class="themes-buttons" ref="themes-buttons">
+            <a class="theme-primary active" @click="changeAppClassName()"></a>
+
+            <a
+              class="theme-danger"
+              @click="changeAppClassName('dangerTheme', $event)"
+            ></a>
           </div>
 
           <div class="header-buttons">
@@ -211,30 +220,41 @@ export default {
         }
       });
     },
-    changeAppClassName(className = "default" || "primaryTheme" || "dangerTheme" || null) {
-      const app = this.$refs["app"];
-      switch (className) {
-        case "primaryTheme" || "default" || null:
-          app.className = className;
-          break;
-        case "dangerTheme":
-          app.className = className;
-          break;
+    changeAppClassName(className = "default" || "primaryTheme" || null, e = undefined) {
+      const app = this.$refs["app"],
+        themesButtons = this.$refs["themes-buttons"];
 
-        default:
-          console.warn(className, "this className aren't available");
-          break;
+      themesButtons.childNodes.forEach((element) => {
+        element.classList.remove("active");
+      });
+
+      console.log(className, e);
+      if (className && e) {
+        switch (className) {
+          case "primaryTheme" || "default" || null:
+            app.className = className;
+            break;
+          case "dangerTheme":
+            app.className = className;
+            break;
+
+          default:
+            console.warn(className, "this className aren't available");
+            break;
+        }
+        e.target.classList.add("active");
+      } else {
+        app.className = "primaryTheme";
+        themesButtons.childNodes[0].classList.add("active");
       }
     },
   },
   mounted() {
-    window.addEventListener("mousemove", (e) => {
-      const mouseX = e.clientX / (window.innerWidth / 5);
-      const mouseY = e.clientY / (window.innerHeight / 5);
-      this.imgAnimatedBgTransform = `translate3d(-${mouseX}%, -${mouseY}%, 0)`;
-    });
-
-    this.changeAppClassName("");
+    //window.addEventListener("mousemove", (e) => {
+    //  const mouseX = e.clientX / (window.innerWidth / 5);
+    //  const mouseY = e.clientY / (window.innerHeight / 5);
+    //  this.imgAnimatedBgTransform = `translate3d(-${mouseX}%, -${mouseY}%, 0)`;
+    //});
   },
   watch: {
     $route(to, from) {

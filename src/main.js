@@ -18,7 +18,7 @@ import './assets/less/index.less';
 
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
-Vue.use(VueParticles);
+//Vue.use(VueParticles);
 
 library.add(fas, fab)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
