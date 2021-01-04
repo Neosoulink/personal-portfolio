@@ -110,12 +110,12 @@
           </div>
 
           <div class="themes-buttons" ref="themes-buttons">
-            <a class="theme-primary active" @click="changeAppClassName()"></a>
+            <button class="theme-primary active" @click="changeAppClassName()"></button>
 
-            <a
+            <button
               class="theme-danger"
               @click="changeAppClassName('dangerTheme', $event)"
-            ></a>
+            ></button>
           </div>
 
           <div class="header-buttons">
