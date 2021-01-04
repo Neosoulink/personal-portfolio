@@ -42,25 +42,25 @@
           </div>
 
           <ul class="main-menu">
-            <li data-toggle="tooltip" data-placement="left" title="Tooltip on left">
+            <li>
               <router-link exact to="/" class="nav-anim">
                 <font-awesome-icon icon="home" class="menu-icon" />
                 <span class="link-text">Home</span>
               </router-link>
             </li>
-            <li class>
+            <li>
               <router-link exact to="/about" class="nav-anim">
                 <font-awesome-icon icon="user" class="menu-icon" />
                 <span class="link-text">About Me</span>
               </router-link>
             </li>
-            <li class>
+            <li>
               <router-link exact to="/resume" class="nav-anim">
                 <font-awesome-icon icon="graduation-cap" class="menu-icon" />
                 <span class="link-text">Resume</span>
               </router-link>
             </li>
-            <li class>
+            <li>
               <router-link exact to="/contact" class="nav-anim">
                 <font-awesome-icon icon="address-book" class="menu-icon" />
                 <span class="link-text">Contact</span>
