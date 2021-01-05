@@ -1,5 +1,5 @@
 <template>
-  <div id="app" ref="app">
+  <div id="app" ref="app" :class="currentStoreTheme.theme">
     <!-- Animated Background -->
     <div class="img-animated-bg" :style="{ transform: imgAnimatedBgTransformStyle }">
       <!--<vue-particles
@@ -45,7 +45,7 @@
                 <path
                   d="M938,450a336.852,336.852,0,0,1-27.22,133.1L909.66,585.68A338.559,338.559,0,0,1,541.35,782.93q-3.045-.54-6.08-1.12a334.98111,334.98111,0,0,1-61.14-18.03q-4.815-1.935-9.56-4.01c-2.16-.94-4.32-1.91-6.46-2.91A338.41424,338.41424,0,0,1,262,450c0-186.67,151.33-338,338-338S938,263.33,938,450Z"
                   transform="translate(-262 -112)"
-                  :fill="storeTheme.currentColor"
+                  :fill="currentStoreTheme.color"
                 />
                 <path
                   d="M541.35,782.93q-3.045-.54-6.08-1.12c-1.32-38.31-5.85-116.94-21.30005-199.29C505.52,537.45,493.79,491.25,477.52,449.95a412.60387,412.60387,0,0,0-19.07-41.84c-16.44-31.05-36.38-57.19-60.56-74.9l3.56-4.86q30.165,22.11,54.22,62.08,7.215,11.97,13.86005,25.54,7.125,14.52,13.59,30.83,4.125,10.38,7.97,21.48,16.74,48.195,28.46,109.98,2.59506,13.65,4.94,27.97C536.6,680.2,540.25,748.59,541.35,782.93Z"
@@ -177,11 +177,11 @@
           </div>
 
           <div class="themes-buttons" ref="themes-buttons">
-            <button class="theme-primary active" @click="changeAppClassName()"></button>
-
             <button
-              class="theme-danger"
-              @click="changeAppClassName('dangerTheme', $event)"
+              v-for="(item, index) in getStoreThemeList"
+              :key="index"
+              :class="`${index} ${index == currentStoreTheme.theme ? 'active' : ''}`"
+              @click="changeAppClassName(index)"
             ></button>
           </div>
 
@@ -236,6 +236,7 @@
 </template>
 
 <script>
+import { mapMutations } from "vuex";
 export default {
   data() {
     return {
@@ -252,15 +253,21 @@ export default {
     },
     routeLength() {
       return this.routes.length;
-		},
-		storeTheme() {
-			return {
-				currentTheme : this.$store.getters['site/getCurrentTheme'],
-				currentColor: this.$store.getters['site/getCurrentColor'],
-			}
-		}
+    },
+    getStoreThemeList() {
+      return this.$store.getters["site/getThemeList"];
+    },
+    currentStoreTheme() {
+      return {
+        theme: this.$store.getters["site/getCurrentTheme"],
+        color: this.$store.getters["site/getCurrentColor"],
+      };
+    },
   },
   methods: {
+    ...mapMutations({
+      setStoreTheme: "site/SET_CURRENT_THEME",
+    }),
     hideMenu() {
       this.showMenu = false;
     },
@@ -293,37 +300,12 @@ export default {
         }
       });
     },
-    changeAppClassName(className = "default" || "primaryTheme" || null, e = undefined) {
-      const app = this.$refs["app"],
-        themesButtons = this.$refs["themes-buttons"];
-
-      themesButtons.childNodes.forEach((element) => {
-        element.classList.remove("active");
-      });
-
-      console.log(className, e);
-      if (className && e) {
-        switch (className) {
-          case "primaryTheme" || "default" || null:
-            app.className = className;
-            break;
-          case "dangerTheme":
-            app.className = className;
-            break;
-
-          default:
-            console.warn(className, "this className aren't available");
-            break;
-        }
-        e.target.classList.add("active");
-      } else {
-        app.className = "primaryTheme";
-        themesButtons.childNodes[0].classList.add("active");
-      }
+    changeAppClassName(className = "default" || "primaryTheme" || null) {
+      this.setStoreTheme(className);
     },
   },
   mounted() {
-			console.log(this)
+    console.log(this);
 
     //window.addEventListener("mousemove", (e) => {
     //  const mouseX = e.clientX / (window.innerWidth / 5);
