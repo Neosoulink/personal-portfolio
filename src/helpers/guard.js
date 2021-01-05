@@ -10,6 +10,8 @@ export function initialize(store, router) {
 	firebase.initializeApp(firebaseConfig());
 	firebase.analytics();
 
+	store.commit('site/SET_CURRENT_THEME');
+
 	router.beforeEach((to, from, next) => {
 		next();
 	});
