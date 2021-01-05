@@ -11,6 +11,12 @@ const state = () => ({
 const getters = {
 	getTheme(state, theme = 'primaryTheme') {
 		return state.themeList[theme]
+	},
+	getCurrentTheme(state) {
+		return state.currentTheme;
+	},
+	getCurrentColor(state) {
+		return state.currentColor;
 	}
 };
 

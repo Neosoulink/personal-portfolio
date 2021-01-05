@@ -252,7 +252,12 @@ export default {
     },
     routeLength() {
       return this.routes.length;
-    },
+		},
+		getCurrentTheme() {
+			return {
+				currentTheme : this.$store.site
+			}
+		}
   },
   methods: {
     hideMenu() {
@@ -317,6 +322,8 @@ export default {
     },
   },
   mounted() {
+			console.log(this)
+
     //window.addEventListener("mousemove", (e) => {
     //  const mouseX = e.clientX / (window.innerWidth / 5);
     //  const mouseY = e.clientY / (window.innerHeight / 5);
