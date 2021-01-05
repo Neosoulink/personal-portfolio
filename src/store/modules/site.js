@@ -1,6 +1,8 @@
+const localTheme = JSON.parse(localStorage.getItem('siteTheme'))
+
 const state = () => ({
-	currentTheme: null,
-	currentColor : null,
+	currentTheme: (localTheme && localTheme.theme) ? localTheme.theme : 'primaryTheme',
+	currentColor: (localTheme && localTheme.color) ? localTheme.color : '#04b4e0',
 	themeList: {
 		primaryTheme: "#04b4e0",
 		dangerTheme: "#f03434",
@@ -30,6 +32,10 @@ const mutations = {
 			state.themeList[theme] &&
 			typeof state.themeList[theme] == 'string'
 		) {
+			localStorage.setItem('siteTheme', JSON.stringify({
+				theme,
+				color: state.themeList[theme]
+			}))
 			state.currentTheme = theme;
 			state.currentColor = state.themeList[theme];
 		}
