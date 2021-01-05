@@ -4,7 +4,7 @@ const state = () => ({
 	themeList: {
 		primaryTheme: "#04b4e0",
 		dangerTheme: "#f03434",
-		successTheme: "#f5f5f5",
+		successTheme: "#00e640",
 	}
 });
 
