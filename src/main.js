@@ -2,6 +2,7 @@ import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
+import { initialize } from './helpers/guard';
 
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -12,8 +13,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import { fab } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import 'vue2-animate/dist/vue2-animate.min.css';
-import { initialize } from './helpers/guard'
-
+import './assets/less/index.less';
 
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
