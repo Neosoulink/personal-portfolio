@@ -15,7 +15,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import 'vue2-animate/dist/vue2-animate.min.css';
 import './assets/less/index.less';
 
-
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 //Vue.use(VueParticles);
