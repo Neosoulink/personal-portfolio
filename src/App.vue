@@ -5,7 +5,7 @@
 			class="img-animated-bg"
 			:style="{ transform: imgAnimatedBgTransformStyle }"
 		>
-			<!--<vue-particles
+			<vue-particles
         color="#e0fffe"
         :particleOpacity="1"
         :particlesNumber="100"
@@ -16,7 +16,7 @@
         :lineOpacity="0.6"
         :hoverEffect="false"
         :clickEffect="false"
-      ></vue-particles>-->
+      ></vue-particles>
 		</div>
 
 		<!-- Loading animation -->
