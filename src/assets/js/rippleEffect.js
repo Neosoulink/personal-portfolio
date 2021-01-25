@@ -1,7 +1,7 @@
 export default function createRipple(event) {
 	const button = event.currentTarget;
 	const btnClientRect = button.getBoundingClientRect();
-	const windowWidth = window.innerWidth >= 1280 ? 330 : window.innerWidth;
+	const windowWidth = window.innerWidth <= 1280 ? 330 : window.innerWidth;
 
 	const circle = document.createElement("span");
 	const diameter = Math.max(windowWidth, window.innerHeight);

@@ -2507,8 +2507,21 @@ blockquote {
 	}
 
 	.header-photo {
-		max-width: 130px;
+		width: 130px;
+		height: 130px;
 		margin-bottom: 25px;
+		img,
+		svg {
+			width: 130px;
+			height: 130px;
+			background-color: #fff;
+			border: 3px solid #fff;
+			border-radius: 300px;
+		}
+		&:after {
+			height: 130px;
+			width: 130px;
+		}
 	}
 
 	.mobile-menu-hide {
