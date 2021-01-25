@@ -323,7 +323,7 @@ input[type="submit"]:focus {
 		right: -90px;
 		background-color: #444;
 		border-radius: 35px;
-		z-index: 999;
+		z-index: 10;
 		list-style: none;
 		top: 0;
 		-webkit-box-shadow: 0 0 30px -5px rgba(0, 0, 0, 0.15);
@@ -416,6 +416,7 @@ input[type="submit"]:focus {
 }
 
 .lmpixels-circle-color {
+	z-index: 9999;
 	position: absolute;
 	padding: 10px 0;
 	width: 60px;
@@ -467,7 +468,7 @@ input[type="submit"]:focus {
 					border-color: @light;
 				}
 				& > .ripple {
-					background-color: @primary
+					background-color: @primary;
 				}
 			}
 			&.dangerTheme {
@@ -480,7 +481,7 @@ input[type="submit"]:focus {
 					border-color: @light;
 				}
 				& > .ripple {
-					background-color: @danger
+					background-color: @danger;
 				}
 			}
 			&.successTheme {
@@ -493,7 +494,7 @@ input[type="submit"]:focus {
 					border-color: @light;
 				}
 				& > .ripple {
-					background-color: @success
+					background-color: @success;
 				}
 			}
 			&:hover,
@@ -502,7 +503,7 @@ input[type="submit"]:focus {
 				opacity: 1;
 				border-color: @light;
 				text-decoration: none;
-				&>.indicator {
+				& > .indicator {
 					height: 5px;
 					width: 5px;
 					border-radius: 3px;
