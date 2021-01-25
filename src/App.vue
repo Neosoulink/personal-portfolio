@@ -213,22 +213,22 @@
 						</ul>
 					</div>
 
-						<!-- Theme change -->
-				<div class="lmpixels-circle-color">
-					<div class="themes-buttons" ref="themes-buttons">
-						<button
-							v-for="(item, index) in getStoreThemeList"
-							:key="index"
-							:class="`${index} ${
-								index == currentStoreTheme.theme ? 'active' : ''
-							}`"
-							@click="changeAppClassName(index)"
-						>
-							<span class="indicator"></span>
-						</button>
+					<!-- Theme change -->
+					<div class="lmpixels-circle-color">
+						<div class="themes-buttons" ref="themes-buttons">
+							<button
+								v-for="(item, index) in getStoreThemeList"
+								:key="index"
+								:class="`${index} ${
+									index == currentStoreTheme.theme ? 'active' : ''
+								}`"
+								@click="changeAppClassName(index)"
+							>
+								<span class="indicator"></span>
+							</button>
+						</div>
 					</div>
-				</div>
-				<!-- End Theme change -->
+					<!-- End Theme change -->
 
 					<div class="header-buttons">
 						<button

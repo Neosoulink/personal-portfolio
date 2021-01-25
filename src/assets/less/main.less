@@ -2412,6 +2412,11 @@ blockquote {
 
 	.header {
 		max-width: 330px;
+		-ms-overflow-style: none;
+ 		scrollbar-width: none;
+		&::-webkit-scrollbar {
+			display: none;
+		}
 	}
 
 	.content-area {
