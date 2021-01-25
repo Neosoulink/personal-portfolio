@@ -213,6 +213,23 @@
 						</ul>
 					</div>
 
+						<!-- Theme change -->
+				<div class="lmpixels-circle-color">
+					<div class="themes-buttons" ref="themes-buttons">
+						<button
+							v-for="(item, index) in getStoreThemeList"
+							:key="index"
+							:class="`${index} ${
+								index == currentStoreTheme.theme ? 'active' : ''
+							}`"
+							@click="changeAppClassName(index)"
+						>
+							<span class="indicator"></span>
+						</button>
+					</div>
+				</div>
+				<!-- End Theme change -->
+
 					<div class="header-buttons">
 						<button
 							href="/CV_Nathan-Mandemvo.pdf"
@@ -250,22 +267,7 @@
 				</div>
 				<!-- End Arrows Nav -->
 
-				<!-- Theme change -->
-				<div class="lmpixels-circle-color">
-					<div class="themes-buttons" ref="themes-buttons">
-						<button
-							v-for="(item, index) in getStoreThemeList"
-							:key="index"
-							:class="`${index} ${
-								index == currentStoreTheme.theme ? 'active' : ''
-							}`"
-							@click="changeAppClassName(index)"
-						>
-							<span class="indicator"></span>
-						</button>
-					</div>
-				</div>
-				<!-- End Theme change -->
+
 
 				<div class="content-area" @click="hideMenu()">
 					<div class="animated-sections">

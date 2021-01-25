@@ -323,7 +323,7 @@ input[type="submit"]:focus {
 		right: -90px;
 		background-color: #444;
 		border-radius: 35px;
-		z-index: 10;
+		z-index: 100;
 		list-style: none;
 		top: 0;
 		-webkit-box-shadow: 0 0 30px -5px rgba(0, 0, 0, 0.15);
@@ -416,14 +416,13 @@ input[type="submit"]:focus {
 }
 
 .lmpixels-circle-color {
-	z-index: 9999;
+	z-index: 200;
 	position: absolute;
 	padding: 10px 0;
 	width: 60px;
 	left: -80px;
 	background-color: #444;
 	border-radius: 35px;
-	z-index: 98;
 	list-style: none;
 	bottom: 0;
 	box-shadow: 0 0 30px -5px rgba(0, 0, 0, 0.15);
@@ -2418,6 +2417,23 @@ blockquote {
 	.content-area {
 		max-width: calc(100% - 330px);
 	}
+
+	.lmpixels-circle-color {
+		position: initial;
+		padding: 0;
+		width: auto;
+		border-radius: 0;
+		box-shadow: none;
+		& > div {
+			position: initial;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			height: auto;
+			padding: 0;
+		}
+	}
+
 }
 
 @media only screen and (min-width: 1025px) {
