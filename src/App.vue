@@ -355,11 +355,11 @@ export default {
 		},
 	},
 	mounted() {
-		//window.addEventListener("mousemove", (e) => {
-		//  const mouseX = e.clientX / (window.innerWidth / 5);
-		//  const mouseY = e.clientY / (window.innerHeight / 5);
-		//  this.imgAnimatedBgTransform = `translate3d(-${mouseX}%, -${mouseY}%, 0)`;
-		//});
+		window.addEventListener("mousemove", (e) => {
+		  const mouseX = e.clientX / (window.innerWidth / 5);
+		  const mouseY = e.clientY / (window.innerHeight / 5);
+		  this.imgAnimatedBgTransform = `translate3d(-${mouseX}%, -${mouseY}%, 0)`;
+		});
 
 		const buttons = window.document.querySelectorAll(
 			".themes-buttons > button"
