@@ -219,8 +219,9 @@
 							target="_blank"
 							class="btn-primary-custom"
 							download
-							>Download CV</button
 						>
+							Download CV
+						</button>
 					</div>
 
 					<div class="copyrights">© 2020 All rights reserved.</div>
@@ -255,12 +256,14 @@
 						<button
 							v-for="(item, index) in getStoreThemeList"
 							:key="index"
-							style="margin:0"
+							style="margin: 0"
 							:class="`${index} ${
 								index == currentStoreTheme.theme ? 'active' : ''
 							}`"
 							@click="changeAppClassName(index)"
-						><span></span></button>
+						>
+							<span class="indicator"></span>
+						</button>
 					</div>
 				</div>
 				<!-- End Theme change -->
@@ -281,7 +284,7 @@
 
 <script>
 import { mapMutations } from "vuex";
-import createRipple from './assets/js/rippleEffect';
+import createRipple from "./assets/js/rippleEffect";
 
 export default {
 	data() {
@@ -351,14 +354,15 @@ export default {
 		},
 	},
 	mounted() {
-
 		//window.addEventListener("mousemove", (e) => {
 		//  const mouseX = e.clientX / (window.innerWidth / 5);
 		//  const mouseY = e.clientY / (window.innerHeight / 5);
 		//  this.imgAnimatedBgTransform = `translate3d(-${mouseX}%, -${mouseY}%, 0)`;
 		//});
 
-		const buttons = window.document.querySelectorAll(".themes-buttons > button");
+		const buttons = window.document.querySelectorAll(
+			".themes-buttons > button"
+		);
 		for (const button of buttons) {
 			button.addEventListener("click", createRipple);
 		}

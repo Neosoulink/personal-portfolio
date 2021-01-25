@@ -425,93 +425,90 @@ input[type="submit"]:focus {
 	z-index: 98;
 	list-style: none;
 	bottom: 0;
-	-webkit-box-shadow: 0 0 30px -5px rgba(0, 0, 0, 0.15);
-	-moz-box-shadow: 0 0 30px -5px rgba(0, 0, 0, 0.15);
 	box-shadow: 0 0 30px -5px rgba(0, 0, 0, 0.15);
-}
-
-.lmpixels-circle-color div {
-	display: block;
-	position: relative;
-	text-align: center;
-	color: #b5b6b7;
-	padding: 10px;
-	font-size: 24px;
-	-webkit-transition: all 0.3s ease-in-out;
-	-moz-transition: all 0.3s ease-in-out;
-	-o-transition: all 0.3s ease-in-out;
-	-ms-transition: all 0.3s ease-in-out;
-	transition: all 0.3s ease-in-out;
-}
-
-.lmpixels-circle-color div:hover {
-	color: #04b4e0;
-}
-
-.themes-buttons {
-	& > button {
+	& > div {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
+		height: 110px;
 		position: relative;
-		display: inline-block;
-		height: 25px;
-		width: 25px;
-		border-radius: 100%;
-		border-width: 2px;
-		border-style: solid;
-		padding: 0;
-		margin: 0;
-		margin-right: 5px;
-		opacity: 0.6;
-		& > * {
-			height: 0;
-			width: 0;
+		color: #b5b6b7;
+		padding: 10px 0;
+		font-size: 24px;
+		transition: all 0.3s ease-in-out;
+		& > button {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			position: relative;
+			height: 25px;
+			width: 25px;
+			border-radius: 100%;
+			border-width: 2px;
+			border-style: solid;
 			padding: 0;
 			margin: 0;
-		}
-		&.primaryTheme {
-			background-color: @primary;
-			border-color: @primary;
-			&:hover,
-			&:focus,
-			&.active {
+			margin-right: 5px;
+			opacity: 0.6;
+			& > * {
+				height: 0;
+				width: 0;
+				padding: 0;
+				margin: 0;
+			}
+			&.primaryTheme {
 				background-color: @primary;
-				border-color: @light;
+				border-color: @primary;
+				&:hover,
+				&:focus,
+				&.active {
+					background-color: @primary;
+					border-color: @light;
+				}
+				& > .ripple {
+					background-color: @primary
+				}
 			}
-			& > .ripple {
-				background-color: @primary
-			}
-		}
-		&.dangerTheme {
-			background-color: @danger;
-			border-color: @danger;
-			&:hover,
-			&:focus,
-			&.active {
+			&.dangerTheme {
 				background-color: @danger;
-				border-color: @light;
+				border-color: @danger;
+				&:hover,
+				&:focus,
+				&.active {
+					background-color: @danger;
+					border-color: @light;
+				}
+				& > .ripple {
+					background-color: @danger
+				}
 			}
-			& > .ripple {
-				background-color: @danger
+			&.successTheme {
+				background-color: @success;
+				border-color: @success;
+				&:hover,
+				&:focus,
+				&.active {
+					background-color: @success;
+					border-color: @light;
+				}
+				& > .ripple {
+					background-color: @success
+				}
 			}
-		}
-		&.successTheme {
-			background-color: @success;
-			border-color: @success;
 			&:hover,
 			&:focus,
 			&.active {
-				background-color: @success;
+				opacity: 1;
 				border-color: @light;
+				text-decoration: none;
+				&>.indicator {
+					height: 5px;
+					width: 5px;
+					border-radius: 3px;
+					background-color: @light;
+				}
 			}
-			& > .ripple {
-				background-color: @success
-			}
-		}
-		&:hover,
-		&:focus,
-		&.active {
-			opacity: 1;
-			border-color: @light;
-			text-decoration: none;
 		}
 	}
 }
