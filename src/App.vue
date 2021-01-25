@@ -256,7 +256,6 @@
 						<button
 							v-for="(item, index) in getStoreThemeList"
 							:key="index"
-							style="margin: 0"
 							:class="`${index} ${
 								index == currentStoreTheme.theme ? 'active' : ''
 							}`"
