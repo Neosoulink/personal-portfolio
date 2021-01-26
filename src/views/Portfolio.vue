@@ -3,7 +3,7 @@
 	<section data-id="portfolio" class="animated-section">
 		<div class="section-content">
 
-			Portfolio
+			Portfolio 4
 		</div>
 		<!-- /.section-content -->
 	</section>
