@@ -267,8 +267,6 @@
 				</div>
 				<!-- End Arrows Nav -->
 
-
-
 				<div class="content-area" @click="hideMenu()">
 					<div class="animated-sections">
 						<transition :name="routeDirection">
@@ -279,6 +277,8 @@
 				</div>
 				<!-- /.content-area -->
 			</div>
+			<!-- /.page-content -->
+
 		</div>
 	</div>
 </template>
