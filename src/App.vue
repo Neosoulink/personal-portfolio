@@ -298,7 +298,7 @@ export default {
 		return {
 			imgAnimatedBgTransform: "",
 			showMenu: false,
-			routes: ["Home", "About", "Resume", "Contact", "Lost"],
+			routes: ["Home", "About", "Resume", "Portfolio", "Contact", "404"],
 			indexRoute: 1,
 			routeDirection: "slide",
 			currentYear : new Date().getFullYear()
