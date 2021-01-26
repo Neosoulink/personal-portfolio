@@ -10,7 +10,7 @@
 							ref="typewrite"
 							class="sp-subtitle typewrite"
 							data-period="2000"
-							data-type='[ "Hi, Im Nath.", "I am a simple fullstack developer.", "I Love to Develop.", "In frontend", "And in backend", "Mobile apps", "Or desktop apps" ]'
+							data-type='[ "Hi, Im Nath.", "I am a simple fullstack developer.", "I Love to Develop." ]'
 						>
 							<span class="wrap"></span>
 						</div>
