@@ -122,7 +122,7 @@
 						</div>
 						<div class="header-titles">
 							<h2>Nathan Mandemvo</h2>
-							<h4>Full-Stack Dev</h4>
+							<h4>Development lover</h4>
 						</div>
 					</div>
 
@@ -135,7 +135,7 @@
 						</li>
 						<li>
 							<router-link exact to="/about" class="nav-anim">
-								<font-awesome-icon icon="user" class="menu-icon" />
+								<font-awesome-icon icon="user-astronaut" class="menu-icon" />
 								<span class="link-text">About Me</span>
 							</router-link>
 						</li>
@@ -143,6 +143,12 @@
 							<router-link exact to="/resume" class="nav-anim">
 								<font-awesome-icon icon="graduation-cap" class="menu-icon" />
 								<span class="link-text">Resume</span>
+							</router-link>
+						</li>
+						<li>
+							<router-link exact to="/portfolio" class="nav-anim">
+								<font-awesome-icon icon="laptop-code" class="menu-icon" />
+								<span class="link-text">Portfolio</span>
 							</router-link>
 						</li>
 						<li>
@@ -241,7 +247,7 @@
 						</button>
 					</div>
 
-					<div class="copyrights">© 2020 All rights reserved.</div>
+					<div class="copyrights">© {{currentYear}} All rights reserved.</div>
 				</header>
 
 				<!-- Mobile Navigation -->
@@ -295,6 +301,7 @@ export default {
 			routes: ["Home", "About", "Resume", "Contact", "Lost"],
 			indexRoute: 1,
 			routeDirection: "slide",
+			currentYear : new Date().getFullYear()
 		};
 	},
 	computed: {
