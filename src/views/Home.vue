@@ -6,11 +6,14 @@
 				<h2>Nathan Mandemvo</h2>
 				<div class="owl-carousel text-rotation">
 					<div class="item">
-						<div class="sp-subtitle">Fullstack Developer</div>
-					</div>
-
-					<div class="item">
-						<div class="sp-subtitle">Frontend & Backend developer</div>
+						<div
+							ref="typewrite"
+							class="sp-subtitle typewrite"
+							data-period="2000"
+							data-type='[ "Hi, Im Nath.", "I am a simple fullstack developer.", "I Love to Develop.", "In frontend", "And in backend", "Mobile apps", "Or desktop apps" ]'
+						>
+							<span class="wrap"></span>
+						</div>
 					</div>
 				</div>
 				<!-- /.owl-carouse -->
@@ -23,9 +26,12 @@
 </template>
 
 <script>
-// @ is an alias to /src
+import typeWriter from "../assets/js/typeWriterEffect.js";
 
 export default {
-	name: "Home"
+	name: "Home",
+	mounted() {
+		typeWriter(this.$refs.typewrite);
+	},
 };
 </script>
