@@ -22,6 +22,7 @@
     "firebase": "^8.2.1",
     "install": "^0.13.0",
     "particles.js": "^2.0.0",
+    "virtual-scroll": "^2.1.0",
     "vue": "^2.6.12",
     "vue-router": "^3.2.0",
     "vue2-animate": "^2.1.4",
