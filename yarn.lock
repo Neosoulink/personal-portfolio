@@ -7957,6 +7957,11 @@ timsort@^0.3.0:
   resolved "https://registry.yarnpkg.com/timsort/-/timsort-0.3.0.tgz#405411a8e7e6339fe64db9a234de11dc31e02bd4"
   integrity sha1-QFQRqOfmM5/mTbmiNN4R3DHgK9Q=
 
+tiny-emitter@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/tiny-emitter/-/tiny-emitter-2.1.0.tgz#1d1a56edfc51c43e863cbb5382a72330e3555423"
+  integrity sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==
+
 to-arraybuffer@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/to-arraybuffer/-/to-arraybuffer-1.0.1.tgz#7d229b1fcc637e466ca081180836a7aabff83f43"
@@ -8290,6 +8295,13 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
+
+virtual-scroll@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/virtual-scroll/-/virtual-scroll-2.1.0.tgz#d2a524e778ece7ea9f9644bb62ec1f754af5e94a"
+  integrity sha512-YMUCQerRpa9+xnVsTuuRA/n9DXu9AH3oP1cpUItJMWf8x8dRZ2iSiIA/NPHyK/oQeuNj7bEnHwZn4lth19re9g==
+  dependencies:
+    tiny-emitter "^2.1.0"
 
 vm-browserify@^1.0.1:
   version "1.1.2"
