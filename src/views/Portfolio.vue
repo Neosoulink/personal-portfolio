@@ -34,6 +34,30 @@
 					</div>
 				</section>
 
+				<section class="parallax-child-container">
+					<div class="parallax-child">
+						<p>GET IN TOUCH</p>
+					</div>
+				</section>
+
+				<section class="parallax-child-container">
+					<div class="parallax-child">
+						<p>GET IN TOUCH</p>
+					</div>
+				</section>
+
+				<section class="parallax-child-container">
+					<div class="parallax-child">
+						<p>GET IN TOUCH</p>
+					</div>
+				</section>
+
+				<section class="parallax-child-container">
+					<div class="parallax-child">
+						<p>GET IN TOUCH</p>
+					</div>
+				</section>
+
 				<div class="parallax-background">
 					<h1>I LOVE TO PROGRAMMING</h1>
 				</div>

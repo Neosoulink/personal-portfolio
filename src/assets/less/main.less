@@ -2040,34 +2040,31 @@ input[type="text"],
 				overflow: hidden;
 				z-index: 1;
 				transform: rotate(90deg);
+
+				&>.parallax-child {
+					text-align: center;
+					h1 {
+						font-size: 5rem;
+						font-family: sans-serif;
+						font-weight: 700;
+						color: whitesmoke;
+						-webkit-transition: color 1s ease-in-out,
+							-webkit-transform 3s ease-in-out;
+						transition: color 1s ease-in-out, -webkit-transform 3s ease-in-out;
+						transition: transform 3s ease-in-out, color 1s ease-in-out;
+						transition: transform 3s ease-in-out, color 1s ease-in-out,
+							-webkit-transform 3s ease-in-out;
+						cursor: pointer;
+					}
+					&:hover {
+						-webkit-transform: scale(1.2);
+						transform: scale(1.2);
+						color: black;
+					}
+				}
 			}
 
-
-			.parallax-child {
-				text-align: center;
-			}
-
-			.parallax-child h1 {
-				font-size: 5rem;
-				font-family: sans-serif;
-				font-weight: 700;
-				color: whitesmoke;
-				-webkit-transition: color 1s ease-in-out,
-					-webkit-transform 3s ease-in-out;
-				transition: color 1s ease-in-out, -webkit-transform 3s ease-in-out;
-				transition: transform 3s ease-in-out, color 1s ease-in-out;
-				transition: transform 3s ease-in-out, color 1s ease-in-out,
-					-webkit-transform 3s ease-in-out;
-				cursor: pointer;
-			}
-
-			.parallax-child h1:hover {
-				-webkit-transform: scale(1.2);
-				transform: scale(1.2);
-				color: black;
-			}
-
-			.parallax-background {
+			&>.parallax-background {
 				position: absolute;
 				top: 50%;
 				left: 50%;
@@ -2078,17 +2075,17 @@ input[type="text"],
 				transform: translateX(-50%) translateY(180%) translateZ(-8px) scale(2.5)
 					rotate(90deg);
 				z-index: 0;
+				h1 {
+					height: 100vh;
+					line-height: 100vh;
+					font-family: sans-serif;
+					font-size: 10rem;
+					text-align: center;
+					-webkit-text-stroke: 2px #ccc;
+					-webkit-text-fill-color: transparent;
+				}
 			}
 
-			.parallax-background h1 {
-				height: 100vh;
-				line-height: 100vh;
-				font-family: sans-serif;
-				font-size: 10rem;
-				text-align: center;
-				-webkit-text-stroke: 2px #ccc;
-				-webkit-text-fill-color: transparent;
-			}
 		}
 	}
 }
