@@ -2004,125 +2004,91 @@ input[type="text"],
 }
 
 .portfolio {
-	position: relative;
-	overflow: hidden;
+	padding: 0;
+
 	& > .section-content {
+		overflow: hidden;
+		width: 100%;
+		height: 100%;
+		position: relative;
+
 		& > .parallax-parent {
-			position: relative;
-			top: 100vh;
+			position: absolute;
+			top: 100%;
+			bottom: 100%;
 			left: 0;
-			width: 100%;
-			height: 100vw;
-			-webkit-transform-origin: top left;
+			right: 0;
+			width: 80vh;
+			height: 60vw;
 			transform-origin: top left;
-			-webkit-transform: rotate(-90deg);
 			transform: rotate(-90deg);
 			overflow-x: hidden;
 			overflow-y: scroll;
-			-webkit-perspective-origin: 50% 50% 0;
-			perspective-origin: 50% 50% 0;
 			-webkit-perspective: 3px;
 			perspective: 3px;
-		}
-		&::-webkit-scrollbar {
-			display: none;
-		}
-		.background-colors {
-			position: relative;
-			width: 100vh;
-			height: 300vw;
-			//background: #fffc00;
-			//background: -webkit-gradient(
-			//	linear,
-			//	left bottom,
-			//	left top,
-			//	from(#fffc00),
-			//	color-stop(25%, #fffc00),
-			//	color-stop(50%, #229512),
-			//	to(red)
-			//);
-			//background: linear-gradient(
-			//	0deg,
-			//	#fffc00 0%,
-			//	#fffc00 25%,
-			//	#229512 50%,
-			//	red 100%
-			//);
-		}
+			&::-webkit-scrollbar {
+				display: none;
+			}
 
-		.parallax-child-container {
-			position: absolute;
-			width: 100vh;
-			height: 100vw;
-			text-align: center;
-			overflow: hidden;
-			z-index: 1;
-		}
+			.parallax-child-container {
+				position: relative;
+				//width: 100%;
+				height: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				overflow: hidden;
+				z-index: 1;
+				transform: rotate(90deg);
+			}
 
-		.parallax-child-container:nth-of-type(1) {
-			top: 0vw;
-		}
 
-		.parallax-child-container:nth-of-type(2) {
-			top: 100vw;
-		}
+			.parallax-child {
+				text-align: center;
+			}
 
-		.parallax-child-container:nth-of-type(3) {
-			top: 200vw;
-		}
+			.parallax-child h1 {
+				font-size: 5rem;
+				font-family: sans-serif;
+				font-weight: 700;
+				color: whitesmoke;
+				-webkit-transition: color 1s ease-in-out,
+					-webkit-transform 3s ease-in-out;
+				transition: color 1s ease-in-out, -webkit-transform 3s ease-in-out;
+				transition: transform 3s ease-in-out, color 1s ease-in-out;
+				transition: transform 3s ease-in-out, color 1s ease-in-out,
+					-webkit-transform 3s ease-in-out;
+				cursor: pointer;
+			}
 
-		.parallax-child {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			width: 100vw;
-			padding: 0 30vw;
-			-webkit-transform-origin: 50% 50% 0;
-			transform-origin: 50% 50% 0;
-			-webkit-transform: translateX(-50%) translateY(-50%) rotate(90deg);
-			transform: translateX(-50%) translateY(-50%) rotate(90deg);
-		}
+			.parallax-child h1:hover {
+				-webkit-transform: scale(1.2);
+				transform: scale(1.2);
+				color: black;
+			}
 
-		.parallax-child h1 {
-			font-size: 5rem;
-			font-family: sans-serif;
-			font-weight: 700;
-			color: whitesmoke;
-			-webkit-transition: color 1s ease-in-out, -webkit-transform 3s ease-in-out;
-			transition: color 1s ease-in-out, -webkit-transform 3s ease-in-out;
-			transition: transform 3s ease-in-out, color 1s ease-in-out;
-			transition: transform 3s ease-in-out, color 1s ease-in-out,
-				-webkit-transform 3s ease-in-out;
-			cursor: pointer;
-		}
+			.parallax-background {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 300vw;
+				height: 100vh;
+				-webkit-transform: translateX(-50%) translateY(180%) translateZ(-8px)
+					scale(2.5) rotate(90deg);
+				transform: translateX(-50%) translateY(180%) translateZ(-8px) scale(2.5)
+					rotate(90deg);
+				z-index: 0;
+			}
 
-		.parallax-child h1:hover {
-			-webkit-transform: scale(1.2);
-			transform: scale(1.2);
-			color: black;
-		}
-
-		.parallax-background {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			width: 300vw;
-			height: 100vh;
-			-webkit-transform: translateX(-50%) translateY(180%) translateZ(-8px)
-				scale(2.5) rotate(90deg);
-			transform: translateX(-50%) translateY(180%) translateZ(-8px) scale(2.5)
-				rotate(90deg);
-			z-index: 0;
-		}
-
-		.parallax-background h1 {
-			height: 100vh;
-			line-height: 100vh;
-			font-family: sans-serif;
-			font-size: 10rem;
-			text-align: center;
-			-webkit-text-stroke: 2px #ccc;
-			-webkit-text-fill-color: transparent;
+			.parallax-background h1 {
+				height: 100vh;
+				line-height: 100vh;
+				font-family: sans-serif;
+				font-size: 10rem;
+				text-align: center;
+				-webkit-text-stroke: 2px #ccc;
+				-webkit-text-fill-color: transparent;
+			}
 		}
 	}
 }

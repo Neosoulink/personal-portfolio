@@ -247,7 +247,7 @@
 						</button>
 					</div>
 
-					<div class="copyrights">© {{ currentYear }} All rights reserved.</div>
+					<div class="copyrights">© {{currentYear}} All rights reserved.</div>
 				</header>
 
 				<!-- Mobile Navigation -->
@@ -284,6 +284,7 @@
 				<!-- /.content-area -->
 			</div>
 			<!-- /.page-content -->
+
 		</div>
 	</div>
 </template>
@@ -300,7 +301,7 @@ export default {
 			routes: ["Home", "About", "Resume", "Portfolio", "Contact", "404"],
 			indexRoute: 1,
 			routeDirection: "slide",
-			currentYear: new Date().getFullYear(),
+			currentYear : new Date().getFullYear()
 		};
 	},
 	computed: {
@@ -366,6 +367,7 @@ export default {
 		//  const mouseY = e.clientY / (window.innerHeight / 5);
 		//  this.imgAnimatedBgTransform = `translate3d(-${mouseX}%, -${mouseY}%, 0)`;
 		//});
+
 		//const buttons = window.document.querySelectorAll(
 		//	".themes-buttons > button"
 		//);
