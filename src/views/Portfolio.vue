@@ -1,16 +1,15 @@
 <template>
 	<!-- 404 Subpage -->
 	<section id="portfolio" class="portfolio animated-section">
-		<!--<div class="page-title">
+		<div class="page-title" >
 			<h2>Portfolio</h2>
-		</div>-->
+		</div>
 
 			<div class="parallax-parent">
 				<div class="parallax-background">
 					<h1>I LOVE TO PROGRAMMING</h1>
 				</div>
 				<section class="parallax-child-container">
-					<div class="parallax-child">
 						<div id="make-3D-space">
 							<div id="product-card" ref="productCard">
 								<div id="product-front">
@@ -40,19 +39,70 @@
 								</div>
 							</div>
 						</div>
-					</div>
 				</section>
 
 				<section class="parallax-child-container">
-					<div class="parallax-child">
-						<p>GET IN TOUCH</p>
-					</div>
+					<div id="make-3D-space">
+							<div id="product-card" ref="productCard">
+								<div id="product-front">
+									<div class="shadow"></div>
+									<img
+										src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+										alt=""
+									/>
+									<div class="image_overlay"></div>
+									<div id="view_details" ref="viewDetails">View details</div>
+									<div class="stats">
+										<div class="stats-container">
+											<!--<span class="product_price"></span>-->
+											<span class="product_name">Some description</span>
+
+										</div>
+									</div>
+								</div>
+								<div id="product-back">
+									<div class="shadow"></div>
+									<div id="carousel">
+									</div>
+									<div id="flip-back">
+										<div id="cy"></div>
+										<div id="cx"></div>
+									</div>
+								</div>
+							</div>
+						</div>
 				</section>
 
 				<section class="parallax-child-container">
-					<div class="parallax-child">
-						<p>GET IN TOUCH</p>
-					</div>
+					<div id="make-3D-space">
+							<div id="product-card" ref="productCard">
+								<div id="product-front">
+									<div class="shadow"></div>
+									<img
+										src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+										alt=""
+									/>
+									<div class="image_overlay"></div>
+									<div id="view_details" ref="viewDetails">View details</div>
+									<div class="stats">
+										<div class="stats-container">
+											<!--<span class="product_price"></span>-->
+											<span class="product_name">Some description</span>
+
+										</div>
+									</div>
+								</div>
+								<div id="product-back">
+									<div class="shadow"></div>
+									<div id="carousel">
+									</div>
+									<div id="flip-back">
+										<div id="cy"></div>
+										<div id="cx"></div>
+									</div>
+								</div>
+							</div>
+						</div>
 				</section>
 
 				<section class="parallax-child-container">

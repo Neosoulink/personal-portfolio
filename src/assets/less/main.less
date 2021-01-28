@@ -2004,9 +2004,7 @@ input[type="text"],
 }
 
 .portfolio {
-	padding: 0;
-
-	& > .parallax-parent {
+	 &>.parallax-parent {
 		position: absolute;
 		top: 100%;
 		bottom: 100%;
@@ -2026,33 +2024,29 @@ input[type="text"],
 
 		.parallax-child-container {
 			position: relative;
-			width: 100%;
-			height: 100%;
+			width: 584px;
+			height: 750px;
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			text-align: center;
 			overflow: hidden;
 			transform: rotateY(180deg) rotateX(180deg) rotateZ(-90deg);
 
 			z-index: 1;
-			& > .parallax-child {
-				/* --- Product Card ---- */
-				#make-3D-space {
+			& > #make-3D-space {
 					position: relative;
 					perspective: 800px;
-					width: 340px;
-					height: 500px;
+					width: 100%;
+					height: 250px;
 					transform-style: preserve-3d;
 					transition: transform 5s;
-					position: absolute;
-					top: 80px;
-					left: 50%;
 					margin-left: -167px;
 
 					#product-front,
 					#product-back {
-						width: 335px;
-						height: 500px;
+						width: 100%;
+						height: 100%;
 						background: #fff;
 						position: absolute;
 						left: -5px;
@@ -2068,16 +2062,16 @@ input[type="text"],
 					}
 					#product-card.animate #product-back,
 					#product-card.animate #product-front {
-						top: 0px;
-						left: 0px;
+						//top: 0px;
+						//left: 0px;
 						-webkit-transition: all 100ms ease-out;
 						-moz-transition: all 100ms ease-out;
 						-o-transition: all 100ms ease-out;
 						transition: all 100ms ease-out;
 					}
 					#product-card {
-						width: 325px;
-						height: 490px;
+						width:100%;
+						height: 100%;
 						position: absolute;
 						top: 10px;
 						left: 10px;
@@ -2117,10 +2111,8 @@ input[type="text"],
 						transition: 150ms ease-out;
 					}
 					#product-card.animate {
-						top: 5px;
-						left: 5px;
-						width: 335px;
-						height: 500px;
+						//top: 5px;
+						//left: 5px;
 						box-shadow: 0px 13px 21px -5px rgba(0, 0, 0, 0.3);
 						-webkit-transition: 100ms ease-out;
 						-moz-transition: 100ms ease-out;
@@ -2130,10 +2122,10 @@ input[type="text"],
 					.stats-container {
 						background: #fff;
 						position: absolute;
-						top: 386px;
-						left: 0;
+						top: 0;
+						right: 386px;
 						width: 265px;
-						height: 300px;
+						height: 105%;
 						padding: 27px 35px 35px;
 						-webkit-transition: all 200ms ease-out;
 						-moz-transition: all 200ms ease-out;
@@ -2141,33 +2133,18 @@ input[type="text"],
 						transition: all 200ms ease-out;
 					}
 					#product-card.animate .stats-container {
-						top: 272px;
+						right: 272px;
 						-webkit-transition: all 200ms ease-out;
 						-moz-transition: all 200ms ease-out;
 						-o-transition: all 200ms ease-out;
 						transition: all 200ms ease-out;
-					}
-					.stats-container .product_name {
-						font-size: 22px;
-						color: #393c45;
-					}
-					.stats-container p {
-						font-size: 16px;
-						color: #b1b1b3;
-						padding: 2px 0 20px 0;
-					}
-					.stats-container .product_price {
-						float: right;
-						color: #48cfad;
-						font-size: 22px;
-						font-weight: 600;
 					}
 					.image_overlay {
 						position: absolute;
 						top: 0;
 						left: 0;
 						width: 100%;
-						height: 100%;
+						height: 105%;
 						background: #48daa1;
 						opacity: 0;
 					}
@@ -2178,24 +2155,10 @@ input[type="text"],
 						-o-transition: all 200ms ease-out;
 						transition: all 200ms ease-out;
 					}
-					.product-options {
-						padding: 2px 0 0;
-					}
-					.product-options strong {
-						font-weight: 700;
-						color: #393c45;
-						font-size: 14px;
-					}
-					.product-options span {
-						color: #969699;
-						font-size: 14px;
-						display: block;
-						margin-bottom: 8px;
-					}
 					#view_details {
 						position: absolute;
-						top: 112px;
-						left: 50%;
+						top: 50%;
+						right: 50px;
 						margin-left: -85px;
 						border: 2px solid #fff;
 						color: #fff;
@@ -2379,6 +2342,9 @@ input[type="text"],
 						position: relative;
 					}
 				}
+			& > .parallax-child {
+				/* --- Product Card ---- */
+
 
 				&:hover {
 				}
