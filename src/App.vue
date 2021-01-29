@@ -163,7 +163,7 @@
 						<ul>
 							<li>
 								<a
-									href="https://www.linkedin.com/in/nathan-mandemvo-87b0b2196/"
+									href="#"
 									target="_blank"
 								>
 									<font-awesome-icon
@@ -173,7 +173,7 @@
 								</a>
 							</li>
 							<li>
-								<a href="https://twitter.com/nsl_nathan" target="_blank">
+								<a href="#" target="_blank">
 									<font-awesome-icon
 										:icon="['fab', 'twitter']"
 										class="menu-icon"
