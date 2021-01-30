@@ -298,7 +298,7 @@ export default {
 		return {
 			imgAnimatedBgTransform: "",
 			showMenu: false,
-			routes: ["Home", "About", "Resume", "MyWork", "Contact", "404"],
+			routes: ["Home", "About", "Resume", "MyWork", "Contact", "Lost"],
 			indexRoute: 1,
 			routeDirection: "slide",
 			currentYear : new Date().getFullYear()
@@ -382,12 +382,12 @@ export default {
 			this.routes.forEach((routeName) => {
 				i++;
 				if (to.name == "Lost") {
-					this.routeDirection = "slide";
+					this.routeDirection = "fadeUp";
 				} else if (routeName == to.name) {
 					if (i > this.indexRoute) {
-						this.routeDirection = "slideUp";
+						this.routeDirection = "fadeUp";
 					} else {
-						this.routeDirection = "slideDown";
+						this.routeDirection = "fadeDown";
 					}
 					this.indexRoute = i;
 				}
