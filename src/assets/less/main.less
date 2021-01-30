@@ -2003,211 +2003,148 @@ input[type="text"],
 	border: 0;
 }
 
-.portfolio {
-	& > .parallax-parent {
-		position: absolute;
-		top: 100%;
-		bottom: 100%;
-		left: 0;
-		right: 0;
-		width: 80vh;
-		height: 60vw;
-		transform-origin: top left;
-		transform: rotate(-90deg);
-		overflow-x: hidden;
-		overflow-y: scroll;
-		-webkit-perspective: 3px;
-		perspective: 3px;
-		&::-webkit-scrollbar {
-			display: none;
+#portfolio {
+	.portfolio-card-wrapper {
+		position: relative;
+		width: 100%;
+		height: 350px;
+		border-radius: 20px;
+		overflow: hidden;
+		-webkit-transition: all 0.3s ease-in-out;
+		-moz-transition: all 0.3s ease-in-out;
+		-o-transition: all 0.3s ease-in-out;
+		-ms-transition: all 0.3s ease-in-out;
+		transition: all 0.3s ease-in-out;
+
+		.bar-separator {
+			width: 20%;
+			height: 0;
+			border-top: 5px solid #777;
+			margin: 16px 0 22px 0;
+			padding: 0;
 		}
 
-		.parallax-child-container {
-			position: relative;
-			width: 584px;
-			height: 750px;
-			display: flex;
-			flex-direction :row;
-			justify-content: center;
-			align-items: center;
-			text-align: center;
-			transform: rotateY(180deg) rotateX(180deg) rotateZ(-90deg);
+		& > .portfolio-card {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			transform-style: preserve-3d;
+			-webkit-transition: 100ms ease-out;
+			-moz-transition: 100ms ease-out;
+			-o-transition: 100ms ease-out;
+			transition: 100ms ease-out;
 
-			z-index: 1;
-			& > #make-3D-space {
-				position: relative;
+			&.flip-10 {
+				-webkit-transform: rotateY(-10deg);
+				-moz-transform: rotateY(-10deg);
+				-o-transform: rotateY(-10deg);
+				transform: rotateY(-10deg);
+				transition: 50ms ease-out;
+			}
+
+			&.flip90 {
+				-webkit-transform: rotateY(90deg);
+				-moz-transform: rotateY(90deg);
+				-o-transform: rotateY(90deg);
+				transform: rotateY(90deg);
+				transition: 100ms ease-in;
+			}
+
+			&.flip190 {
+				-webkit-transform: rotateY(190deg);
+				-moz-transform: rotateY(190deg);
+				-o-transform: rotateY(190deg);
+				transform: rotateY(190deg);
+				transition: 100ms ease-out;
+			}
+
+			&.flip180 {
+				-webkit-transform: rotateY(180deg);
+				-moz-transform: rotateY(180deg);
+				-o-transform: rotateY(180deg);
+				transform: rotateY(180deg);
+				transition: 150ms ease-out;
+			}
+
+			&:hover {
+				box-shadow: 0px 13px 21px -5px rgba(0, 0, 0, 0.3);
+				-webkit-transition: 100ms ease-out;
+				-moz-transition: 100ms ease-out;
+				-o-transition: 100ms ease-out;
+				transition: 100ms ease-out;
+
+				.portfolio-card-back,
+				.portfolio-card-front {
+					-webkit-transition: all 100ms ease-out;
+					-moz-transition: all 100ms ease-out;
+					-o-transition: all 100ms ease-out;
+					transition: all 100ms ease-out;
+				}
+
+				.portfolio-card-front {
+					.image_overlay {
+						opacity: 0.7;
+						-webkit-transition: all 200ms ease-out;
+						-moz-transition: all 200ms ease-out;
+						-o-transition: all 200ms ease-out;
+						transition: all 200ms ease-out;
+					}
+
+					.view_details {
+						opacity: 1;
+						width: 152px;
+						font-size: 15px;
+						margin-left: -75px;
+						top: 75px;
+					}
+
+					.stats-container {
+						bottom: -5px;
+						& > .project-name {
+						}
+						& > .project-links {
+							display: block;
+						}
+					}
+				}
+			}
+
+			& > .portfolio-card-back,
+			& > .portfolio-card-front {
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				height: 100%;
 				width: 100%;
-				height: 250px;
-				border-radius: 20px;
-				overflow: hidden;
+				background: #fff;
+			}
 
-				#product-front,
-				#product-back {
-					border-radius: 30px;
-					width: 100%;
-					height: 100%;
-					background: #fff;
-					position: absolute;
-					left: -5px;
-					top: -5px;
-					-webkit-transition: all 100ms ease-out;
-					-moz-transition: all 100ms ease-out;
-					-o-transition: all 100ms ease-out;
-					transition: all 100ms ease-out;
-				}
-				#product-back {
-					display: none;
-					transform: rotateY(180deg);
-				}
-				#product-card.animate #product-back,
-				#product-card.animate #product-front {
-					-webkit-transition: all 100ms ease-out;
-					-moz-transition: all 100ms ease-out;
-					-o-transition: all 100ms ease-out;
-					transition: all 100ms ease-out;
-				}
-				#product-card {
-					width: 100%;
-					height: 100%;
-					position: absolute;
-					transform-style: preserve-3d;
-					-webkit-transition: 100ms ease-out;
-					-moz-transition: 100ms ease-out;
-					-o-transition: 100ms ease-out;
-					transition: 100ms ease-out;
-				}
-				div#product-card.flip-10 {
-					-webkit-transform: rotateY(-10deg);
-					-moz-transform: rotateY(-10deg);
-					-o-transform: rotateY(-10deg);
-					transform: rotateY(-10deg);
-					transition: 50ms ease-out;
-				}
-				div#product-card.flip90 {
-					-webkit-transform: rotateY(90deg);
-					-moz-transform: rotateY(90deg);
-					-o-transform: rotateY(90deg);
-					transform: rotateY(90deg);
-					transition: 100ms ease-in;
-				}
-				div#product-card.flip190 {
-					-webkit-transform: rotateY(190deg);
-					-moz-transform: rotateY(190deg);
-					-o-transform: rotateY(190deg);
-					transform: rotateY(190deg);
-					transition: 100ms ease-out;
-				}
-				div#product-card.flip180 {
-					-webkit-transform: rotateY(180deg);
-					-moz-transform: rotateY(180deg);
-					-o-transform: rotateY(180deg);
-					transform: rotateY(180deg);
-					transition: 150ms ease-out;
-				}
-				#product-card.animate {
-					//top: 5px;
-					//left: 5px;
-					box-shadow: 0px 13px 21px -5px rgba(0, 0, 0, 0.3);
-					-webkit-transition: 100ms ease-out;
-					-moz-transition: 100ms ease-out;
-					-o-transition: 100ms ease-out;
-					transition: 100ms ease-out;
-				}
-				.stats-container {
-					border-radius: 30px;
-					background: #fff;
-					position: absolute;
-					top: 0;
-					left: -180px;
-					width: 265px;
-					height: 105%;
-					padding: 27px 30px 35px 20px;
-					-webkit-transition: all 200ms ease-out;
-					-moz-transition: all 200ms ease-out;
-					-o-transition: all 200ms ease-out;
-					transition: all 200ms ease-out;
-					& > .project-name {
-						color: #444;
-						font-size: 1.4rem;
-						position : absolute;
-						right: 0;
-						text-align : left;
-						writing-mode: vertical-rl;
-						text-orientation: mixed;
-					}
-					& > .project-links {
-						display : none;
-						text-align: left;
-						&> ul {
-							list-style : none;
-							margin : 0;
-							padding : 0;
-						&	> li {
-							display: inline-block;
-							margin-right : 10px;
-						}
-							a {
-								color : #444;
-								font-size: 25px;
-								border-radius: 25px;
-								background-color: rgba(0, 0, 0, 0.1);
-								padding: 5px;
-								display: block;
-								line-height: 30px;
-								text-align: center;
-								opacity: 0.9;
-								&:hover,&:focus{
-									opacity: 1;
-									background-color: rgba(0, 0, 0, 0.2);
-								}
-							}
-						}
-					}
-
-				}
-				.bar-separator {
-					width : 20%;
-					height : 0;
-					border-top : 5px solid #777;
-					margin : 16px 0 32px 0;
-					padding : 0;
-				}
-				#product-card.animate .stats-container {
-					-webkit-transition: all 200ms ease-out;
-					left: 0px;
-					-moz-transition: all 200ms ease-out;
-					-o-transition: all 200ms ease-out;
-					transition: all 200ms ease-out;
-					& > .project-name {
-						position : initial;
-						writing-mode: initial;
-						text-orientation: initial;
-					}
-					& > .project-links {
-						display : block;
-					}
-				}
+			& > .portfolio-card-front {
+				background-image: url(https://images.unsplash.com/photo-1542831371-29b0f74f9713?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);
+				background-repeat : no-repeat;
+				background-size: cover;
+				background-position: center;
 				.image_overlay {
 					position: absolute;
 					top: 0;
 					left: 0;
-					width: 105%;
-					height: 105%;
+					width: 100%;
+					height: 100%;
 					background: @primary;
-					opacity: 0;
+					opacity: 0.2;
+					-webkit-transition: all 100ms ease-out;
+					-moz-transition: all 100ms ease-out;
+					-o-transition: all 100ms ease-out;
+					transition: all 100ms ease-out;
 				}
-				#product-card.animate .image_overlay {
-					opacity: 0.7;
-					-webkit-transition: all 200ms ease-out;
-					-moz-transition: all 200ms ease-out;
-					-o-transition: all 200ms ease-out;
-					transition: all 200ms ease-out;
-				}
-				#view_details {
+
+				.view_details {
 					position: absolute;
-					top: 50%;
-					right: 50px;
+					top: 72px;
+					left: 50%;
 					margin-left: -85px;
+					border-width: 2px;
+					color: #fff;
 					font-size: 19px;
 					text-align: center;
 					text-transform: uppercase;
@@ -2219,216 +2156,182 @@ input[type="text"],
 					-moz-transition: all 200ms ease-out;
 					-o-transition: all 200ms ease-out;
 					transition: all 200ms ease-out;
+					&:hover {
+						cursor: pointer;
+					}
 				}
-				#view_details:hover {
-					cursor: pointer;
-				}
-				#product-card.animate #view_details {
-					opacity: 1;
-					width: 152px;
-					font-size: 15px;
-					margin-left: -75px;
-					top: 115px;
+
+				.stats-container {
+					border-radius: 20px 20px 0 0;
+					background: #fff;
+					position: absolute;
+					bottom: -110px;
+					left: 0;
+					width: 100%;
+					height: 180px;
+					padding: 27px 35px 35px;
+					margin-right: -5px;
 					-webkit-transition: all 200ms ease-out;
 					-moz-transition: all 200ms ease-out;
 					-o-transition: all 200ms ease-out;
 					transition: all 200ms ease-out;
-				}
-
-				div.shadow {
-					width: 335px;
-					height: 520px;
-					opacity: 0;
-					position: absolute;
-					top: 0;
-					left: 0;
-					z-index: 3;
-					display: none;
-					background: -webkit-linear-gradient(
-						left,
-						rgba(0, 0, 0, 0.1),
-						rgba(0, 0, 0, 0.2)
-					);
-					background: -o-linear-gradient(
-						right,
-						rgba(0, 0, 0, 0.1),
-						rgba(0, 0, 0, 0.2)
-					);
-					background: -moz-linear-gradient(
-						right,
-						rgba(0, 0, 0, 0.1),
-						rgba(0, 0, 0, 0.2)
-					);
-					background: linear-gradient(
-						to right,
-						rgba(0, 0, 0, 0.1),
-						rgba(0, 0, 0, 0.2)
-					);
-				}
-				#product-back {
-					&>.description-wrapper{
-						padding : 27px 20px 35px 20px;
-						text-align : left;
-
-						&>.description-title{
-							color: #444;
-							font-size: 1.6rem;
-							text-align : left;
+					& > .project-name {
+						color: #444;
+						font-size: 1.4rem;
+						text-align: left;
+					}
+					& > .project-links {
+						display: none;
+						text-align: left;
+						& > ul {
+							list-style: none;
+							margin: 0;
+							padding: 0;
+							& > li {
+								display: inline-block;
+								margin-right: 10px;
+							}
+							a {
+								color: #444;
+								font-size: 22px;
+								border-radius: 22px;
+								background-color: rgba(0, 0, 0, 0.1);
+								padding: 5px;
+								display: block;
+								text-align: center;
+								opacity: 0.9;
+								&:hover,
+								&:focus {
+									opacity: 1;
+									background-color: rgba(0, 0, 0, 0.2);
+								}
+							}
 						}
 					}
 				}
-				#product-back div.shadow {
-					z-index: 10;
-					opacity: 1;
-					background: -webkit-linear-gradient(
-						left,
-						rgba(0, 0, 0, 0.2),
-						rgba(0, 0, 0, 0.1)
-					);
-					background: -o-linear-gradient(
-						right,
-						rgba(0, 0, 0, 0.2),
-						rgba(0, 0, 0, 0.1)
-					);
-					background: -moz-linear-gradient(
-						right,
-						rgba(0, 0, 0, 0.2),
-						rgba(0, 0, 0, 0.1)
-					);
-					background: linear-gradient(
-						to right,
-						rgba(0, 0, 0, 0.2),
-						rgba(0, 0, 0, 0.1)
-					);
+			}
+
+			& > .portfolio-card-back {
+				display: none;
+				transform: rotateY(180deg);
+
+				& > .description-wrapper {
+					padding: 47px 20px 35px 20px;
+					text-align: left;
+					color: #444;
+
+					& > .description-title {
+						color: #444;
+						font-size: 1.4rem;
+						text-align: left;
+					}
+					&>.description-content {
+						font-size: 0.9rem;
+						color: #444;
+					}
 				}
-				#flip-back {
+
+				&>.footer {
+					position : absolute;
+					bottom : 0;
+					padding : 20px 20px 10px 20px;
+					a {
+						color : #444;
+						font-size : 12px
+					}
+				}
+
+				& > .flip-back {
 					position: absolute;
 					top: 20px;
 					right: 20px;
 					width: 30px;
 					height: 30px;
 					cursor: pointer;
-				}
-				#cx,
-				#cy {
-					background: #d2d5dc;
-					position: absolute;
-					width: 0px;
-					top: 15px;
-					right: 15px;
-					height: 3px;
-					-webkit-transition: all 250ms ease-in-out;
-					-moz-transition: all 250ms ease-in-out;
-					-ms-transition: all 250ms ease-in-out;
-					-o-transition: all 250ms ease-in-out;
-					transition: all 250ms ease-in-out;
-				}
-				#flip-back:hover #cx,
-				#flip-back:hover #cy {
-					background: #979ca7;
-					-webkit-transition: all 250ms ease-in-out;
-					-moz-transition: all 250ms ease-in-out;
-					-ms-transition: all 250ms ease-in-out;
-					-o-transition: all 250ms ease-in-out;
-					transition: all 250ms ease-in-out;
-				}
-				#cx.s1,
-				#cy.s1 {
-					right: 0;
-					width: 30px;
-					-webkit-transition: all 100ms ease-out;
-					-moz-transition: all 100ms ease-out;
-					-ms-transition: all 100ms ease-out;
-					-o-transition: all 100ms ease-out;
-					transition: all 100ms ease-out;
-				}
-				#cy.s2 {
-					-ms-transform: rotate(50deg);
-					-webkit-transform: rotate(50deg);
-					transform: rotate(50deg);
-					-webkit-transition: all 100ms ease-out;
-					-moz-transition: all 100ms ease-out;
-					-ms-transition: all 100ms ease-out;
-					-o-transition: all 100ms ease-out;
-					transition: all 100ms ease-out;
-				}
-				#cy.s3 {
-					-ms-transform: rotate(45deg);
-					-webkit-transform: rotate(45deg);
-					transform: rotate(45deg);
-					-webkit-transition: all 100ms ease-out;
-					-moz-transition: all 100ms ease-out;
-					-ms-transition: all 100ms ease-out;
-					-o-transition: all 100ms ease-out;
-					transition: all 100ms ease-out;
-				}
-				#cx.s1 {
-					right: 0;
-					width: 30px;
-					-webkit-transition: all 100ms ease-out;
-					-moz-transition: all 100ms ease-out;
-					-ms-transition: all 100ms ease-out;
-					-o-transition: all 100ms ease-out;
-					transition: all 100ms ease-out;
-				}
-				#cx.s2 {
-					-ms-transform: rotate(140deg);
-					-webkit-transform: rotate(140deg);
-					transform: rotate(140deg);
-					-webkit-transition: all 100ms ease-out;
-					-moz-transition: all 100ms ease-out;
-					-ms-transition: all 100ease-out;
-					-o-transition: all 100ms ease-out;
-					transition: all 100ms ease-out;
-				}
-				#cx.s3 {
-					-ms-transform: rotate(135deg);
-					-webkit-transform: rotate(135deg);
-					transform: rotate(135deg);
-					-webkit-transition: all 100ease-out;
-					-moz-transition: all 100ms ease-out;
-					-ms-transition: all 100ms ease-out;
-					-o-transition: all 100ms ease-out;
-					transition: all 100ms ease-out;
-				}
-				#carousel {
-					width: 335px;
-					height: 500px;
-					overflow: hidden;
-					position: relative;
-				}
-			}
-			& > .parallax-child {
-				/* --- Product Card ---- */
 
-				&:hover {
+					& > .cx,
+					& > .cy {
+						background: #d2d5dc;
+						position: absolute;
+						width: 0px;
+						top: 15px;
+						right: 15px;
+						height: 3px;
+						-webkit-transition: all 250ms ease-in-out;
+						-moz-transition: all 250ms ease-in-out;
+						-ms-transition: all 250ms ease-in-out;
+						-o-transition: all 250ms ease-in-out;
+						transition: all 250ms ease-in-out;
+						&.s1 {
+							right: 0;
+							width: 30px;
+							-webkit-transition: all 100ms ease-out;
+							-moz-transition: all 100ms ease-out;
+							-ms-transition: all 100ms ease-out;
+							-o-transition: all 100ms ease-out;
+							transition: all 100ms ease-out;
+						}
+					}
+
+					&:hover .cx,
+					&:hover .cy {
+						background: #979ca7;
+						-webkit-transition: all 250ms ease-in-out;
+						-moz-transition: all 250ms ease-in-out;
+						-ms-transition: all 250ms ease-in-out;
+						-o-transition: all 250ms ease-in-out;
+						transition: all 250ms ease-in-out;
+					}
+
+					& > .cy {
+						&.s2 {
+							-ms-transform: rotate(50deg);
+							-webkit-transform: rotate(50deg);
+							transform: rotate(50deg);
+							-webkit-transition: all 100ms ease-out;
+							-moz-transition: all 100ms ease-out;
+							-ms-transition: all 100ms ease-out;
+							-o-transition: all 100ms ease-out;
+							transition: all 100ms ease-out;
+						}
+						&.s3 {
+							-ms-transform: rotate(45deg);
+							-webkit-transform: rotate(45deg);
+							transform: rotate(45deg);
+							-webkit-transition: all 100ms ease-out;
+							-moz-transition: all 100ms ease-out;
+							-ms-transition: all 100ms ease-out;
+							-o-transition: all 100ms ease-out;
+							transition: all 100ms ease-out;
+						}
+					}
+
+					& > .cx {
+						&.s2 {
+							-ms-transform: rotate(140deg);
+							-webkit-transform: rotate(140deg);
+							transform: rotate(140deg);
+							-webkit-transition: all 100ms ease-out;
+							-moz-transition: all 100ms ease-out;
+							-ms-transition: all 100ms ease-out;
+							-o-transition: all 100ms ease-out;
+							transition: all 100ms ease-out;
+						}
+
+						&.s3 {
+							-ms-transform: rotate(135deg);
+							-webkit-transform: rotate(135deg);
+							transform: rotate(135deg);
+							-webkit-transition: all 100ms ease-out;
+							-moz-transition: all 100ms ease-out;
+							-ms-transition: all 100ms ease-out;
+							-o-transition: all 100ms ease-out;
+							transition: all 100ms ease-out;
+						}
+					}
 				}
 			}
 		}
-
-		& > .parallax-background {
-			position: absolute;
-			z-index: 1;
-			top: 50%;
-			left: 50%;
-			width: 300vw;
-			height: 100vh;
-			transform: translateX(-50%) translateY(180%) translateZ(-8px) scale(2.5)
-				rotateY(180deg) rotateX(180deg) rotateZ(-90deg);
-			h1 {
-				height: 100vh;
-				line-height: 100vh;
-				font-family: sans-serif;
-				font-size: 10rem;
-				text-align: center;
-				-webkit-text-stroke: 2px #ccc;
-				-webkit-text-fill-color: transparent;
-			}
-		}
-	}
-
-	&::-webkit-scrollbar {
-		display: none;
 	}
 }
 
