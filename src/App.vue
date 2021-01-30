@@ -128,31 +128,31 @@
 
 					<ul class="main-menu">
 						<li>
-							<router-link exact to="/" class="nav-anim">
+							<router-link exact :to="{name: 'Home'}" class="nav-anim">
 								<font-awesome-icon icon="home" class="menu-icon" />
 								<span class="link-text">Home</span>
 							</router-link>
 						</li>
 						<li>
-							<router-link exact to="/about" class="nav-anim">
+							<router-link exact :to="{name: 'About'}" class="nav-anim">
 								<font-awesome-icon icon="user-astronaut" class="menu-icon" />
 								<span class="link-text">About Me</span>
 							</router-link>
 						</li>
 						<li>
-							<router-link exact to="/resume" class="nav-anim">
+							<router-link exact :to="{name: 'Resume'}" class="nav-anim">
 								<font-awesome-icon icon="graduation-cap" class="menu-icon" />
 								<span class="link-text">Resume</span>
 							</router-link>
 						</li>
 						<li>
-							<router-link exact to="/portfolio" class="nav-anim">
+							<router-link exact :to="{name: 'MyWork'}" class="nav-anim">
 								<font-awesome-icon icon="laptop-code" class="menu-icon" />
-								<span class="link-text">Portfolio</span>
+								<span class="link-text">My Work</span>
 							</router-link>
 						</li>
 						<li>
-							<router-link exact to="/contact" class="nav-anim">
+							<router-link exact :to="{name: 'Contact'}" class="nav-anim">
 								<font-awesome-icon icon="address-book" class="menu-icon" />
 								<span class="link-text">Contact</span>
 							</router-link>
@@ -298,7 +298,7 @@ export default {
 		return {
 			imgAnimatedBgTransform: "",
 			showMenu: false,
-			routes: ["Home", "About", "Resume", "Portfolio", "Contact", "404"],
+			routes: ["Home", "About", "Resume", "MyWork", "Contact", "404"],
 			indexRoute: 1,
 			routeDirection: "slide",
 			currentYear : new Date().getFullYear()
