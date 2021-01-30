@@ -376,7 +376,7 @@ input[type="submit"]:focus {
 	}
 }
 
-.lmpixels-arrows-nav {
+.arrows-nav {
 	position: absolute;
 	padding: 10px 0;
 	width: 60px;
@@ -391,7 +391,7 @@ input[type="submit"]:focus {
 	box-shadow: 0 0 30px -5px rgba(0, 0, 0, 0.15);
 }
 
-.lmpixels-arrows-nav div {
+.arrows-nav div {
 	display: block;
 	position: relative;
 	text-align: center;
@@ -405,11 +405,11 @@ input[type="submit"]:focus {
 	transition: all 0.3s ease-in-out;
 }
 
-.lmpixels-arrows-nav div:hover {
+.arrows-nav div:hover {
 	color: #04b4e0;
 }
 
-.lmpixels-circle-color {
+.theme-circle-color {
 	z-index: 200;
 	position: absolute;
 	padding: 10px 0;
@@ -443,7 +443,6 @@ input[type="submit"]:focus {
 			border-style: solid;
 			padding: 0;
 			margin: 0;
-			margin-right: 5px;
 			opacity: 0.6;
 			& > * {
 				height: 0;
@@ -2452,7 +2451,7 @@ blockquote {
 		max-width: calc(100% - 330px);
 	}
 
-	.lmpixels-circle-color {
+	.theme-circle-color {
 		position: initial;
 		padding: 0;
 		width: auto;
@@ -2465,6 +2464,12 @@ blockquote {
 			justify-content: center;
 			height: auto;
 			padding: 0;
+			>button {
+				margin-right: 10px;
+			}
+			&:last-child {
+				margin-right: 0;
+			}
 		}
 	}
 }
@@ -2682,7 +2687,7 @@ blockquote {
 		left: 15px;
 	}
 
-	.lmpixels-arrows-nav {
+	.arrows-nav {
 		background-color: rgba(0, 0, 0, 0.6);
 		width: 48px;
 		right: 10px;
@@ -2691,7 +2696,7 @@ blockquote {
 		border: 2px solid #04b4e0;
 	}
 
-	.lmpixels-arrows-nav div {
+	.arrows-nav div {
 		font-size: 24px;
 	}
 

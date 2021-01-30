@@ -220,7 +220,7 @@
 					</div>
 
 					<!-- Theme change -->
-					<div class="lmpixels-circle-color">
+					<div class="theme-circle-color">
 						<div class="themes-buttons" ref="themes-buttons">
 							<button
 								v-for="(item, index) in getStoreThemeList"
@@ -263,11 +263,11 @@
 				<!-- End Mobile Navigation -->
 
 				<!-- Arrows Nav -->
-				<div class="lmpixels-arrows-nav">
-					<div class="lmpixels-arrow-right" @click="nextRoute()">
+				<div class="arrows-nav">
+					<div class="arrow-right" @click="nextRoute()">
 						<font-awesome-icon icon="chevron-right" class="menu-icon" />
 					</div>
-					<div class="lmpixels-arrow-left" @click="previousRoute()">
+					<div class="arrow-left" @click="previousRoute()">
 						<font-awesome-icon icon="chevron-left" class="menu-icon" />
 					</div>
 				</div>
