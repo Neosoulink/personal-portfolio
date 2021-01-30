@@ -247,7 +247,7 @@
 						</button>
 					</div>
 
-					<div class="copyrights">© {{currentYear}} All rights reserved.</div>
+					<a href="https://lmpixels.com/demo/breezycv/dark/1/" target="_blank" class="copyrights">© {{currentYear}} INSPIRED BY breezycv.</a>
 				</header>
 
 				<!-- Mobile Navigation -->

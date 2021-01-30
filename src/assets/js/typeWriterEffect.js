@@ -44,7 +44,6 @@ function typeWriter(domElement = Object) {
 
 	const toRotate = domElement.getAttribute("data-type");
 	const period = domElement.getAttribute("data-period");
-	console.log(toRotate, period)
 	if (toRotate) {
 		new TxtType(domElement, JSON.parse(toRotate), period);
 	}
