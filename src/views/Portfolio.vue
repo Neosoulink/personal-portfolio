@@ -3,7 +3,10 @@
 	<section id="portfolio" class="portfolio animated-section" ref="portfolio">
 		<div class="section-content">
 			<div class="page-title">
-				<h2>Portfolio</h2>
+				<h2>
+					My
+					<span>work</span>
+				</h2>
 			</div>
 
 			<div class="row">
@@ -60,12 +63,23 @@
 								</div>
 
 								<div class="footer">
-									<a v-if="project.liveDemoLink" :href="project.liveDemoLink" class="mr-2" target="_blank" title="Live demo">
+									<a
+										v-if="project.liveDemoLink"
+										:href="project.liveDemoLink"
+										class="mr-2"
+										target="_blank"
+										title="Live demo"
+									>
 										<font-awesome-icon :icon="['fas', 'eye']" />
 										Live demo
 									</a>
 
-									<a v-if="project.repoLink" :href="project.repoLink" target="_blank" title="Live demo">
+									<a
+										v-if="project.repoLink"
+										:href="project.repoLink"
+										target="_blank"
+										title="Live demo"
+									>
 										<font-awesome-icon :icon="['fab', 'github']" />
 										Github repo
 									</a>
