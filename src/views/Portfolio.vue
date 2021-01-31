@@ -167,8 +167,31 @@ export default {
 				},
 				{
 					label: "VirtualClass",
-					description: "A multi-task application, which allows you to quickly and easily create your documents in a secure way",
+					description: `
+						A multi-task application, which allows you to quickly and easily create your documents in a secure way. <br />
+						🚧 Currently in development
+					`,
 					repoLink: "https://github.com/Neosoulink/VirtualClass",
+				},
+				{
+					label: "RDCCovid19",
+					description: `
+						A web application aimed at resolving problems related to Covid-19, by offering services such as reporting or requesting exit certificates...
+					`,
+					repoLink: "https://github.com/african-law-reports/accesscovid19_old",
+					liveDemoLink: "https://rdccovid19.com/",
+					linkToShare: "https://rdccovid19.com/",
+					hashtags: "Covid19,rdc,webApp,Developer",
+				},
+				{
+					label: "RNA",
+					description: `
+						An online lawyer register
+					`,
+					repoLink: "https://github.com/african-law-reports/accesscovid19_old",
+					liveDemoLink: "https://national-register-of-lawyers.000webhostapp.com/",
+					linkToShare: "https://national-register-of-lawyers.000webhostapp.com/",
+					hashtags: "rdc,registreAvocat,webApp",
 				},
 			],
 		};
