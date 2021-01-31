@@ -60,9 +60,8 @@
 
 									<div class="bar-separator"></div>
 									<p class="description-content">
-										<template v-if="project.description">
-											{{ project.description }}
-										</template>
+										<span v-if="project.description" v-html="project.description">
+										</span>
 										<template v-else> No description </template>
 									</p>
 								</div>
@@ -88,20 +87,34 @@
 										<font-awesome-icon :icon="['fab', 'github']" />
 										Github repo
 									</a>
-									<div class="d-flex align-items-center">
+									<div
+										class="d-flex align-items-center"
+										v-if="project.linkToShare"
+									>
 										<font-awesome-icon
 											:icon="['fas', 'share-alt']"
 											class="mr-2"
 										/>
 										<a
-											href="https://www.linkedin.com/shareArticle?mini=true&url=&title=Ilke%20this"
+											:href="`https://www.linkedin.com/shareArticle
+												?mini=true
+												&url=${project.linkToShare}
+												&title=Share my work on Linkedin
+												&summary=I share with you this project which interested me a lot!
+												&source=Nathan Mandemvo`"
+											target="_blank"
 											class="mr-2"
 										>
 											<font-awesome-icon :icon="['fab', 'linkedin']" />
 											Linkedin</a
 										>
 										<a
-											href="https://www.linkedin.com/shareArticle?mini=true&url=&title=Ilke%20this"
+											:href="`https://twitter.com/intent/tweet
+												?url=${project.linkToShare}
+												&title=Share my work on Twitter
+												&text=I share with you this project which interested me a lot!
+												&hashtags=nathanMandemvo,${project.hashtags}`"
+												target="_blank"
 											class="mr-2"
 										>
 											<font-awesome-icon :icon="['fab', 'twitter']" />
@@ -143,13 +156,18 @@ export default {
 			projectList: [
 				{
 					label: "nsl-me",
-					description: "My personal web site <3",
+					description: `
+						My personal web site <3, ispirated by
+						<a href='https://lmpixels.com/demo/breezycv/dark/1/' target='_blank'>breezycv</a>
+					`,
 					repoLink: "https://github.com/Neosoulink/nsl-me",
 					liveDemoLink: "https://nsl-me.web.app",
+					linkToShare: "https://nsl-me.web.app",
+					hashtags: "VueJS,vanillaJavascript,less,Vuex,Developer,fullstack",
 				},
 				{
-					label: "Virtual Class",
-					description: "An multi tache application for quick creation app",
+					label: "VirtualClass",
+					description: "A multi-task application, which allows you to quickly and easily create your documents in a secure way",
 					repoLink: "https://github.com/Neosoulink/VirtualClass",
 				},
 			],
