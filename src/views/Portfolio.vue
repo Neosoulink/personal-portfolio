@@ -172,6 +172,7 @@ export default {
 						🚧 Currently in development
 					`,
 					repoLink: "https://github.com/Neosoulink/VirtualClass",
+					image: "@"
 				},
 				{
 					label: "RDCCovid19",
@@ -192,6 +193,16 @@ export default {
 					liveDemoLink: "https://national-register-of-lawyers.000webhostapp.com/",
 					linkToShare: "https://national-register-of-lawyers.000webhostapp.com/",
 					hashtags: "rdc,registreAvocat,webApp",
+				},
+				{
+					label: "Juridocs",
+					description: `
+						Partisipation and integration of some modules.
+					`,
+					repoLink: "https://github.com/african-law-reports/juridocs",
+					liveDemoLink: "https://www.juridocs.org/",
+					linkToShare: "https://www.juridocs.org/",
+					hashtags: "rdc,juridocs,webApp,africanlawreport,Law",
 				},
 			],
 		};

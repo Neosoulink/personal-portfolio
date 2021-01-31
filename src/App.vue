@@ -5,7 +5,7 @@
 			class="img-animated-bg"
 			:style="{ transform: imgAnimatedBgTransformStyle }"
 		>
-			<!--<vue-particles
+			<vue-particles
         color="#e0fffe"
         :particleOpacity="1"
         :particlesNumber="100"
@@ -16,7 +16,7 @@
         :lineOpacity="0.6"
         :hoverEffect="false"
         :clickEffect="false"
-      ></vue-particles>-->
+      ></vue-particles>
 		</div>
 
 		<!-- Loading animation -->
@@ -362,18 +362,18 @@ export default {
 		},
 	},
 	mounted() {
-		//window.addEventListener("mousemove", (e) => {
-		//  const mouseX = e.clientX / (window.innerWidth / 5);
-		//  const mouseY = e.clientY / (window.innerHeight / 5);
-		//  this.imgAnimatedBgTransform = `translate3d(-${mouseX}%, -${mouseY}%, 0)`;
-		//});
+		window.addEventListener("mousemove", (e) => {
+		  const mouseX = e.clientX / (window.innerWidth / 5);
+		  const mouseY = e.clientY / (window.innerHeight / 5);
+		  this.imgAnimatedBgTransform = `translate3d(-${mouseX}%, -${mouseY}%, 0)`;
+		});
 
-		//const buttons = window.document.querySelectorAll(
-		//	".themes-buttons > button"
-		//);
-		//for (const button of buttons) {
-		//	button.addEventListener("click", createRipple);
-		//}
+		const buttons = window.document.querySelectorAll(
+			".themes-buttons > button"
+		);
+		for (const button of buttons) {
+			button.addEventListener("click", createRipple);
+		}
 	},
 	watch: {
 		$route(to, from) {
