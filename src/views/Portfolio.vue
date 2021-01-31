@@ -2,12 +2,14 @@
 	<!-- 404 Subpage -->
 	<section id="portfolio" class="portfolio animated-section" ref="portfolio">
 		<div class="section-content">
-			<div class="page-title">
+			<div class="page-title mb-0 pb-0">
 				<h2>
 					My
 					<span>work</span>
 				</h2>
 			</div>
+
+			<DeveloperActivity class="mt-2 mb-5" />
 
 			<div class="row">
 				<div
@@ -58,7 +60,10 @@
 
 									<div class="bar-separator"></div>
 									<p class="description-content">
-										{{ project.description }}
+										<template v-if="project.description">
+											{{ project.description }}
+										</template>
+										<template v-else> No description </template>
 									</p>
 								</div>
 
@@ -83,6 +88,26 @@
 										<font-awesome-icon :icon="['fab', 'github']" />
 										Github repo
 									</a>
+									<div class="d-flex align-items-center">
+										<font-awesome-icon
+											:icon="['fas', 'share-alt']"
+											class="mr-2"
+										/>
+										<a
+											href="https://www.linkedin.com/shareArticle?mini=true&url=&title=Ilke%20this"
+											class="mr-2"
+										>
+											<font-awesome-icon :icon="['fab', 'linkedin']" />
+											Linkedin</a
+										>
+										<a
+											href="https://www.linkedin.com/shareArticle?mini=true&url=&title=Ilke%20this"
+											class="mr-2"
+										>
+											<font-awesome-icon :icon="['fab', 'twitter']" />
+											Twitter</a
+										>
+									</div>
 								</div>
 
 								<div class="flip-back">
@@ -96,7 +121,9 @@
 					</div>
 					<!-- /.portfolio-card-wrapper -->
 				</div>
+				<!-- /.col-sm-6 -->
 			</div>
+			<!-- /.row -->
 		</div>
 		<!-- /.section-content -->
 	</section>
@@ -105,10 +132,21 @@
 
 <script>
 import animatePortfolioCard from "../assets/js/animatePortfolioCard";
+import DeveloperActivity from "../components/DeveloppeurActivity";
+
 export default {
+	components: {
+		DeveloperActivity,
+	},
 	data() {
 		return {
 			projectList: [
+				{
+					label: "nsl-me",
+					description: "My personal web site <3",
+					repoLink: "https://github.com/Neosoulink/nsl-me",
+					liveDemoLink: "https://nsl-me.web.app",
+				},
 				{
 					label: "Virtual Class",
 					description: "An multi tache application for quick creation app",

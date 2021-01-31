@@ -1,0 +1,29 @@
+#undraw_developer_activity {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	& > svg {
+		width: 450px;
+		height: auto;
+		text-align: center;
+		& > g {
+			width: 100%;
+			& > g {
+				width: 100%;
+				#activity {
+					background-color: red;
+				}
+			}
+		}
+	}
+}
+
+@media only screen and (max-width: 480px) {
+	#undraw_developer_activity {
+		& > svg {
+			width: 100%;
+		}
+	}
+}
+
