@@ -20,12 +20,10 @@
 					<div class="portfolio-card-wrapper">
 						<div class="portfolio-card">
 							<div
-								class="portfolio-card-front"
-								:style="
-									project.image ? {backgroundImage:require(project.image)} : null
-								"
-							>
+								class="portfolio-card-front">
+
 								<div class="image_overlay"></div>
+
 								<div class="view_details btn-primary-custom">View details</div>
 								<div class="stats-container">
 									<h3 class="project-name">{{ project.label }}</h3>
@@ -180,6 +178,7 @@ export default {
 						🚧 Currently in development
 					`,
 					repoLink: "https://github.com/Neosoulink/VirtualClass",
+					image: "@/assets/img/projects/virtualclass.png",
 				},
 				{
 					label: "RDCCovid19",
