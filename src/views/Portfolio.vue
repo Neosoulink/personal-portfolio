@@ -19,7 +19,12 @@
 				>
 					<div class="portfolio-card-wrapper">
 						<div class="portfolio-card">
-							<div class="portfolio-card-front">
+							<div
+								class="portfolio-card-front"
+								:style="
+									project.image ? {backgroundImage:require(project.image)} : null
+								"
+							>
 								<div class="image_overlay"></div>
 								<div class="view_details btn-primary-custom">View details</div>
 								<div class="stats-container">
@@ -60,7 +65,10 @@
 
 									<div class="bar-separator"></div>
 									<p class="description-content">
-										<span v-if="project.description" v-html="project.description">
+										<span
+											v-if="project.description"
+											v-html="project.description"
+										>
 										</span>
 										<template v-else> No description </template>
 									</p>
@@ -114,7 +122,7 @@
 												&title=Share my work on Twitter
 												&text=I share with you this project which interested me a lot!
 												&hashtags=nathanMandemvo,${project.hashtags}`"
-												target="_blank"
+											target="_blank"
 											class="mr-2"
 										>
 											<font-awesome-icon :icon="['fab', 'twitter']" />
@@ -172,7 +180,6 @@ export default {
 						🚧 Currently in development
 					`,
 					repoLink: "https://github.com/Neosoulink/VirtualClass",
-					image: "@"
 				},
 				{
 					label: "RDCCovid19",
@@ -190,8 +197,10 @@ export default {
 						An online lawyer register
 					`,
 					repoLink: "https://github.com/african-law-reports/accesscovid19_old",
-					liveDemoLink: "https://national-register-of-lawyers.000webhostapp.com/",
-					linkToShare: "https://national-register-of-lawyers.000webhostapp.com/",
+					liveDemoLink:
+						"https://national-register-of-lawyers.000webhostapp.com/",
+					linkToShare:
+						"https://national-register-of-lawyers.000webhostapp.com/",
 					hashtags: "rdc,registreAvocat,webApp",
 				},
 				{
