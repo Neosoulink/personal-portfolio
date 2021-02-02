@@ -5,13 +5,15 @@
 			class="img-animated-bg"
 			:style="{ transform: imgAnimatedBgTransformStyle }"
 		>
+			<div class="bgImg"></div>
+
 			<vue-particles
-        color="#e0fffe"
+        color="#f5f5f5"
         :particleOpacity="1"
         :particlesNumber="100"
         shapeType="edge"
         :particleSize="8"
-        linesColor="#e0fffe"
+        linesColor="#f5f5f5"
         :lineLinked="true"
         :lineOpacity="0.6"
         :hoverEffect="false"

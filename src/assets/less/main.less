@@ -122,15 +122,24 @@ p {
 }
 
 #app > .img-animated-bg {
+	position: absolute;
+	top: 0;
+	left : 0;
 	width: 110%;
 	height: 110%;
-	position: absolute;
-	background-image: url("https://lmpixels.com/demo/breezycv/dark/1/img/main_bg.png");
 	background-color: #04b4e0;
-	background-position: top center;
-	background-size: cover;
-	background-repeat: no-repeat;
+	background:  linear-gradient(#018fb2, #04b4e0);
 	z-index: -1;
+	&>div.bgImg{
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		background-image: url("https://lmpixels.com/demo/breezycv/dark/1/img/main_bg.png");
+		background-position: top center;
+		background-size: cover;
+		background-repeat: no-repeat;
+		z-index: -1;
+	}
 }
 
 .page {
