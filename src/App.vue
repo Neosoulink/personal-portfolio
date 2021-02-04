@@ -5,6 +5,7 @@
 			class="img-animated-bg"
 			:style="{ transform: imgAnimatedBgTransformStyle }"
 		>
+			<div class="bgTransition"></div>
 			<div class="bgImg"></div>
 
 			<vue-particles

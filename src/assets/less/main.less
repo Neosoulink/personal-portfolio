@@ -128,17 +128,25 @@ p {
 	width: 110%;
 	height: 110%;
 	background-color: #04b4e0;
-	background:  linear-gradient(#007a96, #04b4e0);
 	z-index: -1;
-	&>div.bgImg{
+
+	&>div.bgImg,
+	&>div.bgTransition {
 		width: 100%;
 		height: 100%;
 		position: absolute;
+		z-index: -1;
+	}
+
+	&>div.bgImg {
 		background-image: url("https://lmpixels.com/demo/breezycv/dark/1/img/main_bg.png");
 		background-position: top center;
 		background-size: cover;
 		background-repeat: no-repeat;
-		z-index: -1;
+	}
+
+	&>div.bgTransition{
+	background:  linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0));
 	}
 }
 
