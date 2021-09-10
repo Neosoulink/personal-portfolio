@@ -240,14 +240,14 @@
 					<!-- End Theme change -->
 
 					<div class="header-buttons">
-						<button
+						<a
 							href="/CV_Nathan-Mandemvo.pdf"
 							target="_blank"
 							class="btn-primary-custom"
 							download
 						>
 							Download CV
-						</button>
+						</a>
 					</div>
 
 					<a href="https://lmpixels.com/demo/breezycv/dark/1/" target="_blank" class="copyrights">© INSPIRED BY breezycv.</a>
