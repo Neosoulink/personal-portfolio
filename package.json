@@ -1,9 +1,31 @@
 {
   "name": "nsl-me",
-  "version": "0.1.0",
-  "description": "The offical web site of Neosoulink",
-  "main": "public/index.html",
-  "private": true,
+	"author": "Neosoulink",
+  "version": "1.0.0",
+  "description": "The official web site of Neosoulink",
+	"repository": {
+		"type": "git",
+    "url": "https://github.com/Neosoulink/nsl-me"
+  },
+	"private": true,
+	"homepage": "https://nsl-me.web.app",
+	"license": "MIT",
+	"main": "public/index.html",
+  "bugs": {
+		"url": "https://github.com/Neosoulink/nsl-me/issues"
+  },
+	"keywords": [
+		"Neosoulink",
+		"official",
+		"web-site",
+		"Vue.js",
+		"responsive",
+		"SPA",
+		"Developer",
+		"Animations",
+		"Vuex",
+		"Firebase"
+	],
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -47,20 +69,5 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Neosoulink/nsl-me.github.io.git"
-  },
-  "keywords": [
-    "Neosoulink",
-    "official",
-    "web-site"
-  ],
-  "author": "Neosoulink",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Neosoulink/nsl-me.github.io/issues"
-  },
-  "homepage": "https://github.com/Neosoulink/nsl-me.github.io#readme"
+  ]
 }
