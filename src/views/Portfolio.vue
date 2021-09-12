@@ -5,7 +5,7 @@
 			<div class="page-title mb-0 pb-0">
 				<h2>
 					My
-					<span>work</span>
+					<span>Works</span>
 				</h2>
 			</div>
 

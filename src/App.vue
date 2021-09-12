@@ -151,7 +151,7 @@
 						<li>
 							<router-link exact :to="{name: 'MyWork'}" class="nav-anim">
 								<font-awesome-icon icon="laptop-code" class="menu-icon" />
-								<span class="link-text">My Work</span>
+								<span class="link-text">My Works</span>
 							</router-link>
 						</li>
 						<li>
