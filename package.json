@@ -1,31 +1,31 @@
 {
   "name": "nsl-me",
-	"author": "Neosoulink",
+  "author": "Neosoulink",
   "version": "1.0.97",
   "description": "The official web site of Neosoulink",
-	"repository": {
-		"type": "git",
+  "repository": {
+    "type": "git",
     "url": "https://github.com/Neosoulink/nsl-me"
   },
-	"private": true,
-	"homepage": "https://nsl-me.web.app",
-	"license": "MIT",
-	"main": "public/index.html",
+  "private": true,
+  "homepage": "https://nsl-me.web.app",
+  "license": "MIT",
+  "main": "public/index.html",
   "bugs": {
-		"url": "https://github.com/Neosoulink/nsl-me/issues"
+    "url": "https://github.com/Neosoulink/nsl-me/issues"
   },
-	"keywords": [
-		"Neosoulink",
-		"official",
-		"web-site",
-		"Vue.js",
-		"responsive",
-		"SPA",
-		"Developer",
-		"Animations",
-		"Vuex",
-		"Firebase"
-	],
+  "keywords": [
+    "Neosoulink",
+    "official",
+    "web-site",
+    "Vue.js",
+    "responsive",
+    "SPA",
+    "Developer",
+    "Animations",
+    "Vuex",
+    "Firebase"
+  ],
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -40,6 +40,7 @@
     "aos": "^2.3.4",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.16.0",
+    "caniuse-lite": "^1.0.30001299",
     "core-js": "^3.6.5",
     "emailjs-com": "^2.6.4",
     "firebase": "^8.2.5",
