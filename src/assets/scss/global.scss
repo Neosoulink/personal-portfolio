@@ -17,12 +17,8 @@ body {
 		$dark 100%
 	);
 
-	> svg {
-		//opacity: 0;
-		//> path:nth-child(2) {
-		//	stroke-dasharray: 300;
-		//	stroke-dashoffset: 0;
-		//}
+	.hide > span {
+		transform: translateY(110%);
 	}
 }
 

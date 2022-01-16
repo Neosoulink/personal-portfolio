@@ -11,7 +11,7 @@
       xmlns="http://www.w3.org/2000/svg"
       class="mb-5"
     >
-      <g>
+      <g fill="transparent">
         <path
           d="M47.3398 60.9375H39.7227L11.168 16.9531V60.9375H3.58984V4.0625H11.168L39.8398 48.1641V4.0625H47.3398V60.9375Z"
         />
@@ -142,14 +142,18 @@
       />
     </svg>
 
-    <span class="opacity-60">Welcome to my website</span>
+    <div class="hide overflow-hidden">
+      <span class="opacity-60 inline-block overflow-hidden">Welcome to my website</span>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
+import { gsap } from "gsap";
 export default {
   name: "landing-view",
   mounted() {
+    const tl = gsap.timeline({ defaults: { ease: "power1.out" } });
     const css: HTMLStyleElement = document.createElement("style");
     const textLogo: SVGElement = document.querySelector("#landing-view svg")!;
     const textLogoPaths: NodeListOf<SVGPathElement> = textLogo.querySelectorAll(
@@ -160,36 +164,28 @@ export default {
     let currentDelay = 0.0;
     let timingTextLogoDelay = 0.2;
 
-    textLogo.style["opacity"] = "1";
+    tl.to("#landing-view > svg", { opacity: "1" });
     textLogoPaths.forEach((path, key) => {
       const totalLength = path.getTotalLength();
-      cssText += `
-			#landing-view > svg > path:nth-child(${key + 2}) {
-				stroke-dasharray: ${Math.round(totalLength)};
-				stroke-dashoffset: ${Math.round(totalLength)};
-				animation: line-anim 1.5s ease forwards ${currentDelay}s;
-			}
-		`;
+
+      cssText += `#landing-view > svg > path:nth-child(${key + 2}) {
+					stroke-dasharray: ${Math.round(totalLength)};
+					stroke-dashoffset: ${Math.round(totalLength)};
+					animation: line-anim 1.5s ease forwards ${currentDelay}s;
+				}`;
       currentDelay += timingTextLogoDelay;
     });
-
-    currentDelay = currentDelay + timingTextLogoDelay + 0.5;
-
-    css.innerHTML +=
-      cssText +
-      `#landing-view > svg > g {
-    		animation: svg-fill 0.5s ease ${currentDelay}s;
-    }`;
-    currentDelay = currentDelay + 0.5;
-    setTimeout(
-      () =>
-        (css.innerHTML += `#landing-view > svg > g {
-				fill: var(--light);
-    }`),
-      currentDelay * 1000
-    );
-
+    css.innerHTML += cssText;
     document.body.appendChild(css);
+    tl.to("#landing-view > svg > g", {
+      animation: `svg-fill 1s ease`,
+      delay: currentDelay,
+    });
+    tl.to("#landing-view > svg > g", { fill: "var(--light)" });
+    tl.to("#landing-view > .hide > span", {
+      y: "0%",
+      duration: 0.8,
+    });
   },
 };
 </script>
