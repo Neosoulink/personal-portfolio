@@ -17,7 +17,27 @@ body {
 		$dark 100%
 	);
 
-	svg > path {
-		@apply fill-light;
+	> svg {
+		//opacity: 0;
+		//> path:nth-child(2) {
+		//	stroke-dasharray: 300;
+		//	stroke-dashoffset: 0;
+		//}
+	}
+}
+
+@keyframes line-anim {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+@keyframes svg-fill {
+	from {
+		fill: transparent;
+	}
+
+	to {
+		fill: $light;
 	}
 }
