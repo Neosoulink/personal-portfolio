@@ -1,5 +1,7 @@
 <template>
-  <div id="landing-view" class="w-screen h-screen flex items-center">Landing</div>
+  <div id="landing-view" class="absolute w-screen h-screen flex items-center bg-dark">
+    Landing
+  </div>
 </template>
 
 <script lang="ts">
