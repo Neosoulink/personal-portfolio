@@ -14,7 +14,7 @@ interface Route {
 const routes: Route[] = [{ path: "/", component: Home, name: "root" }];
 
 const routeOptions: VueRouter.RouterOptions = {
-	history: VueRouter.createWebHashHistory(),
+	history: VueRouter.createWebHistory(),
 	routes: routes,
 };
 
