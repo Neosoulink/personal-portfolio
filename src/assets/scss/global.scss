@@ -1,7 +1,12 @@
+* {
+	font-family: "Heebo", sans-serif;
+}
+
 html,
 body {
 	margin: 0;
 	padding: 0;
+	overflow-x: hidden;
 }
 
 #landing-view {
@@ -12,7 +17,11 @@ body {
 		$dark 100%
 	);
 
-	> svg > path {
+	svg > path {
 		@apply fill-light;
+	}
+
+	div > h3 {
+		font-weight: 800;
 	}
 }
