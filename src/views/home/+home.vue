@@ -7,10 +7,24 @@
 <script lang="ts">
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { gsap } from "gsap";
+
+// IMG
+import BG_Space from "../../assets/img/max-mckinnon.jpg";
 
 export default {
   name: "HomeSection",
   mounted() {
+    const tl = gsap.timeline({
+      defaults: { ease: "power1.out" },
+    });
+
+    const colors = [
+      new THREE.Color(0xac1122),
+      new THREE.Color(0x96789f),
+      new THREE.Color(0x535353),
+    ];
+
     // SCENE & CAMERA
     const scene: THREE.Scene = new THREE.Scene();
     const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
@@ -20,8 +34,8 @@ export default {
       1000
     );
 
-    const renderer: THREE.WebGL1Renderer = new THREE.WebGLRenderer({
-      canvas: document.querySelector("#home-section-three"),
+    const renderer: THREE.WebGL1Renderer = new THREE.WebGL1Renderer({
+      canvas: document.querySelector("#home-section-three") as HTMLCanvasElement,
     });
 
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -29,13 +43,6 @@ export default {
     camera.position.setZ(30);
 
     renderer.render(scene, camera);
-
-    // TORUS
-    const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
-    const material = new THREE.MeshStandardMaterial({ color: 0xff6347 });
-    const torus = new THREE.Mesh(geometry, material);
-
-    scene.add(torus);
 
     // STARS
     function addStart() {
@@ -53,9 +60,7 @@ export default {
     Array(200).fill(0).forEach(addStart);
 
     // BACKGROUND
-    const spaceTexture = new THREE.TextureLoader().load(
-      "../../assets/img/max-mckinnon.jpg"
-    );
+    const spaceTexture = new THREE.TextureLoader().load(BG_Space);
     scene.background = spaceTexture;
 
     // MOON
@@ -105,10 +110,6 @@ export default {
     // INFINITE LOOP
     function animate() {
       requestAnimationFrame(animate);
-
-      torus.rotation.x += 0.01;
-      torus.rotation.y += 0.005;
-      torus.rotation.z += 0.01;
 
       //moon.rotation.y += 0.01;
 
