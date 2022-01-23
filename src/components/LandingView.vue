@@ -152,7 +152,7 @@
       </div>
 
       <div
-        class="landing-view-slider w-screen h-screen bg-gray-400 absolute translate-y-full"
+        class="landing-view-slider w-screen h-screen bg-primary-900 absolute translate-y-full"
       />
     </div>
   </div>
