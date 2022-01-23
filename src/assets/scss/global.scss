@@ -16,7 +16,9 @@ body {
 		rgba($dark, 0.9) 0.01%,
 		$dark 100%
 	);
-
+	> svg {
+		opacity: 0;
+	}
 	.hide > span {
 		transform: translateY(110%);
 	}
