@@ -1,5 +1,5 @@
 <template>
-  <div class="absolute w-screen h-screen overflow-hidden">
+  <div class="absolute w-screen h-screen overflow-hidden" v-if="visibility">
     <div class="relative w-full h-full">
       <div
         id="landing-view"
@@ -162,44 +162,64 @@
 import { gsap } from "gsap";
 export default {
   name: "landing-view",
+  data() {
+    return {
+      visibility: false,
+    };
+  },
+  beforeMount() {
+    const localVisibility = localStorage.getItem("landing-view-visibility");
+
+    if (localVisibility !== null) {
+      localStorage.setItem("landing-view-visibility", "hide");
+      this.visibility = true;
+    }
+  },
   mounted() {
-    window.onload = () => {
-      const tl = gsap.timeline({ defaults: { ease: "power1.out" } });
-      const css: HTMLStyleElement = document.createElement("style");
-      const textLogo: SVGElement = document.querySelector("#landing-view svg")!;
-      const textLogoPaths: NodeListOf<SVGPathElement> = textLogo.querySelectorAll(
-        "#landing-view > svg > path"
-      )!;
+    if (this.visibility)
+      window.onload = () => {
+        const tl = gsap.timeline({
+          defaults: { ease: "power1.out" },
+          onComplete: () => {
+            this.visibility = false;
+          },
+        });
+        const css: HTMLStyleElement = document.createElement("style");
+        const textLogo: SVGElement = document.querySelector("#landing-view svg")!;
+        const textLogoPaths: NodeListOf<SVGPathElement> = textLogo.querySelectorAll(
+          "#landing-view > svg > path"
+        )!;
 
-      let cssText = "";
-      let currentDelay = 0.0;
-      let timingTextLogoDelay = 0.2;
+        let cssText = "";
+        let currentDelay = 0.0;
+        let timingTextLogoDelay = 0.2;
 
-      tl.to("#landing-view > svg", { opacity: "1" });
-      textLogoPaths.forEach((path, key) => {
-        const totalLength = path.getTotalLength();
+        tl.to("#landing-view > svg", { opacity: "1" });
+        textLogoPaths.forEach((path, key) => {
+          const totalLength = path.getTotalLength();
 
-        cssText += `#landing-view > svg > path:nth-child(${key + 2}) {
+          cssText += `#landing-view > svg > path:nth-child(${key + 2}) {
 					stroke-dasharray: ${Math.round(totalLength)};
 					stroke-dashoffset: ${Math.round(totalLength)};
 					animation: line-anim 1.5s ease forwards ${currentDelay}s;
 				}`;
-        currentDelay += timingTextLogoDelay;
-      });
-      css.innerHTML += cssText;
-      document.body.appendChild(css);
-      tl.to("#landing-view > svg > g", {
-        animation: `svg-fill 0.7s ease`,
-        delay: currentDelay,
-      });
-      tl.to("#landing-view > svg > g", { fill: "rgb(var(--light))" }, "-=0.3");
-      tl.to("#landing-view > .hide > span", {
-        y: "0%",
-        duration: 0.8,
-      });
-      tl.to(".landing-view-slider", { y: "-100%", delay: 1, duration: 1.5 });
-      tl.to("#landing-view", { y: "-100%", duration: 1 }, "-=1");
-    };
+          currentDelay += timingTextLogoDelay;
+        });
+        css.innerHTML += cssText;
+        document.body.appendChild(css);
+        tl.to("#landing-view > svg > g", {
+          animation: `svg-fill 0.7s ease`,
+          delay: currentDelay,
+        });
+        tl.to("#landing-view > svg > g", { fill: "rgb(var(--light))" }, "-=0.3");
+        tl.to("#landing-view > .hide > span", {
+          y: "0%",
+          delay: 0.0025,
+          duration: 0.8,
+        });
+        tl.to(".landing-view-slider", { y: "-100%", delay: 1, duration: 1.5 });
+        tl.to("#landing-view", { y: "-100%", duration: 1 }, "-=1");
+      };
   },
 };
 </script>
