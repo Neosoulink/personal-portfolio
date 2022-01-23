@@ -189,10 +189,10 @@ export default {
       css.innerHTML += cssText;
       document.body.appendChild(css);
       tl.to("#landing-view > svg > g", {
-        animation: `svg-fill 0.8s ease`,
+        animation: `svg-fill 0.7s ease`,
         delay: currentDelay,
       });
-      tl.to("#landing-view > svg > g", { fill: "var(--light)" });
+      tl.to("#landing-view > svg > g", { fill: "rgb(var(--light))" }, "-=0.3");
       tl.to("#landing-view > .hide > span", {
         y: "0%",
         duration: 0.8,
