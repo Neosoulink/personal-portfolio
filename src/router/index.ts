@@ -2,7 +2,7 @@ import * as Vue from "vue";
 import * as VueRouter from "vue-router";
 
 // COMPONENTS
-import Home from "../views/Home.vue";
+import Home from "../views/home/index.vue";
 
 // INTERFACES
 interface Route {
