@@ -7,6 +7,7 @@
 <script lang="ts">
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { Geometry } from "three/examples/jsm/deprecated/Geometry";
 import { gsap } from "gsap";
 
 // IMG
@@ -19,30 +20,33 @@ export default {
       defaults: { ease: "power1.out" },
     });
 
-    const colors = [
-      new THREE.Color(0xac1122),
-      new THREE.Color(0x96789f),
-      new THREE.Color(0x535353),
-    ];
+    const canvasHomeSection: HTMLCanvasElement = document.querySelector(
+      "#home-section-three"
+    ) as HTMLCanvasElement;
+    const canvasWidth = canvasHomeSection.offsetWidth;
+    const canvasHeight = canvasHomeSection.offsetHeight;
 
     // SCENE & CAMERA
     const scene: THREE.Scene = new THREE.Scene();
     const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
-      75,
+      35,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000
+      2000
     );
 
     const renderer: THREE.WebGL1Renderer = new THREE.WebGL1Renderer({
-      canvas: document.querySelector("#home-section-three") as HTMLCanvasElement,
+      canvas: canvasHomeSection,
     });
 
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.position.setZ(30);
-
+    camera.position.setZ(75);
     renderer.render(scene, camera);
+
+    // BACKGROUND TEXTURE
+    const spaceTexture = new THREE.TextureLoader().load(BG_Space);
+    scene.background = spaceTexture;
 
     // STARS
     function addStart() {
@@ -56,25 +60,20 @@ export default {
       star.position.set(x, y, z);
       scene.add(star);
     }
-
     Array(200).fill(0).forEach(addStart);
 
-    // BACKGROUND
-    const spaceTexture = new THREE.TextureLoader().load(BG_Space);
-    scene.background = spaceTexture;
+    // VECTOR SPHERE
+    //const geometry = new THREE.SphereGeometry(10, 23, 32);
+    //const material = new THREE.MeshStandardMaterial({
+    //  color: 0xff6347,
+    //});
+    //const vectorSphere = new THREE.Mesh(geometry, material);
 
-    // MOON
-    //const moonTexture = new THREE.TextureLoader().load("./moon.jpg");
-    //const normalMoonTexture = new THREE.TextureLoader().load("./moon.jpg");
-    //const moon = new THREE.Mesh(
-    //  new THREE.SphereGeometry(3, 23, 32),
-    //  new THREE.MeshStandardMaterial({ map: moonTexture, normalMap: normalMoonTexture })
-    //);
+    //vectorSphere.position.z = 30;
+    ////vectorSphere.position.setX(20);
+    ////vectorSphere.position.setY(-11);
 
-    //moon.position.z = 30;
-    //moon.position.setX(-10);
-
-    //scene.add(moon);
+    //scene.add(spherePoints);
 
     // LIGHTING
     const pointLight = new THREE.PointLight(0xffffff);
@@ -84,10 +83,10 @@ export default {
     scene.add(pointLight, ambientLight);
 
     // HELPERS
-    //const lightHelper = new THREE.PointLightHelper(pointLight);
-    //const gridHelper = new THREE.GridHelper(200, 50);
+    const lightHelper = new THREE.PointLightHelper(pointLight);
+    const gridHelper = new THREE.GridHelper(200, 50);
 
-    //scene.add(lightHelper, gridHelper);
+    scene.add(lightHelper, gridHelper);
 
     // ORBIT CONTROL
     const orbitControls = new OrbitControls(camera, renderer.domElement);
@@ -95,10 +94,6 @@ export default {
     // MOVE ON SCROLL
     function moveCamera() {
       const t = document.body.getBoundingClientRect().top;
-
-      //moon.rotation.x += 0.05;
-      //moon.rotation.y += 0.075;
-      //moon.rotation.z += 0.05;
 
       camera.position.z = t * -0.01;
       camera.position.x = t * -0.0002;
