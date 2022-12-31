@@ -146,7 +146,6 @@
               <router-view></router-view>
             </transition>
           </div>
-          animated-sections -->
         </div>
         <!-- /.content-area -->
       </div>
