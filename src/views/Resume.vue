@@ -31,8 +31,7 @@
                   In direct partnership with
                   <a href="https://www.cabemery.org/" target="_blank">
                     www.cabemry.org
-                    <font-awesome-icon icon="external-link-alt" /> </a
-                  >.
+                    <font-awesome-icon icon="external-link-alt" /> </a>.
                 </p>
               </div>
             </div>
@@ -94,12 +93,8 @@
           </div>
 
           <div class="skills-info skills-second-style">
-            <Skill
-              v-for="(item, index) in skills"
-              :key="index"
-              :title="item.title"
-              :percentage="parseInt(item.percentage)"
-            ></Skill>
+            <Skill v-for="(item, index) in skills" :key="index" :title="item.title"
+              :percentage="parseInt(item.percentage)"></Skill>
           </div>
           <!-- End of Coding Skills -->
 
@@ -154,20 +149,14 @@
         <div class="col-12 col-sm-6">
           <div class="certificate-item clearfix">
             <div class="certi-logo">
-              <img
-                src="https://skillvalue.com/assets/img/logo.pentalog-company-white.svg"
-                alt="logo"
-              />
+              <img src="https://skillvalue.com/assets/img/logo.pentalog-company-white.svg" alt="logo" />
             </div>
 
             <div class="certi-content">
               <div class="certi-title">
                 <h4>
-                  <a
-                    href="https://skillvalue.com/fr/user/certificate/1IIwT7FONwBlJCrOjaL3piDfp8LAzUaJJfmubKhJPPw1rJoBODiAGGAbaC2e"
-                    target="_blank"
-                    >Vuejs Certificate</a
-                  >
+                  <a href="https://skillvalue.com/fr/user/certificate/1IIwT7FONwBlJCrOjaL3piDfp8LAzUaJJfmubKhJPPw1rJoBODiAGGAbaC2e"
+                    target="_blank">Vuejs Certificate</a>
                 </h4>
               </div>
             </div>
@@ -179,20 +168,14 @@
         <div class="col-12 col-sm-6">
           <div class="certificate-item clearfix">
             <div class="certi-logo">
-              <img
-                src="https://skillvalue.com/assets/img/logo.pentalog-company-white.svg"
-                alt="logo"
-              />
+              <img src="https://skillvalue.com/assets/img/logo.pentalog-company-white.svg" alt="logo" />
             </div>
 
             <div class="certi-content">
               <div class="certi-title">
                 <h4>
-                  <a
-                    href="https://skillvalue.com/fr/user/certificate/6xgAFXiInVW8HNONdMe8J84I7Zc0SV07MUdwokborxf2C4tEJkCXV5pmWPRr"
-                    target="_blank"
-                    >Laravel Certificate</a
-                  >
+                  <a href="https://skillvalue.com/fr/user/certificate/6xgAFXiInVW8HNONdMe8J84I7Zc0SV07MUdwokborxf2C4tEJkCXV5pmWPRr"
+                    target="_blank">Laravel Certificate</a>
                 </h4>
               </div>
             </div>
@@ -204,20 +187,14 @@
         <div class="col-12 col-sm-6">
           <div class="certificate-item clearfix">
             <div class="certi-logo">
-              <img
-                src="https://skillvalue.com/assets/img/logo.pentalog-company-white.svg"
-                alt="logo"
-              />
+              <img src="https://skillvalue.com/assets/img/logo.pentalog-company-white.svg" alt="logo" />
             </div>
 
             <div class="certi-content">
               <div class="certi-title">
                 <h4>
-                  <a
-                    href="https://skillvalue.com/fr/user/certificate/uMKjt1g4GJgYuIiq4tRtnW60PsuIVL7w94dyfd39yoBpMcvC6SBqn8CkpXKg"
-                    target="_blank"
-                    >JavaScript ES6 Certificate</a
-                  >
+                  <a href="https://skillvalue.com/fr/user/certificate/uMKjt1g4GJgYuIiq4tRtnW60PsuIVL7w94dyfd39yoBpMcvC6SBqn8CkpXKg"
+                    target="_blank">JavaScript ES6 Certificate</a>
                 </h4>
               </div>
             </div>
@@ -242,13 +219,14 @@ export default {
   },
   data() {
     return {};
-	},
-	computed: {
-		...mapGetters({
-			skills : 'author/getSkills'
-		})
-	},
+  },
+  computed: {
+    ...mapGetters({
+      skills: 'author/getSkills'
+    })
+  },
   mounted() {
+    document.title = '@MNath_ | Resume'
   },
 };
 </script>

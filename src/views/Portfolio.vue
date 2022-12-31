@@ -12,15 +12,10 @@
 			<DeveloperActivity class="mt-2 mb-5" />
 
 			<div class="row">
-				<div
-					class="col-md-6 mb-4"
-					v-for="(project, index) in projectList"
-					:key="index"
-				>
+				<div class="col-md-6 mb-4" v-for="(project, index) in projectList" :key="index">
 					<div class="portfolio-card-wrapper">
 						<div class="portfolio-card">
-							<div
-								class="portfolio-card-front">
+							<div class="portfolio-card-front">
 
 								<div class="image_overlay"></div>
 
@@ -32,20 +27,12 @@
 										<div class="bar-separator"></div>
 										<ul>
 											<li v-if="project.liveDemoLink">
-												<a
-													:href="project.liveDemoLink"
-													target="_blank"
-													title="Live demo"
-												>
+												<a :href="project.liveDemoLink" target="_blank" title="Live demo">
 													<font-awesome-icon :icon="['fas', 'eye']" />
 												</a>
 											</li>
 											<li v-if="project.repoLink">
-												<a
-													:href="project.repoLink"
-													target="_blank"
-													title="Github repo"
-												>
+												<a :href="project.repoLink" target="_blank" title="Github repo">
 													<font-awesome-icon :icon="['fab', 'github']" />
 												</a>
 											</li>
@@ -63,69 +50,40 @@
 
 									<div class="bar-separator"></div>
 									<p class="description-content">
-										<span
-											v-if="project.description"
-											v-html="project.description"
-										>
+										<span v-if="project.description" v-html="project.description">
 										</span>
 										<template v-else> No description </template>
 									</p>
 								</div>
 
 								<div class="footer">
-									<a
-										v-if="project.liveDemoLink"
-										:href="project.liveDemoLink"
-										class="mr-2"
-										target="_blank"
-										title="Live demo"
-									>
+									<a v-if="project.liveDemoLink" :href="project.liveDemoLink" class="mr-2" target="_blank"
+										title="Live demo">
 										<font-awesome-icon :icon="['fas', 'eye']" />
 										Live demo
 									</a>
 
-									<a
-										v-if="project.repoLink"
-										:href="project.repoLink"
-										target="_blank"
-										title="Live demo"
-									>
+									<a v-if="project.repoLink" :href="project.repoLink" target="_blank" title="Live demo">
 										<font-awesome-icon :icon="['fab', 'github']" />
 										Github repo
 									</a>
-									<div
-										class="d-flex align-items-center"
-										v-if="project.linkToShare"
-									>
-										<font-awesome-icon
-											:icon="['fas', 'share-alt']"
-											class="mr-2"
-										/>
-										<a
-											:href="`https://www.linkedin.com/shareArticle
+									<div class="d-flex align-items-center" v-if="project.linkToShare">
+										<font-awesome-icon :icon="['fas', 'share-alt']" class="mr-2" />
+										<a :href="`https://www.linkedin.com/shareArticle
 												?mini=true
 												&url=${project.linkToShare}
 												&title=Share my work on Linkedin
 												&summary=I share with you this project which interested me a lot!
-												&source=Nathan Mandemvo`"
-											target="_blank"
-											class="mr-2"
-										>
+												&source=Nathan Mandemvo`" target="_blank" class="mr-2">
 											<font-awesome-icon :icon="['fab', 'linkedin']" />
-											Linkedin</a
-										>
-										<a
-											:href="`https://twitter.com/intent/tweet
+											Linkedin</a>
+										<a :href="`https://twitter.com/intent/tweet
 												?url=${project.linkToShare}
 												&title=Share my work on Twitter
 												&text=I share with you this project which interested me a lot!
-												&hashtags=nathanMandemvo,${project.hashtags}`"
-											target="_blank"
-											class="mr-2"
-										>
+												&hashtags=nathanMandemvo,${project.hashtags}`" target="_blank" class="mr-2">
 											<font-awesome-icon :icon="['fab', 'twitter']" />
-											Twitter</a
-										>
+											Twitter</a>
 									</div>
 								</div>
 
@@ -224,6 +182,7 @@ export default {
 				animatePortfolioCard(portFolioCard);
 			});
 		}, 1000);
+		document.title = '@MNath_ | Portfolio'
 	},
 };
 </script>

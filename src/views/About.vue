@@ -29,12 +29,12 @@
 						<ul>
 							<li>
 								<span class="title">Age</span>
-								<span class="value">{{age}}</span>
+								<span class="value">{{ age }}</span>
 							</li>
 
 							<li>
 								<span class="title">Address pro</span>
-								<span class="value">RDCongo kinshasa C/Gombe  croisement Av/Col Vangu & Av/Etoiles </span>
+								<span class="value">RDCongo kinshasa C/Gombe croisement Av/Col Vangu & Av/Etoiles </span>
 							</li>
 
 							<li>
@@ -42,7 +42,8 @@
 									<font-awesome-icon icon="envelope" />
 								</span>
 								<span class="value">
-									<a href="mailto:nathaninbusines2.0@gmail.com?subject=I'm%20interested%20about%20your%20profile">nathaninbusiness2.0@gmail.com</a>
+									<a
+										href="mailto:nathaninbusines2.0@gmail.com?subject=I'm%20interested%20about%20your%20profile">nathaninbusiness2.0@gmail.com</a>
 								</span>
 							</li>
 
@@ -85,7 +86,8 @@
 										Programming lover
 										<font-awesome-icon icon="heart" class="text-primary-custom" />
 									</h4>
-									<p>I am passionate about programming. I usually build software for business but also small fun apps.</p>
+									<p>I am passionate about programming. I usually build software for business but also small fun apps.
+									</p>
 								</div>
 							</div>
 							<div class="info-block-w-icon">
@@ -116,7 +118,8 @@
 										Ambitious Entrepreneur
 										<font-awesome-icon icon="chart-line" class="text-primary-custom" />
 									</h4>
-									<p>I am about to launch a structure dedicated to video games and leisure. Something modern, friendly and above all very accessible.</p>
+									<p>I am about to launch a structure dedicated to video games and leisure. Something modern, friendly
+										and above all very accessible.</p>
 								</div>
 							</div>
 							<div class="info-block-w-icon">
@@ -128,7 +131,8 @@
 										Gamer Sometimes
 										<font-awesome-icon icon="gamepad" class="text-primary-custom" />
 									</h4>
-									<p>In my spare time, I like to rediscover the pleasure of playing a good fps or a fighting game or even driving cars.</p>
+									<p>In my spare time, I like to rediscover the pleasure of playing a good fps or a fighting game or
+										even driving cars.</p>
 								</div>
 							</div>
 						</div>
@@ -146,11 +150,12 @@
 export default {
 	data() {
 		return {
-			age : 0
+			age: 0
 		}
 	},
 	mounted() {
 		this.age = new Date().getFullYear() - 1998
+		document.title = '@MNath_ | About'
 	},
 }
 </script>
