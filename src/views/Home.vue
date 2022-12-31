@@ -2,11 +2,11 @@
 	<section data-id="home" class="animated-section start-page">
 		<div class="section-content vcentered">
 			<div class="title-block">
-				<h2>Nathan Mandemvo</h2>
+				<h2>Nathan Mande</h2>
 				<div class="owl-carousel text-rotation">
 					<div class="item">
 						<div ref="typewrite" class="sp-subtitle typewrite" data-period="2000"
-							data-type='[ "Hi, I`m Nath.", "A Simple Fullstack developer.", "I Love to Develop." ]'>
+							data-type='[ "Hi, I`m Nathan", "A passionate fullstack software engineer", "I`m a curious guy", "I like to travel and discover", "I also like to learn new technologies"]'>
 							<span class="wrap"></span>
 						</div>
 					</div>
