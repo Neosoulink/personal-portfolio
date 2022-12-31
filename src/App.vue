@@ -111,7 +111,8 @@
           <!-- End Theme change -->
 
           <div class="header-buttons">
-            <a href="/Nathan-Mande_Resume-En.pdf" target="_blank" class="btn-primary-custom" download>
+            <a href="/Nathan-Mande_Resume-En.pdf" target="_blank" class="btn-primary-custom" title="download resume"
+              download>
               Download CV
             </a>
           </div>
