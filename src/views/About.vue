@@ -11,49 +11,27 @@
 		<div class="section-content">
 			<!-- Personal Information -->
 			<div class="row">
-				<div class="col-xs-12 col-sm-7">
+				<div class="col-12 text-justify">
 					<p>
-						I am a passionate full-stack developer. I like
-						computer development in general. I admire and
-						respect enormously those who make it and who work hard
-						to do great things in the world of
-						programming. As for the work itself, I
-						am pragmatic. I adapt very quickly to a new
-						work environment and I am comfortable with
-						teamwork (I'm pretty calm 🙂)
+						A self-taught learner and simple passionate developer 🐱‍👤.
 					</p>
-				</div>
-
-				<div class="col-xs-12 col-sm-5">
-					<div class="info-list">
-						<ul>
-							<li>
-								<span class="title">Age</span>
-								<span class="value">{{age}}</span>
-							</li>
-
-							<li>
-								<span class="title">Address pro</span>
-								<span class="value">RDCongo kinshasa C/Gombe  croisement Av/Col Vangu & Av/Etoiles </span>
-							</li>
-
-							<li>
-								<span class="title">
-									<font-awesome-icon icon="envelope" />
-								</span>
-								<span class="value">
-									<a href="mailto:nathaninbusines2.0@gmail.com?subject=I'm%20interested%20about%20your%20profile">nathaninbusiness2.0@gmail.com</a>
-								</span>
-							</li>
-
-							<li>
-								<span class="title">
-									<font-awesome-icon icon="phone" />
-								</span>
-								<span class="value">+243 900 335 958</span>
-							</li>
-						</ul>
-					</div>
+					<p>
+						I like to develop stuff and it's a real pleasure to have
+						positive feedback from my contractors 🌟.
+					</p>
+					<p>
+						I greatly admire & respect those who also develop and do
+						great things from a few lines of code 🤝.
+					</p>
+					<p>
+						As for work, I am pragmatic. I like to learn from others and
+						I always try to do better than before 💻.
+					</p>
+					<p>
+						I adapt very quickly to a new work environment and I I’m
+						comfortable working in a team. I am pretty calm, and I
+						listen to others when they need to talk to me 😀.
+					</p>
 				</div>
 			</div>
 			<!-- End of Personal Information -->
@@ -82,10 +60,19 @@
 								</div>
 								<div class="ci-text">
 									<h4>
-										Programming lover
-										<font-awesome-icon icon="heart" class="text-primary-custom" />
+										Technologies Curious
+										<font-awesome-icon icon="leaf" class="text-primary-custom" />
 									</h4>
-									<p>I am passionate about programming. I usually build software for business but also small fun apps.</p>
+									<p>Since I was a child, I was marked by 3D, creating 3D models with 3DS-Max and Blender... Today I
+										discovered ThreeJs and I
+										fell back into childhood.
+									</p>
+									<p>
+										At the same time, I recently discovered web3.0, a new world, the future 🚀
+									</p>
+									<p>
+										it's a real pleasure the learn new technologies and applying in my passion ❤
+									</p>
 								</div>
 							</div>
 							<div class="info-block-w-icon">
@@ -113,29 +100,18 @@
 								</div>
 								<div class="ci-text">
 									<h4>
-										Ambitious Entrepreneur
-										<font-awesome-icon icon="chart-line" class="text-primary-custom" />
+										Traveler beginner
+										<font-awesome-icon icon="globe" class="text-primary-custom" />
 									</h4>
-									<p>I am about to launch a structure dedicated to video games and leisure. Something modern, friendly and above all very accessible.</p>
-								</div>
-							</div>
-							<div class="info-block-w-icon">
-								<div class="ci-icon">
-									<i class="lnr lnr-flag"></i>
-								</div>
-								<div class="ci-text">
-									<h4>
-										Gamer Sometimes
-										<font-awesome-icon icon="gamepad" class="text-primary-custom" />
-									</h4>
-									<p>In my spare time, I like to rediscover the pleasure of playing a good fps or a fighting game or even driving cars.</p>
+									<p>Not long ago, I discovered the pleasure of traveling and meeting new people. maybe one day, I will
+										do my world tour too</p>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-			<!-- End of Services -->
+
 		</div>
 		<!-- /.section-content -->
 	</section>
@@ -144,13 +120,9 @@
 
 <script>
 export default {
-	data() {
-		return {
-			age : 0
-		}
-	},
 	mounted() {
 		this.age = new Date().getFullYear() - 1998
+		document.title = '@MNath_ | About'
 	},
 }
 </script>

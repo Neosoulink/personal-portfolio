@@ -6,10 +6,10 @@
 			<img src="@/assets/img/undraw_Taken_if77.svg" class="img-404" alt="">
 			<div class="title-block">
 				<h3>404 - Page not found</h3>
-				<router-link :to="{name: 'Home'}">
+				<router-link :to="{ name: 'Home' }">
 					<font-awesome-icon :icon="['fas', 'home']" />
 					Go home
-				</router-link >
+				</router-link>
 			</div>
 			<!-- /.title-block -->
 		</div>
@@ -20,6 +20,9 @@
 
 <script>
 export default {
-	name: "notFound"
+	name: "notFound",
+	mounted() {
+		document.title = '@MNath_ | Not found'
+	},
 };
 </script>
