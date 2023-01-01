@@ -1,13 +1,12 @@
 <template>
   <div id="app" ref="app" :class="currentStoreTheme.theme">
     <!-- Animated Background -->
-    <div class="img-animated-bg" :style="{ transform: imgAnimatedBgTransformStyle }">
-      <div class="bgTransition"></div>
-      <div class="bgImg"></div>
+    <div class="img-animated-bg" :style="{ transform: imgAnimatedBgTransform }">
+      <div class="bgTransition" />
+      <div class="bgImg" />
 
-      <vue-particles color="#f5f5f5" :particleOpacity="1" :particlesNumber="100" shapeType="edge" :particleSize="8"
-        linesColor="#f5f5f5" :lineLinked="true" :lineOpacity="0.6" :hoverEffect="false"
-        :clickEffect="false"></vue-particles>
+      <vue-particles color="#f5f5f5" :particleOpacity="1" :particlesNumber="75" shapeType="edge" :particleSize="8"
+        linesColor="#f5f5f5" :lineLinked="true" :lineOpacity="0.6" :hoverEffect="false" :clickEffect="false" />
     </div>
 
     <!-- Loading animation -->
@@ -170,9 +169,6 @@ export default {
     };
   },
   computed: {
-    imgAnimatedBgTransformStyle() {
-      return this.imgAnimatedBgTransform;
-    },
     routeLength() {
       return this.routes.length;
     },
