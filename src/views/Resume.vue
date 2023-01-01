@@ -38,7 +38,7 @@
               </div>
               <div class="divider"></div>
               <div class="right-part">
-                <h4 class="item-title">Lead react engineer</h4>
+                <h4 class="item-title">Lead software engineer</h4>
                 <p class="">
                   Subcontracting for the Keeano company.
                   Creation of <a href="https://keeano.com" target="_blank">Keeano web <font-awesome-icon
