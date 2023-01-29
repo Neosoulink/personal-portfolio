@@ -1,6 +1,6 @@
 <template>
-  <div id="home-section" class="h-screen w-screen bg-dark relative">
-    <canvas id="home-section-three" class="absolute h-full w-full top-0 left-0" />
+  <div id="home-section" class="h-screen w-screen relative">
+    <!-- <canvas id="home-section-three" class="absolute h-full w-full top-0 left-0" /> -->
   </div>
 </template>
 
@@ -16,6 +16,8 @@ import BG_Space from "../../assets/img/max-mckinnon.jpg";
 export default {
   name: "HomeSection",
   mounted() {
+    return;
+
     const tl = gsap.timeline({
       defaults: { ease: "power1.out" },
     });
