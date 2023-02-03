@@ -111,6 +111,7 @@
 
 <script lang="ts">
 import { gsap } from "gsap";
+
 export default {
   name: "landing-view",
   data() {
@@ -127,50 +128,49 @@ export default {
     // }
   },
   mounted() {
-    if (this.visibility)
-      window.onload = () => {
-        const tl = gsap.timeline({
-          defaults: { ease: "power1.out" },
-          onComplete: () => {
-            this.visibility = false;
-          },
-        });
-        const css: HTMLStyleElement = document.createElement("style");
-        const textLogo: SVGElement = document.querySelector("#landing-view svg")!;
-        const textLogoPaths: NodeListOf<SVGPathElement> = textLogo.querySelectorAll(
-          "#landing-view > svg > path"
-        )!;
+    if (this.visibility) {
+      const tl = gsap.timeline({
+        defaults: { ease: "power1.out" },
+        onComplete: () => {
+          this.visibility = false;
+        },
+      });
+      const css: HTMLStyleElement = document.createElement("style");
+      const textLogo: SVGElement = document.querySelector("#landing-view svg")!;
+      const textLogoPaths: NodeListOf<SVGPathElement> = textLogo.querySelectorAll(
+        "#landing-view > svg > path"
+      )!;
 
-        let cssText = "";
-        let currentDelay = 0;
-        let timingTextLogoDelay = 0.2;
+      let cssText = "";
+      let currentDelay = 0;
+      let timingTextLogoDelay = 0.2;
 
-        tl.to("#landing-view > svg", { opacity: "1" });
-        textLogoPaths.forEach((path, key) => {
-          const totalLength = path.getTotalLength();
+      tl.to("#landing-view > svg", { opacity: "1" });
+      textLogoPaths.forEach((path, key) => {
+        const totalLength = path.getTotalLength();
 
-          cssText += `#landing-view > svg > path:nth-child(${key + 2}) {
-					stroke-dasharray: ${Math.round(totalLength)};
-					stroke-dashoffset: ${Math.round(totalLength)};
-					animation: line-anim 1.5s ease forwards ${currentDelay}s;
-				}`;
-          currentDelay += timingTextLogoDelay;
-        });
-        css.innerHTML += cssText;
-        document.body.appendChild(css);
-        tl.to("#landing-view > svg > .landing-view-letter", {
-          animation: `svg-fill 0.7s ease`,
-          delay: currentDelay,
-        });
-        tl.to("#landing-view > svg > .landing-view-letter", { fill: "rgb(var(--light))", }, "-=0.3");
-        tl.to("#landing-view > .hide > span", {
-          y: "0%",
-          delay: 0.0025,
-          duration: 0.8,
-        });
-        tl.to(".landing-view-slider", { top: "-100%", delay: 1.5, duration: 1.5 });
-        tl.to("#landing-view", { y: "-100%", duration: 1 }, "-=1");
-      };
+        cssText += `#landing-view > svg > path:nth-child(${key + 2}) {
+        stroke-dasharray: ${Math.round(totalLength)};
+        stroke-dashoffset: ${Math.round(totalLength)};
+        animation: line-anim 1.5s ease forwards ${currentDelay}s;
+      }`;
+        currentDelay += timingTextLogoDelay;
+      });
+      css.innerHTML += cssText;
+      document.body.appendChild(css);
+      tl.to("#landing-view > svg > .landing-view-letter", {
+        animation: `svg-fill 0.7s ease`,
+        delay: currentDelay,
+      });
+      tl.to("#landing-view > svg > .landing-view-letter", { fill: "rgb(var(--light))", }, "-=0.3");
+      tl.to("#landing-view > .hide > span", {
+        y: "0%",
+        delay: 0.0025,
+        duration: 0.8,
+      });
+      tl.to(".landing-view-slider", { top: "-100%", delay: 1.5, duration: 1.5 });
+      tl.to("#landing-view", { y: "-100%", duration: 1 }, "-=1");
+    }
   },
 };
 </script>

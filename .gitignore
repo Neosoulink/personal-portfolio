@@ -1,5 +1,8 @@
 node_modules
-.DS_Store
+*.log*
+.nuxt
+.nitro
+.cache
+.output
+.env
 dist
-dist-ssr
-*.local

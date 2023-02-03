@@ -1,5 +1,0 @@
-{
-	"vue3snippets.enable-compile-vue-file-on-did-save-code": true,
-	"scss.lint.unknownAtRules": "ignore",
-	"cSpell.words": ["gsap"]
-}
