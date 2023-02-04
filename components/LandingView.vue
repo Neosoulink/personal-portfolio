@@ -1,10 +1,11 @@
 <template>
-  <div class="absolute w-screen h-screen overflow-hidden" v-if="visibility">
+  <div id="landing-view-wrapper" class="absolute top-0 w-screen h-screen overflow-hidden" v-if="visibility">
     <div class="relative w-full h-full">
       <div id="landing-view"
-        class="absolute w-screen h-screen flex flex-col items-center justify-center bg-dark text-light">
+        class="absolute w-screen h-screen flex flex-col items-center justify-center bg-white text-light">
+        <div class="absolute bg-dark-radial-gradient h-screen w-screen z-0" />
 
-        <svg width="606" height="127" viewBox="0 0 606 127" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="606" height="127" viewBox="0 0 606 127" fill="none" xmlns="http://www.w3.org/2000/svg" class="z-10">
           <mask id="path-1-outside-1_302_33" maskUnits="userSpaceOnUse" x="0.5" y="0.0639954" width="605" height="127"
             fill="black">
             <rect fill="white" x="0.5" y="0.0639954" width="605" height="127" />
@@ -104,7 +105,7 @@
         </div>
       </div>
 
-      <div class="landing-view-slider top-full w-screen h-screen bg-primary-900 absolute translate-y-full" />
+      <div class="landing-view-slider top-full w-screen h-screen bg-primary-900 absolute translate-y-full z-10" />
     </div>
   </div>
 </template>
@@ -128,49 +129,53 @@ export default {
     // }
   },
   mounted() {
-    if (this.visibility) {
-      const tl = gsap.timeline({
-        defaults: { ease: "power1.out" },
-        onComplete: () => {
-          this.visibility = false;
-        },
-      });
-      const css: HTMLStyleElement = document.createElement("style");
-      const textLogo: SVGElement = document.querySelector("#landing-view svg")!;
-      const textLogoPaths: NodeListOf<SVGPathElement> = textLogo.querySelectorAll(
-        "#landing-view > svg > path"
-      )!;
+    if (!this.visibility) {
+      return;
+    }
+    const tl = gsap.timeline({
+      defaults: { ease: "power1.out" },
+      onComplete: () => {
+        this.visibility = false;
+      },
+    });
+    const LandingViewWrapper = document.getElementById("landing-view-wrapper")!;
+    const css: HTMLStyleElement = document.createElement("style");
+    const textLogo: SVGElement = LandingViewWrapper.querySelector("#landing-view svg")!;
+    const textLogoPaths: NodeListOf<SVGPathElement> = textLogo.querySelectorAll(
+      "#landing-view > svg > path"
+    )!;
 
-      let cssText = "";
-      let currentDelay = 0;
-      let timingTextLogoDelay = 0.2;
+    let cssText = "";
+    let currentDelay = 0;
+    let timingTextLogoDelay = 0.2;
 
-      tl.to("#landing-view > svg", { opacity: "1" });
-      textLogoPaths.forEach((path, key) => {
-        const totalLength = path.getTotalLength();
+    tl.to("#landing-view > svg", { opacity: "1" });
+    textLogoPaths.forEach((path, key) => {
+      const totalLength = path.getTotalLength();
 
-        cssText += `#landing-view > svg > path:nth-child(${key + 2}) {
+      cssText += `#landing-view > svg > path:nth-child(${key + 2}) {
         stroke-dasharray: ${Math.round(totalLength)};
         stroke-dashoffset: ${Math.round(totalLength)};
         animation: line-anim 1.5s ease forwards ${currentDelay}s;
       }`;
-        currentDelay += timingTextLogoDelay;
-      });
-      css.innerHTML += cssText;
-      document.body.appendChild(css);
-      tl.to("#landing-view > svg > .landing-view-letter", {
-        animation: `svg-fill 0.7s ease`,
-        delay: currentDelay,
-      });
-      tl.to("#landing-view > svg > .landing-view-letter", { fill: "rgb(var(--light))", }, "-=0.3");
-      tl.to("#landing-view > .hide > span", {
-        y: "0%",
-        delay: 0.0025,
-        duration: 0.8,
-      });
-      tl.to(".landing-view-slider", { top: "-100%", delay: 1.5, duration: 1.5 });
-      tl.to("#landing-view", { y: "-100%", duration: 1 }, "-=1");
-    }
+      currentDelay += timingTextLogoDelay;
+    });
+    css.innerHTML += cssText;
+    LandingViewWrapper.appendChild(css);
+    tl.to("#landing-view > svg > .landing-view-letter", {
+      animation: `svg-fill 0.7s ease`,
+      delay: currentDelay,
+    });
+    tl.to("#landing-view > svg > .landing-view-letter", { fill: "rgb(var(--light))", }, "-=0.3");
+    tl.to("#landing-view > .hide > span", {
+      y: "0%",
+      delay: 0.0025,
+      duration: 0.8,
+    });
+    tl.to(".landing-view-slider", { top: "-100%", delay: 1.5, duration: 1.5 });
+    tl.to("#landing-view", { y: "-100%", duration: 1 }, "-=1").then(() => {
+      this.visibility = false
+    });
   },
 };
 </script>
