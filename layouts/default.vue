@@ -1,5 +1,4 @@
 <template>
 	<LayoutHeader />
-
 	<slot />
 </template>
