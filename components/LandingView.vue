@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="landing-view-wrapper" class="absolute top-0 w-screen h-screen overflow-hidden" v-if="visibility">
+    <div id="landing-view-wrapper" class="absolute top-0 w-screen h-screen overflow-hidden z-50" v-if="visibility">
       <div class="relative w-full h-full">
         <div id="landing-view"
           class="absolute w-screen h-screen flex flex-col items-center justify-center bg-white text-light">
