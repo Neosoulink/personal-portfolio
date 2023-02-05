@@ -13,7 +13,7 @@ export default defineNuxtConfig({
 		},
 	},
 	modules: ["@nuxt/content"],
-	css: ["~/assets/css//index.css"],
+	css: ["~/assets/css/index.css"],
 	postcss: {
 		plugins: {
 			tailwindcss: {},
