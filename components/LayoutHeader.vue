@@ -7,7 +7,7 @@
 
 			<ul class="flex flex-row list-none pr-28">
 				<li v-for="(item, index) in ['About', 'Contact', 'Projects', 'Blog']" :key="index" class="mr-4"><a
-						class="cursor-pointer text-2xl font-extrabold opacity-60 hover:opacity-100">{{ item }}</a>
+						class="cursor-pointer text-2xl font-semibold opacity-60 hover:opacity-100">{{ item }}</a>
 				</li>
 			</ul>
 		</nav>
