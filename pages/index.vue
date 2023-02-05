@@ -2,11 +2,15 @@
 	<div>
 		<LandingView />
 
-		<main class="w-full bg-dark-radial-gradient text-white">
+		<main class="w-full text-white">
 			<section class="h-screen flex items-center pl-28">
 				<h1 ref="firstTitle" class="text-glitch text-9xl font-semibold relative" :data-text="firstTitle">{{
 					firstTitle
 				}}</h1>
+			</section>
+
+			<section class="min-h-screen flex items-center">
+
 			</section>
 		</main>
 	</div>
