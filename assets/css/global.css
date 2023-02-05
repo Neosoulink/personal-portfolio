@@ -47,6 +47,7 @@ body {
 .text-glitch::before {
 	content: attr(data-text);
 	position: absolute;
+	background-color: rgba(var(--primary), 0.1);
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -55,12 +56,13 @@ body {
 	text-shadow: -2px 0 rgb(var(--primary));
 	clip: rect(44px, 450px, 56px, 0);
 	animation: text-glitch-anim 5s infinite linear alternate-reverse;
-	/* z-index: 0; */
+	z-index: 0;
 }
 
 .text-glitch::after {
 	content: attr(data-text);
 	position: absolute;
+	background-color: rgba(var(--primary), 0.1);
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -69,7 +71,7 @@ body {
 	text-shadow: -2px 0 rgb(var(--primary)), 2px 2px rgb(var(--primary));
 	clip: rect(44px, 450px, 56px, 0);
 	animation: text-glitch-anim2 5s infinite linear alternate-reverse;
-	/* z-index: 0; */
+	z-index: 0;
 }
 
 @keyframes text-glitch-anim {
