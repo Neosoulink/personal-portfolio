@@ -2,4 +2,6 @@
 	<LayoutHeader />
 
 	<slot />
+
+	<LayoutFooter />
 </template>
