@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 export interface initThreeProps {
+	appDom?: string;
 	enableOrbit?: boolean;
 	axesSizes?: number;
 	sceneSizes?: {
@@ -11,6 +12,18 @@ export interface initThreeProps {
 	control?: OrbitControls;
 	autoSceneResize?: boolean;
 }
+
+export type initThreeResponseType = {
+	canvas: HTMLCanvasElement;
+	scene: THREE.Scene;
+	camera: THREE.PerspectiveCamera;
+	renderer: THREE.WebGLRenderer;
+	animate: (callback?: () => any) => void;
+	sceneSizes: { width: number; height: number };
+	control: OrbitControls;
+};
+
+export type initThreeType = (props?: initThreeProps) => initThreeResponseType;
 
 // DEFS
 let scene: THREE.Scene;
@@ -28,8 +41,10 @@ export function animate(callback: () => any = () => {}) {
 	requestAnimationFrame(() => animate(callback));
 }
 
-export default (props?: initThreeProps, appDom = "canvas#app") => {
-	const DOM_APP = document.querySelector<HTMLCanvasElement>(appDom)!;
+export const initThree: initThreeType = (props?: initThreeProps) => {
+	const DOM_APP = document.querySelector<HTMLCanvasElement>(
+		props?.appDom ?? "canvas#app"
+	)!;
 	const SCENE_SIZES: initThreeProps["sceneSizes"] =
 		props?.sceneSizes ?? viewPortSize;
 
@@ -84,3 +99,11 @@ export default (props?: initThreeProps, appDom = "canvas#app") => {
 		control: ORBIT_CONTROL,
 	};
 };
+
+export default defineNuxtPlugin(() => {
+	return {
+		provide: {
+			initThree,
+		},
+	};
+});

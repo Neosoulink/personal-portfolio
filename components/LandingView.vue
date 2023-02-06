@@ -105,7 +105,7 @@
         </div>
       </div>
 
-      <div class="landing-view-slider top-full w-screen h-screen bg-primary-900 absolute translate-y-full z-10" />
+      <div class="landing-view-slider top-full w-screen h-screen bg-primary-900 absolute  bottom-0 z-10" />
     </div>
   </div>
 </template>
