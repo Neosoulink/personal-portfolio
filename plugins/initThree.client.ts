@@ -18,7 +18,7 @@ export type initThreeResponseType = {
 	scene: THREE.Scene;
 	camera: THREE.PerspectiveCamera;
 	renderer: THREE.WebGLRenderer;
-	animate: (callback?: () => any) => void;
+	animate: (callback?: () => any, enabledRenderer?: boolean) => void;
 	sceneSizes: { width: number; height: number };
 	control: OrbitControls;
 };
@@ -35,11 +35,14 @@ let viewPortSize = {
 };
 
 // FUNCTIONS
-export function animate(callback: () => any = () => {}) {
-	renderer.render(scene, camera);
+export const animate: initThreeResponseType["animate"] = (
+	callback: () => any = () => {},
+	enabledRenderer = true
+) => {
+	enabledRenderer && renderer.render(scene, camera);
 	callback();
-	requestAnimationFrame(() => animate(callback));
-}
+	requestAnimationFrame(() => animate(callback, enabledRenderer));
+};
 
 export const initThree: initThreeType = (props?: initThreeProps) => {
 	const DOM_APP = document.querySelector<HTMLCanvasElement>(
