@@ -125,6 +125,9 @@ import GSAP from "gsap";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
+import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
 
 // TYPES
 import type { initThreeResponseType } from "@/plugins/initThree.client";
@@ -139,20 +142,6 @@ export default {
 		};
 	},
 	mounted() {
-		(this.$refs.firstTitle as HTMLHeadingElement).addEventListener(
-			"mouseover",
-			() => {
-				this.firstTitle = "I BREAK THINKS";
-			}
-		);
-		(this.$refs.firstTitle as HTMLHeadingElement).addEventListener(
-			"mouseout",
-			() => {
-				this.firstTitle = "I MAKE THINKS";
-			}
-		);
-	},
-	created() {
 		if (process.client && !this.homeThreeApp) {
 			const LOADING_MANAGER = new THREE.LoadingManager();
 			LOADING_MANAGER.onStart = () => {
@@ -273,14 +262,45 @@ export default {
 				SCROLL_BASED_PARTICLES_MATERIAL
 			);
 
-			// postprocessing
+			// POSTPROCESSING
 			const COMPOSER = new EffectComposer(HOME_THREE_APP.renderer);
 			COMPOSER.addPass(
 				new RenderPass(HOME_THREE_APP.scene, HOME_THREE_APP.camera)
 			);
 
 			const GLITCH_PASS = new GlitchPass();
+			GLITCH_PASS.enabled = false;
 			COMPOSER.addPass(GLITCH_PASS);
+
+			var EFFECT_COPY = new ShaderPass(CopyShader);
+			EFFECT_COPY.renderToScreen = true;
+			COMPOSER.addPass(EFFECT_COPY);
+
+			// SHADERS
+			let rgbShift = new ShaderPass(RGBShiftShader);
+
+			rgbShift.uniforms.amount.value = 0.003;
+			rgbShift.uniforms.angle.value = Math.PI * 2;
+			rgbShift.enabled = true;
+
+			COMPOSER.addPass(rgbShift);
+
+			GSAP.fromTo(
+				rgbShift.uniforms.angle,
+				{},
+				{
+					repeat: -1,
+					duration: 4,
+					value: 0,
+					ease: "none",
+				}
+			);
+
+			GSAP.fromTo(
+				rgbShift.uniforms.amount,
+				{},
+				{ repeat: -1, duration: 4, value: 0.004, ease: "none" }
+			);
 
 			GROUP_APP_CAMERA.add(HOME_THREE_APP.camera);
 
@@ -355,9 +375,27 @@ export default {
 				COMPOSER.setSize(window.innerWidth, window.innerHeight);
 			});
 
+			(this.$refs?.firstTitle as HTMLHeadingElement).addEventListener(
+				"mouseover",
+				() => {
+					this.firstTitle = "I BREAK THINKS";
+					GLITCH_PASS.enabled = true;
+					// GLITCH_PASS.goWild = true;
+				}
+			);
+			(this.$refs?.firstTitle as HTMLHeadingElement).addEventListener(
+				"mouseout",
+				() => {
+					this.firstTitle = "I MAKE THINKS";
+					GLITCH_PASS.enabled = false;
+					// GLITCH_PASS.goWild = false;
+				}
+			);
+
 			this.homeThreeApp = HOME_THREE_APP;
 		}
 	},
+	created() {},
 	beforeUnmount() {
 		(this.$refs.firstTitle as HTMLHeadingElement).removeEventListener(
 			"mouseover",
