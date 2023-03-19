@@ -142,12 +142,12 @@ export default {
 					homeThreeApp.postProcessing.GLITCH_PASS.enabled = true;
 					const INTERVAL = setInterval(() => {
 						homeThreeApp.postProcessing.GLITCH_PASS.curF = 0;
-					}, 500);
+					}, 100);
 
 					setTimeout(() => {
 						clearInterval(INTERVAL);
 						homeThreeApp.postProcessing.GLITCH_PASS.curF = 0;
-					}, 1000);
+					}, 500);
 				}
 			);
 			(this.$refs?.firstTitle as HTMLHeadingElement).addEventListener(
