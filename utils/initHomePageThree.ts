@@ -10,7 +10,7 @@ import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
 import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
 
 // HELPERS
-import { initThree } from "./initThree.client";
+import { initThree } from "../plugins/initThree.client";
 
 const gsapRotationSpinAnimation = (object: THREE.Object3D<THREE.Event>) => {
 	GSAP.to(object.rotation, {
@@ -22,7 +22,7 @@ const gsapRotationSpinAnimation = (object: THREE.Object3D<THREE.Event>) => {
 	});
 };
 
-export const initHomePageThree = () => {
+const initHomePageThree = () => {
 	// APP
 	const APP = initThree({
 		appDom: "#home-three-app",
@@ -272,10 +272,4 @@ export const initHomePageThree = () => {
 	};
 };
 
-export default defineNuxtPlugin(() => {
-	return {
-		provide: {
-			initHomePageThree,
-		},
-	};
-});
+export default initHomePageThree;

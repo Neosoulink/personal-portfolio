@@ -133,7 +133,7 @@ export default {
 	},
 	async mounted() {
 		if (process.client && !this.homeThreeApp) {
-			const homeThreeApp = this.$initHomePageThree();
+			const homeThreeApp = initHomePageThree();
 
 			(this.$refs?.firstTitle as HTMLHeadingElement).addEventListener(
 				"mouseover",
