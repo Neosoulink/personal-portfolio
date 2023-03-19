@@ -85,7 +85,7 @@ const initHomePageThree = () => {
 
 	// Textures
 	const SCROLL_BASED_GRADIENT_TEXTURE = TEXTURE_LOADER.load(
-		"/textures/shadow-gradient.jpg"
+		"/textures/home-particle.png"
 	);
 	SCROLL_BASED_GRADIENT_TEXTURE.magFilter = THREE.NearestFilter;
 
@@ -185,8 +185,11 @@ const initHomePageThree = () => {
 
 	const SCROLL_BASED_PARTICLES_MATERIAL = new THREE.PointsMaterial({
 		color: SCROLL_BASED_PARAMS.materialColor,
+		alphaMap: SCROLL_BASED_GRADIENT_TEXTURE,
+		depthWrite: false,
+		transparent: true,
+		size: 0.09,
 		sizeAttenuation: true,
-		size: 0.03,
 	});
 
 	const SCROLL_BASED_PARTICLES_POINTS = new THREE.Points(
@@ -346,7 +349,7 @@ const initHomePageThree = () => {
 				}
 
 				if (scrollBasedCurrentSection > 0) {
-					gsapRotationSpinAnimation( object);
+					gsapRotationSpinAnimation(object);
 				}
 			}
 		}
@@ -375,4 +378,3 @@ export default defineNuxtPlugin(() => {
 		},
 	};
 });
-
