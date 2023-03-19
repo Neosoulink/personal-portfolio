@@ -10,15 +10,15 @@ import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
 import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
 
 // HELPERS
-import { initThree } from "../plugins/initThree.client";
+import { initThree } from "./initThree.client";
 
 const gsapRotationSpinAnimation = (object: THREE.Object3D<THREE.Event>) => {
 	GSAP.to(object.rotation, {
 		duration: 1.5,
 		ease: "power2.inOut",
-		x: "+=6",
-		y: "+=3",
-		z: "+=1.5",
+		x: "+=" + Math.PI * 2,
+		y: "+=" + Math.PI * 2,
+		z: "+=" + Math.PI * 2,
 	});
 };
 
@@ -110,16 +110,55 @@ const initHomePageThree = () => {
 	SCROLL_BASED_TORUS.position.x = -2;
 	SCROLL_BASED_TORUS.position.y = -SCROLL_BASED_PARAMS.objectsDistance * 2;
 
-	GLTF_LOADER.load("/3d_models/notebook/notebook.glb", (glb) => {
-		console.log(glb);
+	// Spheres
+	const rotatingSphere = new THREE.Mesh(
+		new THREE.SphereGeometry(0.5, 32, 32),
+		new THREE.MeshBasicMaterial({ color: 0xff0000 })
+	);
+	const rotatingSphere2 = new THREE.Mesh(
+		new THREE.SphereGeometry(0.5, 32, 32),
+		new THREE.MeshBasicMaterial({ color: 0xfff000 })
+	);
 
-		glb.scene.scale.set(0.7, 0.7, 0.7);
+	GLTF_LOADER.load("/3d_models/notebook/notebook.glb", (glb) => {
+		glb.scene.scale.set(0.5, 0.5, 0.5);
 		glb.scene.position.set(2, -SCROLL_BASED_PARAMS.objectsDistance * 0, 0);
 
 		SCROLL_BASED_NOTE_BOOK = glb.scene;
+		// SCROLL_BASED_NOTE_BOOK.add(rotatingSphere, rotatingSphere2);
+		rotatingSphere.position.set(SCROLL_BASED_NOTE_BOOK.position.x + 0.5, 0, 0);
+		rotatingSphere2.position.set(
+			SCROLL_BASED_NOTE_BOOK.position.x * -1.5,
+			0,
+			0
+		);
+
 		SCROLL_BASED_MESHES_LIST[0] = SCROLL_BASED_NOTE_BOOK;
 
+		console.log(SCROLL_BASED_MESHES_LIST[0]);
+
 		APP.scene.add(SCROLL_BASED_NOTE_BOOK);
+
+		GLTF_LOADER.load("/3d_models/i_phone/i_phone.glb", (glb) => {
+			glb.scene.scale.set(0.4, 0.4, 0.4);
+			glb.scene.position.set(SCROLL_BASED_NOTE_BOOK.position.x + 0.5, 0, 0);
+
+			SCROLL_BASED_NOTE_BOOK.add(glb.scene);
+		});
+
+		GLTF_LOADER.load("/3d_models/mouse/mouse.glb", (glb) => {
+			glb.scene.scale.set(12, 12, 12);
+			glb.scene.position.set(SCROLL_BASED_NOTE_BOOK.position.x * -1.5, 0, 0);
+
+			SCROLL_BASED_NOTE_BOOK.add(glb.scene);
+		});
+
+		GLTF_LOADER.load("/3d_models/keyboard/keyboard.glb", (glb) => {
+			glb.scene.scale.set(0.2, 0.2, 0.2);
+			glb.scene.position.set(SCROLL_BASED_NOTE_BOOK.position.x * -1.5, 0, 0);
+
+			SCROLL_BASED_NOTE_BOOK.add(glb.scene);
+		});
 	});
 
 	// PARTICLES
@@ -161,7 +200,6 @@ const initHomePageThree = () => {
 
 	const GLITCH_PASS = new GlitchPass();
 	GLITCH_PASS.enabled = false;
-	GLITCH_PASS.renderToScreen = false;
 	COMPOSER.addPass(GLITCH_PASS);
 
 	var EFFECT_COPY = new ShaderPass(CopyShader);
@@ -206,15 +244,65 @@ const initHomePageThree = () => {
 		SCROLL_BASED_PARTICLES_POINTS
 	);
 
+	let angle = 0;
+	let radius = 2.5;
 	APP.animate(() => {
 		const ELAPSED_TIME = ANIMATION_CLOCK.getElapsedTime();
 		const DELTA_TIME = ELAPSED_TIME - previewsElapseTime;
 		previewsElapseTime = ELAPSED_TIME;
 
-		for (const SCROLL_BASED_MESH of SCROLL_BASED_MESHES_LIST) {
+		for (let i = 0; i < SCROLL_BASED_MESHES_LIST.length; i++) {
+			const SCROLL_BASED_MESH = SCROLL_BASED_MESHES_LIST[i];
+
 			if (SCROLL_BASED_MESH) {
 				SCROLL_BASED_MESH.rotation.y += DELTA_TIME * 0.1;
 				SCROLL_BASED_MESH.rotation.x += DELTA_TIME * 0.12;
+
+				if (i === 0) {
+					if (SCROLL_BASED_MESH.children[1]) {
+						SCROLL_BASED_MESH.children[1].position.x =
+							SCROLL_BASED_MESH.position.x + radius * Math.cos(angle) - 2.5;
+						SCROLL_BASED_MESH.children[1].position.y =
+							SCROLL_BASED_MESH.position.y - radius * Math.sin(angle) + 1;
+						SCROLL_BASED_MESH.children[1].position.z =
+							SCROLL_BASED_MESH.position.y - radius * Math.sin(angle);
+
+						SCROLL_BASED_MESH.children[1].rotation.x =
+							SCROLL_BASED_MESH.position.x + radius * Math.cos(angle) - 2.5;
+						SCROLL_BASED_MESH.children[1].rotation.y =
+							SCROLL_BASED_MESH.position.y - radius * Math.sin(angle) + 1;
+					}
+
+					if (SCROLL_BASED_MESH.children[2]) {
+						SCROLL_BASED_MESH.children[2].position.x =
+							SCROLL_BASED_MESH.position.x - radius * Math.cos(angle) - 2.5;
+						SCROLL_BASED_MESH.children[2].position.y =
+							SCROLL_BASED_MESH.position.y + radius * Math.sin(angle) + 1;
+						SCROLL_BASED_MESH.children[2].position.z =
+							SCROLL_BASED_MESH.position.y + radius * Math.sin(angle);
+
+						SCROLL_BASED_MESH.children[2].rotation.x =
+							SCROLL_BASED_MESH.position.x - radius * Math.cos(angle) - 2.5;
+						SCROLL_BASED_MESH.children[2].rotation.y =
+							SCROLL_BASED_MESH.position.y + radius * Math.sin(angle) + 1;
+					}
+
+					if (SCROLL_BASED_MESH.children[3]) {
+						SCROLL_BASED_MESH.children[3].position.x =
+							SCROLL_BASED_MESH.position.x - radius * Math.sin(angle) - 2.5;
+						SCROLL_BASED_MESH.children[3].position.y =
+							SCROLL_BASED_MESH.position.y - radius * Math.cos(angle) + 1;
+						SCROLL_BASED_MESH.children[3].position.z =
+							SCROLL_BASED_MESH.position.y - radius * Math.cos(angle);
+
+						SCROLL_BASED_MESH.children[3].rotation.x =
+							SCROLL_BASED_MESH.position.x - radius * Math.cos(angle) - 2.5;
+						SCROLL_BASED_MESH.children[3].rotation.y =
+							SCROLL_BASED_MESH.position.y - radius * Math.sin(angle) + 1;
+					}
+
+					angle += 0.01;
+				}
 			}
 		}
 
@@ -251,7 +339,15 @@ const initHomePageThree = () => {
 			scrollBasedCurrentSection = SCROLL_BASED_NEW_SECTION;
 			let object = SCROLL_BASED_MESHES_LIST[scrollBasedCurrentSection];
 			if (object) {
-				gsapRotationSpinAnimation(object);
+				if (scrollBasedCurrentSection === 0) {
+					gsapRotationSpinAnimation(object.children[1]);
+					gsapRotationSpinAnimation(object.children[2]);
+					gsapRotationSpinAnimation(object.children[3]);
+				}
+
+				if (scrollBasedCurrentSection > 0) {
+					gsapRotationSpinAnimation( object);
+				}
 			}
 		}
 	});
@@ -272,4 +368,11 @@ const initHomePageThree = () => {
 	};
 };
 
-export default initHomePageThree;
+export default defineNuxtPlugin(() => {
+	return {
+		provide: {
+			initHomePageThree,
+		},
+	};
+});
+

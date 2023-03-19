@@ -133,13 +133,21 @@ export default {
 	},
 	async mounted() {
 		if (process.client && !this.homeThreeApp) {
-			const homeThreeApp = initHomePageThree();
+			const homeThreeApp = this.$initHomePageThree();
 
 			(this.$refs?.firstTitle as HTMLHeadingElement).addEventListener(
 				"mouseover",
 				() => {
 					this.firstTitle = "I BREAK THINKS";
 					homeThreeApp.postProcessing.GLITCH_PASS.enabled = true;
+					const INTERVAL = setInterval(() => {
+						homeThreeApp.postProcessing.GLITCH_PASS.curF = 0;
+					}, 500);
+
+					setTimeout(() => {
+						clearInterval(INTERVAL);
+						homeThreeApp.postProcessing.GLITCH_PASS.curF = 0;
+					}, 1000);
 				}
 			);
 			(this.$refs?.firstTitle as HTMLHeadingElement).addEventListener(
