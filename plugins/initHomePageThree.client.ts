@@ -161,6 +161,7 @@ export const initHomePageThree = () => {
 
 	const GLITCH_PASS = new GlitchPass();
 	GLITCH_PASS.enabled = false;
+	GLITCH_PASS.renderToScreen = false;
 	COMPOSER.addPass(GLITCH_PASS);
 
 	var EFFECT_COPY = new ShaderPass(CopyShader);

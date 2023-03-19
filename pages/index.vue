@@ -151,7 +151,6 @@ export default {
 				() => {
 					this.firstTitle = "I BREAK THINKS";
 					homeThreeApp.postProcessing.GLITCH_PASS.enabled = true;
-					// GLITCH_PASS.goWild = true;
 				}
 			);
 			(this.$refs?.firstTitle as HTMLHeadingElement).addEventListener(
@@ -159,7 +158,8 @@ export default {
 				() => {
 					this.firstTitle = "I MAKE THINKS";
 					homeThreeApp.postProcessing.GLITCH_PASS.enabled = false;
-					// GLITCH_PASS.goWild = false;
+					homeThreeApp.postProcessing.GLITCH_PASS.clear = true;
+					homeThreeApp.postProcessing.GLITCH_PASS.curF = 0;
 				}
 			);
 		}
