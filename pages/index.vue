@@ -119,17 +119,6 @@
 </template>
 
 <script lang="ts">
-import * as THREE from "three";
-import GSAP from "gsap";
-
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
-import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
-
 // TYPES
 import type { initThreeResponseType } from "@/plugins/initThree.client";
 
