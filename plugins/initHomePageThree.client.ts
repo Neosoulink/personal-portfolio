@@ -11,6 +11,7 @@ import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
 
 // HELPERS
 import { initThree } from "./initThree.client";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
 const gsapRotationSpinAnimation = (object: THREE.Object3D<THREE.Event>) => {
 	GSAP.to(object.rotation, {
@@ -29,7 +30,6 @@ const initHomePageThree = () => {
 	});
 
 	// LOADERS
-
 	const LOADING_MANAGER = new THREE.LoadingManager();
 	LOADING_MANAGER.onStart = () => {
 		console.log("on start loading");
@@ -43,8 +43,10 @@ const initHomePageThree = () => {
 	LOADING_MANAGER.onLoad = () => {
 		console.log("on loaded");
 	};
-
+	const DRACO_LOADER = new DRACOLoader();
+	DRACO_LOADER.setDecoderPath("/decoders/draco/");
 	const GLTF_LOADER = new GLTFLoader(LOADING_MANAGER);
+	GLTF_LOADER.setDRACOLoader(DRACO_LOADER);
 
 	// TEXTURE LOADER
 	const TEXTURE_LOADER = new THREE.TextureLoader(LOADING_MANAGER);
@@ -89,49 +91,19 @@ const initHomePageThree = () => {
 	);
 	SCROLL_BASED_GRADIENT_TEXTURE.magFilter = THREE.NearestFilter;
 
-	// Material
-	const SCROLL_BASED_MATERIAL = new THREE.MeshToonMaterial({
-		color: SCROLL_BASED_PARAMS.materialColor,
-	});
-
 	// FORMS
-	let SCROLL_BASED_NOTE_BOOK: THREE.Group;
-	const SCROLL_BASED_TORUS = new THREE.Mesh(
-		new THREE.TorusKnotGeometry(0.8, 0.35, 100, 16),
-		SCROLL_BASED_MATERIAL
-	);
-
 	const SCROLL_BASED_MESHES_LIST: (THREE.Object3D | null)[] = [
 		null,
 		null,
-		SCROLL_BASED_TORUS,
+		null,
 	];
-
-	SCROLL_BASED_TORUS.position.x = -2;
-	SCROLL_BASED_TORUS.position.y = -SCROLL_BASED_PARAMS.objectsDistance * 2;
-
-	// Spheres
-	const rotatingSphere = new THREE.Mesh(
-		new THREE.SphereGeometry(0.5, 32, 32),
-		new THREE.MeshBasicMaterial({ color: 0xff0000 })
-	);
-	const rotatingSphere2 = new THREE.Mesh(
-		new THREE.SphereGeometry(0.5, 32, 32),
-		new THREE.MeshBasicMaterial({ color: 0xfff000 })
-	);
+	let SCROLL_BASED_NOTE_BOOK: THREE.Group;
 
 	GLTF_LOADER.load("/3d_models/notebook/notebook.glb", (glb) => {
 		glb.scene.scale.set(0.5, 0.5, 0.5);
 		glb.scene.position.set(2, -SCROLL_BASED_PARAMS.objectsDistance * 0, 0);
 
 		SCROLL_BASED_NOTE_BOOK = glb.scene;
-		// SCROLL_BASED_NOTE_BOOK.add(rotatingSphere, rotatingSphere2);
-		rotatingSphere.position.set(SCROLL_BASED_NOTE_BOOK.position.x + 0.5, 0, 0);
-		rotatingSphere2.position.set(
-			SCROLL_BASED_NOTE_BOOK.position.x * -1.5,
-			0,
-			0
-		);
 
 		SCROLL_BASED_MESHES_LIST[0] = SCROLL_BASED_NOTE_BOOK;
 
@@ -140,14 +112,14 @@ const initHomePageThree = () => {
 		APP.scene.add(SCROLL_BASED_NOTE_BOOK);
 
 		GLTF_LOADER.load("/3d_models/i_phone/i_phone.glb", (glb) => {
-			glb.scene.scale.set(0.4, 0.4, 0.4);
+			glb.scene.scale.set(0.365, 0.365, 0.365);
 			glb.scene.position.set(SCROLL_BASED_NOTE_BOOK.position.x + 0.5, 0, 0);
 
 			SCROLL_BASED_NOTE_BOOK.add(glb.scene);
 		});
 
 		GLTF_LOADER.load("/3d_models/mouse/mouse.glb", (glb) => {
-			glb.scene.scale.set(12, 12, 12);
+			glb.scene.scale.set(0.635, 0.635, 0.635);
 			glb.scene.position.set(SCROLL_BASED_NOTE_BOOK.position.x * -1.5, 0, 0);
 
 			SCROLL_BASED_NOTE_BOOK.add(glb.scene);
@@ -159,6 +131,17 @@ const initHomePageThree = () => {
 
 			SCROLL_BASED_NOTE_BOOK.add(glb.scene);
 		});
+	});
+
+	GLTF_LOADER.load("/3d_models/isometric_room/isometric_room.glb", (glb) => {
+		glb.scene.scale.set(0.4, 0.4, 0.4);
+		glb.scene.position.set(0, -SCROLL_BASED_PARAMS.objectsDistance * 2.2, 13);
+		glb.scene.rotation.y = Math.PI;
+		glb.scene.rotation.x = -0.1;
+
+		SCROLL_BASED_MESHES_LIST[2] = glb.scene;
+
+		APP.scene.add(SCROLL_BASED_NOTE_BOOK, SCROLL_BASED_MESHES_LIST[2]);
 	});
 
 	// PARTICLES
@@ -243,7 +226,6 @@ const initHomePageThree = () => {
 	SCROLL_BASED_GROUP.add(
 		DIRECTIONAL_LIGHT,
 		AMBIENT_LIGHT,
-		SCROLL_BASED_TORUS,
 		SCROLL_BASED_PARTICLES_POINTS
 	);
 
@@ -258,8 +240,10 @@ const initHomePageThree = () => {
 			const SCROLL_BASED_MESH = SCROLL_BASED_MESHES_LIST[i];
 
 			if (SCROLL_BASED_MESH) {
-				SCROLL_BASED_MESH.rotation.y += DELTA_TIME * 0.1;
-				SCROLL_BASED_MESH.rotation.x += DELTA_TIME * 0.12;
+				if (i !== 2) {
+					SCROLL_BASED_MESH.rotation.y += DELTA_TIME * 0.1;
+					SCROLL_BASED_MESH.rotation.x += DELTA_TIME * 0.12;
+				}
 
 				if (i === 0) {
 					if (SCROLL_BASED_MESH.children[1]) {
@@ -312,6 +296,11 @@ const initHomePageThree = () => {
 		APP.camera.position.y =
 			(-windowClientY / APP.sceneSizes.height) *
 			SCROLL_BASED_PARAMS.objectsDistance;
+		const windowHeight = window.innerHeight;
+		const documentHeight = document.body.clientHeight;
+		APP.camera.rotation.y =
+			(windowClientY / (documentHeight - windowHeight)) * Math.PI;
+
 		GROUP_APP_CAMERA.position.x +=
 			(CURSOR_POS.x * 0.5 - GROUP_APP_CAMERA.position.x) * 5 * DELTA_TIME;
 		GROUP_APP_CAMERA.position.y +=
@@ -349,7 +338,7 @@ const initHomePageThree = () => {
 				}
 
 				if (scrollBasedCurrentSection > 0) {
-					gsapRotationSpinAnimation(object);
+					// gsapRotationSpinAnimation(object);
 				}
 			}
 		}
@@ -361,9 +350,7 @@ const initHomePageThree = () => {
 
 	return {
 		app: APP,
-		forms: {
-			SCROLL_BASED_TORUS,
-		},
+		forms: {},
 		postProcessing: {
 			COMPOSER,
 			GLITCH_PASS,
