@@ -24,6 +24,24 @@ const gsapRotationSpinAnimation = (object: THREE.Object3D<THREE.Event>) => {
 };
 
 const initHomePageThree = () => {
+	// DATA
+	const SCROLL_BASED_DOM_BODY = document.querySelector("body");
+	const SCROLL_BASED_PARAMS = {
+		materialColor: "#ffeded",
+		objectsDistance: 4,
+	};
+	const CURSOR_POS = {
+		x: 0,
+		y: 0,
+	};
+	const WINDOW_HEIGHT = window.innerHeight;
+	const DOCUMENT_HEIGHT = document.body.clientHeight;
+
+	let windowClientY = SCROLL_BASED_DOM_BODY?.scrollTop ?? 0;
+	let currentScrollSection = 0;
+	let previewsElapseTime = 0;
+	let lastSectionReached = false;
+
 	// APP
 	const APP = initThree({
 		appDom: "#home-three-app",
@@ -58,23 +76,7 @@ const initHomePageThree = () => {
 	// CLOCK
 	const ANIMATION_CLOCK = new THREE.Clock();
 
-	// DATA
-	const SCROLL_BASED_DOM_BODY = document.querySelector("body");
-	const SCROLL_BASED_PARAMS = {
-		materialColor: "#ffeded",
-		objectsDistance: 4,
-	};
-	const CURSOR_POS = {
-		x: 0,
-		y: 0,
-	};
-
-	let windowClientY = SCROLL_BASED_DOM_BODY?.scrollTop ?? 0;
-	let scrollBasedCurrentSection = 0;
-	let previewsElapseTime = 0;
-
 	// APP
-
 	APP.camera.position.z = 6;
 	APP.camera.fov = 35;
 	APP.camera.updateProjectionMatrix();
@@ -137,10 +139,11 @@ const initHomePageThree = () => {
 	});
 
 	GLTF_LOADER.load("/3d_models/isometric_room/isometric_room.glb", (glb) => {
-		glb.scene.scale.set(0.4, 0.4, 0.4);
-		glb.scene.position.set(0, -SCROLL_BASED_PARAMS.objectsDistance * 2.2, 13);
-		glb.scene.rotation.y = Math.PI;
-		glb.scene.rotation.x = -0.1;
+		glb.scene.scale.set(0.35, 0.375, 0.35);
+		glb.scene.position.set(1, -SCROLL_BASED_PARAMS.objectsDistance * 2.19, 12);
+		glb.scene.rotation.y = Math.PI + 0.1;
+		// glb.scene.rotation.x = -0.2;
+		// glb.scene.rotation.z = -0.5;
 
 		SCROLL_BASED_MESHES_LIST[2] = glb.scene;
 
@@ -159,12 +162,12 @@ const initHomePageThree = () => {
 	);
 
 	for (let i = 0; i < SCROLL_BASED_PARTICLES_COUNT; i++) {
-		SCROLL_BASED_PARTICLES_POSITIONS[i * 3 + 0] = (Math.random() - 0.5) * 10;
+		SCROLL_BASED_PARTICLES_POSITIONS[i * 3 + 0] = (Math.random() - 0.65) * 10;
 		SCROLL_BASED_PARTICLES_POSITIONS[i * 3 + 1] =
 			SCROLL_BASED_PARAMS.objectsDistance * 0.5 -
 			Math.random() *
 				SCROLL_BASED_PARAMS.objectsDistance *
-				(SCROLL_BASED_MESHES_LIST.length - 0.5);
+				(SCROLL_BASED_MESHES_LIST.length - 0.8);
 		SCROLL_BASED_PARTICLES_POSITIONS[i * 3 + 2] = (Math.random() - 0.35) * 10;
 	}
 
@@ -310,10 +313,11 @@ const initHomePageThree = () => {
 		APP.camera.position.y =
 			(-windowClientY / APP.sceneSizes.height) *
 			SCROLL_BASED_PARAMS.objectsDistance;
-		const windowHeight = window.innerHeight;
-		const documentHeight = document.body.clientHeight;
-		APP.camera.rotation.y =
-			(windowClientY / (documentHeight - windowHeight)) * Math.PI;
+
+		if (!lastSectionReached) {
+			APP.camera.rotation.y =
+				(windowClientY / (DOCUMENT_HEIGHT - WINDOW_HEIGHT)) * Math.PI;
+		}
 
 		GROUP_APP_CAMERA.position.x +=
 			(CURSOR_POS.x * 0.5 - GROUP_APP_CAMERA.position.x) * 5 * DELTA_TIME;
@@ -328,32 +332,49 @@ const initHomePageThree = () => {
 		CURSOR_POS.y = e.clientY / APP.sceneSizes.height - 0.5;
 	});
 
-	const tmpObj = SCROLL_BASED_MESHES_LIST[scrollBasedCurrentSection];
+	const tmpObj = SCROLL_BASED_MESHES_LIST[currentScrollSection];
 	if (tmpObj) {
 		gsapRotationSpinAnimation(tmpObj);
 	}
 
 	// WINDOW EVENTS
 	window?.addEventListener("scroll", () => {
-		windowClientY = window.scrollY ?? 0;
+		windowClientY = window.scrollY;
 
-		const SCROLL_BASED_NEW_SECTION = Math.round(
+		const _CURRENT_NEW_SECTION = Math.round(
 			windowClientY / APP.sceneSizes.height
 		);
 
-		if (SCROLL_BASED_NEW_SECTION != scrollBasedCurrentSection) {
-			scrollBasedCurrentSection = SCROLL_BASED_NEW_SECTION;
-			let object = SCROLL_BASED_MESHES_LIST[scrollBasedCurrentSection];
-			if (object) {
-				if (scrollBasedCurrentSection === 0) {
-					gsapRotationSpinAnimation(object.children[1]);
-					gsapRotationSpinAnimation(object.children[2]);
-					gsapRotationSpinAnimation(object.children[3]);
-				}
+		if (_CURRENT_NEW_SECTION !== currentScrollSection) {
+			const _LAST_SECTION = Math.round(
+				(DOCUMENT_HEIGHT - WINDOW_HEIGHT) / APP.sceneSizes.height
+			);
 
-				if (scrollBasedCurrentSection > 0) {
-					// gsapRotationSpinAnimation(object);
+			currentScrollSection = _CURRENT_NEW_SECTION;
+			let groupe3dScene = SCROLL_BASED_MESHES_LIST[currentScrollSection];
+
+			if (groupe3dScene) {
+				if (currentScrollSection === 0) {
+					gsapRotationSpinAnimation(groupe3dScene.children[1]);
+					gsapRotationSpinAnimation(groupe3dScene.children[2]);
+					gsapRotationSpinAnimation(groupe3dScene.children[3]);
 				}
+			}
+
+			if (currentScrollSection === _LAST_SECTION) {
+				lastSectionReached = true;
+
+				GSAP.to(APP.camera.rotation, {
+					duration: 1,
+					ease: "power2.inOut",
+					y: "+=" + (APP.camera.rotation.y - Math.PI) * -1,
+				}).then(() => (APP.camera.rotation.y = Math.PI));
+			} else if (lastSectionReached) {
+				GSAP.to(APP.camera.rotation, {
+					duration: 0.65,
+					ease: "power2.inOut",
+					y: "-=" + Math.PI * 0.3,
+				}).then(() => (lastSectionReached = false));
 			}
 		}
 	});
