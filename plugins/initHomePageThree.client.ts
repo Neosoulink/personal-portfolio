@@ -36,8 +36,9 @@ const initHomePageThree = () => {
 	};
 	const WINDOW_HEIGHT = window.innerHeight;
 	const DOCUMENT_HEIGHT = document.body.clientHeight;
+	const PAGE_HEIGHT = DOCUMENT_HEIGHT - WINDOW_HEIGHT;
 
-	let windowClientY = SCROLL_BASED_DOM_BODY?.scrollTop ?? 0;
+	let windowScrollPosition = SCROLL_BASED_DOM_BODY?.scrollTop ?? 0;
 	let currentScrollSection = 0;
 	let previewsElapseTime = 0;
 	let lastSectionReached = false;
@@ -311,12 +312,11 @@ const initHomePageThree = () => {
 		}
 
 		APP.camera.position.y =
-			(-windowClientY / APP.sceneSizes.height) *
+			(-windowScrollPosition / APP.sceneSizes.height) *
 			SCROLL_BASED_PARAMS.objectsDistance;
 
 		if (!lastSectionReached) {
-			APP.camera.rotation.y =
-				(windowClientY / (DOCUMENT_HEIGHT - WINDOW_HEIGHT)) * Math.PI;
+			APP.camera.rotation.y = (windowScrollPosition / PAGE_HEIGHT) * Math.PI;
 		}
 
 		GROUP_APP_CAMERA.position.x +=
@@ -339,10 +339,10 @@ const initHomePageThree = () => {
 
 	// WINDOW EVENTS
 	window?.addEventListener("scroll", () => {
-		windowClientY = window.scrollY;
+		windowScrollPosition = window.scrollY;
 
 		const _CURRENT_NEW_SECTION = Math.round(
-			windowClientY / APP.sceneSizes.height
+			windowScrollPosition / APP.sceneSizes.height
 		);
 
 		if (_CURRENT_NEW_SECTION !== currentScrollSection) {
@@ -371,9 +371,12 @@ const initHomePageThree = () => {
 				}).then(() => (APP.camera.rotation.y = Math.PI));
 			} else if (lastSectionReached) {
 				GSAP.to(APP.camera.rotation, {
-					duration: 0.65,
+					duration: 1,
 					ease: "power2.inOut",
-					y: "-=" + Math.PI * 0.3,
+					y:
+						"-=" +
+						(APP.camera.rotation.y -
+							((windowScrollPosition + 50) / PAGE_HEIGHT) * Math.PI),
 				}).then(() => (lastSectionReached = false));
 			}
 		}
