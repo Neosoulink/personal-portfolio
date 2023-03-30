@@ -164,8 +164,8 @@ const initHomePageThree = () => {
 			SCROLL_BASED_PARAMS.objectsDistance * 0.5 -
 			Math.random() *
 				SCROLL_BASED_PARAMS.objectsDistance *
-				SCROLL_BASED_MESHES_LIST.length;
-		SCROLL_BASED_PARTICLES_POSITIONS[i * 3 + 2] = (Math.random() - 0.5) * 10;
+				(SCROLL_BASED_MESHES_LIST.length - 0.5);
+		SCROLL_BASED_PARTICLES_POSITIONS[i * 3 + 2] = (Math.random() - 0.30) * 10;
 	}
 
 	const SCROLL_BASED_PARTICLES_GEOMETRY = new THREE.BufferGeometry();
