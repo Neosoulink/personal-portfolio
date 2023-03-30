@@ -80,10 +80,11 @@ const initHomePageThree = () => {
 	APP.camera.updateProjectionMatrix();
 
 	// Lights
-	const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 1);
-	DIRECTIONAL_LIGHT.position.set(1, 1, 0);
+	const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 3);
+	DIRECTIONAL_LIGHT.position.set(-4, -4, 10);
+	DIRECTIONAL_LIGHT.rotation.set(4, 0, 3);
 
-	const AMBIENT_LIGHT = new THREE.AmbientLight(0xffffff, 0.05);
+	const AMBIENT_LIGHT = new THREE.AmbientLight(0xffffff, 0.2);
 
 	// Textures
 	const SCROLL_BASED_GRADIENT_TEXTURE = TEXTURE_LOADER.load(
@@ -131,6 +132,8 @@ const initHomePageThree = () => {
 
 			SCROLL_BASED_NOTE_BOOK.add(glb.scene);
 		});
+
+		APP.scene.add(SCROLL_BASED_NOTE_BOOK);
 	});
 
 	GLTF_LOADER.load("/3d_models/isometric_room/isometric_room.glb", (glb) => {
@@ -141,7 +144,12 @@ const initHomePageThree = () => {
 
 		SCROLL_BASED_MESHES_LIST[2] = glb.scene;
 
-		APP.scene.add(SCROLL_BASED_NOTE_BOOK, SCROLL_BASED_MESHES_LIST[2]);
+		const SPOT_LIGHT = new THREE.SpotLight(0xffffff, 10, 5);
+		SPOT_LIGHT.position.x = SCROLL_BASED_MESHES_LIST[2].position.x - 2;
+		SPOT_LIGHT.position.y = SCROLL_BASED_MESHES_LIST[2].position.y + 0.5;
+		SPOT_LIGHT.position.z = SCROLL_BASED_MESHES_LIST[2].position.z + 2;
+		// SPOT_LIGHT.lookAt(SCROLL_BASED_MESHES_LIST[2].position);
+		APP.scene.add(SCROLL_BASED_MESHES_LIST[2], SPOT_LIGHT);
 	});
 
 	// PARTICLES
@@ -200,6 +208,12 @@ const initHomePageThree = () => {
 	rgbShift.enabled = true;
 
 	COMPOSER.addPass(rgbShift);
+
+	// RENDERER
+	APP.renderer.shadowMap.enabled = true;
+	APP.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	APP.renderer.physicallyCorrectLights = true;
+	APP.renderer.outputEncoding = THREE.sRGBEncoding;
 
 	// ADD TO SCENE
 	GROUP_APP_CAMERA.add(APP.camera);
