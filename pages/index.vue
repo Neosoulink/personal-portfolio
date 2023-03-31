@@ -71,14 +71,15 @@
 <script lang="ts">
 // TYPES
 import type { initThreeResponseType } from "@/plugins/initThree.client";
+import type { initHomePageThree } from "@/plugins/initHomePageThree.client";
 
 export default {
 	data() {
-		let THREE_APP: initThreeResponseType | undefined;
+		let THREE_APP: ReturnType<typeof initHomePageThree> | undefined;
 
 		return {
 			firstTitle: "I MAKE THINKS",
-			homeThreeApp: THREE_APP,
+			homeThree: THREE_APP,
 			aboutMeParagraphs: [
 				"I like to develop stuff and it's a real pleasure to have positive feedback from my clients as well as from my users (TheNirvana) .",
 				"I greatly admire & respect those who also develop and do great things from a few lines of code .",
@@ -88,21 +89,21 @@ export default {
 		};
 	},
 	async mounted() {
-		if (process.client && !this.homeThreeApp) {
-			const homeThreeApp = this.$initHomePageThree();
+		if (process.client && !this.homeThree) {
+			const homeThree = this.$initHomePageThree();
 
 			(this.$refs?.firstTitle as HTMLHeadingElement).addEventListener(
 				"mouseover",
 				() => {
 					this.firstTitle = "I BREAK THINKS";
-					homeThreeApp.postProcessing.GLITCH_PASS.enabled = true;
+					homeThree.postProcessing.GLITCH_PASS.enabled = true;
 					const INTERVAL = setInterval(() => {
-						homeThreeApp.postProcessing.GLITCH_PASS.curF = 0;
+						homeThree.postProcessing.GLITCH_PASS.curF = 0;
 					}, 100);
 
 					setTimeout(() => {
 						clearInterval(INTERVAL);
-						homeThreeApp.postProcessing.GLITCH_PASS.curF = 0;
+						homeThree.postProcessing.GLITCH_PASS.curF = 0;
 					}, 500);
 				}
 			);
@@ -110,11 +111,13 @@ export default {
 				"mouseout",
 				() => {
 					this.firstTitle = "I MAKE THINKS";
-					homeThreeApp.postProcessing.GLITCH_PASS.enabled = false;
-					homeThreeApp.postProcessing.GLITCH_PASS.clear = true;
-					homeThreeApp.postProcessing.GLITCH_PASS.curF = 0;
+					homeThree.postProcessing.GLITCH_PASS.enabled = false;
+					homeThree.postProcessing.GLITCH_PASS.clear = true;
+					homeThree.postProcessing.GLITCH_PASS.curF = 0;
 				}
 			);
+
+			this.homeThree = homeThree;
 		}
 	},
 	beforeUnmount() {
@@ -127,9 +130,10 @@ export default {
 			() => {}
 		);
 
-		if (this.homeThreeApp) {
-			this.homeThreeApp.scene.remove();
-			this.homeThreeApp = undefined;
+		if (this.homeThree) {
+			this.homeThree.app.scene.remove();
+			this.homeThree.clear();
+			this.homeThree = undefined;
 		}
 	},
 };
