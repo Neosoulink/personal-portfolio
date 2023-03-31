@@ -9,8 +9,8 @@
 				<canvas id="home-three-app" class="fixed top-0 left-0" />
 			</div>
 
-			<div class="relative z-20">
-				<section class="h-screen flex items-center px-28">
+			<Container class="relative z-20">
+				<section class="h-screen flex items-center">
 					<h1
 						ref="firstTitle"
 						class="text-glitch text-9xl font-medium relative"
@@ -50,18 +50,20 @@
 					</div>
 				</section>
 
-				<section class="h-screen flex justify-end items-center px-28">
-					<div class="md:max-w-screen-sm px-28">
+				<section
+					class="h-screen flex md:justify-end justify-center items-center md:px-28"
+				>
+					<div class="md:max-w-screen-sm md:px-28">
 						<button
 							type="button"
 							href=""
-							class="font-semibold border-2 border-primary-900 rounded-3xl py-2 px-16 mb-10"
+							class="font-semibold border-2 border-primary-900 rounded-3xl py-2 px-16"
 						>
 							Send me a message
 						</button>
 					</div>
 				</section>
-			</div>
+			</Container>
 		</main>
 	</div>
 </template>
