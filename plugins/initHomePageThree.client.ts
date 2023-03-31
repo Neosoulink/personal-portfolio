@@ -6,13 +6,14 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
 import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
+import { RectAreaLightHelper } from "three/examples/jsm/helpers/RectAreaLightHelper.js";
 
 // HELPERS
 import { initThree } from "./initThree.client";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
+// LOCAL FUNCTIONS
 const gsapRotationSpinAnimation = (object: THREE.Object3D<THREE.Event>) => {
 	GSAP.to(object.rotation, {
 		duration: 1.5,
@@ -20,6 +21,18 @@ const gsapRotationSpinAnimation = (object: THREE.Object3D<THREE.Event>) => {
 		x: "+=" + Math.PI * 2,
 		y: "+=" + Math.PI * 2,
 		z: "+=" + Math.PI * 2,
+	});
+};
+
+const updateAllChildMeshEnvMap = (group: THREE.Object3D) => {
+	group?.traverse((child) => {
+		if (
+			child instanceof THREE.Mesh &&
+			child.material instanceof THREE.MeshStandardMaterial
+		) {
+			child.castShadow = true;
+			child.receiveShadow = true;
+		}
 	});
 };
 
@@ -80,9 +93,8 @@ export const initHomePageThree = () => {
 	const APP_GROUP_CAMERA = new THREE.Group();
 
 	// LIGHTS
-	const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 3);
-	DIRECTIONAL_LIGHT.position.set(-4, -4, 10);
-	DIRECTIONAL_LIGHT.rotation.set(4, 0, 3);
+	const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 4);
+	DIRECTIONAL_LIGHT.position.set(0, 0, 1);
 
 	const AMBIENT_LIGHT = new THREE.AmbientLight(0xffffff, 0.2);
 
@@ -140,12 +152,68 @@ export const initHomePageThree = () => {
 		);
 		SECTION_MESHES_LIST[2].rotation.y = Math.PI + 0.1;
 
-		const SPOT_LIGHT = new THREE.SpotLight(0xffffff, 10, 5);
-		SPOT_LIGHT.position.x = SECTION_MESHES_LIST[2].position.x - 2;
-		SPOT_LIGHT.position.y = SECTION_MESHES_LIST[2].position.y + 0.5;
-		SPOT_LIGHT.position.z = SECTION_MESHES_LIST[2].position.z + 2;
+		const OBJ_POS = {
+			x: SECTION_MESHES_LIST[2].position.x,
+			y: SECTION_MESHES_LIST[2].position.y,
+			z: SECTION_MESHES_LIST[2].position.z,
+		};
+		const SHELVES_LIGHT_PARAMS = [0xd93700, 400, 0.689, 0.0275];
 
-		APP.scene.add(SECTION_MESHES_LIST[2], SPOT_LIGHT);
+		const RECT_AREA_TOP_LIGHT = new THREE.RectAreaLight(0xffffff, 6, 1.5, 1.5);
+		RECT_AREA_TOP_LIGHT.position.set(
+			OBJ_POS.x - 1.5,
+			OBJ_POS.y + 14,
+			OBJ_POS.z - 12
+		);
+		RECT_AREA_TOP_LIGHT.lookAt(
+			new THREE.Vector3(OBJ_POS.x - 1.5, OBJ_POS.y, OBJ_POS.z - 12)
+		);
+
+		const RECT_AREA_SHELVE_1_LIGHT = new THREE.RectAreaLight(
+			...SHELVES_LIGHT_PARAMS
+		);
+		RECT_AREA_SHELVE_1_LIGHT.position.set(
+			OBJ_POS.x - 5.242,
+			OBJ_POS.y + 12.015,
+			OBJ_POS.z - 10.82
+		);
+		RECT_AREA_SHELVE_1_LIGHT.lookAt(
+			new THREE.Vector3(OBJ_POS.x, OBJ_POS.y + 4, OBJ_POS.z - 10.82)
+		);
+
+		const RECT_AREA_SHELVE_2_LIGHT = new THREE.RectAreaLight(
+			...SHELVES_LIGHT_PARAMS
+		);
+		RECT_AREA_SHELVE_2_LIGHT.position.set(
+			OBJ_POS.x - 5.242,
+			OBJ_POS.y + 11.57,
+			OBJ_POS.z - 12.7
+		);
+		RECT_AREA_SHELVE_2_LIGHT.lookAt(
+			new THREE.Vector3(OBJ_POS.x, OBJ_POS.y + 5, OBJ_POS.z - 12.7)
+		);
+
+		const RECT_AREA_SHELVE_3_LIGHT = new THREE.RectAreaLight(
+			...SHELVES_LIGHT_PARAMS
+		);
+		RECT_AREA_SHELVE_3_LIGHT.position.set(
+			OBJ_POS.x + 1.05,
+			OBJ_POS.y + 12.9,
+			OBJ_POS.z - 16.095
+		);
+		RECT_AREA_SHELVE_3_LIGHT.lookAt(
+			new THREE.Vector3(OBJ_POS.x + 1.05, OBJ_POS.y + 5, OBJ_POS.z)
+		);
+
+		SECTION_MESHES_LIST[2].add(
+			RECT_AREA_TOP_LIGHT,
+			RECT_AREA_SHELVE_1_LIGHT,
+			RECT_AREA_SHELVE_2_LIGHT,
+			RECT_AREA_SHELVE_3_LIGHT
+		);
+
+		SECTION_MESHES_LIST[2] && updateAllChildMeshEnvMap(SECTION_MESHES_LIST[2]);
+		APP.scene.add(SECTION_MESHES_LIST[2]);
 	});
 
 	// PARTICLES
@@ -190,16 +258,11 @@ export const initHomePageThree = () => {
 	GLITCH_PASS.enabled = false;
 	COMPOSER.addPass(GLITCH_PASS);
 
-	var EFFECT_COPY = new ShaderPass(CopyShader);
-	EFFECT_COPY.renderToScreen = true;
-	COMPOSER.addPass(EFFECT_COPY);
-
 	// SHADERS
 	let rgbShift = new ShaderPass(RGBShiftShader);
 
 	rgbShift.uniforms.amount.value = 0.003;
 	rgbShift.uniforms.angle.value = Math.PI * 2;
-	rgbShift.enabled = true;
 
 	COMPOSER.addPass(rgbShift);
 
@@ -346,6 +409,8 @@ export const initHomePageThree = () => {
 
 			if (currentScrollSection === _LAST_SECTION) {
 				lastSectionReached = true;
+				rgbShift.enabled = false;
+				DIRECTIONAL_LIGHT.visible = false;
 
 				GSAP.to(APP.camera.rotation, {
 					duration: 1,
@@ -360,7 +425,11 @@ export const initHomePageThree = () => {
 						"-=" +
 						(APP.camera.rotation.y -
 							((windowScrollPosition + 50) / pageHeight) * Math.PI),
-				}).then(() => (lastSectionReached = false));
+				}).then(() => {
+					lastSectionReached = false;
+					rgbShift.enabled = true;
+					DIRECTIONAL_LIGHT.visible = true;
+				});
 			}
 		}
 	});
