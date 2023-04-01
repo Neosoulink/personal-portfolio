@@ -7,23 +7,12 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
-import { RectAreaLightHelper } from "three/examples/jsm/helpers/RectAreaLightHelper.js";
 
 // HELPERS
 import { initThree } from "./initThree.client";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
 // LOCAL FUNCTIONS
-const gsapRotationSpinAnimation = (object: THREE.Object3D<THREE.Event>) => {
-	GSAP.to(object.rotation, {
-		duration: 1.5,
-		ease: "power2.inOut",
-		x: "+=" + Math.PI * 2,
-		y: "+=" + Math.PI * 2,
-		z: "+=" + Math.PI * 2,
-	});
-};
-
 const updateAllChildMeshEnvMap = (group: THREE.Object3D) => {
 	group?.traverse((child) => {
 		if (
@@ -109,37 +98,45 @@ export const initHomePageThree = () => {
 		...Array(3).map(() => null),
 	];
 
-	GLTF_LOADER.load("/3d_models/notebook/notebook.glb", (glb) => {
-		const NOTE_BOOK_GROUP = glb.scene;
+	GLTF_LOADER.load("/3d_models/code/code.glb", (glb) => {
+		const CODE_GROUP = new THREE.Group();
 
-		NOTE_BOOK_GROUP.scale.set(0.5, 0.5, 0.5);
-		NOTE_BOOK_GROUP.position.set(2, -COMMON_PARAMS.objectsDistance * 0, 0);
+		glb.scene.scale.set(0.18, 0.18, 0.18);
 
-		APP.scene.add(NOTE_BOOK_GROUP);
+		CODE_GROUP.add(glb.scene);
+		CODE_GROUP.position.set(2, -COMMON_PARAMS.objectsDistance * 0.1, 0);
 
-		GLTF_LOADER.load("/3d_models/i_phone/i_phone.glb", (glb) => {
+		GLTF_LOADER.load("/3d_models/ts/ts.glb", (glb) => {
 			glb.scene.scale.set(0.365, 0.365, 0.365);
-			glb.scene.position.set(NOTE_BOOK_GROUP.position.x + 0.5, 0, 0);
+			glb.scene.position.set(CODE_GROUP.position.x + 0.5, 0, 0);
 
-			NOTE_BOOK_GROUP.add(glb.scene);
+			CODE_GROUP.add(glb.scene);
 		});
 
-		GLTF_LOADER.load("/3d_models/mouse/mouse.glb", (glb) => {
-			glb.scene.scale.set(0.635, 0.635, 0.635);
-			glb.scene.position.set(NOTE_BOOK_GROUP.position.x * -1.5, 0, 0);
+		GLTF_LOADER.load("/3d_models/react/react.glb", (glb) => {
+			glb.scene.scale.set(0.12, 0.12, 0.12);
+			glb.scene.position.set(CODE_GROUP.position.x * -1.5, 0, 0);
 
-			NOTE_BOOK_GROUP.add(glb.scene);
+			CODE_GROUP.add(glb.scene);
 		});
 
-		GLTF_LOADER.load("/3d_models/keyboard/keyboard.glb", (glb) => {
-			glb.scene.scale.set(0.2, 0.2, 0.2);
-			glb.scene.position.set(NOTE_BOOK_GROUP.position.x * -1.5, 0, 0);
+		GLTF_LOADER.load("/3d_models/vue/vue.glb", (glb) => {
+			glb.scene.scale.set(1, 1, 1);
+			glb.scene.position.set(CODE_GROUP.position.x * -1.5, 0, 0);
 
-			NOTE_BOOK_GROUP.add(glb.scene);
+			CODE_GROUP.add(glb.scene);
 		});
 
-		SECTION_MESHES_LIST[0] = NOTE_BOOK_GROUP;
-		APP.scene.add(NOTE_BOOK_GROUP);
+		GLTF_LOADER.load("/3d_models/php/php.glb", (glb) => {
+			glb.scene.scale.set(0.365, 0.365, 0.365);
+			glb.scene.position.set(CODE_GROUP.position.x + 0.5, 0, 0);
+
+			CODE_GROUP.add(glb.scene);
+		});
+
+		SECTION_MESHES_LIST[0] = CODE_GROUP;
+
+		APP.scene.add(CODE_GROUP);
 	});
 
 	GLTF_LOADER.load("/3d_models/isometric_room/isometric_room.glb", (glb) => {
@@ -295,66 +292,118 @@ export const initHomePageThree = () => {
 		{ repeat: -1, duration: 4, value: 0.004, ease: "none" }
 	);
 
-	let angle = 0;
-	let radius = 2.5;
+	let firstSectionModelsAngle = 0;
+	let firstSectionModelsRadius = 1.7;
 	APP.animate(() => {
 		const ELAPSED_TIME = ANIMATION_CLOCK.getElapsedTime();
 		const DELTA_TIME = ELAPSED_TIME - previewsElapseTime;
 		previewsElapseTime = ELAPSED_TIME;
 
 		for (let i = 0; i < SECTION_MESHES_LIST.length; i++) {
-			const SCROLL_BASED_MESH = SECTION_MESHES_LIST[i];
+			if (i === 0) {
+				const FIRST_SECTION_MODELS_GROUP = SECTION_MESHES_LIST[i];
 
-			if (SCROLL_BASED_MESH) {
-				if (i !== 2) {
-					SCROLL_BASED_MESH.rotation.y += DELTA_TIME * 0.1;
-					SCROLL_BASED_MESH.rotation.x += DELTA_TIME * 0.12;
-				}
+				if (FIRST_SECTION_MODELS_GROUP) {
+					FIRST_SECTION_MODELS_GROUP.rotation.y += DELTA_TIME * 0.1;
+					FIRST_SECTION_MODELS_GROUP.rotation.x += DELTA_TIME * 0.12;
 
-				if (i === 0) {
-					if (SCROLL_BASED_MESH.children[1]) {
-						SCROLL_BASED_MESH.children[1].position.x =
-							SCROLL_BASED_MESH.position.x + radius * Math.cos(angle) - 2.5;
-						SCROLL_BASED_MESH.children[1].position.y =
-							SCROLL_BASED_MESH.position.y - radius * Math.sin(angle) + 1;
-						SCROLL_BASED_MESH.children[1].position.z =
-							SCROLL_BASED_MESH.position.y - radius * Math.sin(angle);
+					const children = FIRST_SECTION_MODELS_GROUP.children;
+					const child1 = children[1];
+					const child2 = children[2];
+					const child3 = children[3];
+					const child4 = children[4];
+					const cosAngle = Math.cos(firstSectionModelsAngle);
+					const sinAngle = Math.sin(firstSectionModelsAngle);
 
-						SCROLL_BASED_MESH.children[1].rotation.x =
-							SCROLL_BASED_MESH.position.x + radius * Math.cos(angle) - 2.5;
-						SCROLL_BASED_MESH.children[1].rotation.y =
-							SCROLL_BASED_MESH.position.y - radius * Math.sin(angle) + 1;
+					if (child1) {
+						child1.position.set(
+							FIRST_SECTION_MODELS_GROUP.position.x +
+								firstSectionModelsRadius * cosAngle -
+								firstSectionModelsRadius,
+							FIRST_SECTION_MODELS_GROUP.position.y -
+								firstSectionModelsRadius * sinAngle +
+								1,
+							FIRST_SECTION_MODELS_GROUP.position.z -
+								firstSectionModelsRadius * sinAngle
+						);
+
+						child1.rotation.x =
+							FIRST_SECTION_MODELS_GROUP.position.x +
+							firstSectionModelsRadius * cosAngle -
+							firstSectionModelsRadius;
+						child1.rotation.y =
+							FIRST_SECTION_MODELS_GROUP.position.y -
+							firstSectionModelsRadius * sinAngle +
+							1;
 					}
 
-					if (SCROLL_BASED_MESH.children[2]) {
-						SCROLL_BASED_MESH.children[2].position.x =
-							SCROLL_BASED_MESH.position.x - radius * Math.cos(angle) - 2.5;
-						SCROLL_BASED_MESH.children[2].position.y =
-							SCROLL_BASED_MESH.position.y + radius * Math.sin(angle) + 1;
-						SCROLL_BASED_MESH.children[2].position.z =
-							SCROLL_BASED_MESH.position.y + radius * Math.sin(angle);
+					if (child2) {
+						child2.position.set(
+							FIRST_SECTION_MODELS_GROUP.position.x -
+								firstSectionModelsRadius * cosAngle -
+								firstSectionModelsRadius,
+							FIRST_SECTION_MODELS_GROUP.position.y +
+								firstSectionModelsRadius * sinAngle +
+								1,
+							FIRST_SECTION_MODELS_GROUP.position.z +
+								firstSectionModelsRadius * sinAngle
+						);
 
-						SCROLL_BASED_MESH.children[2].rotation.x =
-							SCROLL_BASED_MESH.position.x - radius * Math.cos(angle) - 2.5;
-						SCROLL_BASED_MESH.children[2].rotation.y =
-							SCROLL_BASED_MESH.position.y + radius * Math.sin(angle) + 1;
+						child2.rotation.x =
+							FIRST_SECTION_MODELS_GROUP.position.x -
+							firstSectionModelsRadius * cosAngle -
+							firstSectionModelsRadius;
+						child2.rotation.y =
+							FIRST_SECTION_MODELS_GROUP.position.y +
+							firstSectionModelsRadius * sinAngle +
+							1;
 					}
 
-					if (SCROLL_BASED_MESH.children[3]) {
-						SCROLL_BASED_MESH.children[3].position.x =
-							SCROLL_BASED_MESH.position.x - radius * Math.sin(angle) - 2.5;
-						SCROLL_BASED_MESH.children[3].position.y =
-							SCROLL_BASED_MESH.position.y - radius * Math.cos(angle) + 1;
-						SCROLL_BASED_MESH.children[3].position.z =
-							SCROLL_BASED_MESH.position.y - radius * Math.cos(angle);
+					if (child3) {
+						child3.position.set(
+							FIRST_SECTION_MODELS_GROUP.position.x -
+								firstSectionModelsRadius * sinAngle -
+								firstSectionModelsRadius,
+							FIRST_SECTION_MODELS_GROUP.position.y -
+								firstSectionModelsRadius * cosAngle +
+								1,
+							FIRST_SECTION_MODELS_GROUP.position.z -
+								firstSectionModelsRadius * cosAngle
+						);
 
-						SCROLL_BASED_MESH.children[3].rotation.x =
-							SCROLL_BASED_MESH.position.x - radius * Math.cos(angle) - 2.5;
-						SCROLL_BASED_MESH.children[3].rotation.y =
-							SCROLL_BASED_MESH.position.y - radius * Math.sin(angle) + 1;
+						child3.rotation.x =
+							FIRST_SECTION_MODELS_GROUP.position.x -
+							firstSectionModelsRadius * cosAngle -
+							firstSectionModelsRadius;
+						child3.rotation.y =
+							FIRST_SECTION_MODELS_GROUP.position.y -
+							firstSectionModelsRadius * sinAngle +
+							1;
 					}
 
-					angle += 0.01;
+					if (child4) {
+						child4.position.set(
+							FIRST_SECTION_MODELS_GROUP.position.x +
+								firstSectionModelsRadius * sinAngle -
+								firstSectionModelsRadius,
+							FIRST_SECTION_MODELS_GROUP.position.y +
+								firstSectionModelsRadius * cosAngle +
+								1,
+							FIRST_SECTION_MODELS_GROUP.position.z +
+								firstSectionModelsRadius * cosAngle
+						);
+
+						child4.rotation.y =
+							FIRST_SECTION_MODELS_GROUP.position.x +
+							firstSectionModelsRadius * cosAngle -
+							firstSectionModelsRadius;
+						child4.rotation.y =
+							FIRST_SECTION_MODELS_GROUP.position.y +
+							firstSectionModelsRadius * sinAngle +
+							1;
+					}
+
+					firstSectionModelsAngle += 0.01;
 				}
 			}
 		}
@@ -380,11 +429,6 @@ export const initHomePageThree = () => {
 		CURSOR_LOCATION.y = e.clientY / APP.sceneSizes.height - 0.5;
 	});
 
-	const tmpObj = SECTION_MESHES_LIST[currentScrollSection];
-	if (tmpObj) {
-		gsapRotationSpinAnimation(tmpObj);
-	}
-
 	// WINDOW EVENTS
 	window?.addEventListener("scroll", () => {
 		windowScrollPosition = window.scrollY;
@@ -397,15 +441,6 @@ export const initHomePageThree = () => {
 			const _LAST_SECTION = Math.round(pageHeight / APP.sceneSizes.height);
 
 			currentScrollSection = _CURRENT_NEW_SECTION;
-			let groupe3dScene = SECTION_MESHES_LIST[currentScrollSection];
-
-			if (groupe3dScene) {
-				if (currentScrollSection === 0) {
-					gsapRotationSpinAnimation(groupe3dScene.children[1]);
-					gsapRotationSpinAnimation(groupe3dScene.children[2]);
-					gsapRotationSpinAnimation(groupe3dScene.children[3]);
-				}
-			}
 
 			if (currentScrollSection === _LAST_SECTION) {
 				lastSectionReached = true;
