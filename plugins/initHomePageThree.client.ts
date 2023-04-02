@@ -256,12 +256,8 @@ export const initHomePageThree = () => {
 	COMPOSER.addPass(GLITCH_PASS);
 
 	// SHADERS
-	let rgbShift = new ShaderPass(RGBShiftShader);
-
-	rgbShift.uniforms.amount.value = 0.003;
-	rgbShift.uniforms.angle.value = Math.PI * 2;
-
-	COMPOSER.addPass(rgbShift);
+	const RGB_SHIFT = new ShaderPass(RGBShiftShader);
+	COMPOSER.addPass(RGB_SHIFT);
 
 	// RENDERER
 	APP.renderer.shadowMap.enabled = true;
@@ -276,20 +272,15 @@ export const initHomePageThree = () => {
 
 	// ANIMATIONS
 	GSAP.fromTo(
-		rgbShift.uniforms.angle,
-		{},
-		{
-			repeat: -1,
-			duration: 4,
-			value: 0,
-			ease: "none",
-		}
+		RGB_SHIFT.uniforms.angle,
+		{ value: 0 },
+		{ repeat: -1, duration: 4, value: Math.PI * 2, ease: "none" }
 	);
 
 	GSAP.fromTo(
-		rgbShift.uniforms.amount,
-		{},
-		{ repeat: -1, duration: 4, value: 0.004, ease: "none" }
+		RGB_SHIFT.uniforms.amount,
+		{ value: -0.002 },
+		{ duration: 2, value: 0.0024, ease: "easeInOut" }
 	);
 
 	let firstSectionModelsAngle = 0;
@@ -299,119 +290,125 @@ export const initHomePageThree = () => {
 		const DELTA_TIME = ELAPSED_TIME - previewsElapseTime;
 		previewsElapseTime = ELAPSED_TIME;
 
-		if (SECTION_MESHES_LIST[0]) {
-			const FIRST_SECTION_MODELS_GROUP = SECTION_MESHES_LIST[0];
-
-			if (FIRST_SECTION_MODELS_GROUP) {
-				FIRST_SECTION_MODELS_GROUP.rotation.y += DELTA_TIME * 0.1;
-				FIRST_SECTION_MODELS_GROUP.rotation.x += DELTA_TIME * 0.12;
-
-				const children = FIRST_SECTION_MODELS_GROUP.children;
-				const child1 = children[1];
-				const child2 = children[2];
-				const child3 = children[3];
-				const child4 = children[4];
-				const cosAngle = Math.cos(firstSectionModelsAngle);
-				const sinAngle = Math.sin(firstSectionModelsAngle);
-
-				if (child1) {
-					child1.position.set(
-						FIRST_SECTION_MODELS_GROUP.position.x +
-							firstSectionModelsRadius * cosAngle -
-							firstSectionModelsRadius,
-						FIRST_SECTION_MODELS_GROUP.position.y -
-							firstSectionModelsRadius * sinAngle +
-							1,
-						FIRST_SECTION_MODELS_GROUP.position.z -
-							firstSectionModelsRadius * sinAngle
-					);
-
-					child1.rotation.x =
-						FIRST_SECTION_MODELS_GROUP.position.x +
-						firstSectionModelsRadius * cosAngle -
-						firstSectionModelsRadius;
-					child1.rotation.y =
-						FIRST_SECTION_MODELS_GROUP.position.y -
-						firstSectionModelsRadius * sinAngle +
-						1;
-				}
-
-				if (child2) {
-					child2.position.set(
-						FIRST_SECTION_MODELS_GROUP.position.x -
-							firstSectionModelsRadius * cosAngle -
-							firstSectionModelsRadius,
-						FIRST_SECTION_MODELS_GROUP.position.y +
-							firstSectionModelsRadius * sinAngle +
-							1,
-						FIRST_SECTION_MODELS_GROUP.position.z +
-							firstSectionModelsRadius * sinAngle
-					);
-
-					child2.rotation.x =
-						FIRST_SECTION_MODELS_GROUP.position.x -
-						firstSectionModelsRadius * cosAngle -
-						firstSectionModelsRadius;
-					child2.rotation.y =
-						FIRST_SECTION_MODELS_GROUP.position.y +
-						firstSectionModelsRadius * sinAngle +
-						1;
-				}
-
-				if (child3) {
-					child3.position.set(
-						FIRST_SECTION_MODELS_GROUP.position.x -
-							firstSectionModelsRadius * sinAngle -
-							firstSectionModelsRadius,
-						FIRST_SECTION_MODELS_GROUP.position.y -
-							firstSectionModelsRadius * cosAngle +
-							1,
-						FIRST_SECTION_MODELS_GROUP.position.z -
-							firstSectionModelsRadius * cosAngle
-					);
-
-					child3.rotation.x =
-						FIRST_SECTION_MODELS_GROUP.position.x -
-						firstSectionModelsRadius * cosAngle -
-						firstSectionModelsRadius;
-					child3.rotation.y =
-						FIRST_SECTION_MODELS_GROUP.position.y -
-						firstSectionModelsRadius * sinAngle +
-						1;
-				}
-
-				if (child4) {
-					child4.position.set(
-						FIRST_SECTION_MODELS_GROUP.position.x +
-							firstSectionModelsRadius * sinAngle -
-							firstSectionModelsRadius,
-						FIRST_SECTION_MODELS_GROUP.position.y +
-							firstSectionModelsRadius * cosAngle +
-							1,
-						FIRST_SECTION_MODELS_GROUP.position.z +
-							firstSectionModelsRadius * cosAngle
-					);
-
-					child4.rotation.y =
-						FIRST_SECTION_MODELS_GROUP.position.x +
-						firstSectionModelsRadius * cosAngle -
-						firstSectionModelsRadius;
-					child4.rotation.y =
-						FIRST_SECTION_MODELS_GROUP.position.y +
-						firstSectionModelsRadius * sinAngle +
-						1;
-				}
-
-				firstSectionModelsAngle += 0.01;
-			}
-		}
-
 		APP.camera.position.y =
 			(-windowScrollPosition / APP.sceneSizes.height) *
 			COMMON_PARAMS.objectsDistance;
 
 		APP.camera.rotation.y = (windowScrollPosition / pageHeight) * Math.PI;
-		if (!lastSectionReached) {
+
+		if (SECTION_MESHES_LIST[0]) {
+			SECTION_MESHES_LIST[0].rotation.y += DELTA_TIME * 0.1;
+			SECTION_MESHES_LIST[0].rotation.x += DELTA_TIME * 0.12;
+
+			const children = SECTION_MESHES_LIST[0].children;
+			const child1 = children[1];
+			const child2 = children[2];
+			const child3 = children[3];
+			const child4 = children[4];
+			const cosAngle = Math.cos(firstSectionModelsAngle);
+			const sinAngle = Math.sin(firstSectionModelsAngle);
+
+			if (child1) {
+				child1.position.set(
+					SECTION_MESHES_LIST[0].position.x +
+						firstSectionModelsRadius * cosAngle -
+						firstSectionModelsRadius,
+					SECTION_MESHES_LIST[0].position.y -
+						firstSectionModelsRadius * sinAngle +
+						1,
+					SECTION_MESHES_LIST[0].position.z -
+						firstSectionModelsRadius * sinAngle
+				);
+
+				child1.rotation.x =
+					SECTION_MESHES_LIST[0].position.x +
+					firstSectionModelsRadius * cosAngle -
+					firstSectionModelsRadius;
+				child1.rotation.y =
+					SECTION_MESHES_LIST[0].position.y -
+					firstSectionModelsRadius * sinAngle +
+					1;
+			}
+
+			if (child2) {
+				child2.position.set(
+					SECTION_MESHES_LIST[0].position.x -
+						firstSectionModelsRadius * cosAngle -
+						firstSectionModelsRadius,
+					SECTION_MESHES_LIST[0].position.y +
+						firstSectionModelsRadius * sinAngle +
+						1,
+					SECTION_MESHES_LIST[0].position.z +
+						firstSectionModelsRadius * sinAngle
+				);
+
+				child2.rotation.x =
+					SECTION_MESHES_LIST[0].position.x -
+					firstSectionModelsRadius * cosAngle -
+					firstSectionModelsRadius;
+				child2.rotation.y =
+					SECTION_MESHES_LIST[0].position.y +
+					firstSectionModelsRadius * sinAngle +
+					1;
+			}
+
+			if (child3) {
+				child3.position.set(
+					SECTION_MESHES_LIST[0].position.x -
+						firstSectionModelsRadius * sinAngle -
+						firstSectionModelsRadius,
+					SECTION_MESHES_LIST[0].position.y -
+						firstSectionModelsRadius * cosAngle +
+						1,
+					SECTION_MESHES_LIST[0].position.z -
+						firstSectionModelsRadius * cosAngle
+				);
+
+				child3.rotation.x =
+					SECTION_MESHES_LIST[0].position.x -
+					firstSectionModelsRadius * cosAngle -
+					firstSectionModelsRadius;
+				child3.rotation.y =
+					SECTION_MESHES_LIST[0].position.y -
+					firstSectionModelsRadius * sinAngle +
+					1;
+			}
+
+			if (child4) {
+				child4.position.set(
+					SECTION_MESHES_LIST[0].position.x +
+						firstSectionModelsRadius * sinAngle -
+						firstSectionModelsRadius,
+					SECTION_MESHES_LIST[0].position.y +
+						firstSectionModelsRadius * cosAngle +
+						1,
+					SECTION_MESHES_LIST[0].position.z +
+						firstSectionModelsRadius * cosAngle
+				);
+
+				child4.rotation.y =
+					SECTION_MESHES_LIST[0].position.x +
+					firstSectionModelsRadius * cosAngle -
+					firstSectionModelsRadius;
+				child4.rotation.y =
+					SECTION_MESHES_LIST[0].position.y +
+					firstSectionModelsRadius * sinAngle +
+					1;
+			}
+
+			firstSectionModelsAngle += 0.01;
+		}
+
+		if (lastSectionReached && SECTION_MESHES_LIST[2]) {
+			const _DIRECTION = new THREE.Vector3();
+			APP.camera.getWorldDirection(_DIRECTION);
+
+			const _ADJUST_CAMERA_POSITION = APP.camera.position
+				.clone()
+				.add(_DIRECTION.multiplyScalar(6.5));
+
+			SECTION_MESHES_LIST[2].position.x = _ADJUST_CAMERA_POSITION.x;
+			SECTION_MESHES_LIST[2].position.z = _ADJUST_CAMERA_POSITION.z;
 		}
 
 		APP_GROUP_CAMERA.position.x +=
@@ -442,14 +439,25 @@ export const initHomePageThree = () => {
 
 			if (currentScrollSection === _LAST_SECTION) {
 				lastSectionReached = true;
-				rgbShift.enabled = false;
 				DIRECTIONAL_LIGHT.visible = false;
 
-				// GSAP.to(APP.camera.rotation, {
-				// 	duration: 1,
+				// RGB_SHIFT.uniforms.amount.value = 0.003;
+				// RGB_SHIFT.uniforms.angle.value = Math.PI * 2;
+				// GSAP.to(RGB_SHIFT.uniforms.amount, {
+				// 	duration: 2,
 				// 	ease: "power2.inOut",
-				// 	y: "+=" + (APP.camera.rotation.y - Math.PI) * -1,
-				// }).then(() => (APP.camera.rotation.y = Math.PI));
+				// 	value: "-=" + RGB_SHIFT.uniforms.amount.value,
+				// }).then(() => {
+				// 	RGB_SHIFT.enabled = false;
+				// });
+
+				// GSAP.to(RGB_SHIFT.uniforms.angle, {
+				// 	duration: 2,
+				// 	ease: "power2.inOut",
+				// 	value: "-=" + RGB_SHIFT.uniforms.angle.value,
+				// }).then(() => {
+				// 	RGB_SHIFT.enabled = false;
+				// });
 			} else if (lastSectionReached) {
 				// GSAP.to(APP.camera.rotation, {
 				// 	duration: 1,
@@ -460,8 +468,10 @@ export const initHomePageThree = () => {
 				// 			((windowScrollPosition + 50) / pageHeight) * Math.PI),
 				// }).then(() => {
 				// });
+				// RGB_SHIFT.uniforms.amount.value = 0.003;
+				// RGB_SHIFT.uniforms.angle.value = Math.PI * 2;
 				lastSectionReached = false;
-				rgbShift.enabled = true;
+				RGB_SHIFT.enabled = true;
 				DIRECTIONAL_LIGHT.visible = true;
 			}
 		}
