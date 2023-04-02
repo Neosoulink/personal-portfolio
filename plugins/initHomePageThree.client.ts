@@ -27,7 +27,7 @@ const updateAllChildMeshEnvMap = (group: THREE.Object3D) => {
 
 export const initHomePageThree = () => {
 	// DATA
-	const SCROLL_BASED_DOM_BODY = document.querySelector("body");
+	const SCROLL_DOM_BODY = document.querySelector("body");
 	const CURSOR_LOCATION = {
 		x: 0,
 		y: 0,
@@ -38,7 +38,7 @@ export const initHomePageThree = () => {
 	};
 
 	let pageHeight = document.body.clientHeight - window.innerHeight;
-	let windowScrollPosition = SCROLL_BASED_DOM_BODY?.scrollTop ?? 0;
+	let windowScrollPosition = SCROLL_DOM_BODY?.scrollTop ?? 0;
 	let currentScrollSection = 0;
 	let previewsElapseTime = 0;
 	let lastSectionReached = false;
@@ -299,112 +299,110 @@ export const initHomePageThree = () => {
 		const DELTA_TIME = ELAPSED_TIME - previewsElapseTime;
 		previewsElapseTime = ELAPSED_TIME;
 
-		for (let i = 0; i < SECTION_MESHES_LIST.length; i++) {
-			if (i === 0) {
-				const FIRST_SECTION_MODELS_GROUP = SECTION_MESHES_LIST[i];
+		if (SECTION_MESHES_LIST[0]) {
+			const FIRST_SECTION_MODELS_GROUP = SECTION_MESHES_LIST[0];
 
-				if (FIRST_SECTION_MODELS_GROUP) {
-					FIRST_SECTION_MODELS_GROUP.rotation.y += DELTA_TIME * 0.1;
-					FIRST_SECTION_MODELS_GROUP.rotation.x += DELTA_TIME * 0.12;
+			if (FIRST_SECTION_MODELS_GROUP) {
+				FIRST_SECTION_MODELS_GROUP.rotation.y += DELTA_TIME * 0.1;
+				FIRST_SECTION_MODELS_GROUP.rotation.x += DELTA_TIME * 0.12;
 
-					const children = FIRST_SECTION_MODELS_GROUP.children;
-					const child1 = children[1];
-					const child2 = children[2];
-					const child3 = children[3];
-					const child4 = children[4];
-					const cosAngle = Math.cos(firstSectionModelsAngle);
-					const sinAngle = Math.sin(firstSectionModelsAngle);
+				const children = FIRST_SECTION_MODELS_GROUP.children;
+				const child1 = children[1];
+				const child2 = children[2];
+				const child3 = children[3];
+				const child4 = children[4];
+				const cosAngle = Math.cos(firstSectionModelsAngle);
+				const sinAngle = Math.sin(firstSectionModelsAngle);
 
-					if (child1) {
-						child1.position.set(
-							FIRST_SECTION_MODELS_GROUP.position.x +
-								firstSectionModelsRadius * cosAngle -
-								firstSectionModelsRadius,
-							FIRST_SECTION_MODELS_GROUP.position.y -
-								firstSectionModelsRadius * sinAngle +
-								1,
-							FIRST_SECTION_MODELS_GROUP.position.z -
-								firstSectionModelsRadius * sinAngle
-						);
-
-						child1.rotation.x =
-							FIRST_SECTION_MODELS_GROUP.position.x +
+				if (child1) {
+					child1.position.set(
+						FIRST_SECTION_MODELS_GROUP.position.x +
 							firstSectionModelsRadius * cosAngle -
-							firstSectionModelsRadius;
-						child1.rotation.y =
-							FIRST_SECTION_MODELS_GROUP.position.y -
+							firstSectionModelsRadius,
+						FIRST_SECTION_MODELS_GROUP.position.y -
 							firstSectionModelsRadius * sinAngle +
-							1;
-					}
+							1,
+						FIRST_SECTION_MODELS_GROUP.position.z -
+							firstSectionModelsRadius * sinAngle
+					);
 
-					if (child2) {
-						child2.position.set(
-							FIRST_SECTION_MODELS_GROUP.position.x -
-								firstSectionModelsRadius * cosAngle -
-								firstSectionModelsRadius,
-							FIRST_SECTION_MODELS_GROUP.position.y +
-								firstSectionModelsRadius * sinAngle +
-								1,
-							FIRST_SECTION_MODELS_GROUP.position.z +
-								firstSectionModelsRadius * sinAngle
-						);
-
-						child2.rotation.x =
-							FIRST_SECTION_MODELS_GROUP.position.x -
-							firstSectionModelsRadius * cosAngle -
-							firstSectionModelsRadius;
-						child2.rotation.y =
-							FIRST_SECTION_MODELS_GROUP.position.y +
-							firstSectionModelsRadius * sinAngle +
-							1;
-					}
-
-					if (child3) {
-						child3.position.set(
-							FIRST_SECTION_MODELS_GROUP.position.x -
-								firstSectionModelsRadius * sinAngle -
-								firstSectionModelsRadius,
-							FIRST_SECTION_MODELS_GROUP.position.y -
-								firstSectionModelsRadius * cosAngle +
-								1,
-							FIRST_SECTION_MODELS_GROUP.position.z -
-								firstSectionModelsRadius * cosAngle
-						);
-
-						child3.rotation.x =
-							FIRST_SECTION_MODELS_GROUP.position.x -
-							firstSectionModelsRadius * cosAngle -
-							firstSectionModelsRadius;
-						child3.rotation.y =
-							FIRST_SECTION_MODELS_GROUP.position.y -
-							firstSectionModelsRadius * sinAngle +
-							1;
-					}
-
-					if (child4) {
-						child4.position.set(
-							FIRST_SECTION_MODELS_GROUP.position.x +
-								firstSectionModelsRadius * sinAngle -
-								firstSectionModelsRadius,
-							FIRST_SECTION_MODELS_GROUP.position.y +
-								firstSectionModelsRadius * cosAngle +
-								1,
-							FIRST_SECTION_MODELS_GROUP.position.z +
-								firstSectionModelsRadius * cosAngle
-						);
-
-						child4.rotation.y =
-							FIRST_SECTION_MODELS_GROUP.position.x +
-							firstSectionModelsRadius * cosAngle -
-							firstSectionModelsRadius;
-						child4.rotation.y =
-							FIRST_SECTION_MODELS_GROUP.position.y +
-							firstSectionModelsRadius * sinAngle +
-							1;
-					}
-
-					firstSectionModelsAngle += 0.01;
+					child1.rotation.x =
+						FIRST_SECTION_MODELS_GROUP.position.x +
+						firstSectionModelsRadius * cosAngle -
+						firstSectionModelsRadius;
+					child1.rotation.y =
+						FIRST_SECTION_MODELS_GROUP.position.y -
+						firstSectionModelsRadius * sinAngle +
+						1;
 				}
+
+				if (child2) {
+					child2.position.set(
+						FIRST_SECTION_MODELS_GROUP.position.x -
+							firstSectionModelsRadius * cosAngle -
+							firstSectionModelsRadius,
+						FIRST_SECTION_MODELS_GROUP.position.y +
+							firstSectionModelsRadius * sinAngle +
+							1,
+						FIRST_SECTION_MODELS_GROUP.position.z +
+							firstSectionModelsRadius * sinAngle
+					);
+
+					child2.rotation.x =
+						FIRST_SECTION_MODELS_GROUP.position.x -
+						firstSectionModelsRadius * cosAngle -
+						firstSectionModelsRadius;
+					child2.rotation.y =
+						FIRST_SECTION_MODELS_GROUP.position.y +
+						firstSectionModelsRadius * sinAngle +
+						1;
+				}
+
+				if (child3) {
+					child3.position.set(
+						FIRST_SECTION_MODELS_GROUP.position.x -
+							firstSectionModelsRadius * sinAngle -
+							firstSectionModelsRadius,
+						FIRST_SECTION_MODELS_GROUP.position.y -
+							firstSectionModelsRadius * cosAngle +
+							1,
+						FIRST_SECTION_MODELS_GROUP.position.z -
+							firstSectionModelsRadius * cosAngle
+					);
+
+					child3.rotation.x =
+						FIRST_SECTION_MODELS_GROUP.position.x -
+						firstSectionModelsRadius * cosAngle -
+						firstSectionModelsRadius;
+					child3.rotation.y =
+						FIRST_SECTION_MODELS_GROUP.position.y -
+						firstSectionModelsRadius * sinAngle +
+						1;
+				}
+
+				if (child4) {
+					child4.position.set(
+						FIRST_SECTION_MODELS_GROUP.position.x +
+							firstSectionModelsRadius * sinAngle -
+							firstSectionModelsRadius,
+						FIRST_SECTION_MODELS_GROUP.position.y +
+							firstSectionModelsRadius * cosAngle +
+							1,
+						FIRST_SECTION_MODELS_GROUP.position.z +
+							firstSectionModelsRadius * cosAngle
+					);
+
+					child4.rotation.y =
+						FIRST_SECTION_MODELS_GROUP.position.x +
+						firstSectionModelsRadius * cosAngle -
+						firstSectionModelsRadius;
+					child4.rotation.y =
+						FIRST_SECTION_MODELS_GROUP.position.y +
+						firstSectionModelsRadius * sinAngle +
+						1;
+				}
+
+				firstSectionModelsAngle += 0.01;
 			}
 		}
 
@@ -412,8 +410,8 @@ export const initHomePageThree = () => {
 			(-windowScrollPosition / APP.sceneSizes.height) *
 			COMMON_PARAMS.objectsDistance;
 
+		APP.camera.rotation.y = (windowScrollPosition / pageHeight) * Math.PI;
 		if (!lastSectionReached) {
-			APP.camera.rotation.y = (windowScrollPosition / pageHeight) * Math.PI;
 		}
 
 		APP_GROUP_CAMERA.position.x +=
@@ -424,12 +422,12 @@ export const initHomePageThree = () => {
 		COMPOSER.render();
 	}, false);
 
-	SCROLL_BASED_DOM_BODY?.addEventListener("mousemove", (e) => {
+	// EVENTS
+	SCROLL_DOM_BODY?.addEventListener("mousemove", (e) => {
 		CURSOR_LOCATION.x = e.clientX / APP.sceneSizes.width - 0.5;
 		CURSOR_LOCATION.y = e.clientY / APP.sceneSizes.height - 0.5;
 	});
 
-	// WINDOW EVENTS
 	window?.addEventListener("scroll", () => {
 		windowScrollPosition = window.scrollY;
 
@@ -447,24 +445,24 @@ export const initHomePageThree = () => {
 				rgbShift.enabled = false;
 				DIRECTIONAL_LIGHT.visible = false;
 
-				GSAP.to(APP.camera.rotation, {
-					duration: 1,
-					ease: "power2.inOut",
-					y: "+=" + (APP.camera.rotation.y - Math.PI) * -1,
-				}).then(() => (APP.camera.rotation.y = Math.PI));
+				// GSAP.to(APP.camera.rotation, {
+				// 	duration: 1,
+				// 	ease: "power2.inOut",
+				// 	y: "+=" + (APP.camera.rotation.y - Math.PI) * -1,
+				// }).then(() => (APP.camera.rotation.y = Math.PI));
 			} else if (lastSectionReached) {
-				GSAP.to(APP.camera.rotation, {
-					duration: 1,
-					ease: "power2.inOut",
-					y:
-						"-=" +
-						(APP.camera.rotation.y -
-							((windowScrollPosition + 50) / pageHeight) * Math.PI),
-				}).then(() => {
-					lastSectionReached = false;
-					rgbShift.enabled = true;
-					DIRECTIONAL_LIGHT.visible = true;
-				});
+				// GSAP.to(APP.camera.rotation, {
+				// 	duration: 1,
+				// 	ease: "power2.inOut",
+				// 	y:
+				// 		"-=" +
+				// 		(APP.camera.rotation.y -
+				// 			((windowScrollPosition + 50) / pageHeight) * Math.PI),
+				// }).then(() => {
+				// });
+				lastSectionReached = false;
+				rgbShift.enabled = true;
+				DIRECTIONAL_LIGHT.visible = true;
 			}
 		}
 	});
