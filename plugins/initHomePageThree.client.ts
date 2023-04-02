@@ -13,7 +13,7 @@ import { initThree } from "./initThree.client";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
 // LOCAL FUNCTIONS
-const updateAllChildMeshEnvMap = (group: THREE.Object3D) => {
+export const updateAllChildMeshEnvMap = (group: THREE.Object3D) => {
 	group?.traverse((child) => {
 		if (
 			child instanceof THREE.Mesh &&
@@ -209,7 +209,6 @@ export const initHomePageThree = () => {
 			RECT_AREA_SHELVE_3_LIGHT
 		);
 
-		SECTION_MESHES_LIST[2] && updateAllChildMeshEnvMap(SECTION_MESHES_LIST[2]);
 		APP.scene.add(SECTION_MESHES_LIST[2]);
 	});
 
@@ -399,7 +398,7 @@ export const initHomePageThree = () => {
 			firstSectionModelsAngle += 0.01;
 		}
 
-		if (lastSectionReached && SECTION_MESHES_LIST[2]) {
+		if (SECTION_MESHES_LIST[2]) {
 			const _DIRECTION = new THREE.Vector3();
 			APP.camera.getWorldDirection(_DIRECTION);
 
@@ -425,7 +424,7 @@ export const initHomePageThree = () => {
 		CURSOR_LOCATION.y = e.clientY / APP.sceneSizes.height - 0.5;
 	});
 
-	window?.addEventListener("scroll", () => {
+	const onWindowScroll = () => {
 		windowScrollPosition = window.scrollY;
 
 		const _CURRENT_NEW_SECTION = Math.round(
@@ -440,47 +439,45 @@ export const initHomePageThree = () => {
 			if (currentScrollSection === _LAST_SECTION) {
 				lastSectionReached = true;
 				DIRECTIONAL_LIGHT.visible = false;
+				RGB_SHIFT.enabled = false;
 
-				// RGB_SHIFT.uniforms.amount.value = 0.003;
-				// RGB_SHIFT.uniforms.angle.value = Math.PI * 2;
-				// GSAP.to(RGB_SHIFT.uniforms.amount, {
-				// 	duration: 2,
-				// 	ease: "power2.inOut",
-				// 	value: "-=" + RGB_SHIFT.uniforms.amount.value,
-				// }).then(() => {
-				// 	RGB_SHIFT.enabled = false;
-				// });
-
-				// GSAP.to(RGB_SHIFT.uniforms.angle, {
-				// 	duration: 2,
-				// 	ease: "power2.inOut",
-				// 	value: "-=" + RGB_SHIFT.uniforms.angle.value,
-				// }).then(() => {
-				// 	RGB_SHIFT.enabled = false;
-				// });
+				// if (SECTION_MESHES_LIST[2]) {
+				// 	GSAP.fromTo(
+				// 		SECTION_MESHES_LIST[2].position,
+				// 		{ y: -COMMON_PARAMS.objectsDistance * 2.19 - 5 },
+				// 		{
+				// 			duration: 1,
+				// 			ease: "power2.inOut",
+				// 			y: "+=" + 5,
+				// 		}
+				// 	);
+				// }
 			} else if (lastSectionReached) {
-				// GSAP.to(APP.camera.rotation, {
-				// 	duration: 1,
-				// 	ease: "power2.inOut",
-				// 	y:
-				// 		"-=" +
-				// 		(APP.camera.rotation.y -
-				// 			((windowScrollPosition + 50) / pageHeight) * Math.PI),
-				// }).then(() => {
-				// });
-				// RGB_SHIFT.uniforms.amount.value = 0.003;
-				// RGB_SHIFT.uniforms.angle.value = Math.PI * 2;
 				lastSectionReached = false;
-				RGB_SHIFT.enabled = true;
 				DIRECTIONAL_LIGHT.visible = true;
+				RGB_SHIFT.enabled = true;
+
+				// if (SECTION_MESHES_LIST[2]) {
+				// 	GSAP.fromTo(
+				// 		SECTION_MESHES_LIST[2].position,
+				// 		{
+				// 			y: -COMMON_PARAMS.objectsDistance * 2.19,
+				// 		},
+				// 		{
+				// 			duration: 1,
+				// 			ease: "power2.inOut",
+				// 			y: "-=" + 5,
+				// 		}
+				// 	);
+				// }
 			}
 		}
-	});
+	};
 
-	window.addEventListener("resize", () => {
-		COMPOSER.setSize(window.innerWidth, window.innerHeight);
-		pageHeight = window.innerHeight - document.body.clientHeight;
+	window.addEventListener("load", () => {
+		onWindowScroll();
 	});
+	window?.addEventListener("scroll", onWindowScroll);
 
 	return {
 		app: APP,
