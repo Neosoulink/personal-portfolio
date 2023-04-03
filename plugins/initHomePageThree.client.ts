@@ -25,6 +25,55 @@ export const updateAllChildMeshEnvMap = (group: THREE.Object3D) => {
 	});
 };
 
+function preventDefault(e: Event) {
+	e.preventDefault();
+}
+
+function preventDefaultForScrollKeys(e: KeyboardEvent) {
+	// left: 37, up: 38, right: 39, down: 40,
+	// spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
+	let keys = [" ", "ArrowUp", "ArrowDown","PageUp", "PageDown", "End", "Home"];
+
+	if (keys.includes(e.key)) {
+		preventDefault(e);
+		return false;
+	}
+}
+
+// modern Chrome requires { passive: false } when adding event
+var supportsPassive = false;
+try {
+	window.addEventListener(
+		"test",
+		() => {},
+		Object.defineProperty({}, "passive", {
+			get: function () {
+				supportsPassive = true;
+			},
+		})
+	);
+} catch (e) {}
+
+var wheelOpt = supportsPassive ? { passive: false } : false;
+var wheelEvent =
+	"onwheel" in document.createElement("div") ? "wheel" : "mousewheel";
+
+// call this to Disable
+function disableScroll() {
+	window.addEventListener("DOMMouseScroll", preventDefault, false); // older FF
+	window.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
+	window.addEventListener("touchmove", preventDefault, wheelOpt); // mobile
+	window.addEventListener("keydown", preventDefaultForScrollKeys, false);
+}
+
+// call this to Enable
+function enableScroll() {
+	window.removeEventListener("DOMMouseScroll", preventDefault, false);
+	window.removeEventListener(wheelEvent, preventDefault);
+	window.removeEventListener("touchmove", preventDefault);
+	window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
+}
+
 export const initHomePageThree = () => {
 	// DATA
 	const SCROLL_DOM_BODY = document.querySelector("body");
@@ -42,6 +91,7 @@ export const initHomePageThree = () => {
 	let currentScrollSection = 0;
 	let previewsElapseTime = 0;
 	let lastSectionReached = false;
+	let isMessaging = false;
 
 	// APP
 	const APP = initThree({
@@ -140,6 +190,8 @@ export const initHomePageThree = () => {
 	});
 
 	GLTF_LOADER.load("/3d_models/isometric_room/isometric_room.glb", (glb) => {
+		console.log("Isometric room", glb);
+
 		SECTION_MESHES_LIST[2] = glb.scene;
 		SECTION_MESHES_LIST[2].scale.set(0.35, 0.375, 0.35);
 		SECTION_MESHES_LIST[2].position.set(
@@ -154,7 +206,7 @@ export const initHomePageThree = () => {
 			y: SECTION_MESHES_LIST[2].position.y,
 			z: SECTION_MESHES_LIST[2].position.z,
 		};
-		const SHELVES_LIGHT_PARAMS = [0xd93700, 400, 0.689, 0.0275];
+		const SHELVES_LIGHT_PARAMS = [0xd93700, 400, 0.689, 0.029];
 
 		const RECT_AREA_TOP_LIGHT = new THREE.RectAreaLight(0xffffff, 6, 1.5, 1.5);
 		RECT_AREA_TOP_LIGHT.position.set(
@@ -170,24 +222,24 @@ export const initHomePageThree = () => {
 			...SHELVES_LIGHT_PARAMS
 		);
 		RECT_AREA_SHELVE_1_LIGHT.position.set(
-			OBJ_POS.x - 5.242,
-			OBJ_POS.y + 12.015,
+			OBJ_POS.x - 5.2,
+			OBJ_POS.y + 12.05,
 			OBJ_POS.z - 10.82
 		);
 		RECT_AREA_SHELVE_1_LIGHT.lookAt(
-			new THREE.Vector3(OBJ_POS.x, OBJ_POS.y + 4, OBJ_POS.z - 10.82)
+			new THREE.Vector3(OBJ_POS.x - 0.5, OBJ_POS.y, OBJ_POS.z - 10.82)
 		);
 
 		const RECT_AREA_SHELVE_2_LIGHT = new THREE.RectAreaLight(
 			...SHELVES_LIGHT_PARAMS
 		);
 		RECT_AREA_SHELVE_2_LIGHT.position.set(
-			OBJ_POS.x - 5.242,
-			OBJ_POS.y + 11.57,
+			OBJ_POS.x - 5.2,
+			OBJ_POS.y + 11.61,
 			OBJ_POS.z - 12.7
 		);
 		RECT_AREA_SHELVE_2_LIGHT.lookAt(
-			new THREE.Vector3(OBJ_POS.x, OBJ_POS.y + 5, OBJ_POS.z - 12.7)
+			new THREE.Vector3(OBJ_POS.x - 0.5, OBJ_POS.y, OBJ_POS.z - 12.7)
 		);
 
 		const RECT_AREA_SHELVE_3_LIGHT = new THREE.RectAreaLight(
@@ -195,11 +247,11 @@ export const initHomePageThree = () => {
 		);
 		RECT_AREA_SHELVE_3_LIGHT.position.set(
 			OBJ_POS.x + 1.05,
-			OBJ_POS.y + 12.9,
-			OBJ_POS.z - 16.095
+			OBJ_POS.y + 12.94,
+			OBJ_POS.z - 16.1
 		);
 		RECT_AREA_SHELVE_3_LIGHT.lookAt(
-			new THREE.Vector3(OBJ_POS.x + 1.05, OBJ_POS.y + 5, OBJ_POS.z)
+			new THREE.Vector3(OBJ_POS.x + 1.05, OBJ_POS.y + 5, OBJ_POS.z - 11)
 		);
 
 		SECTION_MESHES_LIST[2].add(
@@ -289,11 +341,22 @@ export const initHomePageThree = () => {
 		const DELTA_TIME = ELAPSED_TIME - previewsElapseTime;
 		previewsElapseTime = ELAPSED_TIME;
 
-		APP.camera.position.y =
-			(-windowScrollPosition / APP.sceneSizes.height) *
-			COMMON_PARAMS.objectsDistance;
+		if (!isMessaging) {
+			APP.camera.position.y =
+				(-windowScrollPosition / APP.sceneSizes.height) *
+				COMMON_PARAMS.objectsDistance;
 
-		APP.camera.rotation.y = (windowScrollPosition / pageHeight) * Math.PI;
+			APP.camera.rotation.y = (windowScrollPosition / pageHeight) * Math.PI;
+
+			APP_GROUP_CAMERA.position.x +=
+				(CURSOR_LOCATION.x * 0.5 - APP_GROUP_CAMERA.position.x) *
+				5 *
+				DELTA_TIME;
+			APP_GROUP_CAMERA.position.y +=
+				(-CURSOR_LOCATION.y * 0.5 - APP_GROUP_CAMERA.position.y) *
+				5 *
+				DELTA_TIME;
+		}
 
 		if (SECTION_MESHES_LIST[0]) {
 			SECTION_MESHES_LIST[0].rotation.y += DELTA_TIME * 0.1;
@@ -398,7 +461,7 @@ export const initHomePageThree = () => {
 			firstSectionModelsAngle += 0.01;
 		}
 
-		if (SECTION_MESHES_LIST[2]) {
+		if (!isMessaging && SECTION_MESHES_LIST[2]) {
 			const _DIRECTION = new THREE.Vector3();
 			APP.camera.getWorldDirection(_DIRECTION);
 
@@ -410,13 +473,60 @@ export const initHomePageThree = () => {
 			SECTION_MESHES_LIST[2].position.z = _ADJUST_CAMERA_POSITION.z;
 		}
 
-		APP_GROUP_CAMERA.position.x +=
-			(CURSOR_LOCATION.x * 0.5 - APP_GROUP_CAMERA.position.x) * 5 * DELTA_TIME;
-		APP_GROUP_CAMERA.position.y +=
-			(-CURSOR_LOCATION.y * 0.5 - APP_GROUP_CAMERA.position.y) * 5 * DELTA_TIME;
-
 		COMPOSER.render();
 	}, false);
+
+	// FUNCTIONS
+	const handleMessaging = () => {
+		if (!isMessaging && SECTION_MESHES_LIST[2]) {
+			const _DIRECTION = new THREE.Vector3();
+			APP.camera.getWorldDirection(_DIRECTION);
+
+			const _ADJUST_CAMERA_POSITION = APP.camera.position
+				.clone()
+				.add(_DIRECTION.multiplyScalar(5));
+
+			GSAP.to(APP.camera.position, {
+				duration: 1.5,
+				y: SECTION_MESHES_LIST[2].position.y + 0.5,
+				ease: "easeInOut",
+			});
+			GSAP.to(SECTION_MESHES_LIST[2].position, {
+				duration: 1.5,
+				x: _ADJUST_CAMERA_POSITION.x,
+				z: _ADJUST_CAMERA_POSITION.z,
+				ease: "easeInOut",
+			});
+
+			disableScroll();
+			isMessaging = true;
+		} else if (isMessaging && SECTION_MESHES_LIST[2]) {
+			const _DIRECTION = new THREE.Vector3();
+			APP.camera.getWorldDirection(_DIRECTION);
+
+			const _ADJUST_CAMERA_POSITION = APP.camera.position
+				.clone()
+				.add(_DIRECTION.multiplyScalar(6.5));
+
+			GSAP.to(APP.camera.position, {
+				duration: 1.5,
+				y:
+					(-windowScrollPosition / APP.sceneSizes.height) *
+					COMMON_PARAMS.objectsDistance,
+				ease: "easeInOut",
+			});
+
+			GSAP.to(SECTION_MESHES_LIST[2].position, {
+				duration: 1.5,
+				x: _ADJUST_CAMERA_POSITION.x,
+				z: _ADJUST_CAMERA_POSITION.z,
+				ease: "easeInOut",
+			}).then(() => {
+				enableScroll();
+				isMessaging = false;
+			});
+		}
+	};
 
 	// EVENTS
 	SCROLL_DOM_BODY?.addEventListener("mousemove", (e) => {
@@ -440,36 +550,10 @@ export const initHomePageThree = () => {
 				lastSectionReached = true;
 				DIRECTIONAL_LIGHT.visible = false;
 				RGB_SHIFT.enabled = false;
-
-				// if (SECTION_MESHES_LIST[2]) {
-				// 	GSAP.fromTo(
-				// 		SECTION_MESHES_LIST[2].position,
-				// 		{ y: -COMMON_PARAMS.objectsDistance * 2.19 - 5 },
-				// 		{
-				// 			duration: 1,
-				// 			ease: "power2.inOut",
-				// 			y: "+=" + 5,
-				// 		}
-				// 	);
-				// }
 			} else if (lastSectionReached) {
 				lastSectionReached = false;
 				DIRECTIONAL_LIGHT.visible = true;
 				RGB_SHIFT.enabled = true;
-
-				// if (SECTION_MESHES_LIST[2]) {
-				// 	GSAP.fromTo(
-				// 		SECTION_MESHES_LIST[2].position,
-				// 		{
-				// 			y: -COMMON_PARAMS.objectsDistance * 2.19,
-				// 		},
-				// 		{
-				// 			duration: 1,
-				// 			ease: "power2.inOut",
-				// 			y: "-=" + 5,
-				// 		}
-				// 	);
-				// }
 			}
 		}
 	};
@@ -490,6 +574,7 @@ export const initHomePageThree = () => {
 			window.removeEventListener("scroll", () => {});
 			window.removeEventListener("resize", () => {});
 		},
+		handleMessaging,
 	};
 };
 

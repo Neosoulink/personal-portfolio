@@ -57,6 +57,7 @@
 						<button
 							type="button"
 							href=""
+							:onClick="() => homeThree?.handleMessaging()"
 							class="font-semibold border-2 border-primary-900 rounded-3xl py-2 px-16"
 						>
 							Send me a message
