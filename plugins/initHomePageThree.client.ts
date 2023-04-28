@@ -9,7 +9,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
 
 // HELPERS
-import { initThree } from "./initThree.client";
+import ThreeApp from "@/utils/ThreeApp";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
 // LOCAL FUNCTIONS
@@ -32,7 +32,7 @@ function preventDefault(e: Event) {
 function preventDefaultForScrollKeys(e: KeyboardEvent) {
 	// left: 37, up: 38, right: 39, down: 40,
 	// spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
-	let keys = [" ", "ArrowUp", "ArrowDown","PageUp", "PageDown", "End", "Home"];
+	let keys = [" ", "ArrowUp", "ArrowDown", "PageUp", "PageDown", "End", "Home"];
 
 	if (keys.includes(e.key)) {
 		preventDefault(e);
@@ -94,12 +94,12 @@ export const initHomePageThree = () => {
 	let isMessaging = false;
 
 	// APP
-	const APP = initThree({
-		appDom: "#home-three-app",
+	const APP = new ThreeApp({
+		canvasSelector: "#home-three-app",
 	});
-	APP.camera.position.z = 6;
-	APP.camera.fov = 35;
-	APP.camera.updateProjectionMatrix();
+	APP.cameraIntense.position.z = 6;
+	APP.cameraIntense.fov = 35;
+	APP.cameraIntense.updateProjectionMatrix();
 
 	// LOADERS
 	const LOADING_MANAGER = new THREE.LoadingManager();
@@ -299,8 +299,8 @@ export const initHomePageThree = () => {
 	);
 
 	// POSTPROCESSING
-	const COMPOSER = new EffectComposer(APP.renderer);
-	COMPOSER.addPass(new RenderPass(APP.scene, APP.camera));
+	const COMPOSER = new EffectComposer(APP.rendererIntense);
+	COMPOSER.addPass(new RenderPass(APP.scene, APP.cameraIntense));
 
 	const GLITCH_PASS = new GlitchPass();
 	GLITCH_PASS.enabled = false;
@@ -311,14 +311,14 @@ export const initHomePageThree = () => {
 	COMPOSER.addPass(RGB_SHIFT);
 
 	// RENDERER
-	APP.renderer.shadowMap.enabled = true;
-	APP.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-	APP.renderer.physicallyCorrectLights = true;
-	APP.renderer.outputEncoding = THREE.sRGBEncoding;
+	APP.rendererIntense.shadowMap.enabled = true;
+	APP.rendererIntense.shadowMap.type = THREE.PCFSoftShadowMap;
+	APP.rendererIntense.physicallyCorrectLights = true;
+	APP.rendererIntense.outputEncoding = THREE.sRGBEncoding;
 
 	// ADD TO SCENE
 	APP_GROUP.add(DIRECTIONAL_LIGHT, AMBIENT_LIGHT, PARTICLES_POINTS);
-	APP_GROUP_CAMERA.add(APP.camera);
+	APP_GROUP_CAMERA.add(APP.cameraIntense);
 	APP.scene.add(APP_GROUP_CAMERA, APP_GROUP);
 
 	// ANIMATIONS
@@ -336,17 +336,18 @@ export const initHomePageThree = () => {
 
 	let firstSectionModelsAngle = 0;
 	let firstSectionModelsRadius = 1.7;
-	APP.animate(() => {
+	APP.setUpdateCallback("root", () => {
 		const ELAPSED_TIME = ANIMATION_CLOCK.getElapsedTime();
 		const DELTA_TIME = ELAPSED_TIME - previewsElapseTime;
 		previewsElapseTime = ELAPSED_TIME;
 
 		if (!isMessaging) {
-			APP.camera.position.y =
+			APP.cameraIntense.position.y =
 				(-windowScrollPosition / APP.sceneSizes.height) *
 				COMMON_PARAMS.objectsDistance;
 
-			APP.camera.rotation.y = (windowScrollPosition / pageHeight) * Math.PI;
+			APP.cameraIntense.rotation.y =
+				(windowScrollPosition / pageHeight) * Math.PI;
 
 			APP_GROUP_CAMERA.position.x +=
 				(CURSOR_LOCATION.x * 0.5 - APP_GROUP_CAMERA.position.x) *
@@ -463,9 +464,9 @@ export const initHomePageThree = () => {
 
 		if (!isMessaging && SECTION_MESHES_LIST[2]) {
 			const _DIRECTION = new THREE.Vector3();
-			APP.camera.getWorldDirection(_DIRECTION);
+			APP.cameraIntense.getWorldDirection(_DIRECTION);
 
-			const _ADJUST_CAMERA_POSITION = APP.camera.position
+			const _ADJUST_CAMERA_POSITION = APP.cameraIntense.position
 				.clone()
 				.add(_DIRECTION.multiplyScalar(6.5));
 
@@ -474,19 +475,19 @@ export const initHomePageThree = () => {
 		}
 
 		COMPOSER.render();
-	}, false);
+	});
 
 	// FUNCTIONS
 	const handleMessaging = () => {
 		if (!isMessaging && SECTION_MESHES_LIST[2]) {
 			const _DIRECTION = new THREE.Vector3();
-			APP.camera.getWorldDirection(_DIRECTION);
+			APP.cameraIntense.getWorldDirection(_DIRECTION);
 
-			const _ADJUST_CAMERA_POSITION = APP.camera.position
+			const _ADJUST_CAMERA_POSITION = APP.cameraIntense.position
 				.clone()
 				.add(_DIRECTION.multiplyScalar(5));
 
-			GSAP.to(APP.camera.position, {
+			GSAP.to(APP.cameraIntense.position, {
 				duration: 1.5,
 				y: SECTION_MESHES_LIST[2].position.y + 0.5,
 				ease: "easeInOut",
@@ -502,13 +503,13 @@ export const initHomePageThree = () => {
 			isMessaging = true;
 		} else if (isMessaging && SECTION_MESHES_LIST[2]) {
 			const _DIRECTION = new THREE.Vector3();
-			APP.camera.getWorldDirection(_DIRECTION);
+			APP.cameraIntense.getWorldDirection(_DIRECTION);
 
-			const _ADJUST_CAMERA_POSITION = APP.camera.position
+			const _ADJUST_CAMERA_POSITION = APP.cameraIntense.position
 				.clone()
 				.add(_DIRECTION.multiplyScalar(6.5));
 
-			GSAP.to(APP.camera.position, {
+			GSAP.to(APP.cameraIntense.position, {
 				duration: 1.5,
 				y:
 					(-windowScrollPosition / APP.sceneSizes.height) *
