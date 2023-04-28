@@ -2,6 +2,14 @@
 	// https://v3.nuxtjs.org/concepts/typescript
 	"extends": "./.nuxt/tsconfig.json",
 	"compilerOptions": {
-		"types": ["node"]
+		"types": ["node"],
+		"paths": {
+			"@/*": ["./*"],
+			"@components/*": ["./components/*"],
+			"@utils/*": ["./utils/*"],
+			"@public/*": ["./public/*"],
+			"@assets*": ["./assets/*"],
+			"@styles/*": ["./assets/css/*"]
+		}
 	}
 }
