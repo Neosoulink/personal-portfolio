@@ -19,9 +19,11 @@
 		"husky": "^8.0.3",
 		"nuxt": "^3.1.1",
 		"postcss": "^8.4.21",
-		"tailwindcss": "^3.2.4"
+		"tailwindcss": "^3.2.4",
+		"lil-gui": "^0.18.1"
 	},
 	"dependencies": {
+		"events": "^3.3.0",
 		"gsap": "^3.11.4",
 		"three": "^0.149.0"
 	}
