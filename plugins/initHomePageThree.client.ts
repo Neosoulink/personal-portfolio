@@ -130,7 +130,7 @@ export const initHomePageThree = () => {
 	const APP_GROUP_CAMERA = new THREE.Group();
 
 	// LIGHTS
-	const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 4);
+	const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 1);
 	DIRECTIONAL_LIGHT.position.set(0, 0, 1);
 
 	const AMBIENT_LIGHT = new THREE.AmbientLight(0xffffff, 0.2);
