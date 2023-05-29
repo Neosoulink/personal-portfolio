@@ -9,7 +9,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
 
 // HELPERS
-import ThreeApp from "@/utils/ThreeApp";
+import ThreeApp from "quick-threejs";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
 // LOCAL FUNCTIONS
@@ -94,12 +94,10 @@ export const initHomePageThree = () => {
 	let isMessaging = false;
 
 	// APP
-	const APP = new ThreeApp({
-		canvasSelector: "#home-three-app",
-	});
-	APP.cameraIntense.position.z = 6;
-	APP.cameraIntense.fov = 35;
-	APP.cameraIntense.updateProjectionMatrix();
+	const APP = new ThreeApp({}, "#home-three-app");
+	APP.camera.position.z = 6;
+	APP.camera.fov = 35;
+	APP.camera.updateProjectionMatrix();
 
 	// LOADERS
 	const LOADING_MANAGER = new THREE.LoadingManager();
@@ -299,8 +297,8 @@ export const initHomePageThree = () => {
 	);
 
 	// POSTPROCESSING
-	const COMPOSER = new EffectComposer(APP.rendererIntense);
-	COMPOSER.addPass(new RenderPass(APP.scene, APP.cameraIntense));
+	const COMPOSER = new EffectComposer(APP.renderer);
+	COMPOSER.addPass(new RenderPass(APP.scene, APP.camera));
 
 	const GLITCH_PASS = new GlitchPass();
 	GLITCH_PASS.enabled = false;
@@ -310,15 +308,9 @@ export const initHomePageThree = () => {
 	const RGB_SHIFT = new ShaderPass(RGBShiftShader);
 	COMPOSER.addPass(RGB_SHIFT);
 
-	// RENDERER
-	APP.rendererIntense.shadowMap.enabled = true;
-	APP.rendererIntense.shadowMap.type = THREE.PCFSoftShadowMap;
-	APP.rendererIntense.physicallyCorrectLights = true;
-	APP.rendererIntense.outputEncoding = THREE.sRGBEncoding;
-
 	// ADD TO SCENE
 	APP_GROUP.add(DIRECTIONAL_LIGHT, AMBIENT_LIGHT, PARTICLES_POINTS);
-	APP_GROUP_CAMERA.add(APP.cameraIntense);
+	APP_GROUP_CAMERA.add(APP.camera);
 	APP.scene.add(APP_GROUP_CAMERA, APP_GROUP);
 
 	// ANIMATIONS
@@ -342,12 +334,11 @@ export const initHomePageThree = () => {
 		previewsElapseTime = ELAPSED_TIME;
 
 		if (!isMessaging) {
-			APP.cameraIntense.position.y =
+			APP.camera.position.y =
 				(-windowScrollPosition / APP.sceneSizes.height) *
 				COMMON_PARAMS.objectsDistance;
 
-			APP.cameraIntense.rotation.y =
-				(windowScrollPosition / pageHeight) * Math.PI;
+			APP.camera.rotation.y = (windowScrollPosition / pageHeight) * Math.PI;
 
 			APP_GROUP_CAMERA.position.x +=
 				(CURSOR_LOCATION.x * 0.5 - APP_GROUP_CAMERA.position.x) *
@@ -464,9 +455,9 @@ export const initHomePageThree = () => {
 
 		if (!isMessaging && SECTION_MESHES_LIST[2]) {
 			const _DIRECTION = new THREE.Vector3();
-			APP.cameraIntense.getWorldDirection(_DIRECTION);
+			APP.camera.getWorldDirection(_DIRECTION);
 
-			const _ADJUST_CAMERA_POSITION = APP.cameraIntense.position
+			const _ADJUST_CAMERA_POSITION = APP.camera.position
 				.clone()
 				.add(_DIRECTION.multiplyScalar(6.5));
 
@@ -481,13 +472,13 @@ export const initHomePageThree = () => {
 	const handleMessaging = () => {
 		if (!isMessaging && SECTION_MESHES_LIST[2]) {
 			const _DIRECTION = new THREE.Vector3();
-			APP.cameraIntense.getWorldDirection(_DIRECTION);
+			APP.camera.getWorldDirection(_DIRECTION);
 
-			const _ADJUST_CAMERA_POSITION = APP.cameraIntense.position
+			const _ADJUST_CAMERA_POSITION = APP.camera.position
 				.clone()
 				.add(_DIRECTION.multiplyScalar(5));
 
-			GSAP.to(APP.cameraIntense.position, {
+			GSAP.to(APP.camera.position, {
 				duration: 1.5,
 				y: SECTION_MESHES_LIST[2].position.y + 0.5,
 				ease: "easeInOut",
@@ -503,13 +494,13 @@ export const initHomePageThree = () => {
 			isMessaging = true;
 		} else if (isMessaging && SECTION_MESHES_LIST[2]) {
 			const _DIRECTION = new THREE.Vector3();
-			APP.cameraIntense.getWorldDirection(_DIRECTION);
+			APP.camera.getWorldDirection(_DIRECTION);
 
-			const _ADJUST_CAMERA_POSITION = APP.cameraIntense.position
+			const _ADJUST_CAMERA_POSITION = APP.camera.position
 				.clone()
 				.add(_DIRECTION.multiplyScalar(6.5));
 
-			GSAP.to(APP.cameraIntense.position, {
+			GSAP.to(APP.camera.position, {
 				duration: 1.5,
 				y:
 					(-windowScrollPosition / APP.sceneSizes.height) *
