@@ -1,12 +1,5 @@
 import * as THREE from "three";
-import GSAP from "gsap";
-
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
 
 // HELPERS
 import ThreeApp from "quick-threejs";
@@ -24,55 +17,6 @@ export const updateAllChildMeshEnvMap = (group: THREE.Object3D) => {
 		}
 	});
 };
-
-function preventDefault(e: Event) {
-	e.preventDefault();
-}
-
-function preventDefaultForScrollKeys(e: KeyboardEvent) {
-	// left: 37, up: 38, right: 39, down: 40,
-	// spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
-	let keys = [" ", "ArrowUp", "ArrowDown", "PageUp", "PageDown", "End", "Home"];
-
-	if (keys.includes(e.key)) {
-		preventDefault(e);
-		return false;
-	}
-}
-
-// modern Chrome requires { passive: false } when adding event
-var supportsPassive = false;
-try {
-	window.addEventListener(
-		"test",
-		() => {},
-		Object.defineProperty({}, "passive", {
-			get: function () {
-				supportsPassive = true;
-			},
-		})
-	);
-} catch (e) {}
-
-var wheelOpt = supportsPassive ? { passive: false } : false;
-var wheelEvent =
-	"onwheel" in document.createElement("div") ? "wheel" : "mousewheel";
-
-// call this to Disable
-function disableScroll() {
-	window.addEventListener("DOMMouseScroll", preventDefault, false); // older FF
-	window.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
-	window.addEventListener("touchmove", preventDefault, wheelOpt); // mobile
-	window.addEventListener("keydown", preventDefaultForScrollKeys, false);
-}
-
-// call this to Enable
-function enableScroll() {
-	window.removeEventListener("DOMMouseScroll", preventDefault, false);
-	window.removeEventListener(wheelEvent, preventDefault);
-	window.removeEventListener("touchmove", preventDefault);
-	window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
-}
 
 export const initHomePageThree = () => {
 	// DATA
@@ -94,7 +38,7 @@ export const initHomePageThree = () => {
 	let isMessaging = false;
 
 	// APP
-	const APP = new ThreeApp({}, "#home-three-app");
+	const APP = new ThreeApp({ enableControls: true }, "#home-three-app");
 	APP.camera.position.z = 6;
 	APP.camera.fov = 35;
 	APP.camera.updateProjectionMatrix();
@@ -120,89 +64,26 @@ export const initHomePageThree = () => {
 	const GLTF_LOADER = new GLTFLoader(LOADING_MANAGER);
 	GLTF_LOADER.setDRACOLoader(DRACO_LOADER);
 
-	const TEXTURE_LOADER = new THREE.TextureLoader(LOADING_MANAGER);
-
 	// CLOCK
 	const ANIMATION_CLOCK = new THREE.Clock();
 
 	// GROUPS
 	const APP_GROUP = new THREE.Group();
-	const APP_GROUP_CAMERA = new THREE.Group();
 
 	// LIGHTS
-	const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 1);
+	const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 0.2);
 	DIRECTIONAL_LIGHT.position.set(0, 0, 1);
 
 	const AMBIENT_LIGHT = new THREE.AmbientLight(0xffffff, 0.2);
 
-	// TEXTURES
-	const SCROLL_BASED_GRADIENT_TEXTURE = TEXTURE_LOADER.load(
-		"/textures/home-particle.png"
-	);
-	SCROLL_BASED_GRADIENT_TEXTURE.magFilter = THREE.NearestFilter;
-
-	// FORMS
-	const SECTION_MESHES_LIST: (THREE.Object3D | null)[] = [
-		...Array(3).map(() => null),
-	];
-
-	GLTF_LOADER.load("/3d_models/code/code.glb", (glb) => {
-		const CODE_GROUP = new THREE.Group();
-
-		glb.scene.scale.set(0.18, 0.18, 0.18);
-
-		CODE_GROUP.add(glb.scene);
-		CODE_GROUP.position.set(2, -COMMON_PARAMS.objectsDistance * 0.1, 0);
-
-		GLTF_LOADER.load("/3d_models/ts/ts.glb", (glb) => {
-			glb.scene.scale.set(0.365, 0.365, 0.365);
-			glb.scene.position.set(CODE_GROUP.position.x + 0.5, 0, 0);
-
-			CODE_GROUP.add(glb.scene);
-		});
-
-		GLTF_LOADER.load("/3d_models/react/react.glb", (glb) => {
-			glb.scene.scale.set(0.12, 0.12, 0.12);
-			glb.scene.position.set(CODE_GROUP.position.x * -1.5, 0, 0);
-
-			CODE_GROUP.add(glb.scene);
-		});
-
-		GLTF_LOADER.load("/3d_models/vue/vue.glb", (glb) => {
-			glb.scene.scale.set(1, 1, 1);
-			glb.scene.position.set(CODE_GROUP.position.x * -1.5, 0, 0);
-
-			CODE_GROUP.add(glb.scene);
-		});
-
-		GLTF_LOADER.load("/3d_models/php/php.glb", (glb) => {
-			glb.scene.scale.set(0.365, 0.365, 0.365);
-			glb.scene.position.set(CODE_GROUP.position.x + 0.5, 0, 0);
-
-			CODE_GROUP.add(glb.scene);
-		});
-
-		SECTION_MESHES_LIST[0] = CODE_GROUP;
-
-		APP.scene.add(CODE_GROUP);
-	});
-
+	// MODELS
 	GLTF_LOADER.load("/3d_models/isometric_room/isometric_room.glb", (glb) => {
 		console.log("Isometric room", glb);
 
-		SECTION_MESHES_LIST[2] = glb.scene;
-		SECTION_MESHES_LIST[2].scale.set(0.35, 0.375, 0.35);
-		SECTION_MESHES_LIST[2].position.set(
-			1,
-			-COMMON_PARAMS.objectsDistance * 2.19,
-			12
-		);
-		SECTION_MESHES_LIST[2].rotation.y = Math.PI + 0.1;
-
 		const OBJ_POS = {
-			x: SECTION_MESHES_LIST[2].position.x,
-			y: SECTION_MESHES_LIST[2].position.y,
-			z: SECTION_MESHES_LIST[2].position.z,
+			x: glb.scene.position.x,
+			y: glb.scene.position.y,
+			z: glb.scene.position.z,
 		};
 		const SHELVES_LIGHT_PARAMS = [0xd93700, 400, 0.689, 0.029];
 
@@ -252,321 +133,34 @@ export const initHomePageThree = () => {
 			new THREE.Vector3(OBJ_POS.x + 1.05, OBJ_POS.y + 5, OBJ_POS.z - 11)
 		);
 
-		SECTION_MESHES_LIST[2].add(
+		glb.scene.add(
 			RECT_AREA_TOP_LIGHT,
 			RECT_AREA_SHELVE_1_LIGHT,
 			RECT_AREA_SHELVE_2_LIGHT,
 			RECT_AREA_SHELVE_3_LIGHT
 		);
 
-		APP.scene.add(SECTION_MESHES_LIST[2]);
+		APP.scene.add(glb.scene);
 	});
 
-	// PARTICLES
-	const PARTICLES_COUNT = 300;
-	const PARTICLES_POSITIONS = new Float32Array(PARTICLES_COUNT * 3);
-
-	for (let i = 0; i < PARTICLES_COUNT; i++) {
-		PARTICLES_POSITIONS[i * 3 + 0] = (Math.random() - 0.65) * 10;
-		PARTICLES_POSITIONS[i * 3 + 1] =
-			COMMON_PARAMS.objectsDistance * 0.5 -
-			Math.random() *
-				COMMON_PARAMS.objectsDistance *
-				(SECTION_MESHES_LIST.length - 0.8);
-		PARTICLES_POSITIONS[i * 3 + 2] = (Math.random() - 0.35) * 10;
-	}
-
-	const PARTICLES_GEOMETRY = new THREE.BufferGeometry();
-	PARTICLES_GEOMETRY.setAttribute(
-		"position",
-		new THREE.BufferAttribute(PARTICLES_POSITIONS, 3)
-	);
-
-	const PARTICLES_MATERIAL = new THREE.PointsMaterial({
-		color: COMMON_PARAMS.materialColor,
-		alphaMap: SCROLL_BASED_GRADIENT_TEXTURE,
-		depthWrite: false,
-		transparent: true,
-		size: 0.09,
-		sizeAttenuation: true,
-	});
-
-	const PARTICLES_POINTS = new THREE.Points(
-		PARTICLES_GEOMETRY,
-		PARTICLES_MATERIAL
-	);
-
-	// POSTPROCESSING
-	const COMPOSER = new EffectComposer(APP.renderer);
-	COMPOSER.addPass(new RenderPass(APP.scene, APP.camera));
-
-	const GLITCH_PASS = new GlitchPass();
-	GLITCH_PASS.enabled = false;
-	COMPOSER.addPass(GLITCH_PASS);
-
-	// SHADERS
-	const RGB_SHIFT = new ShaderPass(RGBShiftShader);
-	COMPOSER.addPass(RGB_SHIFT);
+	// CAMERA
+	APP.camera.position.setZ(15);
 
 	// ADD TO SCENE
-	APP_GROUP.add(DIRECTIONAL_LIGHT, AMBIENT_LIGHT, PARTICLES_POINTS);
-	APP_GROUP_CAMERA.add(APP.camera);
-	APP.scene.add(APP_GROUP_CAMERA, APP_GROUP);
+	APP_GROUP.add(DIRECTIONAL_LIGHT, AMBIENT_LIGHT);
+	APP.scene.add(APP_GROUP);
 
 	// ANIMATIONS
-	GSAP.fromTo(
-		RGB_SHIFT.uniforms.angle,
-		{ value: 0 },
-		{ repeat: -1, duration: 4, value: Math.PI * 2, ease: "none" }
-	);
 
-	GSAP.fromTo(
-		RGB_SHIFT.uniforms.amount,
-		{ value: -0.002 },
-		{ duration: 2, value: 0.0024, ease: "easeInOut" }
-	);
-
-	let firstSectionModelsAngle = 0;
-	let firstSectionModelsRadius = 1.7;
 	APP.setUpdateCallback("root", () => {
 		const ELAPSED_TIME = ANIMATION_CLOCK.getElapsedTime();
 		const DELTA_TIME = ELAPSED_TIME - previewsElapseTime;
 		previewsElapseTime = ELAPSED_TIME;
-
-		if (!isMessaging) {
-			APP.camera.position.y =
-				(-windowScrollPosition / APP.sceneSizes.height) *
-				COMMON_PARAMS.objectsDistance;
-
-			APP.camera.rotation.y = (windowScrollPosition / pageHeight) * Math.PI;
-
-			APP_GROUP_CAMERA.position.x +=
-				(CURSOR_LOCATION.x * 0.5 - APP_GROUP_CAMERA.position.x) *
-				5 *
-				DELTA_TIME;
-			APP_GROUP_CAMERA.position.y +=
-				(-CURSOR_LOCATION.y * 0.5 - APP_GROUP_CAMERA.position.y) *
-				5 *
-				DELTA_TIME;
-		}
-
-		if (SECTION_MESHES_LIST[0]) {
-			SECTION_MESHES_LIST[0].rotation.y += DELTA_TIME * 0.1;
-			SECTION_MESHES_LIST[0].rotation.x += DELTA_TIME * 0.12;
-
-			const children = SECTION_MESHES_LIST[0].children;
-			const child1 = children[1];
-			const child2 = children[2];
-			const child3 = children[3];
-			const child4 = children[4];
-			const cosAngle = Math.cos(firstSectionModelsAngle);
-			const sinAngle = Math.sin(firstSectionModelsAngle);
-
-			if (child1) {
-				child1.position.set(
-					SECTION_MESHES_LIST[0].position.x +
-						firstSectionModelsRadius * cosAngle -
-						firstSectionModelsRadius,
-					SECTION_MESHES_LIST[0].position.y -
-						firstSectionModelsRadius * sinAngle +
-						1,
-					SECTION_MESHES_LIST[0].position.z -
-						firstSectionModelsRadius * sinAngle
-				);
-
-				child1.rotation.x =
-					SECTION_MESHES_LIST[0].position.x +
-					firstSectionModelsRadius * cosAngle -
-					firstSectionModelsRadius;
-				child1.rotation.y =
-					SECTION_MESHES_LIST[0].position.y -
-					firstSectionModelsRadius * sinAngle +
-					1;
-			}
-
-			if (child2) {
-				child2.position.set(
-					SECTION_MESHES_LIST[0].position.x -
-						firstSectionModelsRadius * cosAngle -
-						firstSectionModelsRadius,
-					SECTION_MESHES_LIST[0].position.y +
-						firstSectionModelsRadius * sinAngle +
-						1,
-					SECTION_MESHES_LIST[0].position.z +
-						firstSectionModelsRadius * sinAngle
-				);
-
-				child2.rotation.x =
-					SECTION_MESHES_LIST[0].position.x -
-					firstSectionModelsRadius * cosAngle -
-					firstSectionModelsRadius;
-				child2.rotation.y =
-					SECTION_MESHES_LIST[0].position.y +
-					firstSectionModelsRadius * sinAngle +
-					1;
-			}
-
-			if (child3) {
-				child3.position.set(
-					SECTION_MESHES_LIST[0].position.x -
-						firstSectionModelsRadius * sinAngle -
-						firstSectionModelsRadius,
-					SECTION_MESHES_LIST[0].position.y -
-						firstSectionModelsRadius * cosAngle +
-						1,
-					SECTION_MESHES_LIST[0].position.z -
-						firstSectionModelsRadius * cosAngle
-				);
-
-				child3.rotation.x =
-					SECTION_MESHES_LIST[0].position.x -
-					firstSectionModelsRadius * cosAngle -
-					firstSectionModelsRadius;
-				child3.rotation.y =
-					SECTION_MESHES_LIST[0].position.y -
-					firstSectionModelsRadius * sinAngle +
-					1;
-			}
-
-			if (child4) {
-				child4.position.set(
-					SECTION_MESHES_LIST[0].position.x +
-						firstSectionModelsRadius * sinAngle -
-						firstSectionModelsRadius,
-					SECTION_MESHES_LIST[0].position.y +
-						firstSectionModelsRadius * cosAngle +
-						1,
-					SECTION_MESHES_LIST[0].position.z +
-						firstSectionModelsRadius * cosAngle
-				);
-
-				child4.rotation.y =
-					SECTION_MESHES_LIST[0].position.x +
-					firstSectionModelsRadius * cosAngle -
-					firstSectionModelsRadius;
-				child4.rotation.y =
-					SECTION_MESHES_LIST[0].position.y +
-					firstSectionModelsRadius * sinAngle +
-					1;
-			}
-
-			firstSectionModelsAngle += 0.01;
-		}
-
-		if (!isMessaging && SECTION_MESHES_LIST[2]) {
-			const _DIRECTION = new THREE.Vector3();
-			APP.camera.getWorldDirection(_DIRECTION);
-
-			const _ADJUST_CAMERA_POSITION = APP.camera.position
-				.clone()
-				.add(_DIRECTION.multiplyScalar(6.5));
-
-			SECTION_MESHES_LIST[2].position.x = _ADJUST_CAMERA_POSITION.x;
-			SECTION_MESHES_LIST[2].position.z = _ADJUST_CAMERA_POSITION.z;
-		}
-
-		COMPOSER.render();
 	});
-
-	// FUNCTIONS
-	const handleMessaging = () => {
-		if (!isMessaging && SECTION_MESHES_LIST[2]) {
-			const _DIRECTION = new THREE.Vector3();
-			APP.camera.getWorldDirection(_DIRECTION);
-
-			const _ADJUST_CAMERA_POSITION = APP.camera.position
-				.clone()
-				.add(_DIRECTION.multiplyScalar(5));
-
-			GSAP.to(APP.camera.position, {
-				duration: 1.5,
-				y: SECTION_MESHES_LIST[2].position.y + 0.5,
-				ease: "easeInOut",
-			});
-			GSAP.to(SECTION_MESHES_LIST[2].position, {
-				duration: 1.5,
-				x: _ADJUST_CAMERA_POSITION.x,
-				z: _ADJUST_CAMERA_POSITION.z,
-				ease: "easeInOut",
-			});
-
-			disableScroll();
-			isMessaging = true;
-		} else if (isMessaging && SECTION_MESHES_LIST[2]) {
-			const _DIRECTION = new THREE.Vector3();
-			APP.camera.getWorldDirection(_DIRECTION);
-
-			const _ADJUST_CAMERA_POSITION = APP.camera.position
-				.clone()
-				.add(_DIRECTION.multiplyScalar(6.5));
-
-			GSAP.to(APP.camera.position, {
-				duration: 1.5,
-				y:
-					(-windowScrollPosition / APP.sceneSizes.height) *
-					COMMON_PARAMS.objectsDistance,
-				ease: "easeInOut",
-			});
-
-			GSAP.to(SECTION_MESHES_LIST[2].position, {
-				duration: 1.5,
-				x: _ADJUST_CAMERA_POSITION.x,
-				z: _ADJUST_CAMERA_POSITION.z,
-				ease: "easeInOut",
-			}).then(() => {
-				enableScroll();
-				isMessaging = false;
-			});
-		}
-	};
-
-	// EVENTS
-	SCROLL_DOM_BODY?.addEventListener("mousemove", (e) => {
-		CURSOR_LOCATION.x = e.clientX / APP.sceneSizes.width - 0.5;
-		CURSOR_LOCATION.y = e.clientY / APP.sceneSizes.height - 0.5;
-	});
-
-	const onWindowScroll = () => {
-		windowScrollPosition = window.scrollY;
-
-		const _CURRENT_NEW_SECTION = Math.round(
-			windowScrollPosition / APP.sceneSizes.height
-		);
-
-		if (_CURRENT_NEW_SECTION !== currentScrollSection) {
-			const _LAST_SECTION = Math.round(pageHeight / APP.sceneSizes.height);
-
-			currentScrollSection = _CURRENT_NEW_SECTION;
-
-			if (currentScrollSection === _LAST_SECTION) {
-				lastSectionReached = true;
-				DIRECTIONAL_LIGHT.visible = false;
-				RGB_SHIFT.enabled = false;
-			} else if (lastSectionReached) {
-				lastSectionReached = false;
-				DIRECTIONAL_LIGHT.visible = true;
-				RGB_SHIFT.enabled = true;
-			}
-		}
-	};
-
-	window.addEventListener("load", () => {
-		onWindowScroll();
-	});
-	window?.addEventListener("scroll", onWindowScroll);
 
 	return {
 		app: APP,
-		forms: {},
-		postProcessing: {
-			COMPOSER,
-			GLITCH_PASS,
-		},
-		clear: () => {
-			window.removeEventListener("scroll", () => {});
-			window.removeEventListener("resize", () => {});
-		},
-		handleMessaging,
+		clear: () => {},
 	};
 };
 
