@@ -85,7 +85,6 @@ export const initHomePageThree = () => {
 			y: glb.scene.position.y,
 			z: glb.scene.position.z,
 		};
-		const SHELVES_LIGHT_PARAMS = [0xd93700, 400, 0.689, 0.029];
 
 		const RECT_AREA_TOP_LIGHT = new THREE.RectAreaLight(0xffffff, 6, 1.5, 1.5);
 		RECT_AREA_TOP_LIGHT.position.set(
@@ -97,48 +96,7 @@ export const initHomePageThree = () => {
 			new THREE.Vector3(OBJ_POS.x - 1.5, OBJ_POS.y, OBJ_POS.z - 12)
 		);
 
-		const RECT_AREA_SHELVE_1_LIGHT = new THREE.RectAreaLight(
-			...SHELVES_LIGHT_PARAMS
-		);
-		RECT_AREA_SHELVE_1_LIGHT.position.set(
-			OBJ_POS.x - 5.2,
-			OBJ_POS.y + 12.05,
-			OBJ_POS.z - 10.82
-		);
-		RECT_AREA_SHELVE_1_LIGHT.lookAt(
-			new THREE.Vector3(OBJ_POS.x - 0.5, OBJ_POS.y, OBJ_POS.z - 10.82)
-		);
-
-		const RECT_AREA_SHELVE_2_LIGHT = new THREE.RectAreaLight(
-			...SHELVES_LIGHT_PARAMS
-		);
-		RECT_AREA_SHELVE_2_LIGHT.position.set(
-			OBJ_POS.x - 5.2,
-			OBJ_POS.y + 11.61,
-			OBJ_POS.z - 12.7
-		);
-		RECT_AREA_SHELVE_2_LIGHT.lookAt(
-			new THREE.Vector3(OBJ_POS.x - 0.5, OBJ_POS.y, OBJ_POS.z - 12.7)
-		);
-
-		const RECT_AREA_SHELVE_3_LIGHT = new THREE.RectAreaLight(
-			...SHELVES_LIGHT_PARAMS
-		);
-		RECT_AREA_SHELVE_3_LIGHT.position.set(
-			OBJ_POS.x + 1.05,
-			OBJ_POS.y + 12.94,
-			OBJ_POS.z - 16.1
-		);
-		RECT_AREA_SHELVE_3_LIGHT.lookAt(
-			new THREE.Vector3(OBJ_POS.x + 1.05, OBJ_POS.y + 5, OBJ_POS.z - 11)
-		);
-
-		glb.scene.add(
-			RECT_AREA_TOP_LIGHT,
-			RECT_AREA_SHELVE_1_LIGHT,
-			RECT_AREA_SHELVE_2_LIGHT,
-			RECT_AREA_SHELVE_3_LIGHT
-		);
+		glb.scene.add(RECT_AREA_TOP_LIGHT);
 
 		APP.scene.add(glb.scene);
 	});
