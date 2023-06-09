@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 var supportsPassive = false;
 var wheelOpt = supportsPassive ? { passive: false } : false;
 var wheelEvent =
@@ -48,3 +50,15 @@ export function enableScroll() {
 	window.removeEventListener("touchmove", preventDefault);
 	window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
 }
+
+export const traverseToApplyShadowToChildThreeObject = (group: THREE.Object3D) => {
+	group?.traverse((child) => {
+		if (
+			child instanceof THREE.Mesh &&
+			child.material instanceof THREE.MeshStandardMaterial
+		) {
+			child.castShadow = true;
+			child.receiveShadow = true;
+		}
+	});
+};
