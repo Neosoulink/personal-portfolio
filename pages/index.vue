@@ -14,21 +14,22 @@
 
 <script lang="ts">
 // TYPES
-import type { initHomePageThree } from "@/plugins/initHomePageThree.client";
+import type { InitIsometricRoomScene } from "@/plugins/InitIsometricRoomScene.client";
 
 export default {
 	data() {
-		let THREE_APP: ReturnType<typeof initHomePageThree> | undefined;
+		let isometricRoomScene: InitIsometricRoomScene | undefined;
 
 		return {
-			homeThree: THREE_APP,
+			isometricRoomScene,
 		};
 	},
 	async mounted() {
-		if (process.client && !this.homeThree) {
-			const homeThree = this.$initHomePageThree();
+		if (process.client && !this.isometricRoomScene) {
+			// @ts-ignore
+			this.isometricRoomScene = new this.$InitIsometricRoomScene();
 
-			this.homeThree = homeThree;
+			this.isometricRoomScene?.construct();
 		}
 	},
 	beforeUnmount() {
@@ -41,11 +42,9 @@ export default {
 			() => {}
 		);
 
-		if (this.homeThree) {
-			this.homeThree.app.destroy();
-			this.homeThree.app.scene.remove();
-			this.homeThree.clear();
-			this.homeThree = undefined;
+		if (this.isometricRoomScene) {
+			this.isometricRoomScene.destroy();
+			this.isometricRoomScene = undefined;
 		}
 	},
 };
