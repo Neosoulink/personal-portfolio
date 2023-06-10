@@ -1,7 +1,7 @@
 /* COLORS */
 :root {
-	/* use with rgb() or rgba(). E.g: rgb(var(--dark)) -> rgb(18, 20, 21)  */
-	--dark: 18, 20, 21;
+	/* use with rgb() or rgba(). E.g: rgb(var(--dark)) -> rgb(20, 20, 26)  */
+	--dark: 20, 20, 26;
 	/* use with rgb() or rgba(). E.g: rgb(var(--light)) -> rgb(244, 247, 245)  */
 	--light: 244, 247, 245;
 	/* use with rgb() or rgba(). E.g: rgb((var(--primary)) -> rgb(95, 68, 145)  */
