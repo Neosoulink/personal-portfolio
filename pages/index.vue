@@ -11,9 +11,13 @@ const initScene = $InitIsometricRoomScene as
 const STATES = reactive<{
 	domElementRef: string;
 	isometricRoomScene: InitIsometricRoomScene | undefined;
+	sceneProgress: number;
+	displayLoader: boolean;
 }>({
 	domElementRef: "home-three-app",
 	isometricRoomScene: undefined,
+	sceneProgress: 0,
+	displayLoader: true,
 });
 
 onMounted(() => {
@@ -21,6 +25,25 @@ onMounted(() => {
 		STATES.isometricRoomScene = new initScene({
 			domElementRef: "#" + STATES.domElementRef,
 		});
+
+		STATES.isometricRoomScene.loadingManager.onStart = () => {
+			STATES.sceneProgress = 0;
+		};
+
+		STATES.isometricRoomScene.loadingManager.onProgress = (
+			_itemUrl,
+			itemsLoaded,
+			itemsToLoad
+		) => {
+			STATES.sceneProgress = (itemsLoaded / itemsToLoad) * 100;
+			console.log(`On progress`, itemsLoaded / itemsToLoad);
+		};
+
+		STATES.isometricRoomScene.loadingManager.onLoad = () => {
+			setTimeout(() => {
+				STATES.displayLoader = false;
+			}, 1000);
+		};
 
 		STATES.isometricRoomScene?.construct();
 	}
@@ -36,7 +59,10 @@ onBeforeUnmount(() => {
 
 <template>
 	<div>
-		<!-- <LandingView /> -->
+		<LandingView
+			:progress="STATES.sceneProgress"
+			:display="STATES.displayLoader"
+		/>
 
 		<main class="w-full bg-dark text-white">
 			<div class="h-screen w-screen absolute e z-0">

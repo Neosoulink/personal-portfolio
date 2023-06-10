@@ -76,6 +76,8 @@ export class InitIsometricRoomScene {
 				delete this.app.updateCallbacks[InitIsometricRoomScene.name];
 			}
 
+			this.app.destroy();
+
 			this.onDestruct && this.onDestruct();
 		}
 	}
