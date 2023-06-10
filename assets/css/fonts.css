@@ -1,0 +1,4 @@
+@font-face {
+	font-family: "Exo";
+	src: local("Exo"), url(../fonts/Exo-Regular.ttf) format("truetype");
+}
