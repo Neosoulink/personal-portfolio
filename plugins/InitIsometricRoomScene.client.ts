@@ -7,14 +7,10 @@ import ThreeApp from "quick-threejs";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
 export interface InitIsometricRoomSceneProps {
-	onConstruct?: () => unknown;
-	onDestruct?: () => unknown;
-}
-
-export class InitIsometricRoomScene {
-	app = new ThreeApp({ enableControls: true }, "#home-three-app");
-	mainGroup?: THREE.Group;
-	gui?: GUI;
+	/**
+	 * String dom element reference of the canvas
+	 */
+	domElementRef: string;
 	/**
 	 * Event triggered when the scene is construct
 	 */
@@ -23,8 +19,18 @@ export class InitIsometricRoomScene {
 	 * Event triggered when the scene is destructed
 	 */
 	onDestruct?: () => unknown;
+}
 
-	constructor(props?: InitIsometricRoomSceneProps) {
+export class InitIsometricRoomScene {
+	app: ThreeApp;
+	mainGroup?: THREE.Group;
+	gui?: GUI;
+	loadingManager = new THREE.LoadingManager();
+	onConstruct?: () => unknown;
+	onDestruct?: () => unknown;
+
+	constructor(props: InitIsometricRoomSceneProps) {
+		this.app = new ThreeApp({ enableControls: true }, props.domElementRef);
 		this.gui = this.app.debug?.ui?.addFolder(InitIsometricRoomScene.name);
 		this.gui?.add({ fn: () => this.construct() }, "fn").name("Enable");
 		this.gui?.close();
@@ -64,6 +70,8 @@ export class InitIsometricRoomScene {
 				?.add({ function: () => this.construct() }, "function")
 				.name("Enable");
 
+			this.loadingManager.removeHandler(/onStart|onError|onProgress|onLoad/);
+
 			if (this.app.updateCallbacks[InitIsometricRoomScene.name]) {
 				delete this.app.updateCallbacks[InitIsometricRoomScene.name];
 			}
@@ -90,27 +98,13 @@ export class InitIsometricRoomScene {
 			this.app.camera.updateProjectionMatrix();
 
 			// LOADERS
-			const LOADING_MANAGER = new THREE.LoadingManager();
-			LOADING_MANAGER.onStart = () => {
-				console.log("on start loading");
-			};
-			LOADING_MANAGER.onError = (url) => {
-				console.log("on error", url);
-			};
-			LOADING_MANAGER.onProgress = (url, loaded) => {
-				console.log("on progress", url, loaded);
-			};
-			LOADING_MANAGER.onLoad = () => {
-				console.log("on loaded");
-			};
-
 			const DRACO_LOADER = new DRACOLoader();
 			DRACO_LOADER.setDecoderPath("/decoders/draco/");
 
-			const GLTF_LOADER = new GLTFLoader(LOADING_MANAGER);
+			const GLTF_LOADER = new GLTFLoader(this.loadingManager);
 			GLTF_LOADER.setDRACOLoader(DRACO_LOADER);
 
-			const TEXTURE_LOADER = new THREE.TextureLoader(LOADING_MANAGER);
+			const TEXTURE_LOADER = new THREE.TextureLoader(this.loadingManager);
 
 			// LIGHTS
 			const AMBIENT_LIGHT = new THREE.AmbientLight(0xffffff, 0);
