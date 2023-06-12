@@ -42,6 +42,10 @@ onMounted(() => {
 		STATES.isometricRoomScene.loadingManager.onLoad = () => {
 			setTimeout(() => {
 				STATES.displayLoader = false;
+
+				setTimeout(() => {
+					STATES.isometricRoomScene?.start();
+				}, 200);
 			}, 1000);
 		};
 

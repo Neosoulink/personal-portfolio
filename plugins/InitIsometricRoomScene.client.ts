@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import GUI from "lil-gui";
+import GSAP from "gsap";
 
 // HELPERS
 import ThreeApp from "quick-threejs";
@@ -26,6 +27,7 @@ export class InitIsometricRoomScene {
 	mainGroup?: THREE.Group;
 	gui?: GUI;
 	loadingManager = new THREE.LoadingManager();
+	isometricRoom?: THREE.Group;
 	onConstruct?: () => unknown;
 	onDestruct?: () => unknown;
 
@@ -110,7 +112,7 @@ export class InitIsometricRoomScene {
 
 			// LIGHTS
 			const AMBIENT_LIGHT = new THREE.AmbientLight(0xffffff, 0);
-			const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 0.2);
+			const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 0.1);
 			DIRECTIONAL_LIGHT.position.set(0, 0, 1);
 
 			/**
@@ -136,26 +138,40 @@ export class InitIsometricRoomScene {
 				(glb) => {
 					const _REG = new RegExp(/.*screen/);
 
-					glb.scene.position.y = -2;
 					glb.scene.traverse((child) => {
 						if (child instanceof THREE.Mesh && !_REG.test(child.name)) {
 							child.material = BAKED_MATERIAL;
 						}
 					});
 
-					this.mainGroup && this.mainGroup.add(glb.scene);
+					(this.isometricRoom = glb.scene).position.set(0, -10, -30);
+
+					this.mainGroup && this.mainGroup.add(this.isometricRoom);
 				}
 			);
 
 			// CAMERA
-			this.app.camera.position.set(4, 2, 20);
+			this.app.camera.position.set(0, 6, 20);
 
 			// ADD TO SCENE
 			this.mainGroup.add(AMBIENT_LIGHT, DIRECTIONAL_LIGHT);
 			this.app.scene.add(this.mainGroup);
 
 			// ANIMATIONS
-			this.app.setUpdateCallback("root", () => {});
+			this.app.setUpdateCallback("root", () => this.animate());
+		}
+	}
+
+	start() {
+		if (this.mainGroup && this.isometricRoom) {
+			GSAP.to(this.isometricRoom.rotation, { y: -1.2, duration: 2 });
+			GSAP.to(this.isometricRoom.position, { y: -2.5, z: 0, duration: 2 });
+		}
+	}
+
+	animate() {
+		if (this.mainGroup?.position) {
+			// this.app.camera.lookAt(new THREE.Vector3(0, 0, 0));
 		}
 	}
 }
