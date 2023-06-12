@@ -63,7 +63,7 @@ onBeforeUnmount(() => {
 
 <template>
 	<div>
-		<LandingView
+		<LandingLoader
 			:progress="STATES.sceneProgress"
 			:display="STATES.displayLoader"
 		/>
