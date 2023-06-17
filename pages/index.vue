@@ -1,36 +1,34 @@
 <script lang="ts" setup>
-import type { InitIsometricRoomScene } from "@/plugins/InitIsometricRoomScene.client";
+import type { Experience } from "@/plugins/Experience";
 
 // NUXT
-const { $InitIsometricRoomScene } = useNuxtApp();
-const initScene = $InitIsometricRoomScene as
-	| typeof InitIsometricRoomScene
-	| undefined;
+const { $Experience } = useNuxtApp();
+const initScene = $Experience as typeof Experience | undefined;
 
 // STATES
 const STATES = reactive<{
 	domElementRef: string;
-	isometricRoomScene: InitIsometricRoomScene | undefined;
+	experience: Experience | undefined;
 	sceneProgress: number;
 	displayLoader: boolean;
 }>({
 	domElementRef: "home-three-app",
-	isometricRoomScene: undefined,
+	experience: undefined,
 	sceneProgress: 0,
 	displayLoader: true,
 });
 
 onMounted(() => {
-	if (process.client && !STATES.isometricRoomScene && initScene) {
-		STATES.isometricRoomScene = new initScene({
+	if (process.client && !STATES.experience && initScene) {
+		STATES.experience = new initScene({
 			domElementRef: "#" + STATES.domElementRef,
 		});
 
-		STATES.isometricRoomScene.loadingManager.onStart = () => {
+		STATES.experience.loadingManager.onStart = () => {
 			STATES.sceneProgress = 0;
 		};
 
-		STATES.isometricRoomScene.loadingManager.onProgress = (
+		STATES.experience.loadingManager.onProgress = (
 			_itemUrl,
 			itemsLoaded,
 			itemsToLoad
@@ -39,24 +37,24 @@ onMounted(() => {
 			console.log(`On progress`, itemsLoaded / itemsToLoad);
 		};
 
-		STATES.isometricRoomScene.loadingManager.onLoad = () => {
+		STATES.experience.loadingManager.onLoad = () => {
 			setTimeout(() => {
 				STATES.displayLoader = false;
 
 				setTimeout(() => {
-					STATES.isometricRoomScene?.start();
+					STATES.experience?.start();
 				}, 200);
 			}, 1000);
 		};
 
-		STATES.isometricRoomScene?.construct();
+		STATES.experience?.construct();
 	}
 });
 
 onBeforeUnmount(() => {
-	if (STATES.isometricRoomScene) {
-		STATES.isometricRoomScene.destroy();
-		STATES.isometricRoomScene = undefined;
+	if (STATES.experience) {
+		STATES.experience.destroy();
+		STATES.experience = undefined;
 	}
 });
 </script>

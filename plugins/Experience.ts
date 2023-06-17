@@ -1,13 +1,11 @@
 import * as THREE from "three";
+import ThreeApp from "quick-threejs";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import GUI from "lil-gui";
 import GSAP from "gsap";
 
-// HELPERS
-import ThreeApp from "quick-threejs";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
-
-export interface InitIsometricRoomSceneProps {
+export interface ExperienceProps {
 	/**
 	 * String dom element reference of the canvas
 	 */
@@ -22,7 +20,7 @@ export interface InitIsometricRoomSceneProps {
 	onDestruct?: () => unknown;
 }
 
-export class InitIsometricRoomScene {
+export class Experience {
 	app: ThreeApp;
 	mainGroup?: THREE.Group;
 	gui?: GUI;
@@ -31,9 +29,9 @@ export class InitIsometricRoomScene {
 	onConstruct?: () => unknown;
 	onDestruct?: () => unknown;
 
-	constructor(props: InitIsometricRoomSceneProps) {
+	constructor(props: ExperienceProps) {
 		this.app = new ThreeApp({ enableControls: true }, props.domElementRef);
-		this.gui = this.app.debug?.ui?.addFolder(InitIsometricRoomScene.name);
+		this.gui = this.app.debug?.ui?.addFolder(Experience.name);
 		this.gui?.add({ fn: () => this.construct() }, "fn").name("Enable");
 		this.gui?.close();
 
@@ -67,15 +65,15 @@ export class InitIsometricRoomScene {
 				this.gui = undefined;
 			}
 
-			this.gui = this.app.debug?.ui?.addFolder(InitIsometricRoomScene.name);
+			this.gui = this.app.debug?.ui?.addFolder(Experience.name);
 			this.gui
 				?.add({ function: () => this.construct() }, "function")
 				.name("Enable");
 
 			this.loadingManager.removeHandler(/onStart|onError|onProgress|onLoad/);
 
-			if (this.app.updateCallbacks[InitIsometricRoomScene.name]) {
-				delete this.app.updateCallbacks[InitIsometricRoomScene.name];
+			if (this.app.updateCallbacks[Experience.name]) {
+				delete this.app.updateCallbacks[Experience.name];
 			}
 
 			this.app.destroy();
@@ -179,7 +177,7 @@ export class InitIsometricRoomScene {
 export default defineNuxtPlugin(() => {
 	return {
 		provide: {
-			InitIsometricRoomScene,
+			Experience,
 		},
 	};
 });
