@@ -149,6 +149,7 @@ export class Experience {
 					});
 
 					(this.isometricRoom = glb.scene).position.set(0, -10, -30);
+					(this.isometricRoom = glb.scene).rotation.y = -2;
 
 					this.mainGroup && this.mainGroup.add(this.isometricRoom);
 				}
@@ -172,7 +173,7 @@ export class Experience {
 
 	start() {
 		if (this.mainGroup && this.isometricRoom) {
-			GSAP.to(this.isometricRoom.rotation, { y: -1.2, duration: 2 });
+			GSAP.to(this.isometricRoom.rotation, { y: 0, duration: 2 });
 			GSAP.to(this.isometricRoom.position, { y: -2.5, z: 0, duration: 2 });
 		}
 	}
