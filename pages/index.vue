@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { Experience } from "@/plugins/Experience";
+import type { Experience } from "@/plugins/Experience.client";
 
 // NUXT
 const { $Experience } = useNuxtApp();

@@ -1,9 +1,10 @@
 import * as THREE from "three";
-import ThreeApp from "quick-threejs";
+import QuickThree from "quick-threejs";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import GUI from "lil-gui";
 import GSAP from "gsap";
+import Camera from "quick-threejs/lib/Camera";
 
 export interface ExperienceProps {
 	/**
@@ -21,7 +22,7 @@ export interface ExperienceProps {
 }
 
 export class Experience {
-	app: ThreeApp;
+	app: QuickThree;
 	mainGroup?: THREE.Group;
 	gui?: GUI;
 	loadingManager = new THREE.LoadingManager();
@@ -30,7 +31,16 @@ export class Experience {
 	onDestruct?: () => unknown;
 
 	constructor(props: ExperienceProps) {
-		this.app = new ThreeApp({ enableControls: true }, props.domElementRef);
+		this.app = new QuickThree(
+			{
+				enableControls: true,
+				axesSizes: 5,
+				gridSizes: 10,
+				withMiniCamera: true,
+				camera: "Perspective",
+			},
+			props.domElementRef
+		);
 		this.gui = this.app.debug?.ui?.addFolder(Experience.name);
 		this.gui?.add({ fn: () => this.construct() }, "fn").name("Enable");
 		this.gui?.close();
@@ -95,10 +105,6 @@ export class Experience {
 		if (!this.mainGroup) {
 			this.mainGroup = new THREE.Group();
 
-			// APP
-			this.app.camera.fov = 35;
-			this.app.camera.updateProjectionMatrix();
-
 			// LOADERS
 			const DRACO_LOADER = new DRACOLoader();
 			DRACO_LOADER.setDecoderPath("/decoders/draco/");
@@ -149,7 +155,11 @@ export class Experience {
 			);
 
 			// CAMERA
-			this.app.camera.position.set(0, 6, 20);
+			// @ts-ignore Proxy class error
+			if (this.app.camera?.fov) this.app.camera.fov = 35;
+
+			this.app.camera?.updateProjectionMatrix();
+			this.app.camera?.position.set(0, 6, 20);
 
 			// ADD TO SCENE
 			this.mainGroup.add(AMBIENT_LIGHT, DIRECTIONAL_LIGHT);
