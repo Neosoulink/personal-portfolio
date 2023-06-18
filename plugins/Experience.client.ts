@@ -148,8 +148,8 @@ export class Experience {
 						}
 					});
 
-					(this.isometricRoom = glb.scene).position.set(0, -10, -30);
-					(this.isometricRoom = glb.scene).rotation.y = -2;
+					(this.isometricRoom = glb.scene).position.set(0, -10, -15);
+					(this.isometricRoom = glb.scene).rotation.set(0.3, -0.2, 0);
 
 					this.mainGroup && this.mainGroup.add(this.isometricRoom);
 				}
@@ -158,9 +158,8 @@ export class Experience {
 			// CAMERA
 			// @ts-ignore Proxy class error
 			if (this.app.camera?.fov) this.app.camera.fov = 35;
-
 			this.app.camera?.updateProjectionMatrix();
-			this.app.camera?.position.set(0, 6, 20);
+			this.app.camera?.position.set(0, 4, 20);
 
 			// ADD TO SCENE
 			this.mainGroup.add(AMBIENT_LIGHT, DIRECTIONAL_LIGHT);
@@ -172,9 +171,21 @@ export class Experience {
 	}
 
 	start() {
+		const _DEFAULT_PROPS = {
+			duration: 2.5,
+			ease: "M0,0 C0.001,0.001 0.002,0.003 0.003,0.004 0.142,0.482 0.284,0.75 0.338,0.836 0.388,0.924 0.504,1 1,1 ",
+		};
 		if (this.mainGroup && this.isometricRoom) {
-			GSAP.to(this.isometricRoom.rotation, { y: 0, duration: 2 });
-			GSAP.to(this.isometricRoom.position, { y: -2.5, z: 0, duration: 2 });
+			GSAP.to(this.isometricRoom.rotation, {
+				x: 0,
+				y: 0,
+				..._DEFAULT_PROPS,
+			});
+			GSAP.to(this.isometricRoom.position, {
+				y: -2.5,
+				z: 0,
+				..._DEFAULT_PROPS,
+			});
 		}
 	}
 
