@@ -26,22 +26,22 @@ export class Experience {
 	gui?: GUI;
 	loadingManager = new THREE.LoadingManager();
 	isometricRoom?: THREE.Group;
-	cameraCurvePathProgress = 0;
-	curvePosition = new THREE.Vector3(0, -1, 0);
-	curveLookAtPosition = new THREE.Vector3(0, 0, 0);
-
-	directionalVector = new THREE.Vector3(0, 0, 0);
-	staticVector = new THREE.Vector3(0, 1, 0);
-	crossVector = new THREE.Vector3(0, 0, 0);
+	cameraCurvePath = new THREE.CatmullRomCurve3([
+		new THREE.Vector3(0, 3, 11),
+		new THREE.Vector3(6, 5, 6),
+		new THREE.Vector3(11, 3, 0),
+	]);
+	cameraCurvePosition = new THREE.Vector3();
 	started = false;
+	back = false;
 	lerp = {
 		current: 0,
 		target: 0,
 		ease: 0.1,
 	};
+
 	onConstruct?: () => unknown;
 	onDestruct?: () => unknown;
-	back = false;
 
 	constructor(props: ExperienceProps) {
 		this.app = new QuickThree(
@@ -125,14 +125,11 @@ export class Experience {
 			// LOADERS
 			const DRACO_LOADER = new DRACOLoader();
 			DRACO_LOADER.setDecoderPath("/decoders/draco/");
-
 			const GLTF_LOADER = new GLTFLoader(this.loadingManager);
 			GLTF_LOADER.setDRACOLoader(DRACO_LOADER);
-
 			const TEXTURE_LOADER = new THREE.TextureLoader(this.loadingManager);
 
 			// LIGHTS
-			const AMBIENT_LIGHT = new THREE.AmbientLight(0xffffff, 0);
 			const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 0.1);
 			DIRECTIONAL_LIGHT.position.set(0, 0, 1);
 
@@ -166,7 +163,7 @@ export class Experience {
 						}
 					});
 
-					(this.isometricRoom = glb.scene).position.set(0, -5, -10);
+					(this.isometricRoom = glb.scene).position.set(0, -1.5, -1.5);
 					(this.isometricRoom = glb.scene).rotation.set(0.3, -0.2, 0);
 
 					this.mainGroup && this.mainGroup.add(this.isometricRoom);
@@ -174,44 +171,43 @@ export class Experience {
 			);
 
 			// CAMERA
+			const CAMERA_LOOK_AT_POSITION = new THREE.Vector3(0, 1, 0);
+
 			// @ts-ignore Proxy class error
 			if (this.app.camera?.fov) this.app.camera.fov = 35;
+			if (this.app.camera?.far) this.app.camera.far = 50;
+			this.cameraCurvePath.getPointAt(0, this.app.camera?.position);
+			this.app.camera?.lookAt(CAMERA_LOOK_AT_POSITION);
 			this.app.camera?.updateProjectionMatrix();
-			this.app.camera?.position.set(0, 0, 20);
+
 			this.app._camera.miniCamera?.position.set(10, 8, 30);
-			if (this.app.camera?.far) {
-				this.app.camera.far = 50;
-			}
+			if (this.app._camera.controls)
+				this.app._camera.controls.target = CAMERA_LOOK_AT_POSITION;
 
 			// HELPERS
 			const CAMERA_HELPER = this.app.camera
 				? new THREE.CameraHelper(this.app.camera)
 				: undefined;
 
+			const CURVE_OBJECT = new THREE.Line(
+				new THREE.BufferGeometry().setFromPoints(
+					this.cameraCurvePath.getPoints(50)
+				),
+				new THREE.LineBasicMaterial({
+					color: 0xff0000,
+				})
+			);
+
+			this.setWheelEventListener();
+
 			// ADD TO SCENE
-			this.mainGroup.add(AMBIENT_LIGHT, DIRECTIONAL_LIGHT);
+			this.mainGroup.add(DIRECTIONAL_LIGHT, CURVE_OBJECT);
 			CAMERA_HELPER && this.mainGroup.add(CAMERA_HELPER);
+
 			this.app.scene.add(this.mainGroup);
 
-			// Create a closed wavey loop
-			const CURVE = new THREE.CatmullRomCurve3([
-				new THREE.Vector3(0, 2.5, 10),
-				new THREE.Vector3(7.25, 4, 7.25),
-				new THREE.Vector3(10, 2.5, 0),
-			]);
-
-			const POINTS = CURVE.getPoints(50);
-			const GEOMETRY = new THREE.BufferGeometry().setFromPoints(POINTS);
-
-			const MATERIAL = new THREE.LineBasicMaterial({ color: 0xff0000 });
-
-			// Create the final object to add to the scene
-			const CURVE_OBJECT = new THREE.Line(GEOMETRY, MATERIAL);
-
-			this.app.scene.add(CURVE_OBJECT);
-			this.onWheel();
-
 			// ANIMATIONS
+			const CAMERA_CURVE_POSITION = new THREE.Vector3();
 			this.app.setUpdateCallback("root", () => {
 				if (CAMERA_HELPER) {
 					CAMERA_HELPER.matrixWorldNeedsUpdate = true;
@@ -233,43 +229,18 @@ export class Experience {
 					this.lerp.target = GSAP.utils.clamp(0, 1, this.lerp.target);
 					this.lerp.current = GSAP.utils.clamp(0, 1, this.lerp.current);
 
-					CURVE.getPointAt(this.lerp.current % 1, this.curvePosition);
-					CURVE.getPointAt(
-						GSAP.utils.clamp(
-							0,
-							1,
-							(this.lerp.current + (this.back ? -0.00001 : 0.00001)) % 1
-						),
-						this.curveLookAtPosition
+					this.cameraCurvePath.getPointAt(
+						this.lerp.current,
+						CAMERA_CURVE_POSITION
 					);
 
-					this.directionalVector.subVectors(
-						CURVE.getPointAt(
-							GSAP.utils.clamp(0, 1, (this.lerp.current % 1) + 0.000001)
-						),
-						this.curvePosition
-					);
-					this.directionalVector.normalize();
-					this.crossVector.crossVectors(
-						this.directionalVector,
-						this.staticVector
-					);
-					this.crossVector.multiplyScalar(100000);
-
-					this.app.camera?.position.copy(this.curvePosition);
-					if (this.isometricRoom) {
-						const P = new THREE.Vector3().copy(this.isometricRoom.position);
-						P.y += 1;
-						this.app.camera?.lookAt(P);
-						if (this.app._camera.controls)
-							this.app._camera.controls.target = P;
-					}
+					this.app.camera?.position.copy(CAMERA_CURVE_POSITION);
 				}
 			});
 		}
 	}
 
-	onWheel() {
+	setWheelEventListener() {
 		window.addEventListener("wheel", (e) => {
 			if (e.deltaY < 0) {
 				this.lerp.target += 0.1;
@@ -297,10 +268,11 @@ export class Experience {
 				y: 0,
 				z: 0,
 				..._DEFAULT_PROPS,
+			}).then(() => {
+				this.started = true;
 			});
 		}
 
-		this.started = true;
 		if (this.lerp.target < 0) {
 			this.lerp.target = 1;
 		}
