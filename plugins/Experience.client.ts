@@ -203,7 +203,7 @@ export class Experience {
 			this.setWheelEventListener();
 
 			// ADD TO SCENE
-			this.mainGroup.add(DIRECTIONAL_LIGHT);
+			this.mainGroup.add(DIRECTIONAL_LIGHT, CURVE_OBJECT);
 			CAMERA_HELPER && this.mainGroup.add(CAMERA_HELPER);
 
 			this.app.scene.add(this.mainGroup);
@@ -229,7 +229,6 @@ export class Experience {
 
 					this.lerp.target = this.lerp.target + (this.back ? -0.0001 : 0.0001);
 					if (this.lerp.target > 1) {
-						GSAP.timeline({})
 						setTimeout(() => {
 							this.back = true;
 						}, 1000);
