@@ -30,6 +30,8 @@ export class Experience {
 		new THREE.Vector3(0, 3, 11),
 		new THREE.Vector3(6, 5, 6),
 		new THREE.Vector3(11, 3, 0),
+		new THREE.Vector3(6, 2.2, 6),
+		new THREE.Vector3(0, 3, 11),
 	]);
 	cameraCurvePosition = new THREE.Vector3();
 	started = false;
@@ -163,7 +165,7 @@ export class Experience {
 						}
 					});
 
-					(this.isometricRoom = glb.scene).position.set(0, -1.5, -1.5);
+					(this.isometricRoom = glb.scene).position.set(0, -1.5, -6.5);
 					(this.isometricRoom = glb.scene).rotation.set(0.3, -0.2, 0);
 
 					this.mainGroup && this.mainGroup.add(this.isometricRoom);
@@ -201,7 +203,7 @@ export class Experience {
 			this.setWheelEventListener();
 
 			// ADD TO SCENE
-			this.mainGroup.add(DIRECTIONAL_LIGHT, CURVE_OBJECT);
+			this.mainGroup.add(DIRECTIONAL_LIGHT);
 			CAMERA_HELPER && this.mainGroup.add(CAMERA_HELPER);
 
 			this.app.scene.add(this.mainGroup);
@@ -225,7 +227,18 @@ export class Experience {
 						this.lerp.ease
 					);
 
-					this.lerp.target = this.lerp.target + (this.back ? -0.001 : 0.001);
+					this.lerp.target = this.lerp.target + (this.back ? -0.0001 : 0.0001);
+					if (this.lerp.target > 1) {
+						GSAP.timeline({})
+						setTimeout(() => {
+							this.back = true;
+						}, 1000);
+					}
+					if (this.lerp.target < 0) {
+						setTimeout(() => {
+							this.back = false;
+						}, 1000);
+					}
 					this.lerp.target = GSAP.utils.clamp(0, 1, this.lerp.target);
 					this.lerp.current = GSAP.utils.clamp(0, 1, this.lerp.current);
 
@@ -243,10 +256,10 @@ export class Experience {
 	setWheelEventListener() {
 		window.addEventListener("wheel", (e) => {
 			if (e.deltaY < 0) {
-				this.lerp.target += 0.1;
+				this.lerp.target += 0.05;
 				this.back = false;
 			} else {
-				this.lerp.target -= 0.1;
+				this.lerp.target -= 0.05;
 				this.back = true;
 			}
 		});
@@ -268,9 +281,11 @@ export class Experience {
 				y: 0,
 				z: 0,
 				..._DEFAULT_PROPS,
-			}).then(() => {
-				this.started = true;
 			});
+
+			setTimeout(() => {
+				this.started = true;
+			}, (_DEFAULT_PROPS.duration + 0.5) * 1000);
 		}
 
 		if (this.lerp.target < 0) {
