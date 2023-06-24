@@ -27,20 +27,25 @@ export class Experience {
 	loadingManager = new THREE.LoadingManager();
 	isometricRoom?: THREE.Group;
 	cameraCurvePath = new THREE.CatmullRomCurve3([
-		new THREE.Vector3(0, 3, 11),
-		new THREE.Vector3(6, 5, 6),
-		new THREE.Vector3(11, 3, 0),
-		new THREE.Vector3(6, 2.2, 6),
-		new THREE.Vector3(0, 3, 11),
+		new THREE.Vector3(0, 5.5, 21),
+		new THREE.Vector3(12, 10, 12),
+		new THREE.Vector3(21, 5.5, 0),
+		new THREE.Vector3(12, 3.7, 12),
+		new THREE.Vector3(0, 5.5, 21),
 	]);
 	cameraCurvePosition = new THREE.Vector3();
-	started = false;
+	cameraLookAtPosition = new THREE.Vector3(0, 2, 0);
+	autoCameraAnimation = false;
 	back = false;
 	lerp = {
 		current: 0,
 		target: 0,
 		ease: 0.1,
 	};
+	monitor_a_screen?: THREE.Mesh;
+	monitor_b_screen?: THREE.Mesh;
+	phone_screen?: THREE.Mesh;
+	pc_screen?: THREE.Mesh;
 
 	onConstruct?: () => unknown;
 	onDestruct?: () => unknown;
@@ -48,9 +53,9 @@ export class Experience {
 	constructor(props: ExperienceProps) {
 		this.app = new QuickThree(
 			{
-				enableControls: true,
+				enableControls: false,
 				axesSizes: 5,
-				gridSizes: 20,
+				gridSizes: 30,
 				withMiniCamera: true,
 				camera: "Perspective",
 			},
@@ -132,7 +137,7 @@ export class Experience {
 			const TEXTURE_LOADER = new THREE.TextureLoader(this.loadingManager);
 
 			// LIGHTS
-			const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xffffff, 0.1);
+			const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xA33A12, 0.01);
 			DIRECTIONAL_LIGHT.position.set(0, 0, 1);
 
 			/**
@@ -157,11 +162,30 @@ export class Experience {
 				"/3d_models/isometric_room/isometric_room.glb",
 				(glb) => {
 					const _REG = new RegExp(/.*screen/);
+					console.log("glb.scene", glb.scene);
 
-					glb.scene.scale.set(0.5, 0.5, 0.5);
 					glb.scene.traverse((child) => {
 						if (child instanceof THREE.Mesh && !_REG.test(child.name)) {
 							child.material = BAKED_MATERIAL;
+						}
+
+						if (
+							child instanceof THREE.Mesh &&
+							child.name === "monitor-a-screen"
+						) {
+							this.monitor_a_screen = child;
+						}
+						if (
+							child instanceof THREE.Mesh &&
+							child.name === "monitor-b-screen"
+						) {
+							this.monitor_b_screen = child;
+						}
+						if (child instanceof THREE.Mesh && child.name === "phone-screen") {
+							this.phone_screen = child;
+						}
+						if (child instanceof THREE.Mesh && child.name === "pc-screen") {
+							this.pc_screen = child;
 						}
 					});
 
@@ -173,18 +197,14 @@ export class Experience {
 			);
 
 			// CAMERA
-			const CAMERA_LOOK_AT_POSITION = new THREE.Vector3(0, 1, 0);
-
 			// @ts-ignore Proxy class error
 			if (this.app.camera?.fov) this.app.camera.fov = 35;
 			if (this.app.camera?.far) this.app.camera.far = 50;
 			this.cameraCurvePath.getPointAt(0, this.app.camera?.position);
-			this.app.camera?.lookAt(CAMERA_LOOK_AT_POSITION);
-			this.app.camera?.updateProjectionMatrix();
 
 			this.app._camera.miniCamera?.position.set(10, 8, 30);
 			if (this.app._camera.controls)
-				this.app._camera.controls.target = CAMERA_LOOK_AT_POSITION;
+				this.app._camera.controls.target = this.cameraLookAtPosition;
 
 			// HELPERS
 			const CAMERA_HELPER = this.app.camera
@@ -209,7 +229,6 @@ export class Experience {
 			this.app.scene.add(this.mainGroup);
 
 			// ANIMATIONS
-			const CAMERA_CURVE_POSITION = new THREE.Vector3();
 			this.app.setUpdateCallback("root", () => {
 				if (CAMERA_HELPER) {
 					CAMERA_HELPER.matrixWorldNeedsUpdate = true;
@@ -220,7 +239,7 @@ export class Experience {
 						CAMERA_HELPER.rotation.copy(this.app.camera?.rotation);
 				}
 
-				if (this.started) {
+				if (this.autoCameraAnimation) {
 					this.lerp.current = GSAP.utils.interpolate(
 						this.lerp.current,
 						this.lerp.target,
@@ -243,12 +262,62 @@ export class Experience {
 
 					this.cameraCurvePath.getPointAt(
 						this.lerp.current,
-						CAMERA_CURVE_POSITION
+						this.cameraCurvePosition
 					);
 
-					this.app.camera?.position.copy(CAMERA_CURVE_POSITION);
+					this.app.camera?.position.copy(this.cameraCurvePosition);
+
+					this.app.camera?.lookAt(this.cameraLookAtPosition);
+					this.app.camera?.updateProjectionMatrix();
 				}
 			});
+
+			// GUI
+			this.gui = this.app.debug?.ui?.addFolder(Experience.name);
+			this.gui
+				?.add(
+					{
+						fn: () =>
+							this.toggleFocusMode(
+								this.monitor_a_screen?.position ?? new THREE.Vector3()
+							),
+					},
+					"fn"
+				)
+				.name("Toggle monitor A focus");
+			this.gui
+				?.add(
+					{
+						fn: () =>
+							this.toggleFocusMode(
+								this.monitor_b_screen?.position ?? new THREE.Vector3()
+							),
+					},
+					"fn"
+				)
+				.name("Toggle monitor B focus");
+			this.gui
+				?.add(
+					{
+						fn: () =>
+							this.toggleFocusMode(
+								this.phone_screen?.position ?? new THREE.Vector3()
+							),
+					},
+					"fn"
+				)
+				.name("Toggle monitor Phone screen");
+			this.gui
+				?.add(
+					{
+						fn: () =>
+							this.toggleFocusMode(
+								this.pc_screen?.position ?? new THREE.Vector3()
+							),
+					},
+					"fn"
+				)
+				.name("Toggle monitor PC screen");
 		}
 	}
 
@@ -283,12 +352,71 @@ export class Experience {
 			});
 
 			setTimeout(() => {
-				this.started = true;
+				this.autoCameraAnimation = true;
 			}, (_DEFAULT_PROPS.duration + 0.5) * 1000);
 		}
 
 		if (this.lerp.target < 0) {
 			this.lerp.target = 1;
+		}
+	}
+
+	toggleFocusMode(position: THREE.Vector3) {
+		if (this.monitor_a_screen && this.app.camera) {
+			if (this.autoCameraAnimation) {
+				this.autoCameraAnimation = false;
+				const DUMMY_POSITION = new THREE.Vector3().copy(
+					this.cameraLookAtPosition
+				);
+
+				GSAP.to(DUMMY_POSITION, {
+					x: position.x,
+					y: position.y,
+					z: position.z,
+					duration: 1.5,
+					onUpdate: () => {
+						this.app.camera?.lookAt(DUMMY_POSITION);
+						this.app.camera?.updateProjectionMatrix();
+
+						if (this.app._camera.controls)
+							this.app._camera.controls.target = DUMMY_POSITION;
+					},
+				});
+
+				GSAP.to(this.app.camera.position, {
+					x: 0,
+					y: position.y + 0.2,
+					z: 0,
+					duration: 1.5,
+				});
+
+				return;
+			}
+
+			const DUMMY_POSITION = new THREE.Vector3().copy(position);
+
+			if (this.app.camera) {
+				GSAP.to(DUMMY_POSITION, {
+					x: this.cameraLookAtPosition.x,
+					y: this.cameraLookAtPosition.y,
+					z: this.cameraLookAtPosition.z,
+					duration: 2,
+					onUpdate: () => {
+						this.app.camera?.lookAt(DUMMY_POSITION);
+						this.app.camera?.updateProjectionMatrix();
+
+						if (this.app._camera.controls)
+							this.app._camera.controls.target = DUMMY_POSITION;
+					},
+				});
+
+				GSAP.to(this.app.camera.position, {
+					x: this.cameraCurvePosition.x,
+					y: this.cameraCurvePosition.y,
+					z: this.cameraCurvePosition.z,
+					duration: 2,
+				}).then(() => (this.autoCameraAnimation = true));
+			}
 		}
 	}
 }
