@@ -304,14 +304,14 @@ export class Experience {
 						this.focusedElement.position.x -
 							modelsRadius *
 								Math.cos(
-									modelsAngleX - this.app.camera.rotation.y + (Math.PI * 0.5)
+									modelsAngleX - this.app.camera.rotation.y + Math.PI * 0.5
 								),
 						this.focusedElement.position.y -
 							modelsRadius * Math.sin(modelsAngleY),
 						this.focusedElement.position.z -
 							modelsRadius *
 								Math.sin(
-									modelsAngleX - this.app.camera.rotation.y + (Math.PI * 0.5)
+									modelsAngleX - this.app.camera.rotation.y + Math.PI * 0.5
 								)
 					);
 				}
