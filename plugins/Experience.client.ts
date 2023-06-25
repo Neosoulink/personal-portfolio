@@ -244,7 +244,6 @@ export class Experience {
 			let modelsAngleX = 0;
 			let modelsAngleY = 0;
 			let modelsRadius = 1;
-			const Y = this.cameraLookAtPosition.y;
 
 			// ANIMATIONS
 			this.app.setUpdateCallback("root", () => {
@@ -302,9 +301,18 @@ export class Experience {
 					this.app.camera
 				) {
 					this.cameraLookAtPosition.set(
-						-(modelsRadius * Math.cos(modelsAngleX)),
-						Y - modelsRadius * Math.sin(modelsAngleY) + 0.5,
-						-(modelsRadius * Math.sin(modelsAngleX))
+						this.focusedElement.position.x -
+							modelsRadius *
+								Math.cos(
+									modelsAngleX - this.app.camera.rotation.y + (Math.PI * 0.5)
+								),
+						this.focusedElement.position.y -
+							modelsRadius * Math.sin(modelsAngleY),
+						this.focusedElement.position.z -
+							modelsRadius *
+								Math.sin(
+									modelsAngleX - this.app.camera.rotation.y + (Math.PI * 0.5)
+								)
 					);
 				}
 
@@ -312,8 +320,10 @@ export class Experience {
 				this.app.camera?.updateProjectionMatrix();
 				cameraLookAtPOintIndicator.position.copy(this.cameraLookAtPosition);
 
-				modelsAngleX += (this.normalizedCursorPosition.x - modelsAngleX) * 0.1;
-				modelsAngleY += (this.normalizedCursorPosition.y - modelsAngleY) * 0.1;
+				modelsAngleX +=
+					(this.normalizedCursorPosition.x * Math.PI - modelsAngleX) * 0.1;
+				modelsAngleY +=
+					(this.normalizedCursorPosition.y * Math.PI - modelsAngleY) * 0.1;
 			});
 
 			// GUI
