@@ -38,7 +38,7 @@ export class Experience {
 	cameraLookAtPosition = new THREE.Vector3(0, 2, 0);
 	autoCameraAnimation = false;
 	back = false;
-	lerp = {
+	cameraCurvePathProgress = {
 		current: 0,
 		target: 0,
 		ease: 0.1,
@@ -256,28 +256,38 @@ export class Experience {
 				}
 
 				if (this.autoCameraAnimation) {
-					this.lerp.current = GSAP.utils.interpolate(
-						this.lerp.current,
-						this.lerp.target,
-						this.lerp.ease
+					this.cameraCurvePathProgress.current = GSAP.utils.interpolate(
+						this.cameraCurvePathProgress.current,
+						this.cameraCurvePathProgress.target,
+						this.cameraCurvePathProgress.ease
 					);
 
-					this.lerp.target = this.lerp.target + (this.back ? -0.0001 : 0.0001);
-					if (this.lerp.target > 1) {
+					this.cameraCurvePathProgress.target =
+						this.cameraCurvePathProgress.target +
+						(this.back ? -0.0001 : 0.0001);
+					if (this.cameraCurvePathProgress.target > 1) {
 						setTimeout(() => {
 							this.back = true;
 						}, 1000);
 					}
-					if (this.lerp.target < 0) {
+					if (this.cameraCurvePathProgress.target < 0) {
 						setTimeout(() => {
 							this.back = false;
 						}, 1000);
 					}
-					this.lerp.target = GSAP.utils.clamp(0, 1, this.lerp.target);
-					this.lerp.current = GSAP.utils.clamp(0, 1, this.lerp.current);
+					this.cameraCurvePathProgress.target = GSAP.utils.clamp(
+						0,
+						1,
+						this.cameraCurvePathProgress.target
+					);
+					this.cameraCurvePathProgress.current = GSAP.utils.clamp(
+						0,
+						1,
+						this.cameraCurvePathProgress.current
+					);
 
 					this.cameraCurvePath.getPointAt(
-						this.lerp.current,
+						this.cameraCurvePathProgress.current,
 						this.cameraCurvePosition
 					);
 
@@ -350,10 +360,10 @@ export class Experience {
 	setWheelEventListener() {
 		window.addEventListener("wheel", (e) => {
 			if (e.deltaY < 0) {
-				this.lerp.target += 0.05;
+				this.cameraCurvePathProgress.target += 0.05;
 				this.back = false;
 			} else {
-				this.lerp.target -= 0.05;
+				this.cameraCurvePathProgress.target -= 0.05;
 				this.back = true;
 			}
 		});
@@ -393,8 +403,8 @@ export class Experience {
 			}, (_DEFAULT_PROPS.duration + 0.5) * 1000);
 		}
 
-		if (this.lerp.target < 0) {
-			this.lerp.target = 1;
+		if (this.cameraCurvePathProgress.target < 0) {
+			this.cameraCurvePathProgress.target = 1;
 		}
 	}
 
