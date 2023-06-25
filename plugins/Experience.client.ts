@@ -43,6 +43,8 @@ export class Experience {
 		target: 0,
 		ease: 0.1,
 	};
+
+	focusedElement?: THREE.Mesh;
 	monitor_a_screen?: THREE.Mesh;
 	monitor_b_screen?: THREE.Mesh;
 	phone_screen?: THREE.Mesh;
@@ -292,7 +294,13 @@ export class Experience {
 					);
 
 					this.app.camera?.position.copy(this.cameraCurvePosition);
-				} else if (this.app.camera) {
+				}
+
+				if (
+					!this.autoCameraAnimation &&
+					this.focusedElement &&
+					this.app.camera
+				) {
 					this.cameraLookAtPosition.set(
 						-(modelsRadius * Math.cos(modelsAngleX)),
 						Y - modelsRadius * Math.sin(modelsAngleY) + 0.5,
@@ -313,10 +321,12 @@ export class Experience {
 			this.gui
 				?.add(
 					{
-						fn: () =>
+						fn: () => {
+							this.focusedElement = this.monitor_a_screen;
 							this.toggleFocusMode(
-								this.monitor_a_screen?.position ?? new THREE.Vector3()
-							),
+								this.focusedElement?.position ?? new THREE.Vector3()
+							);
+						},
 					},
 					"fn"
 				)
@@ -324,10 +334,12 @@ export class Experience {
 			this.gui
 				?.add(
 					{
-						fn: () =>
+						fn: () => {
+							this.focusedElement = this.monitor_b_screen;
 							this.toggleFocusMode(
-								this.monitor_b_screen?.position ?? new THREE.Vector3()
-							),
+								this.focusedElement?.position ?? new THREE.Vector3()
+							);
+						},
 					},
 					"fn"
 				)
@@ -335,10 +347,12 @@ export class Experience {
 			this.gui
 				?.add(
 					{
-						fn: () =>
+						fn: () => {
+							this.focusedElement = this.phone_screen;
 							this.toggleFocusMode(
-								this.phone_screen?.position ?? new THREE.Vector3()
-							),
+								this.focusedElement?.position ?? new THREE.Vector3()
+							);
+						},
 					},
 					"fn"
 				)
@@ -346,10 +360,12 @@ export class Experience {
 			this.gui
 				?.add(
 					{
-						fn: () =>
+						fn: () => {
+							this.focusedElement = this.pc_screen;
 							this.toggleFocusMode(
-								this.pc_screen?.position ?? new THREE.Vector3()
-							),
+								this.focusedElement?.position ?? new THREE.Vector3()
+							);
+						},
 					},
 					"fn"
 				)
@@ -459,7 +475,10 @@ export class Experience {
 					y: this.cameraCurvePosition.y,
 					z: this.cameraCurvePosition.z,
 					duration: 2,
-				}).then(() => (this.autoCameraAnimation = true));
+				}).then(() => {
+					this.focusedElement = undefined;
+					this.autoCameraAnimation = true;
+				});
 			}
 		}
 	}
