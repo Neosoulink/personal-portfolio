@@ -26,6 +26,7 @@ export class Experience {
 	gui?: GUI;
 	loadingManager = new THREE.LoadingManager();
 	isometricRoom?: THREE.Group;
+	normalizedCursorPosition = { x: 0, y: 0 };
 	cameraCurvePath = new THREE.CatmullRomCurve3([
 		new THREE.Vector3(0, 5.5, 21),
 		new THREE.Vector3(12, 10, 12),
@@ -137,7 +138,7 @@ export class Experience {
 			const TEXTURE_LOADER = new THREE.TextureLoader(this.loadingManager);
 
 			// LIGHTS
-			const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xA33A12, 0.01);
+			const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xa33a12, 0.01);
 			DIRECTIONAL_LIGHT.position.set(0, 0, 1);
 
 			/**
@@ -220,13 +221,28 @@ export class Experience {
 				})
 			);
 
+			const cameraLookAtPOintIndicator = new THREE.Mesh(
+				new THREE.SphereGeometry(0.1, 12, 12),
+				new THREE.MeshBasicMaterial({ color: "#ff0040" })
+			);
+
 			this.setWheelEventListener();
+			this.setMouseMoveEventListener();
 
 			// ADD TO SCENE
-			this.mainGroup.add(DIRECTIONAL_LIGHT, CURVE_OBJECT);
+			this.mainGroup.add(
+				DIRECTIONAL_LIGHT,
+				CURVE_OBJECT,
+				cameraLookAtPOintIndicator
+			);
 			CAMERA_HELPER && this.mainGroup.add(CAMERA_HELPER);
 
 			this.app.scene.add(this.mainGroup);
+
+			let modelsAngleX = 0;
+			let modelsAngleY = 0;
+			let modelsRadius = 1;
+			const Y = this.cameraLookAtPosition.y;
 
 			// ANIMATIONS
 			this.app.setUpdateCallback("root", () => {
@@ -266,10 +282,20 @@ export class Experience {
 					);
 
 					this.app.camera?.position.copy(this.cameraCurvePosition);
-
-					this.app.camera?.lookAt(this.cameraLookAtPosition);
-					this.app.camera?.updateProjectionMatrix();
+				} else if (this.app.camera) {
+					this.cameraLookAtPosition.set(
+						-(modelsRadius * Math.cos(modelsAngleX)),
+						Y - modelsRadius * Math.sin(modelsAngleY) + 0.5,
+						-(modelsRadius * Math.sin(modelsAngleX))
+					);
 				}
+
+				this.app.camera?.lookAt(this.cameraLookAtPosition);
+				this.app.camera?.updateProjectionMatrix();
+				cameraLookAtPOintIndicator.position.copy(this.cameraLookAtPosition);
+
+				modelsAngleX += (this.normalizedCursorPosition.x - modelsAngleX) * 0.1;
+				modelsAngleY += (this.normalizedCursorPosition.y - modelsAngleY) * 0.1;
 			});
 
 			// GUI
@@ -333,6 +359,17 @@ export class Experience {
 		});
 	}
 
+	setMouseMoveEventListener() {
+		window.addEventListener("mousemove", (e) => {
+			if (!this.autoCameraAnimation) {
+				this.normalizedCursorPosition.x =
+					e.clientX / this.app.sizes.width - 0.5;
+				this.normalizedCursorPosition.y =
+					e.clientY / this.app.sizes.height - 0.5;
+			}
+		});
+	}
+
 	start() {
 		const _DEFAULT_PROPS = {
 			duration: 2.5,
@@ -365,21 +402,18 @@ export class Experience {
 		if (this.monitor_a_screen && this.app.camera) {
 			if (this.autoCameraAnimation) {
 				this.autoCameraAnimation = false;
-				const DUMMY_POSITION = new THREE.Vector3().copy(
-					this.cameraLookAtPosition
-				);
 
-				GSAP.to(DUMMY_POSITION, {
+				GSAP.to(this.cameraLookAtPosition, {
 					x: position.x,
 					y: position.y,
 					z: position.z,
 					duration: 1.5,
 					onUpdate: () => {
-						this.app.camera?.lookAt(DUMMY_POSITION);
+						this.app.camera?.lookAt(this.cameraLookAtPosition);
 						this.app.camera?.updateProjectionMatrix();
 
 						if (this.app._camera.controls)
-							this.app._camera.controls.target = DUMMY_POSITION;
+							this.app._camera.controls.target = this.cameraLookAtPosition;
 					},
 				});
 
@@ -393,20 +427,20 @@ export class Experience {
 				return;
 			}
 
-			const DUMMY_POSITION = new THREE.Vector3().copy(position);
+			this.cameraLookAtPosition = new THREE.Vector3().copy(position);
 
 			if (this.app.camera) {
-				GSAP.to(DUMMY_POSITION, {
-					x: this.cameraLookAtPosition.x,
-					y: this.cameraLookAtPosition.y,
-					z: this.cameraLookAtPosition.z,
+				GSAP.to(this.cameraLookAtPosition, {
+					x: 0,
+					y: 2,
+					z: 0,
 					duration: 2,
 					onUpdate: () => {
-						this.app.camera?.lookAt(DUMMY_POSITION);
+						this.app.camera?.lookAt(this.cameraLookAtPosition);
 						this.app.camera?.updateProjectionMatrix();
 
 						if (this.app._camera.controls)
-							this.app._camera.controls.target = DUMMY_POSITION;
+							this.app._camera.controls.target = this.cameraLookAtPosition;
 					},
 				});
 
