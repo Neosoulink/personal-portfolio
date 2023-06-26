@@ -121,7 +121,7 @@ export class Experience {
 		}
 	}
 
-	async construct() {
+	construct() {
 		if (this.gui) {
 			this.gui.destroy();
 			this.gui = undefined;
@@ -365,56 +365,7 @@ export class Experience {
 			});
 
 			// GUI
-			this.gui = this.app.debug?.ui?.addFolder(Experience.name);
-			this.gui
-				?.add(
-					{
-						fn: () => {
-							this.focusedElementFollowCursor = true;
-							this.focusedElementPosition =
-								this.monitor_a_screen?.position ?? new THREE.Vector3();
-							this.toggleFocusMode(this.focusedElementPosition);
-						},
-					},
-					"fn"
-				)
-				.name("Toggle monitor A focus");
-			this.gui
-				?.add(
-					{
-						fn: () => {
-							this.toggleFocusMode(
-								this.monitor_b_screen?.position ?? new THREE.Vector3()
-							);
-						},
-					},
-					"fn"
-				)
-				.name("Toggle monitor B focus");
-			this.gui
-				?.add(
-					{
-						fn: () => {
-							this.toggleFocusMode(
-								this.phone_screen?.position ?? new THREE.Vector3()
-							);
-						},
-					},
-					"fn"
-				)
-				.name("Toggle monitor Phone screen");
-			this.gui
-				?.add(
-					{
-						fn: () => {
-							this.toggleFocusMode(
-								this.pc_screen?.position ?? new THREE.Vector3()
-							);
-						},
-					},
-					"fn"
-				)
-				.name("Toggle monitor PC screen");
+			this.setGui();
 		}
 	}
 
@@ -439,34 +390,6 @@ export class Experience {
 					e.clientY / this.app.sizes.height - 0.5;
 			}
 		});
-	}
-
-	start() {
-		const _DEFAULT_PROPS = {
-			duration: 2.5,
-			ease: "M0,0 C0.001,0.001 0.002,0.003 0.003,0.004 0.142,0.482 0.284,0.75 0.338,0.836 0.388,0.924 0.504,1 1,1 ",
-		};
-
-		if (this.mainGroup && this.isometricRoom) {
-			GSAP.to(this.isometricRoom.rotation, {
-				x: 0,
-				y: 0,
-				..._DEFAULT_PROPS,
-			});
-			GSAP.to(this.isometricRoom.position, {
-				y: 0,
-				z: 0,
-				..._DEFAULT_PROPS,
-			});
-
-			setTimeout(() => {
-				this.autoCameraAnimation = true;
-			}, (_DEFAULT_PROPS.duration + 0.5) * 1000);
-		}
-
-		if (this.cameraCurvePathProgress.target < 0) {
-			this.cameraCurvePathProgress.target = 1;
-		}
 	}
 
 	toggleFocusMode(position: THREE.Vector3) {
@@ -516,6 +439,88 @@ export class Experience {
 					this.focusedElementFollowCursor = false;
 				});
 			}
+		}
+	}
+
+	setGui() {
+		// GUI
+		this.gui = this.app.debug?.ui?.addFolder(Experience.name);
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						this.focusedElementFollowCursor = true;
+						this.focusedElementPosition =
+							this.monitor_a_screen?.position ?? new THREE.Vector3();
+						this.toggleFocusMode(this.focusedElementPosition);
+					},
+				},
+				"fn"
+			)
+			.name("Toggle monitor A focus");
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						this.toggleFocusMode(
+							this.monitor_b_screen?.position ?? new THREE.Vector3()
+						);
+					},
+				},
+				"fn"
+			)
+			.name("Toggle monitor B focus");
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						this.toggleFocusMode(
+							this.phone_screen?.position ?? new THREE.Vector3()
+						);
+					},
+				},
+				"fn"
+			)
+			.name("Toggle monitor Phone screen");
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						this.toggleFocusMode(
+							this.pc_screen?.position ?? new THREE.Vector3()
+						);
+					},
+				},
+				"fn"
+			)
+			.name("Toggle monitor PC screen");
+	}
+
+	start() {
+		const _DEFAULT_PROPS = {
+			duration: 2.5,
+			ease: "M0,0 C0.001,0.001 0.002,0.003 0.003,0.004 0.142,0.482 0.284,0.75 0.338,0.836 0.388,0.924 0.504,1 1,1 ",
+		};
+
+		if (this.mainGroup && this.isometricRoom) {
+			GSAP.to(this.isometricRoom.rotation, {
+				x: 0,
+				y: 0,
+				..._DEFAULT_PROPS,
+			});
+			GSAP.to(this.isometricRoom.position, {
+				y: 0,
+				z: 0,
+				..._DEFAULT_PROPS,
+			});
+
+			setTimeout(() => {
+				this.autoCameraAnimation = true;
+			}, (_DEFAULT_PROPS.duration + 0.5) * 1000);
+		}
+
+		if (this.cameraCurvePathProgress.target < 0) {
+			this.cameraCurvePathProgress.target = 1;
 		}
 	}
 }
