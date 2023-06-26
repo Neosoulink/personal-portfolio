@@ -25,8 +25,15 @@ export class Experience {
 	mainGroup?: THREE.Group;
 	gui?: GUI;
 	loadingManager = new THREE.LoadingManager();
+
+	cameraLookAtPOintIndicator = new THREE.Mesh(
+		new THREE.SphereGeometry(0.1, 12, 12),
+		new THREE.MeshBasicMaterial({ color: "#ff0040" })
+	);
+
 	isometricRoom?: THREE.Group;
 	normalizedCursorPosition = { x: 0, y: 0 };
+	initialLookAtPosition = new THREE.Vector3(0, 2, 0);
 	cameraCurvePath = new THREE.CatmullRomCurve3([
 		new THREE.Vector3(0, 5.5, 21),
 		new THREE.Vector3(12, 10, 12),
@@ -225,11 +232,6 @@ export class Experience {
 				})
 			);
 
-			const cameraLookAtPOintIndicator = new THREE.Mesh(
-				new THREE.SphereGeometry(0.1, 12, 12),
-				new THREE.MeshBasicMaterial({ color: "#ff0040" })
-			);
-
 			this.setWheelEventListener();
 			this.setMouseMoveEventListener();
 
@@ -237,7 +239,7 @@ export class Experience {
 			this.mainGroup.add(
 				DIRECTIONAL_LIGHT,
 				CURVE_OBJECT,
-				cameraLookAtPOintIndicator
+				this.cameraLookAtPOintIndicator
 			);
 			CAMERA_HELPER && this.mainGroup.add(CAMERA_HELPER);
 
@@ -340,23 +342,20 @@ export class Experience {
 					);
 
 					this.cameraLookAtPosition.lerpVectors(
+						this.initialLookAtPosition,
 						_VECTOR,
-						this.cameraLookAtPosition,
 						this.focusedElementFollowCursorProgress
 					);
 
-					this.focusedElementFollowCursorProgress += 0.005;
+					this.focusedElementFollowCursorProgress += 0.015;
 
-					console.log(this.focusedElementFollowCursorProgress);
 					if (this.focusedElementFollowCursorProgress >= 1) {
 						this.focusedElementFollowCursor = false;
 						this.focusedElementFollowCursorProgress = 0;
 					}
 				}
 
-				this.app.camera?.lookAt(this.cameraLookAtPosition);
-				this.app.camera?.updateProjectionMatrix();
-				cameraLookAtPOintIndicator.position.copy(this.cameraLookAtPosition);
+				this.setCameraLookAt(this.cameraLookAtPosition);
 
 				modelsAngleX +=
 					(this.normalizedCursorPosition.x * Math.PI - modelsAngleX) * 0.1;
@@ -393,52 +392,45 @@ export class Experience {
 	}
 
 	toggleFocusMode(position: THREE.Vector3) {
-		if (this.monitor_a_screen && this.app.camera) {
+		if (this.app.camera) {
+			this.focusedElementPosition = new THREE.Vector3().copy(position);
+
 			if (this.autoCameraAnimation) {
+				this.focusedElementFollowCursor = true;
 				this.autoCameraAnimation = false;
 
 				GSAP.to(this.app.camera.position, {
-					x: 0,
+					x: this.initialLookAtPosition.x,
 					y: position.y + 0.2,
-					z: 0,
+					z: this.initialLookAtPosition.z,
 					duration: 1.5,
-				}).then(() => {
-					this.focusedElementPosition = position;
-					this.focusedElementFollowCursor = false;
-					this.focusedElementFollowCursorProgress = 0;
 				});
 
 				return;
 			}
 
+			this.focusedElementFollowCursor = false;
 			this.cameraLookAtPosition = new THREE.Vector3().copy(position);
 
-			if (this.app.camera) {
-				GSAP.to(this.cameraLookAtPosition, {
-					x: 0,
-					y: 2,
-					z: 0,
-					duration: 2,
-					onUpdate: () => {
-						this.app.camera?.lookAt(this.cameraLookAtPosition);
-						this.app.camera?.updateProjectionMatrix();
+			GSAP.to(this.cameraLookAtPosition, {
+				x: this.initialLookAtPosition.x,
+				y: this.initialLookAtPosition.y,
+				z: this.initialLookAtPosition.z,
+				duration: 2,
+				onUpdate: () => {
+					this.setCameraLookAt(this.cameraLookAtPosition);
+				},
+			});
 
-						if (this.app._camera.controls)
-							this.app._camera.controls.target = this.cameraLookAtPosition;
-					},
-				});
-
-				GSAP.to(this.app.camera.position, {
-					x: this.cameraCurvePosition.x,
-					y: this.cameraCurvePosition.y,
-					z: this.cameraCurvePosition.z,
-					duration: 2,
-				}).then(() => {
-					this.focusedElementPosition = undefined;
-					this.autoCameraAnimation = true;
-					this.focusedElementFollowCursor = false;
-				});
-			}
+			GSAP.to(this.app.camera.position, {
+				x: this.cameraCurvePosition.x,
+				y: this.cameraCurvePosition.y,
+				z: this.cameraCurvePosition.z,
+				duration: 2,
+			}).then(() => {
+				this.focusedElementPosition = undefined;
+				this.autoCameraAnimation = true;
+			});
 		}
 	}
 
@@ -449,10 +441,9 @@ export class Experience {
 			?.add(
 				{
 					fn: () => {
-						this.focusedElementFollowCursor = true;
-						this.focusedElementPosition =
-							this.monitor_a_screen?.position ?? new THREE.Vector3();
-						this.toggleFocusMode(this.focusedElementPosition);
+						this.toggleFocusMode(
+							this.monitor_a_screen?.position ?? new THREE.Vector3()
+						);
 					},
 				},
 				"fn"
@@ -494,6 +485,15 @@ export class Experience {
 				"fn"
 			)
 			.name("Toggle monitor PC screen");
+	}
+
+	setCameraLookAt(v: THREE.Vector3) {
+		this.app.camera?.lookAt(v);
+		this.app.camera?.updateProjectionMatrix();
+
+		if (this.app._camera.controls) this.app._camera.controls.target = v;
+
+		this.cameraLookAtPOintIndicator.position.copy(this.cameraLookAtPosition);
 	}
 
 	start() {
