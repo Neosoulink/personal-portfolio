@@ -44,7 +44,9 @@ export class Experience {
 		ease: 0.1,
 	};
 
-	focusedElement?: THREE.Mesh;
+	focusedElementPosition?: THREE.Vector3;
+	focusedElementFollowCursor = false;
+	focusedElementFollowCursorProgress = 0;
 	monitor_a_screen?: THREE.Mesh;
 	monitor_b_screen?: THREE.Mesh;
 	phone_screen?: THREE.Mesh;
@@ -256,7 +258,7 @@ export class Experience {
 						CAMERA_HELPER.rotation.copy(this.app.camera?.rotation);
 				}
 
-				if (this.autoCameraAnimation) {
+				if (this.autoCameraAnimation && !this.focusedElementFollowCursor) {
 					this.cameraCurvePathProgress.current = GSAP.utils.interpolate(
 						this.cameraCurvePathProgress.current,
 						this.cameraCurvePathProgress.target,
@@ -297,23 +299,59 @@ export class Experience {
 
 				if (
 					!this.autoCameraAnimation &&
-					this.focusedElement &&
-					this.app.camera
+					this.focusedElementPosition &&
+					this.app.camera &&
+					!this.focusedElementFollowCursor
 				) {
 					this.cameraLookAtPosition.set(
-						this.focusedElement.position.x -
+						this.focusedElementPosition.x -
 							modelsRadius *
 								Math.cos(
 									modelsAngleX - this.app.camera.rotation.y + Math.PI * 0.5
 								),
-						this.focusedElement.position.y -
+						this.focusedElementPosition.y -
 							modelsRadius * Math.sin(modelsAngleY),
-						this.focusedElement.position.z -
+						this.focusedElementPosition.z -
 							modelsRadius *
 								Math.sin(
 									modelsAngleX - this.app.camera.rotation.y + Math.PI * 0.5
 								)
 					);
+				}
+
+				if (
+					this.focusedElementFollowCursor &&
+					this.app.camera &&
+					this.focusedElementPosition
+				) {
+					const _VECTOR = new THREE.Vector3(
+						this.focusedElementPosition.x -
+							modelsRadius *
+								Math.cos(
+									modelsAngleX - this.app.camera.rotation.y + Math.PI * 0.5
+								),
+						this.focusedElementPosition.y -
+							modelsRadius * Math.sin(modelsAngleY),
+						this.focusedElementPosition.z -
+							modelsRadius *
+								Math.sin(
+									modelsAngleX - this.app.camera.rotation.y + Math.PI * 0.5
+								)
+					);
+
+					this.cameraLookAtPosition.lerpVectors(
+						_VECTOR,
+						this.cameraLookAtPosition,
+						this.focusedElementFollowCursorProgress
+					);
+
+					this.focusedElementFollowCursorProgress += 0.005;
+
+					console.log(this.focusedElementFollowCursorProgress);
+					if (this.focusedElementFollowCursorProgress >= 1) {
+						this.focusedElementFollowCursor = false;
+						this.focusedElementFollowCursorProgress = 0;
+					}
 				}
 
 				this.app.camera?.lookAt(this.cameraLookAtPosition);
@@ -332,10 +370,10 @@ export class Experience {
 				?.add(
 					{
 						fn: () => {
-							this.focusedElement = this.monitor_a_screen;
-							this.toggleFocusMode(
-								this.focusedElement?.position ?? new THREE.Vector3()
-							);
+							this.focusedElementFollowCursor = true;
+							this.focusedElementPosition =
+								this.monitor_a_screen?.position ?? new THREE.Vector3();
+							this.toggleFocusMode(this.focusedElementPosition);
 						},
 					},
 					"fn"
@@ -345,9 +383,8 @@ export class Experience {
 				?.add(
 					{
 						fn: () => {
-							this.focusedElement = this.monitor_b_screen;
 							this.toggleFocusMode(
-								this.focusedElement?.position ?? new THREE.Vector3()
+								this.monitor_b_screen?.position ?? new THREE.Vector3()
 							);
 						},
 					},
@@ -358,9 +395,8 @@ export class Experience {
 				?.add(
 					{
 						fn: () => {
-							this.focusedElement = this.phone_screen;
 							this.toggleFocusMode(
-								this.focusedElement?.position ?? new THREE.Vector3()
+								this.phone_screen?.position ?? new THREE.Vector3()
 							);
 						},
 					},
@@ -371,9 +407,8 @@ export class Experience {
 				?.add(
 					{
 						fn: () => {
-							this.focusedElement = this.pc_screen;
 							this.toggleFocusMode(
-								this.focusedElement?.position ?? new THREE.Vector3()
+								this.pc_screen?.position ?? new THREE.Vector3()
 							);
 						},
 					},
@@ -439,25 +474,15 @@ export class Experience {
 			if (this.autoCameraAnimation) {
 				this.autoCameraAnimation = false;
 
-				GSAP.to(this.cameraLookAtPosition, {
-					x: position.x,
-					y: position.y,
-					z: position.z,
-					duration: 1.5,
-					onUpdate: () => {
-						this.app.camera?.lookAt(this.cameraLookAtPosition);
-						this.app.camera?.updateProjectionMatrix();
-
-						if (this.app._camera.controls)
-							this.app._camera.controls.target = this.cameraLookAtPosition;
-					},
-				});
-
 				GSAP.to(this.app.camera.position, {
 					x: 0,
 					y: position.y + 0.2,
 					z: 0,
 					duration: 1.5,
+				}).then(() => {
+					this.focusedElementPosition = position;
+					this.focusedElementFollowCursor = false;
+					this.focusedElementFollowCursorProgress = 0;
 				});
 
 				return;
@@ -486,8 +511,9 @@ export class Experience {
 					z: this.cameraCurvePosition.z,
 					duration: 2,
 				}).then(() => {
-					this.focusedElement = undefined;
+					this.focusedElementPosition = undefined;
 					this.autoCameraAnimation = true;
+					this.focusedElementFollowCursor = false;
 				});
 			}
 		}
