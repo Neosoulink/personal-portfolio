@@ -1,7 +1,7 @@
 import * as THREE from "three";
-import QuickThree from "quick-threejs";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import QuickThree from "quick-threejs";
 import GUI from "lil-gui";
 import GSAP from "gsap";
 
@@ -54,10 +54,15 @@ export class Experience {
 	focusedElementPosition?: THREE.Vector3;
 	focusedElementFollowCursor = false;
 	focusedElementFollowCursorProgress = 0;
+	focusedElementRadius = 2;
+	focusedElementAngleX = 0;
+	focusedElementAngleY = 0;
+
 	monitor_a_screen?: THREE.Mesh;
 	monitor_b_screen?: THREE.Mesh;
 	phone_screen?: THREE.Mesh;
 	pc_screen?: THREE.Mesh;
+	roomShelves?: THREE.Mesh;
 
 	onConstruct?: () => unknown;
 	onDestruct?: () => unknown;
@@ -199,6 +204,9 @@ export class Experience {
 						if (child instanceof THREE.Mesh && child.name === "pc-screen") {
 							this.pc_screen = child;
 						}
+						if (child instanceof THREE.Mesh && child.name === "room-shelves") {
+							this.roomShelves = child;
+						}
 					});
 
 					(this.isometricRoom = glb.scene).position.set(0, -1.5, -6.5);
@@ -244,10 +252,6 @@ export class Experience {
 			CAMERA_HELPER && this.mainGroup.add(CAMERA_HELPER);
 
 			this.app.scene.add(this.mainGroup);
-
-			let modelsAngleX = 0;
-			let modelsAngleY = 0;
-			let modelsRadius = 1;
 
 			// ANIMATIONS
 			this.app.setUpdateCallback("root", () => {
@@ -305,19 +309,8 @@ export class Experience {
 					this.app.camera &&
 					!this.focusedElementFollowCursor
 				) {
-					this.cameraLookAtPosition.set(
-						this.focusedElementPosition.x -
-							modelsRadius *
-								Math.cos(
-									modelsAngleX - this.app.camera.rotation.y + Math.PI * 0.5
-								),
-						this.focusedElementPosition.y -
-							modelsRadius * Math.sin(modelsAngleY),
-						this.focusedElementPosition.z -
-							modelsRadius *
-								Math.sin(
-									modelsAngleX - this.app.camera.rotation.y + Math.PI * 0.5
-								)
+					this.cameraLookAtPosition.copy(
+						this.getFocusedElementLookAtPosition()
 					);
 				}
 
@@ -326,24 +319,9 @@ export class Experience {
 					this.app.camera &&
 					this.focusedElementPosition
 				) {
-					const _VECTOR = new THREE.Vector3(
-						this.focusedElementPosition.x -
-							modelsRadius *
-								Math.cos(
-									modelsAngleX - this.app.camera.rotation.y + Math.PI * 0.5
-								),
-						this.focusedElementPosition.y -
-							modelsRadius * Math.sin(modelsAngleY),
-						this.focusedElementPosition.z -
-							modelsRadius *
-								Math.sin(
-									modelsAngleX - this.app.camera.rotation.y + Math.PI * 0.5
-								)
-					);
-
 					this.cameraLookAtPosition.lerpVectors(
 						this.initialLookAtPosition,
-						_VECTOR,
+						this.getFocusedElementLookAtPosition(),
 						this.focusedElementFollowCursorProgress
 					);
 
@@ -357,10 +335,14 @@ export class Experience {
 
 				this.setCameraLookAt(this.cameraLookAtPosition);
 
-				modelsAngleX +=
-					(this.normalizedCursorPosition.x * Math.PI - modelsAngleX) * 0.1;
-				modelsAngleY +=
-					(this.normalizedCursorPosition.y * Math.PI - modelsAngleY) * 0.1;
+				this.focusedElementAngleX +=
+					(this.normalizedCursorPosition.x * Math.PI -
+						this.focusedElementAngleX) *
+					0.1;
+				this.focusedElementAngleY +=
+					(this.normalizedCursorPosition.y * Math.PI -
+						this.focusedElementAngleY) *
+					0.1;
 			});
 
 			// GUI
@@ -391,18 +373,55 @@ export class Experience {
 		});
 	}
 
-	toggleFocusMode(position: THREE.Vector3) {
+	getFocusedElementLookAtPosition() {
+		if (this.focusedElementPosition && this.app.camera) {
+			return new THREE.Vector3(
+				this.focusedElementPosition.x -
+					this.focusedElementRadius *
+						Math.cos(
+							this.focusedElementAngleX -
+								this.app.camera.rotation.y +
+								Math.PI * 0.5
+						),
+				this.focusedElementPosition.y -
+					this.focusedElementRadius * Math.sin(this.focusedElementAngleY),
+				this.focusedElementPosition.z -
+					this.focusedElementRadius *
+						Math.sin(
+							this.focusedElementAngleX -
+								this.app.camera.rotation.y +
+								Math.PI * 0.5
+						)
+			);
+		}
+
+		return new THREE.Vector3();
+	}
+
+	/**
+	 * Toggle the camera position with transition from
+	 * the origin position to the passed position
+	 *
+	 * @param cameraToPosition The camera position
+	 * @param cameraLookAtPosition The camera position where to loo at
+	 */
+	toggleFocusMode(
+		cameraToPosition = new THREE.Vector3(),
+		cameraLookAtPosition = new THREE.Vector3()
+	) {
 		if (this.app.camera) {
-			this.focusedElementPosition = new THREE.Vector3().copy(position);
+			this.focusedElementPosition = new THREE.Vector3().copy(
+				cameraLookAtPosition
+			);
 
 			if (this.autoCameraAnimation) {
 				this.focusedElementFollowCursor = true;
 				this.autoCameraAnimation = false;
 
 				GSAP.to(this.app.camera.position, {
-					x: this.initialLookAtPosition.x,
-					y: position.y + 0.2,
-					z: this.initialLookAtPosition.z,
+					x: cameraToPosition.x,
+					y: cameraToPosition.y,
+					z: cameraToPosition.z,
 					duration: 1.5,
 				});
 
@@ -410,7 +429,9 @@ export class Experience {
 			}
 
 			this.focusedElementFollowCursor = false;
-			this.cameraLookAtPosition = new THREE.Vector3().copy(position);
+			this.cameraLookAtPosition = new THREE.Vector3().copy(
+				cameraLookAtPosition
+			);
 
 			GSAP.to(this.cameraLookAtPosition, {
 				x: this.initialLookAtPosition.x,
@@ -434,59 +455,10 @@ export class Experience {
 		}
 	}
 
-	setGui() {
-		// GUI
-		this.gui = this.app.debug?.ui?.addFolder(Experience.name);
-		this.gui
-			?.add(
-				{
-					fn: () => {
-						this.toggleFocusMode(
-							this.monitor_a_screen?.position ?? new THREE.Vector3()
-						);
-					},
-				},
-				"fn"
-			)
-			.name("Toggle monitor A focus");
-		this.gui
-			?.add(
-				{
-					fn: () => {
-						this.toggleFocusMode(
-							this.monitor_b_screen?.position ?? new THREE.Vector3()
-						);
-					},
-				},
-				"fn"
-			)
-			.name("Toggle monitor B focus");
-		this.gui
-			?.add(
-				{
-					fn: () => {
-						this.toggleFocusMode(
-							this.phone_screen?.position ?? new THREE.Vector3()
-						);
-					},
-				},
-				"fn"
-			)
-			.name("Toggle monitor Phone screen");
-		this.gui
-			?.add(
-				{
-					fn: () => {
-						this.toggleFocusMode(
-							this.pc_screen?.position ?? new THREE.Vector3()
-						);
-					},
-				},
-				"fn"
-			)
-			.name("Toggle monitor PC screen");
-	}
-
+	/**
+	 * Set the camera look at position
+	 * @param v Vector 3 position where the the camera should look at
+	 */
 	setCameraLookAt(v: THREE.Vector3) {
 		this.app.camera?.lookAt(v);
 		this.app.camera?.updateProjectionMatrix();
@@ -496,6 +468,9 @@ export class Experience {
 		this.cameraLookAtPOintIndicator.position.copy(this.cameraLookAtPosition);
 	}
 
+	/**
+	 * Launch the intro animation of the experience
+	 */
 	start() {
 		const _DEFAULT_PROPS = {
 			duration: 2.5,
@@ -522,6 +497,115 @@ export class Experience {
 		if (this.cameraCurvePathProgress.target < 0) {
 			this.cameraCurvePathProgress.target = 1;
 		}
+	}
+
+	setGui() {
+		// GUI
+		this.gui = this.app.debug?.ui?.addFolder(Experience.name);
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						const _POS_LOOK_AT = new THREE.Vector3().copy(
+							this.monitor_a_screen?.position ?? new THREE.Vector3()
+						);
+						const _POS = new THREE.Vector3()
+							.copy(_POS_LOOK_AT)
+							.set(0, _POS_LOOK_AT.y + 0.2, 0);
+
+						this.toggleFocusMode(_POS, _POS_LOOK_AT);
+					},
+				},
+				"fn"
+			)
+			.name("Toggle monitor A focus");
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						const _POS_LOOK_AT = new THREE.Vector3().copy(
+							this.monitor_a_screen?.position ?? new THREE.Vector3()
+						);
+						const _POS = new THREE.Vector3().copy(_POS_LOOK_AT);
+						_POS.x += 1.5;
+						_POS.y += 0.2;
+						_POS.z += 0.4;
+
+						this.toggleFocusMode(_POS, _POS_LOOK_AT);
+					},
+				},
+				"fn"
+			)
+			.name("Toggle full monitor A focus");
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						const _POS_LOOK_AT = new THREE.Vector3().copy(
+							this.monitor_b_screen?.position ?? new THREE.Vector3()
+						);
+						const _POS = new THREE.Vector3()
+							.copy(_POS_LOOK_AT)
+							.set(0, _POS_LOOK_AT.y + 0.2, 0);
+
+						this.toggleFocusMode(_POS, _POS_LOOK_AT);
+					},
+				},
+				"fn"
+			)
+			.name("Toggle monitor B focus");
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						const _POS_LOOK_AT = new THREE.Vector3().copy(
+							this.phone_screen?.position ?? new THREE.Vector3()
+						);
+						const _POS = new THREE.Vector3()
+							.copy(_POS_LOOK_AT)
+							.set(0, _POS_LOOK_AT.y + 0.2, 0);
+
+						this.toggleFocusMode(_POS, _POS_LOOK_AT);
+					},
+				},
+				"fn"
+			)
+			.name("Toggle monitor Phone screen");
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						const _POS_LOOK_AT = new THREE.Vector3().copy(
+							this.pc_screen?.position ?? new THREE.Vector3()
+						);
+						const _POS = new THREE.Vector3()
+							.copy(_POS_LOOK_AT)
+							.set(0, _POS_LOOK_AT.y + 0.2, 0);
+
+						this.toggleFocusMode(_POS, _POS_LOOK_AT);
+					},
+				},
+				"fn"
+			)
+			.name("Toggle monitor PC screen");
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						const _POS_LOOK_AT = new THREE.Vector3().copy(
+							this.roomShelves?.position ?? new THREE.Vector3()
+						);
+						const _POS = new THREE.Vector3().copy(_POS_LOOK_AT);
+						_POS.x += 3;
+						_POS.y += 0.2;
+						this.focusedElementRadius = 0.5;
+
+						this.toggleFocusMode(_POS, _POS_LOOK_AT);
+					},
+				},
+				"fn"
+			)
+			.name("Room shelves");
 	}
 }
 
