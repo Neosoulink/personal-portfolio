@@ -162,7 +162,7 @@ export class Experience {
 			this.destroy();
 		}
 
-		if (!this.mainGroup) {
+		if (!this.mainGroup && this.app.camera) {
 			this.mainGroup = new THREE.Group();
 
 			// LOADERS
@@ -194,7 +194,6 @@ export class Experience {
 				"/3d_models/isometric_room/isometric_room.glb",
 				(glb) => {
 					const _REG = new RegExp(/.*screen/);
-					console.log("glb.scene", glb.scene);
 
 					glb.scene.traverse((child) => {
 						if (child instanceof THREE.Mesh && !_REG.test(child.name)) {
@@ -224,9 +223,7 @@ export class Experience {
 						}
 					});
 
-					(this.isometricRoom = glb.scene).position.set(0, -1.5, -6.5);
-					(this.isometricRoom = glb.scene).rotation.set(0.3, -0.2, 0);
-
+					this.isometricRoom = glb.scene;
 					this.mainGroup && this.mainGroup.add(this.isometricRoom);
 				}
 			);
@@ -235,7 +232,10 @@ export class Experience {
 			if ((this.app.camera as unknown as THREE.PerspectiveCamera).fov)
 				(this.app.camera as unknown as THREE.PerspectiveCamera).fov = 35;
 			if (this.app.camera?.far) this.app.camera.far = 50;
-			this.cameraCurvePath.getPointAt(0, this.app.camera?.position);
+			this.cameraCurvePath.getPointAt(0, this.app.camera.position);
+			this.app.camera.position.y += 6;
+			this.app.camera.position.x += 8;
+			this.app.camera.position.z += 8;
 
 			this.app._camera.miniCamera?.position.set(10, 8, 30);
 			if (this.app._camera.controls)
@@ -492,15 +492,12 @@ export class Experience {
 			ease: "M0,0 C0.001,0.001 0.002,0.003 0.003,0.004 0.142,0.482 0.284,0.75 0.338,0.836 0.388,0.924 0.504,1 1,1 ",
 		};
 
-		if (this.mainGroup && this.isometricRoom) {
-			GSAP.to(this.isometricRoom.rotation, {
-				x: 0,
-				y: 0,
-				..._DEFAULT_PROPS,
-			});
-			GSAP.to(this.isometricRoom.position, {
-				y: 0,
-				z: 0,
+		if (this.app.camera) {
+			const _START_CURVE_PATH_POSITION = this.cameraCurvePath.getPointAt(0);
+			GSAP.to(this.app.camera.position, {
+				x: _START_CURVE_PATH_POSITION.x,
+				y: _START_CURVE_PATH_POSITION.y,
+				z: _START_CURVE_PATH_POSITION.z,
 				..._DEFAULT_PROPS,
 			});
 
