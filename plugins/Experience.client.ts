@@ -176,18 +176,14 @@ export class Experience {
 			const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xa33a12, 0.01);
 			DIRECTIONAL_LIGHT.position.set(0, 0, 1);
 
-			/**
-			 * Texture
-			 */
+			// TEXTURES
 			const BAKED_TEXTURE = TEXTURE_LOADER.load(
 				"/3d_models/isometric_room/baked-isometric-room.jpg"
 			);
 			BAKED_TEXTURE.flipY = false;
 			BAKED_TEXTURE.colorSpace = THREE.SRGBColorSpace;
 
-			/**
-			 * Materials
-			 */
+			// MATERIALS
 			const BAKED_MATERIAL = new THREE.MeshBasicMaterial({
 				map: BAKED_TEXTURE,
 				side: THREE.DoubleSide,
@@ -236,8 +232,11 @@ export class Experience {
 			);
 
 			// CAMERA
-			// @ts-ignore Proxy class error
-			if (this.app.camera?.fov) this.app.camera.fov = 35;
+			if (
+				this.app.camera instanceof THREE.PerspectiveCamera &&
+				this.app.camera?.fov
+			)
+				this.app.camera.fov = 35;
 			if (this.app.camera?.far) this.app.camera.far = 50;
 			this.cameraCurvePath.getPointAt(0, this.app.camera?.position);
 
@@ -488,7 +487,7 @@ export class Experience {
 	}
 
 	/**
-	 * Launch the intro animation of the experience
+	 * Launch the intro animation of the experience.
 	 */
 	start() {
 		const _DEFAULT_PROPS = {
