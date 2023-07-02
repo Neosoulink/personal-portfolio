@@ -618,6 +618,24 @@ export class Experience {
 				"fn"
 			)
 			.name("Room shelves");
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						const _POS_LOOK_AT = new THREE.Vector3().copy(
+							this.pcScreen?.position ?? new THREE.Vector3()
+						);
+						this.focusedElementRadius = 2.5;
+						const _POS = new THREE.Vector3()
+							.copy(_POS_LOOK_AT)
+							.set(0, _POS_LOOK_AT.y + 0.2, 0);
+
+						this.toggleFocusMode(_POS, _POS_LOOK_AT);
+					},
+				},
+				"fn"
+			)
+			.name("Focus desc");
 	}
 }
 
