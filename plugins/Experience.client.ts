@@ -232,11 +232,8 @@ export class Experience {
 			);
 
 			// CAMERA
-			if (
-				this.app.camera instanceof THREE.PerspectiveCamera &&
-				this.app.camera?.fov
-			)
-				this.app.camera.fov = 35;
+			if ((this.app.camera as unknown as THREE.PerspectiveCamera).fov)
+				(this.app.camera as unknown as THREE.PerspectiveCamera).fov = 35;
 			if (this.app.camera?.far) this.app.camera.far = 50;
 			this.cameraCurvePath.getPointAt(0, this.app.camera?.position);
 
