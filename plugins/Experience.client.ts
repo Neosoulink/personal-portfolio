@@ -21,17 +21,34 @@ export interface ExperienceProps {
 }
 
 export class Experience {
+	/**
+	 * Quick threejs library instance.
+	 *
+	 * [Quick three doc](https://www.npmjs.com/package/quick-threejs)
+	 */
 	app: QuickThree;
+	/**
+	 * Group containing the experience.
+	 */
 	mainGroup?: THREE.Group;
+	/**
+	 * Graphic user interface of the experience instance
+	 */
 	gui?: GUI;
+	/**
+	 * Manager of all element to load in the experience
+	 */
 	loadingManager = new THREE.LoadingManager();
-
+	/**
+	 * Indicate where the camera is looking at.
+	 *
+	 * @deprecated Should remove in prod.
+	 */
 	cameraLookAtPOintIndicator = new THREE.Mesh(
 		new THREE.SphereGeometry(0.1, 12, 12),
 		new THREE.MeshBasicMaterial({ color: "#ff0040" })
 	);
 
-	isometricRoom?: THREE.Group;
 	normalizedCursorPosition = { x: 0, y: 0 };
 	initialLookAtPosition = new THREE.Vector3(0, 2, 0);
 	cameraCurvePath = new THREE.CatmullRomCurve3([
@@ -58,10 +75,12 @@ export class Experience {
 	focusedElementAngleX = 0;
 	focusedElementAngleY = 0;
 
-	monitor_a_screen?: THREE.Mesh;
-	monitor_b_screen?: THREE.Mesh;
-	phone_screen?: THREE.Mesh;
-	pc_screen?: THREE.Mesh;
+	// Models
+	isometricRoom?: THREE.Group;
+	monitorAScreen?: THREE.Mesh;
+	monitorBScreen?: THREE.Mesh;
+	phoneScreen?: THREE.Mesh;
+	pcScreen?: THREE.Mesh;
 	roomShelves?: THREE.Mesh;
 
 	onConstruct?: () => unknown;
@@ -190,19 +209,19 @@ export class Experience {
 							child instanceof THREE.Mesh &&
 							child.name === "monitor-a-screen"
 						) {
-							this.monitor_a_screen = child;
+							this.monitorAScreen = child;
 						}
 						if (
 							child instanceof THREE.Mesh &&
 							child.name === "monitor-b-screen"
 						) {
-							this.monitor_b_screen = child;
+							this.monitorBScreen = child;
 						}
 						if (child instanceof THREE.Mesh && child.name === "phone-screen") {
-							this.phone_screen = child;
+							this.phoneScreen = child;
 						}
 						if (child instanceof THREE.Mesh && child.name === "pc-screen") {
-							this.pc_screen = child;
+							this.pcScreen = child;
 						}
 						if (child instanceof THREE.Mesh && child.name === "room-shelves") {
 							this.roomShelves = child;
@@ -507,7 +526,7 @@ export class Experience {
 				{
 					fn: () => {
 						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.monitor_a_screen?.position ?? new THREE.Vector3()
+							this.monitorAScreen?.position ?? new THREE.Vector3()
 						);
 						const _POS = new THREE.Vector3()
 							.copy(_POS_LOOK_AT)
@@ -524,7 +543,7 @@ export class Experience {
 				{
 					fn: () => {
 						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.monitor_a_screen?.position ?? new THREE.Vector3()
+							this.monitorAScreen?.position ?? new THREE.Vector3()
 						);
 						const _POS = new THREE.Vector3().copy(_POS_LOOK_AT);
 						_POS.x += 1.5;
@@ -542,7 +561,7 @@ export class Experience {
 				{
 					fn: () => {
 						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.monitor_b_screen?.position ?? new THREE.Vector3()
+							this.monitorBScreen?.position ?? new THREE.Vector3()
 						);
 						const _POS = new THREE.Vector3()
 							.copy(_POS_LOOK_AT)
@@ -559,7 +578,7 @@ export class Experience {
 				{
 					fn: () => {
 						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.phone_screen?.position ?? new THREE.Vector3()
+							this.phoneScreen?.position ?? new THREE.Vector3()
 						);
 						const _POS = new THREE.Vector3()
 							.copy(_POS_LOOK_AT)
@@ -576,7 +595,7 @@ export class Experience {
 				{
 					fn: () => {
 						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.pc_screen?.position ?? new THREE.Vector3()
+							this.pcScreen?.position ?? new THREE.Vector3()
 						);
 						const _POS = new THREE.Vector3()
 							.copy(_POS_LOOK_AT)
