@@ -172,13 +172,9 @@ export class Experience {
 			GLTF_LOADER.setDRACOLoader(DRACO_LOADER);
 			const TEXTURE_LOADER = new THREE.TextureLoader(this.loadingManager);
 
-			// LIGHTS
-			const DIRECTIONAL_LIGHT = new THREE.DirectionalLight(0xa33a12, 0.01);
-			DIRECTIONAL_LIGHT.position.set(0, 0, 1);
-
 			// TEXTURES
 			const BAKED_TEXTURE = TEXTURE_LOADER.load(
-				"/3d_models/isometric_room/baked-isometric-room.jpg"
+				"/3d_models/isometric_room/baked-room.jpg"
 			);
 			BAKED_TEXTURE.flipY = false;
 			BAKED_TEXTURE.colorSpace = THREE.SRGBColorSpace;
@@ -202,13 +198,13 @@ export class Experience {
 
 						if (
 							child instanceof THREE.Mesh &&
-							child.name === "monitor-a-screen"
+							child.name === "monitor-screen-a"
 						) {
 							this.monitorAScreen = child;
 						}
 						if (
 							child instanceof THREE.Mesh &&
-							child.name === "monitor-b-screen"
+							child.name === "monitor-screen-b"
 						) {
 							this.monitorBScreen = child;
 						}
@@ -218,8 +214,12 @@ export class Experience {
 						if (child instanceof THREE.Mesh && child.name === "pc-screen") {
 							this.pcScreen = child;
 						}
-						if (child instanceof THREE.Mesh && child.name === "room-shelves") {
+						if (child instanceof THREE.Mesh && child.name === "shelves") {
 							this.roomShelves = child;
+						}
+
+						if (child instanceof THREE.Mesh && child.name === "board") {
+							this.roomBoard = child;
 						}
 					});
 
@@ -259,11 +259,7 @@ export class Experience {
 			this.setMouseMoveEventListener();
 
 			// ADD TO SCENE
-			this.mainGroup.add(
-				DIRECTIONAL_LIGHT,
-				CURVE_OBJECT,
-				this.cameraLookAtPOintIndicator
-			);
+			this.mainGroup.add(CURVE_OBJECT, this.cameraLookAtPOintIndicator);
 			CAMERA_HELPER && this.mainGroup.add(CAMERA_HELPER);
 
 			this.app.scene.add(this.mainGroup);
@@ -519,87 +515,23 @@ export class Experience {
 				{
 					fn: () => {
 						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.monitorAScreen?.position ?? new THREE.Vector3()
+							this.roomBoard?.position ?? new THREE.Vector3()
 						);
 						const _POS = new THREE.Vector3()
 							.copy(_POS_LOOK_AT)
-							.set(0, _POS_LOOK_AT.y + 0.2, 0);
+							.set(
+								_POS_LOOK_AT.x ,
+								_POS_LOOK_AT.y,
+								_POS_LOOK_AT.z - _POS_LOOK_AT.z
+							);
 
+						this.focusedElementRadius = 0.5;
 						this.toggleFocusMode(_POS, _POS_LOOK_AT);
 					},
 				},
 				"fn"
 			)
-			.name("Toggle monitor A focus");
-		this.gui
-			?.add(
-				{
-					fn: () => {
-						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.monitorAScreen?.position ?? new THREE.Vector3()
-						);
-						const _POS = new THREE.Vector3().copy(_POS_LOOK_AT);
-						_POS.x += 1.5;
-						_POS.y += 0.2;
-						_POS.z += 0.4;
-
-						this.toggleFocusMode(_POS, _POS_LOOK_AT);
-					},
-				},
-				"fn"
-			)
-			.name("Toggle full monitor A focus");
-		this.gui
-			?.add(
-				{
-					fn: () => {
-						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.monitorBScreen?.position ?? new THREE.Vector3()
-						);
-						const _POS = new THREE.Vector3()
-							.copy(_POS_LOOK_AT)
-							.set(0, _POS_LOOK_AT.y + 0.2, 0);
-
-						this.toggleFocusMode(_POS, _POS_LOOK_AT);
-					},
-				},
-				"fn"
-			)
-			.name("Toggle monitor B focus");
-		this.gui
-			?.add(
-				{
-					fn: () => {
-						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.phoneScreen?.position ?? new THREE.Vector3()
-						);
-						const _POS = new THREE.Vector3()
-							.copy(_POS_LOOK_AT)
-							.set(0, _POS_LOOK_AT.y + 0.2, 0);
-
-						this.toggleFocusMode(_POS, _POS_LOOK_AT);
-					},
-				},
-				"fn"
-			)
-			.name("Toggle monitor Phone screen");
-		this.gui
-			?.add(
-				{
-					fn: () => {
-						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.pcScreen?.position ?? new THREE.Vector3()
-						);
-						const _POS = new THREE.Vector3()
-							.copy(_POS_LOOK_AT)
-							.set(0, _POS_LOOK_AT.y + 0.2, 0);
-
-						this.toggleFocusMode(_POS, _POS_LOOK_AT);
-					},
-				},
-				"fn"
-			)
-			.name("Toggle monitor PC screen");
+			.name("Focus Board");
 		this.gui
 			?.add(
 				{
