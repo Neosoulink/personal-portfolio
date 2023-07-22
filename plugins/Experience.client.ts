@@ -44,7 +44,7 @@ export class Experience {
 	 *
 	 * @deprecated Should remove in prod.
 	 */
-	cameraLookAtPOintIndicator = new THREE.Mesh(
+	cameraLookAtPointIndicator = new THREE.Mesh(
 		new THREE.SphereGeometry(0.1, 12, 12),
 		new THREE.MeshBasicMaterial({ color: "#ff0040" })
 	);
@@ -61,6 +61,7 @@ export class Experience {
 	cameraCurvePosition = new THREE.Vector3();
 	cameraLookAtPosition = new THREE.Vector3(0, 2, 0);
 	autoCameraAnimation = false;
+	isGsapAnimating = false;
 	back = false;
 	cameraCurvePathProgress = {
 		current: 0,
@@ -69,8 +70,6 @@ export class Experience {
 	};
 
 	focusedElementPosition?: THREE.Vector3;
-	focusedElementFollowCursor = false;
-	focusedElementFollowCursorProgress = 0;
 	focusedElementRadius = 2;
 	focusedElementAngleX = 0;
 	focusedElementAngleY = 0;
@@ -82,6 +81,7 @@ export class Experience {
 	phoneScreen?: THREE.Mesh;
 	pcScreen?: THREE.Mesh;
 	roomShelves?: THREE.Mesh;
+	roomBoard?: THREE.Mesh;
 
 	onConstruct?: () => unknown;
 	onDestruct?: () => unknown;
@@ -239,7 +239,7 @@ export class Experience {
 
 			this.app._camera.miniCamera?.position.set(10, 8, 30);
 			if (this.app._camera.controls)
-				this.app._camera.controls.target = this.cameraLookAtPosition;
+				this.app._camera.controls.target = this.initialLookAtPosition;
 
 			// HELPERS
 			const CAMERA_HELPER = this.app.camera
@@ -259,7 +259,7 @@ export class Experience {
 			this.setMouseMoveEventListener();
 
 			// ADD TO SCENE
-			this.mainGroup.add(CURVE_OBJECT, this.cameraLookAtPOintIndicator);
+			this.mainGroup.add(CURVE_OBJECT, this.cameraLookAtPointIndicator);
 			CAMERA_HELPER && this.mainGroup.add(CAMERA_HELPER);
 
 			this.app.scene.add(this.mainGroup);
@@ -275,21 +275,22 @@ export class Experience {
 						CAMERA_HELPER.rotation.copy(this.app.camera?.rotation);
 				}
 
-				if (this.autoCameraAnimation && !this.focusedElementFollowCursor) {
+				if (this.autoCameraAnimation && !this.isGsapAnimating) {
 					this.cameraCurvePathProgress.current = GSAP.utils.interpolate(
 						this.cameraCurvePathProgress.current,
 						this.cameraCurvePathProgress.target,
 						this.cameraCurvePathProgress.ease
 					);
-
 					this.cameraCurvePathProgress.target =
 						this.cameraCurvePathProgress.target +
 						(this.back ? -0.0001 : 0.0001);
+
 					if (this.cameraCurvePathProgress.target > 1) {
 						setTimeout(() => {
 							this.back = true;
 						}, 1000);
 					}
+
 					if (this.cameraCurvePathProgress.target < 0) {
 						setTimeout(() => {
 							this.back = false;
@@ -305,46 +306,23 @@ export class Experience {
 						1,
 						this.cameraCurvePathProgress.current
 					);
-
 					this.cameraCurvePath.getPointAt(
 						this.cameraCurvePathProgress.current,
 						this.cameraCurvePosition
 					);
-
 					this.app.camera?.position.copy(this.cameraCurvePosition);
 				}
 
 				if (
+					this.app.camera &&
 					!this.autoCameraAnimation &&
 					this.focusedElementPosition &&
-					this.app.camera &&
-					!this.focusedElementFollowCursor
+					!this.isGsapAnimating
 				) {
 					this.cameraLookAtPosition.copy(
 						this.getFocusedElementLookAtPosition()
 					);
 				}
-
-				if (
-					this.focusedElementFollowCursor &&
-					this.app.camera &&
-					this.focusedElementPosition
-				) {
-					this.cameraLookAtPosition.lerpVectors(
-						this.initialLookAtPosition,
-						this.getFocusedElementLookAtPosition(),
-						this.focusedElementFollowCursorProgress
-					);
-
-					this.focusedElementFollowCursorProgress += 0.015;
-
-					if (this.focusedElementFollowCursorProgress >= 1) {
-						this.focusedElementFollowCursor = false;
-						this.focusedElementFollowCursorProgress = 0;
-					}
-				}
-
-				this.setCameraLookAt(this.cameraLookAtPosition);
 
 				this.focusedElementAngleX +=
 					(this.normalizedCursorPosition.x * Math.PI -
@@ -354,6 +332,9 @@ export class Experience {
 					(this.normalizedCursorPosition.y * Math.PI -
 						this.focusedElementAngleY) *
 					0.1;
+
+				if (this.autoCameraAnimation || !this.isGsapAnimating)
+					this.setCameraLookAt(this.cameraLookAtPosition);
 			});
 
 			// GUI
@@ -363,50 +344,77 @@ export class Experience {
 
 	setWheelEventListener() {
 		window.addEventListener("wheel", (e) => {
+			if (this.autoCameraAnimation === false) return;
+
 			if (e.deltaY < 0) {
 				this.cameraCurvePathProgress.target += 0.05;
 				this.back = false;
-			} else {
-				this.cameraCurvePathProgress.target -= 0.05;
-				this.back = true;
+
+				return;
 			}
+
+			this.cameraCurvePathProgress.target -= 0.05;
+			this.back = true;
 		});
 	}
 
 	setMouseMoveEventListener() {
 		window.addEventListener("mousemove", (e) => {
-			if (!this.autoCameraAnimation) {
-				this.normalizedCursorPosition.x =
-					e.clientX / this.app.sizes.width - 0.5;
-				this.normalizedCursorPosition.y =
-					e.clientY / this.app.sizes.height - 0.5;
-			}
+			if (this.autoCameraAnimation) return;
+
+			this.normalizedCursorPosition.x = e.clientX / this.app.sizes.width - 0.5;
+			this.normalizedCursorPosition.y = e.clientY / this.app.sizes.height - 0.5;
 		});
 	}
 
 	getFocusedElementLookAtPosition() {
-		if (this.focusedElementPosition && this.app.camera) {
-			return new THREE.Vector3(
-				this.focusedElementPosition.x -
-					this.focusedElementRadius *
-						Math.cos(
-							this.focusedElementAngleX -
-								this.app.camera.rotation.y +
-								Math.PI * 0.5
-						),
-				this.focusedElementPosition.y -
-					this.focusedElementRadius * Math.sin(this.focusedElementAngleY),
-				this.focusedElementPosition.z -
-					this.focusedElementRadius *
-						Math.sin(
-							this.focusedElementAngleX -
-								this.app.camera.rotation.y +
-								Math.PI * 0.5
-						)
-			);
-		}
+		if (!(this.focusedElementPosition && this.app.camera))
+			return new THREE.Vector3();
 
-		return new THREE.Vector3();
+		return new THREE.Vector3(
+			this.focusedElementPosition.x -
+				this.focusedElementRadius *
+					Math.cos(
+						this.focusedElementAngleX -
+							this.app.camera.rotation.y +
+							Math.PI * 0.5
+					),
+			this.focusedElementPosition.y -
+				this.focusedElementRadius * Math.sin(this.focusedElementAngleY),
+			this.focusedElementPosition.z -
+				this.focusedElementRadius *
+					Math.sin(
+						this.focusedElementAngleX -
+							this.app.camera.rotation.y +
+							Math.PI * 0.5
+					)
+		);
+	}
+
+	getLerpedPosition(
+		vec3_start: THREE.Vector3,
+		vec3_end: THREE.Vector3,
+		progress = 0
+	) {
+		const _VEC3_START = vec3_start.clone();
+		const _VEC3_END = vec3_end.clone();
+
+		return _VEC3_START.lerpVectors(
+			_VEC3_START,
+			_VEC3_END,
+			GSAP.utils.clamp(0, 1, progress)
+		);
+	}
+
+	getGsapDefaultProps() {
+		return {
+			onStart: () => {
+				this.isGsapAnimating = true;
+			},
+			onComplete: () => {
+				this.isGsapAnimating = false;
+			},
+		};
 	}
 
 	/**
@@ -425,58 +433,72 @@ export class Experience {
 				cameraLookAtPosition
 			);
 
-			if (this.autoCameraAnimation) {
-				this.focusedElementFollowCursor = true;
-				this.autoCameraAnimation = false;
+			let _lerpProgress = 0;
 
+			if (this.autoCameraAnimation) {
 				GSAP.to(this.app.camera.position, {
+					...this.getGsapDefaultProps(),
 					x: cameraToPosition.x,
 					y: cameraToPosition.y,
 					z: cameraToPosition.z,
 					duration: 1.5,
+					onStart: () => {
+						this.getGsapDefaultProps().onStart();
+						this.autoCameraAnimation = false;
+					},
+					onUpdate: () => {
+						const _LERPED_POSITION = this.getLerpedPosition(
+							this.initialLookAtPosition,
+							this.getFocusedElementLookAtPosition(),
+							_lerpProgress
+						);
+						_lerpProgress += 0.015;
+
+						this.cameraLookAtPosition.copy(_LERPED_POSITION);
+						this.setCameraLookAt(_LERPED_POSITION);
+					},
 				});
 
 				return;
 			}
 
-			this.focusedElementFollowCursor = false;
-			this.cameraLookAtPosition = new THREE.Vector3().copy(
-				cameraLookAtPosition
-			);
-
-			GSAP.to(this.cameraLookAtPosition, {
-				x: this.initialLookAtPosition.x,
-				y: this.initialLookAtPosition.y,
-				z: this.initialLookAtPosition.z,
-				duration: 2,
-				onUpdate: () => {
-					this.setCameraLookAt(this.cameraLookAtPosition);
-				},
-			});
+			const _FOCUSED_ELEMENT_POSITION = this.getFocusedElementLookAtPosition();
 
 			GSAP.to(this.app.camera.position, {
+				...this.getGsapDefaultProps(),
 				x: this.cameraCurvePosition.x,
 				y: this.cameraCurvePosition.y,
 				z: this.cameraCurvePosition.z,
 				duration: 2,
-			}).then(() => {
-				this.focusedElementPosition = undefined;
-				this.autoCameraAnimation = true;
+				onUpdate: (e) => {
+					const _LERPED_POSITION = this.getLerpedPosition(
+						_FOCUSED_ELEMENT_POSITION,
+						this.initialLookAtPosition,
+						_lerpProgress
+					);
+					_lerpProgress += 0.01;
+
+					this.cameraLookAtPosition.copy(_LERPED_POSITION);
+					this.setCameraLookAt(_LERPED_POSITION);
+				},
+				onComplete: () => {
+					this.getGsapDefaultProps().onComplete();
+					this.autoCameraAnimation = true;
+				},
 			});
 		}
 	}
 
 	/**
 	 * Set the camera look at position
-	 * @param v Vector 3 position where the the camera should look at
+	 * @param v3 Vector 3 position where the the camera should look at
 	 */
-	setCameraLookAt(v: THREE.Vector3) {
-		this.app.camera?.lookAt(v);
+	setCameraLookAt(v3: THREE.Vector3) {
+		this.app.camera?.lookAt(v3);
+		if (this.app._camera.controls) this.app._camera.controls.target = v3;
+		this.cameraLookAtPointIndicator.position.copy(v3);
+
 		this.app.camera?.updateProjectionMatrix();
-
-		if (this.app._camera.controls) this.app._camera.controls.target = v;
-
-		this.cameraLookAtPOintIndicator.position.copy(this.cameraLookAtPosition);
 	}
 
 	/**
@@ -489,11 +511,16 @@ export class Experience {
 		};
 
 		if (this.app.camera) {
-			const _START_CURVE_PATH_POSITION = this.cameraCurvePath.getPointAt(0);
+			const { x, y, z } = this.cameraCurvePath.getPointAt(0);
+
 			GSAP.to(this.app.camera.position, {
-				x: _START_CURVE_PATH_POSITION.x,
-				y: _START_CURVE_PATH_POSITION.y,
-				z: _START_CURVE_PATH_POSITION.z,
+				...this.getGsapDefaultProps(),
+				x,
+				y,
+				z,
+				onUpdate: () => {
+					this.setCameraLookAt(this.initialLookAtPosition);
+				},
 				..._DEFAULT_PROPS,
 			});
 
@@ -507,6 +534,9 @@ export class Experience {
 		}
 	}
 
+	/**
+	 *
+	 */
 	setGui() {
 		// GUI
 		this.gui = this.app.debug?.ui?.addFolder(Experience.name);
@@ -520,7 +550,7 @@ export class Experience {
 						const _POS = new THREE.Vector3()
 							.copy(_POS_LOOK_AT)
 							.set(
-								_POS_LOOK_AT.x ,
+								_POS_LOOK_AT.x,
 								_POS_LOOK_AT.y,
 								_POS_LOOK_AT.z - _POS_LOOK_AT.z
 							);
