@@ -7381,17 +7381,17 @@ quick-lru@^6.1.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-6.1.1.tgz#f8e5bf9010376c126c80c1a62827a526c0e60adf"
   integrity sha512-S27GBT+F0NTRiehtbrgaSE1idUAJ5bX8dPAQTdylEyNlrdcH5X4Lz7Edz3DYzecbsCluD5zO8ZNEe04z3D3u6Q==
 
-quick-threejs@^0.1.8:
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/quick-threejs/-/quick-threejs-0.1.8.tgz#69d99782c647c3ea8ce98475a7adf0a3ad10a600"
-  integrity sha512-PSTRKuirKq5kPRPKF7nq90s/OBV5yTfcly/RDnPqVwplbCTFYJMDvp3n6JWJ2y953/S7c0xPZsXPWvS4ECADog==
+quick-threejs@^0.1.10:
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/quick-threejs/-/quick-threejs-0.1.10.tgz#abab66a03635602056cab07430b629e2ca122648"
+  integrity sha512-VZz24HLOVFJKuh5W2vIJDiLtEpPK3RhUOKgijFb9c9wRcOg6g1FTdokGELUuWuiItlzZzA09mhyQA8OD5V09vA==
   dependencies:
     "@babel/preset-env" "^7.22.4"
     babel-jest "^29.5.0"
     events "^3.3.0"
     np "^8.0.4"
     stats.js "^0.17.0"
-    three "^0.152.2"
+    three "^0.153.0"
 
 radix3@^1.0.1:
   version "1.0.1"
@@ -8502,6 +8502,11 @@ three@^0.152.2:
   version "0.152.2"
   resolved "https://registry.npmjs.org/three/-/three-0.152.2.tgz"
   integrity sha512-Ff9zIpSfkkqcBcpdiFo2f35vA9ZucO+N8TNacJOqaEE6DrB0eufItVMib8bK8Pcju/ZNT6a7blE1GhTpkdsILw==
+
+three@^0.153.0:
+  version "0.153.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.153.0.tgz#d8f2aab7b49ae4ac947fd0e24cebec11378758f0"
+  integrity sha512-OCP2/uQR6GcDpSLnJt/3a4mdS0kNWcbfUXIwLoEMgLzEUIVIYsSDwskpmOii/AkDM+BBwrl6+CKgrjX9+E2aWg==
 
 through2@^4.0.0:
   version "4.0.2"
