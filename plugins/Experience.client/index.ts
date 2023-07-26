@@ -5,6 +5,10 @@ import QuickThree from "quick-threejs";
 import GUI from "lil-gui";
 import GSAP from "gsap";
 
+// CLASSES
+import World from "./World";
+import Preloader from "./Preloader";
+
 export interface ExperienceProps {
 	/**
 	 * String dom element reference of the canvas
@@ -21,12 +25,13 @@ export interface ExperienceProps {
 }
 
 export class Experience {
+	static instance?: Experience;
 	/**
 	 * Quick threejs library instance.
 	 *
 	 * [Quick three doc](https://www.npmjs.com/package/quick-threejs)
 	 */
-	app: QuickThree;
+	app!: QuickThree;
 	/**
 	 * Group containing the experience.
 	 */
@@ -68,6 +73,8 @@ export class Experience {
 		target: 0,
 		ease: 0.1,
 	};
+	world?: World;
+	preloader: Preloader;
 
 	focusedElementPosition?: THREE.Vector3;
 	focusedElementRadius = 2;
@@ -86,19 +93,42 @@ export class Experience {
 	onConstruct?: () => unknown;
 	onDestruct?: () => unknown;
 
-	constructor(props: ExperienceProps) {
+	constructor(props?: ExperienceProps) {
+		if (Experience.instance) {
+			return Experience.instance;
+		}
+		Experience.instance = this;
+
 		this.app = new QuickThree(
 			{
-				enableControls: false,
+				enableDebug: window.location.hash === "#debug",
 				axesSizes: 5,
 				gridSizes: 30,
 				withMiniCamera: true,
 				camera: "Perspective",
+				sources: [
+					{
+						name: "isometric_room",
+						type: "gltfModel",
+						path: "/3d_models/isometric_room/isometric_room.glb",
+					},
+					{
+						name: "room_baked_texture",
+						type: "texture",
+						path: "/3d_models/isometric_room/baked-room.jpg",
+					},
+				],
 			},
-			props.domElementRef
+			props?.domElementRef
 		);
-		if (this.app._camera.controls) {
-			this.app._camera.controls.enabled = false;
+		this.app.resources.setDracoLoader("/decoders/draco/");
+		this.app.resources.startLoading();
+
+		this.world = new World();
+		this.preloader = new Preloader();
+
+		if (this.app.debug?.cameraControls) {
+			this.app.debug.cameraControls.enabled = false;
 		}
 
 		this.gui = this.app.debug?.ui?.addFolder(Experience.name);
@@ -162,7 +192,7 @@ export class Experience {
 			this.destroy();
 		}
 
-		if (!this.mainGroup && this.app.camera) {
+		if (!this.mainGroup && this.app.camera.instance) {
 			this.mainGroup = new THREE.Group();
 
 			// LOADERS
@@ -229,22 +259,19 @@ export class Experience {
 			);
 
 			// CAMERA
-			if ((this.app.camera as unknown as THREE.PerspectiveCamera).fov)
-				(this.app.camera as unknown as THREE.PerspectiveCamera).fov = 35;
-			if (this.app.camera?.far) this.app.camera.far = 50;
-			this.cameraCurvePath.getPointAt(0, this.app.camera.position);
-			this.app.camera.position.y += 6;
-			this.app.camera.position.x += 8;
-			this.app.camera.position.z += 8;
+			if ((this.app.camera.instance as unknown as THREE.PerspectiveCamera).fov)
+				(
+					this.app.camera.instance as unknown as THREE.PerspectiveCamera
+				).fov = 35;
+			if (this.app.camera.instance?.far) this.app.camera.instance.far = 50;
+			this.cameraCurvePath.getPointAt(0, this.app.camera.instance.position);
+			this.app.camera.instance.position.y += 6;
+			this.app.camera.instance.position.x += 8;
+			this.app.camera.instance.position.z += 8;
 
-			this.app._camera.miniCamera?.position.set(10, 8, 30);
-			if (this.app._camera.controls)
-				this.app._camera.controls.target = this.initialLookAtPosition;
-
-			// HELPERS
-			const CAMERA_HELPER = this.app.camera
-				? new THREE.CameraHelper(this.app.camera)
-				: undefined;
+			this.app.camera.miniCamera?.position.set(10, 8, 30);
+			if (this.app.debug?.cameraControls)
+				this.app.debug.cameraControls.target = this.initialLookAtPosition;
 
 			const CURVE_OBJECT = new THREE.Line(
 				new THREE.BufferGeometry().setFromPoints(
@@ -260,21 +287,11 @@ export class Experience {
 
 			// ADD TO SCENE
 			this.mainGroup.add(CURVE_OBJECT, this.cameraLookAtPointIndicator);
-			CAMERA_HELPER && this.mainGroup.add(CAMERA_HELPER);
 
 			this.app.scene.add(this.mainGroup);
 
 			// ANIMATIONS
 			this.app.setUpdateCallback("root", () => {
-				if (CAMERA_HELPER) {
-					CAMERA_HELPER.matrixWorldNeedsUpdate = true;
-					CAMERA_HELPER.update();
-					this.app.camera?.position &&
-						CAMERA_HELPER.position.copy(this.app.camera?.position);
-					this.app.camera?.rotation &&
-						CAMERA_HELPER.rotation.copy(this.app.camera?.rotation);
-				}
-
 				if (this.autoCameraAnimation && !this.isGsapAnimating) {
 					this.cameraCurvePathProgress.current = GSAP.utils.interpolate(
 						this.cameraCurvePathProgress.current,
@@ -310,11 +327,11 @@ export class Experience {
 						this.cameraCurvePathProgress.current,
 						this.cameraCurvePosition
 					);
-					this.app.camera?.position.copy(this.cameraCurvePosition);
+					this.app.camera.instance?.position.copy(this.cameraCurvePosition);
 				}
 
 				if (
-					this.app.camera &&
+					this.app.camera.instance &&
 					!this.autoCameraAnimation &&
 					this.focusedElementPosition &&
 					!this.isGsapAnimating
@@ -368,7 +385,7 @@ export class Experience {
 	}
 
 	getFocusedElementLookAtPosition() {
-		if (!(this.focusedElementPosition && this.app.camera))
+		if (!(this.focusedElementPosition && this.app.camera.instance))
 			return new THREE.Vector3();
 
 		return new THREE.Vector3(
@@ -376,7 +393,7 @@ export class Experience {
 				this.focusedElementRadius *
 					Math.cos(
 						this.focusedElementAngleX -
-							this.app.camera.rotation.y +
+							this.app.camera.instance.rotation.y +
 							Math.PI * 0.5
 					),
 			this.focusedElementPosition.y -
@@ -385,7 +402,7 @@ export class Experience {
 				this.focusedElementRadius *
 					Math.sin(
 						this.focusedElementAngleX -
-							this.app.camera.rotation.y +
+							this.app.camera.instance.rotation.y +
 							Math.PI * 0.5
 					)
 		);
@@ -428,7 +445,7 @@ export class Experience {
 		cameraToPosition = new THREE.Vector3(),
 		cameraLookAtPosition = new THREE.Vector3()
 	) {
-		if (this.app.camera) {
+		if (this.app.camera.instance) {
 			this.focusedElementPosition = new THREE.Vector3().copy(
 				cameraLookAtPosition
 			);
@@ -436,7 +453,7 @@ export class Experience {
 			let _lerpProgress = 0;
 
 			if (this.autoCameraAnimation) {
-				GSAP.to(this.app.camera.position, {
+				GSAP.to(this.app.camera.instance.position, {
 					...this.getGsapDefaultProps(),
 					x: cameraToPosition.x,
 					y: cameraToPosition.y,
@@ -464,7 +481,7 @@ export class Experience {
 
 			const _FOCUSED_ELEMENT_POSITION = this.getFocusedElementLookAtPosition();
 
-			GSAP.to(this.app.camera.position, {
+			GSAP.to(this.app.camera.instance.position, {
 				...this.getGsapDefaultProps(),
 				x: this.cameraCurvePosition.x,
 				y: this.cameraCurvePosition.y,
@@ -494,11 +511,12 @@ export class Experience {
 	 * @param v3 Vector 3 position where the the camera should look at
 	 */
 	setCameraLookAt(v3: THREE.Vector3) {
-		this.app.camera?.lookAt(v3);
-		if (this.app._camera.controls) this.app._camera.controls.target = v3;
+		this.app.camera.instance?.lookAt(v3);
+		if (this.app.debug?.cameraControls)
+			this.app.debug.cameraControls.target = v3;
 		this.cameraLookAtPointIndicator.position.copy(v3);
 
-		this.app.camera?.updateProjectionMatrix();
+		this.app.camera.instance?.updateProjectionMatrix();
 	}
 
 	/**
@@ -510,10 +528,10 @@ export class Experience {
 			ease: "M0,0 C0.001,0.001 0.002,0.003 0.003,0.004 0.142,0.482 0.284,0.75 0.338,0.836 0.388,0.924 0.504,1 1,1 ",
 		};
 
-		if (this.app.camera) {
+		if (this.app.camera.instance) {
 			const { x, y, z } = this.cameraCurvePath.getPointAt(0);
 
-			GSAP.to(this.app.camera.position, {
+			GSAP.to(this.app.camera.instance.position, {
 				...this.getGsapDefaultProps(),
 				x,
 				y,

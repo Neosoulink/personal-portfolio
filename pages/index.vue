@@ -1,53 +1,42 @@
 <script lang="ts" setup>
-import type { Experience } from "@/plugins/Experience.client";
+import type { Experience as _Experience } from "@/plugins/Experience.client";
 
 // NUXT
 const { $Experience } = useNuxtApp();
-const initScene = $Experience as typeof Experience | undefined;
+const Experience = $Experience as typeof _Experience | undefined;
 
 // STATES
 const STATES = reactive<{
-	domElementRef: string;
-	experience: Experience | undefined;
+	domElementID: string;
+	experience?: _Experience;
 	sceneProgress: number;
 	displayLoader: boolean;
 }>({
-	domElementRef: "home-three-app",
+	domElementID: "home-three-app",
 	experience: undefined,
 	sceneProgress: 0,
 	displayLoader: true,
 });
 
 onMounted(() => {
-	if (process.client && !STATES.experience && initScene) {
-		STATES.experience = new initScene({
-			domElementRef: "#" + STATES.domElementRef,
+	if (process.client && !STATES.experience && Experience) {
+		STATES.experience = new Experience({
+			domElementRef: "#" + STATES.domElementID,
 		});
 
-		STATES.experience.loadingManager.onStart = () => {
-			STATES.sceneProgress = 0;
-		};
+		STATES.experience.preloader.on("start", (progress) => {
+			STATES.sceneProgress = progress;
+		});
 
-		STATES.experience.loadingManager.onProgress = (
-			_itemUrl,
-			itemsLoaded,
-			itemsToLoad
-		) => {
-			STATES.sceneProgress = (itemsLoaded / itemsToLoad) * 100;
-			console.log(`On progress`, itemsLoaded / itemsToLoad);
-		};
+		STATES.experience.preloader.on("progress", (progress, item) => {
+			STATES.sceneProgress = progress;
+			console.log(`On progress`, progress, item);
+		});
 
-		STATES.experience.loadingManager.onLoad = () => {
-			setTimeout(() => {
-				STATES.displayLoader = false;
-
-				setTimeout(() => {
-					STATES.experience?.start();
-				}, 200);
-			}, 1000);
-		};
-
-		STATES.experience?.construct();
+		STATES.experience.preloader.on("load", (progress) => {
+			STATES.sceneProgress = progress;
+			STATES.displayLoader = false;
+		});
 	}
 });
 
@@ -68,10 +57,11 @@ onBeforeUnmount(() => {
 
 		<main class="w-full bg-dark text-white">
 			<div class="h-screen w-screen absolute e z-0">
-				<canvas :id="STATES.domElementRef" class="fixed top-0 left-0" />
+				<canvas :id="STATES.domElementID" class="fixed top-0 left-0" />
 			</div>
 
 			<Container class="relative z-20" />
 		</main>
 	</div>
 </template>
+@/plugins/Experience.client/Experience.client
