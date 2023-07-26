@@ -74,7 +74,7 @@ export class Experience {
 		ease: 0.1,
 	};
 	world?: World;
-	preloader: Preloader;
+	preloader?: Preloader;
 
 	focusedElementPosition?: THREE.Vector3;
 	focusedElementRadius = 2;
@@ -290,7 +290,6 @@ export class Experience {
 			// ANIMATIONS
 			this.app.setUpdateCallback("root", () => {
 				if (this.autoCameraAnimation && !this.isGsapAnimating) {
-					console.log("started");
 					this.cameraCurvePathProgress.current = GSAP.utils.interpolate(
 						this.cameraCurvePathProgress.current,
 						this.cameraCurvePathProgress.target,

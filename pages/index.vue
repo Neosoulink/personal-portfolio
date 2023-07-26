@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+// @ts-ignore
 import type { Experience as _Experience } from "@/plugins/Experience.client";
 
 // NUXT
@@ -24,11 +25,11 @@ onMounted(() => {
 			domElementRef: "#" + STATES.domElementID,
 		});
 
-		STATES.experience.preloader.on("start", (progress) => {
+		STATES.experience.preloader?.on("start", (progress) => {
 			STATES.sceneProgress = progress;
 		});
 
-		STATES.experience.preloader.on(
+		STATES.experience.preloader?.on(
 			"progress",
 			(progress: number, item: string) => {
 				STATES.sceneProgress = progress;
@@ -36,7 +37,7 @@ onMounted(() => {
 			}
 		);
 
-		STATES.experience.preloader.on("load", (progress) => {
+		STATES.experience.preloader?.on("load", (progress) => {
 			STATES.sceneProgress = progress;
 		});
 	}

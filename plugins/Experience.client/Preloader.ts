@@ -50,7 +50,9 @@ export default class Preloader extends EventEmitter {
 			opacity: 0,
 			delay: 2,
 			onComplete: () => {
-				document.querySelector("#landing-view-wrapper")?.classList.add("hidden");
+				document
+					.querySelector("#landing-view-wrapper")
+					?.classList.add("hidden");
 			},
 		});
 
