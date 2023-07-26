@@ -30,13 +30,8 @@ export default class Preloader extends EventEmitter {
 		};
 
 		this.experience.loadingManager.onLoad = () => {
-			setTimeout(() => {
-				this.emit("load", this.progress);
-
-				setTimeout(() => {
-					this.start();
-				}, 200);
-			}, 1000);
+			this.start();
+			this.emit("load", this.progress);
 		};
 	}
 
@@ -45,33 +40,42 @@ export default class Preloader extends EventEmitter {
 	 */
 	start() {
 		const _DEFAULT_PROPS = {
-			duration: 2.5,
+			duration: 3,
 			ease: "M0,0 C0.001,0.001 0.002,0.003 0.003,0.004 0.142,0.482 0.284,0.75 0.338,0.836 0.388,0.924 0.504,1 1,1 ",
 		};
+
+		const _TIMELINE = GSAP.timeline();
+		_TIMELINE.to("#landing-view-wrapper", {
+			..._DEFAULT_PROPS,
+			opacity: 0,
+			delay: 2,
+			onComplete: () => {
+				document.querySelector("#landing-view-wrapper")?.classList.add("hidden");
+			},
+		});
 
 		if (this.app.camera.instance) {
 			const { x, y, z } = this.experience.cameraCurvePath.getPointAt(0);
 
 			GSAP.to(this.app.camera.instance.position, {
 				...this.experience.getGsapDefaultProps(),
+				..._DEFAULT_PROPS,
 				x,
 				y,
 				z,
+				delay: _DEFAULT_PROPS.duration * 0.8,
 				onUpdate: () => {
 					this.experience.setCameraLookAt(
 						this.experience.initialLookAtPosition
 					);
 				},
-				..._DEFAULT_PROPS,
+				onComplete: () => {
+					setTimeout(() => {
+						this.experience.getGsapDefaultProps().onComplete();
+						this.experience.autoCameraAnimation = true;
+					}, 1000);
+				},
 			});
-
-			setTimeout(() => {
-				this.experience.autoCameraAnimation = true;
-			}, (_DEFAULT_PROPS.duration + 0.5) * 1000);
-		}
-
-		if (this.experience.cameraCurvePathProgress.target < 0) {
-			this.experience.cameraCurvePathProgress.target = 1;
 		}
 	}
 }

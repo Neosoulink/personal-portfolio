@@ -262,9 +262,9 @@ export class Experience {
 				).fov = 35;
 			if (this.app.camera.instance?.far) this.app.camera.instance.far = 50;
 			this.cameraCurvePath.getPointAt(0, this.app.camera.instance.position);
-			this.app.camera.instance.position.y += 6;
-			this.app.camera.instance.position.x += 8;
-			this.app.camera.instance.position.z += 8;
+			this.app.camera.instance.position.y += 8;
+			this.app.camera.instance.position.x -= 2;
+			this.app.camera.instance.position.z += 10;
 
 			this.app.camera.miniCamera?.position.set(10, 8, 30);
 			if (this.app.debug?.cameraControls)
@@ -290,6 +290,7 @@ export class Experience {
 			// ANIMATIONS
 			this.app.setUpdateCallback("root", () => {
 				if (this.autoCameraAnimation && !this.isGsapAnimating) {
+					console.log("started");
 					this.cameraCurvePathProgress.current = GSAP.utils.interpolate(
 						this.cameraCurvePathProgress.current,
 						this.cameraCurvePathProgress.target,

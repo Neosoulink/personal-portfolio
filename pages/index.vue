@@ -11,9 +11,9 @@ const STATES = reactive<{
 	experience?: _Experience;
 	sceneProgress: number;
 	displayLoader: boolean;
+	currentLoadedItem?: string;
 }>({
 	domElementID: "home-three-app",
-	experience: undefined,
 	sceneProgress: 0,
 	displayLoader: true,
 });
@@ -28,14 +28,16 @@ onMounted(() => {
 			STATES.sceneProgress = progress;
 		});
 
-		STATES.experience.preloader.on("progress", (progress, item) => {
-			STATES.sceneProgress = progress;
-			console.log(`On progress`, progress, item);
-		});
+		STATES.experience.preloader.on(
+			"progress",
+			(progress: number, item: string) => {
+				STATES.sceneProgress = progress;
+				STATES.currentLoadedItem = item.replace(/^.*\//, "");
+			}
+		);
 
 		STATES.experience.preloader.on("load", (progress) => {
 			STATES.sceneProgress = progress;
-			STATES.displayLoader = false;
 		});
 	}
 });
@@ -52,7 +54,7 @@ onBeforeUnmount(() => {
 	<div>
 		<LandingLoader
 			:progress="STATES.sceneProgress"
-			:display="STATES.displayLoader"
+			:loadedItem="STATES.currentLoadedItem"
 		/>
 
 		<main class="w-full bg-dark text-white">

@@ -1,4 +1,5 @@
 const colors = require("tailwindcss/colors");
+const theme = require("tailwindcss/defaultTheme");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -20,6 +21,10 @@ module.exports = {
 			},
 			secondary: {
 				900: "rgb(var(--secondary))",
+			},
+			fontFamily: {
+				...theme.fontFamily,
+				exo: ["Exo", "Segoe UI", "Tahoma", "Geneva", "Verdana", "sans-serif"],
 			},
 		},
 		extend: {},
