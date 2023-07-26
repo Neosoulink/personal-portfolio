@@ -1,6 +1,16 @@
 {
-	"name": "nsl-me-v2",
+	"name": "mydevjourney",
 	"version": "0.0.0",
+	"author": "MNAth_",
+	"repository": {
+		"url": "https://github.com/Neosoulink/nsl-me",
+		"directory": "https://github.com/Neosoulink/",
+		"type": "git"
+	},
+	"contributors": [
+		"MNAth_"
+	],
+	"description": "Official @MNAth_ website",
 	"private": true,
 	"scripts": {
 		"build": "nuxt build",
