@@ -13,6 +13,8 @@ export default class Preloader extends EventEmitter {
 	constructor() {
 		super();
 
+		this.experience?.construct();
+
 		this.experience.loadingManager.onStart = () => {
 			this.progress = 0;
 			this.emit("start", this.progress);
@@ -32,12 +34,10 @@ export default class Preloader extends EventEmitter {
 				this.emit("load", this.progress);
 
 				setTimeout(() => {
-					this.experience?.start();
+					this.start();
 				}, 200);
 			}, 1000);
 		};
-
-		this.experience?.construct();
 	}
 
 	/**

@@ -97,6 +97,7 @@ export class Experience {
 		if (Experience.instance) {
 			return Experience.instance;
 		}
+
 		Experience.instance = this;
 
 		this.app = new QuickThree(
@@ -130,10 +131,6 @@ export class Experience {
 		if (this.app.debug?.cameraControls) {
 			this.app.debug.cameraControls.enabled = false;
 		}
-
-		this.gui = this.app.debug?.ui?.addFolder(Experience.name);
-		this.gui?.add({ fn: () => this.construct() }, "fn").name("Enable");
-		this.gui?.close();
 
 		if (props?.onConstruct) this.onConstruct = props?.onConstruct;
 		if (props?.onDestruct) this.onDestruct = props?.onDestruct;
@@ -517,39 +514,6 @@ export class Experience {
 		this.cameraLookAtPointIndicator.position.copy(v3);
 
 		this.app.camera.instance?.updateProjectionMatrix();
-	}
-
-	/**
-	 * Launch the intro animation of the experience.
-	 */
-	start() {
-		const _DEFAULT_PROPS = {
-			duration: 2.5,
-			ease: "M0,0 C0.001,0.001 0.002,0.003 0.003,0.004 0.142,0.482 0.284,0.75 0.338,0.836 0.388,0.924 0.504,1 1,1 ",
-		};
-
-		if (this.app.camera.instance) {
-			const { x, y, z } = this.cameraCurvePath.getPointAt(0);
-
-			GSAP.to(this.app.camera.instance.position, {
-				...this.getGsapDefaultProps(),
-				x,
-				y,
-				z,
-				onUpdate: () => {
-					this.setCameraLookAt(this.initialLookAtPosition);
-				},
-				..._DEFAULT_PROPS,
-			});
-
-			setTimeout(() => {
-				this.autoCameraAnimation = true;
-			}, (_DEFAULT_PROPS.duration + 0.5) * 1000);
-		}
-
-		if (this.cameraCurvePathProgress.target < 0) {
-			this.cameraCurvePathProgress.target = 1;
-		}
 	}
 
 	/**
