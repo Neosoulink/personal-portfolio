@@ -24,7 +24,7 @@
 		"@commitlint/config-conventional": "^17.4.2",
 		"@nuxt/content": "^2.4.3",
 		"@types/node": "^18.11.18",
-		"@types/three": "^0.152.1",
+		"@types/three": "^0.153.0",
 		"autoprefixer": "^10.4.13",
 		"husky": "^8.0.3",
 		"lil-gui": "^0.18.1",
@@ -36,6 +36,6 @@
 		"events": "^3.3.0",
 		"gsap": "^3.11.4",
 		"quick-threejs": "0.1.19",
-		"three": "^0.152.2"
+		"three": "^0.153.0"
 	}
 }
