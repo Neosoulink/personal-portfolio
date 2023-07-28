@@ -1,15 +1,15 @@
 <script lang="ts" setup>
 // @ts-ignore
-import type { Experience as _Experience } from "@/plugins/Experience.client";
+import type { HomeExperience as _HomeExperience } from "@/plugins/HomeExperience.client";
 
 // NUXT
-const { $Experience } = useNuxtApp();
-const Experience = $Experience as typeof _Experience | undefined;
+const { $HomeExperience } = useNuxtApp();
+const HomeExperience = $HomeExperience as typeof _HomeExperience | undefined;
 
 // STATES
 const STATES = reactive<{
 	domElementID: string;
-	experience?: _Experience;
+	experience?: _HomeExperience;
 	sceneProgress: number;
 	displayLoader: boolean;
 	currentLoadedItem?: string;
@@ -20,12 +20,12 @@ const STATES = reactive<{
 });
 
 onMounted(() => {
-	if (process.client && !STATES.experience && Experience) {
-		STATES.experience = new Experience({
+	if (process.client && !STATES.experience && HomeExperience) {
+		STATES.experience = new HomeExperience({
 			domElementRef: "#" + STATES.domElementID,
 		});
 
-		STATES.experience.preloader?.on("start", (progress) => {
+		STATES.experience.preloader?.on("start", (progress: number) => {
 			STATES.sceneProgress = progress;
 		});
 
@@ -37,7 +37,7 @@ onMounted(() => {
 			}
 		);
 
-		STATES.experience.preloader?.on("load", (progress) => {
+		STATES.experience.preloader?.on("load", (progress: number) => {
 			STATES.sceneProgress = progress;
 		});
 	}

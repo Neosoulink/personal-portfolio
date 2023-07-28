@@ -24,7 +24,7 @@ export interface ExperienceProps {
 	onDestruct?: () => unknown;
 }
 
-export class Experience {
+export default class Experience {
 	static instance?: Experience;
 	/**
 	 * Quick threejs library instance.
@@ -81,15 +81,6 @@ export class Experience {
 	focusedElementAngleX = 0;
 	focusedElementAngleY = 0;
 
-	// Models
-	isometricRoom?: THREE.Group;
-	monitorAScreen?: THREE.Mesh;
-	monitorBScreen?: THREE.Mesh;
-	phoneScreen?: THREE.Mesh;
-	pcScreen?: THREE.Mesh;
-	roomShelves?: THREE.Mesh;
-	roomBoard?: THREE.Mesh;
-
 	onConstruct?: () => unknown;
 	onDestruct?: () => unknown;
 
@@ -103,30 +94,16 @@ export class Experience {
 		this.app = new QuickThree(
 			{
 				enableDebug: window.location.hash === "#debug",
-				axesSizes: 5,
-				gridSizes: 30,
-				withMiniCamera: true,
+				axesSizes: window.location.hash === "#debug" ? 5 : undefined,
+				gridSizes: window.location.hash === "#debug" ? 30 : undefined,
+				withMiniCamera: window.location.hash === "#debug" ? true : undefined,
 				camera: "Perspective",
-				sources: [
-					{
-						name: "isometric_room",
-						type: "gltfModel",
-						path: "/3d_models/isometric_room/isometric_room.glb",
-					},
-					{
-						name: "room_baked_texture",
-						type: "texture",
-						path: "/3d_models/isometric_room/baked-room.jpg",
-					},
-				],
 			},
 			props?.domElementRef
 		);
-		this.app.resources.setDracoLoader("/decoders/draco/");
-		this.app.resources.startLoading();
 
-		this.world = new World();
 		this.preloader = new Preloader();
+		this.world = new World();
 
 		if (this.app.debug?.cameraControls) {
 			this.app.debug.cameraControls.enabled = false;
@@ -191,69 +168,6 @@ export class Experience {
 
 		if (!this.mainGroup && this.app.camera.instance) {
 			this.mainGroup = new THREE.Group();
-
-			// LOADERS
-			const DRACO_LOADER = new DRACOLoader();
-			DRACO_LOADER.setDecoderPath("/decoders/draco/");
-			const GLTF_LOADER = new GLTFLoader(this.loadingManager);
-			GLTF_LOADER.setDRACOLoader(DRACO_LOADER);
-			const TEXTURE_LOADER = new THREE.TextureLoader(this.loadingManager);
-
-			// TEXTURES
-			const BAKED_TEXTURE = TEXTURE_LOADER.load(
-				"/3d_models/isometric_room/baked-room.jpg"
-			);
-			BAKED_TEXTURE.flipY = false;
-			BAKED_TEXTURE.colorSpace = THREE.SRGBColorSpace;
-
-			// MATERIALS
-			const BAKED_MATERIAL = new THREE.MeshBasicMaterial({
-				map: BAKED_TEXTURE,
-				side: THREE.DoubleSide,
-			});
-
-			// MODELS
-			GLTF_LOADER.load(
-				"/3d_models/isometric_room/isometric_room.glb",
-				(glb) => {
-					const _REG = new RegExp(/.*screen/);
-
-					glb.scene.traverse((child) => {
-						if (child instanceof THREE.Mesh && !_REG.test(child.name)) {
-							child.material = BAKED_MATERIAL;
-						}
-
-						if (
-							child instanceof THREE.Mesh &&
-							child.name === "monitor-screen-a"
-						) {
-							this.monitorAScreen = child;
-						}
-						if (
-							child instanceof THREE.Mesh &&
-							child.name === "monitor-screen-b"
-						) {
-							this.monitorBScreen = child;
-						}
-						if (child instanceof THREE.Mesh && child.name === "phone-screen") {
-							this.phoneScreen = child;
-						}
-						if (child instanceof THREE.Mesh && child.name === "pc-screen") {
-							this.pcScreen = child;
-						}
-						if (child instanceof THREE.Mesh && child.name === "shelves") {
-							this.roomShelves = child;
-						}
-
-						if (child instanceof THREE.Mesh && child.name === "board") {
-							this.roomBoard = child;
-						}
-					});
-
-					this.isometricRoom = glb.scene;
-					this.mainGroup && this.mainGroup.add(this.isometricRoom);
-				}
-			);
 
 			// CAMERA
 			if ((this.app.camera.instance as unknown as THREE.PerspectiveCamera).fov)
@@ -527,7 +441,8 @@ export class Experience {
 				{
 					fn: () => {
 						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.roomBoard?.position ?? new THREE.Vector3()
+							this.world?.isometricRoom?.roomBoard?.position ??
+								new THREE.Vector3()
 						);
 						const _POS = new THREE.Vector3()
 							.copy(_POS_LOOK_AT)
@@ -549,7 +464,8 @@ export class Experience {
 				{
 					fn: () => {
 						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.roomShelves?.position ?? new THREE.Vector3()
+							this.world?.isometricRoom?.roomShelves?.position ??
+								new THREE.Vector3()
 						);
 						const _POS = new THREE.Vector3().copy(_POS_LOOK_AT);
 						_POS.x += 3;
@@ -567,7 +483,8 @@ export class Experience {
 				{
 					fn: () => {
 						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.pcScreen?.position ?? new THREE.Vector3()
+							this.world?.isometricRoom?.pcScreen?.position ??
+								new THREE.Vector3()
 						);
 						this.focusedElementRadius = 2.5;
 						const _POS = new THREE.Vector3()
@@ -582,11 +499,3 @@ export class Experience {
 			.name("Focus desc");
 	}
 }
-
-export default defineNuxtPlugin(() => {
-	return {
-		provide: {
-			Experience,
-		},
-	};
-});

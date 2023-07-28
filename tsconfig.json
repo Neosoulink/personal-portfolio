@@ -5,6 +5,7 @@
 		"types": ["node"],
 		"paths": {
 			"@/*": ["./*"],
+			"@app": ["./app/*"],
 			"@components/*": ["./components/*"],
 			"@utils/*": ["./utils/*"],
 			"@public/*": ["./public/*"],

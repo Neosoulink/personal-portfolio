@@ -1,21 +1,58 @@
+import * as THREE from "three";
 import GSAP from "gsap";
 import ThreeApp from "quick-threejs";
 import EventEmitter from "events";
 
 // CLASSES
-import { Experience } from ".";
+import Experience from ".";
 
 export default class Preloader extends EventEmitter {
-	app = new ThreeApp();
+	private app = new ThreeApp();
 	experience = new Experience();
 	progress = 0;
 
 	constructor() {
 		super();
 
+		// RESOURCES
+		this.app.resources.setDracoLoader("/decoders/draco/");
+		this.app.resources.setSources([
+			{
+				name: "isometric_room",
+				type: "gltfModel",
+				path: "/3d_models/isometric_room/isometric_room.glb",
+			},
+			{
+				name: "baked_room_background",
+				type: "texture",
+				path: "/3d_models/isometric_room/baked-room-background.jpg",
+			},
+			{
+				name: "baked_room_floor",
+				type: "texture",
+				path: "/3d_models/isometric_room/baked-room-floor.jpg",
+			},
+			{
+				name: "baked_room_objects",
+				type: "texture",
+				path: "/3d_models/isometric_room/baked-room-objects.jpg",
+			},
+			{
+				name: "baked_room_walls",
+				type: "texture",
+				path: "/3d_models/isometric_room/baked-room-walls.jpg",
+			},
+			{
+				name: "baked_room_woods",
+				type: "texture",
+				path: "/3d_models/isometric_room/baked-room-woods.jpg",
+			},
+		]);
+		this.app.resources.startLoading();
 		this.experience?.construct();
 
-		this.experience.loadingManager.onStart = () => {
+		// EVENTS
+		this.app.resources.loadingManager.onStart = () => {
 			this.progress = 0;
 			this.emit("start", this.progress);
 		};
@@ -29,10 +66,21 @@ export default class Preloader extends EventEmitter {
 			this.emit("progress", this.progress, _itemUrl);
 		};
 
-		this.experience.loadingManager.onLoad = () => {
+		this.app.resources.loadingManager.onLoad = () => {
+			this.correctTextures();
 			this.start();
 			this.emit("load", this.progress);
 		};
+	}
+
+	correctTextures() {
+		Object.keys(this.app.resources.items).forEach((key) => {
+			const ITEM = this.app.resources.items[key];
+			if (ITEM instanceof THREE.Texture) {
+				ITEM.flipY = false;
+				ITEM.colorSpace = THREE.SRGBColorSpace;
+			}
+		});
 	}
 
 	/**

@@ -3,18 +3,25 @@ import EventEmitter from "events";
 import QuickThree from "quick-threejs";
 
 // CLASSES
-import Room from "./Room";
+import IsometricRoom from "./IsometricRoom";
 
 export default class World extends EventEmitter {
 	private app = new QuickThree();
-	room?: Room;
-	world?: THREE.Group;
+	scene?: THREE.Group;
+	isometricRoom?: IsometricRoom;
 
 	constructor() {
 		super();
 
 		this.app.resources.on("ready", () => {
-			this.room = new Room();
+			this.scene = new THREE.Group();
+			this.isometricRoom = new IsometricRoom();
+
+			if (this.isometricRoom.scene) {
+				this.scene.add(this.isometricRoom.scene);
+			}
+
+			this.app.scene.add(this.scene);
 
 			this.emit("ready");
 		});
@@ -23,4 +30,6 @@ export default class World extends EventEmitter {
 	resize() {}
 
 	update() {}
+
+	destroy() {}
 }
