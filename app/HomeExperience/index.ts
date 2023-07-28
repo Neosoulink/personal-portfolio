@@ -1,6 +1,4 @@
 import * as THREE from "three";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import QuickThree from "quick-threejs";
 import GUI from "lil-gui";
 import GSAP from "gsap";
