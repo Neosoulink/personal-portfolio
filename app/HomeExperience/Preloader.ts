@@ -49,7 +49,6 @@ export default class Preloader extends EventEmitter {
 			},
 		]);
 		this.app.resources.startLoading();
-		this.experience?.construct();
 
 		// EVENTS
 		this.app.resources.loadingManager.onStart = () => {
@@ -87,6 +86,8 @@ export default class Preloader extends EventEmitter {
 	 * Launch the intro animation of the experience.
 	 */
 	start() {
+		this.experience.world?.construct();
+
 		const _DEFAULT_PROPS = {
 			duration: 3,
 			ease: "M0,0 C0.001,0.001 0.002,0.003 0.003,0.004 0.142,0.482 0.284,0.75 0.338,0.836 0.388,0.924 0.504,1 1,1 ",
@@ -104,25 +105,27 @@ export default class Preloader extends EventEmitter {
 			},
 		});
 
-		if (this.app.camera.instance) {
-			const { x, y, z } = this.experience.cameraCurvePath.getPointAt(0);
+		if (this.app.camera.instance && this.experience.world) {
+			const { x, y, z } = this.experience.world.cameraCurvePath.getPointAt(0);
 
 			GSAP.to(this.app.camera.instance.position, {
-				...this.experience.getGsapDefaultProps(),
+				...this.experience.world?.getGsapDefaultProps(),
 				..._DEFAULT_PROPS,
 				x,
 				y,
 				z,
 				delay: _DEFAULT_PROPS.duration * 0.8,
 				onUpdate: () => {
-					this.experience.setCameraLookAt(
-						this.experience.initialLookAtPosition
+					this.experience.world?.setCameraLookAt(
+						this.experience.world?.initialLookAtPosition
 					);
 				},
 				onComplete: () => {
 					setTimeout(() => {
-						this.experience.getGsapDefaultProps().onComplete();
-						this.experience.autoCameraAnimation = true;
+						if (this.experience.world) {
+							this.experience.world.getGsapDefaultProps().onComplete();
+							this.experience.world.autoCameraAnimation = true;
+						}
 					}, 1000);
 				},
 			});

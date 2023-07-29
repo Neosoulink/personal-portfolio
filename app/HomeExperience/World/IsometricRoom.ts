@@ -4,9 +4,8 @@ import ThreeApp from "quick-threejs";
 
 export default class IsometricRoom {
 	private app = new ThreeApp();
-	// MODELS
 	model?: GLTF;
-	scene?: THREE.Group;
+	mainGroup?: THREE.Group;
 	monitorAScreen?: THREE.Mesh;
 	monitorBScreen?: THREE.Mesh;
 	phoneScreen?: THREE.Mesh;
@@ -17,9 +16,7 @@ export default class IsometricRoom {
 	constructor() {
 		if ((this.app.resources.items.isometric_room as GLTF).scene) {
 			this.model = this.app.resources.items.isometric_room as GLTF;
-			this.scene = this.model.scene;
-
-			console.log(this.app.resources.items);
+			this.mainGroup = this.model.scene;
 
 			// MATERIALS
 			const BAKED_MATERIAL_FLOOR = new THREE.MeshBasicMaterial({
@@ -40,7 +37,7 @@ export default class IsometricRoom {
 
 			console.log("SCENE ==>", this.model);
 
-			this.scene?.children.forEach((child) => {
+			this.mainGroup?.children.forEach((child) => {
 				if (child instanceof THREE.Mesh && child.name === "floor") {
 					child.material = BAKED_MATERIAL_FLOOR;
 				}
