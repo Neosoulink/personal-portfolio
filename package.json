@@ -35,7 +35,7 @@
 	"dependencies": {
 		"events": "^3.3.0",
 		"gsap": "^3.11.4",
-		"quick-threejs": "0.1.19",
+		"quick-threejs": "0.1.20",
 		"three": "^0.153.0"
 	}
 }

@@ -7450,10 +7450,10 @@ quick-lru@^6.1.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-6.1.1.tgz#f8e5bf9010376c126c80c1a62827a526c0e60adf"
   integrity sha512-S27GBT+F0NTRiehtbrgaSE1idUAJ5bX8dPAQTdylEyNlrdcH5X4Lz7Edz3DYzecbsCluD5zO8ZNEe04z3D3u6Q==
 
-quick-threejs@0.1.19:
-  version "0.1.19"
-  resolved "https://registry.yarnpkg.com/quick-threejs/-/quick-threejs-0.1.19.tgz#c0972550531a22da066b401d5bb6ca393f9eb6af"
-  integrity sha512-MzAXp0H56f7e3ZJxzXHK3Iol2UrKVAZHlvyzta05TFJl3j+sTnTgjdqbXzNZ0pB4VBDStSsWfKibRvJ6C3xEyg==
+quick-threejs@0.1.20:
+  version "0.1.20"
+  resolved "https://registry.yarnpkg.com/quick-threejs/-/quick-threejs-0.1.20.tgz#2932f26b9426ca547fbfc2202b93616318643f9e"
+  integrity sha512-j3zheiXOvxoQpVOimRI8xbp2VVC40SvIPEYG90cglJZuHvfXlf6vfReLbWLeDAbnrjhtbjZ4KHUkHbGk9sCisA==
   dependencies:
     "@babel/preset-env" "^7.22.4"
     babel-jest "^29.5.0"
