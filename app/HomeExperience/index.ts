@@ -54,6 +54,7 @@ export default class Experience {
 			},
 			props?.domElementRef
 		);
+		this.construct();
 		this.experienceDebug.construct();
 
 		this.onConstruct = props?.onConstruct;
