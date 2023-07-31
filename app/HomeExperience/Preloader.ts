@@ -1,22 +1,23 @@
 import * as THREE from "three";
 import GSAP from "gsap";
-import ThreeApp from "quick-threejs";
 import EventEmitter from "events";
 
 // CLASSES
 import Experience from ".";
 
 export default class Preloader extends EventEmitter {
-	private app = new ThreeApp();
-	experience = new Experience();
+	private experience = new Experience();
+	loadedResourcesProgressLineElements?: HTMLElement | null;
+	loadedResourcesProgressElements?: HTMLElement | null;
+	lastLoadedResourceElement?: HTMLElement | null;
 	progress = 0;
 
 	constructor() {
 		super();
 
 		// RESOURCES
-		this.app.resources.setDracoLoader("/decoders/draco/");
-		this.app.resources.setSources([
+		this.experience.app.resources.setDracoLoader("/decoders/draco/");
+		this.experience.app.resources.setSources([
 			{
 				name: "isometric_room",
 				type: "gltfModel",
@@ -48,33 +49,92 @@ export default class Preloader extends EventEmitter {
 				path: "/3d_models/isometric_room/baked-room-woods.jpg",
 			},
 		]);
-		this.app.resources.startLoading();
+	}
+
+	construct() {
+		const _LOADED_RESOURCES_PROGRESS_LINE_ELEMENT = document.getElementById(
+			"loaded-resources-progress-line"
+		);
+		const _LOADED_RESOURCES_PROGRESS_ELEMENT = document.getElementById(
+			"loaded-resources-progress"
+		);
+		const _LAST_LOADED_RESOURCE_ELEMENT = document.getElementById(
+			"last-loaded-resource"
+		);
+		if (_LOADED_RESOURCES_PROGRESS_LINE_ELEMENT)
+			this.loadedResourcesProgressLineElements =
+				_LOADED_RESOURCES_PROGRESS_LINE_ELEMENT;
+		if (_LOADED_RESOURCES_PROGRESS_ELEMENT)
+			this.loadedResourcesProgressElements = _LOADED_RESOURCES_PROGRESS_ELEMENT;
+		if (_LAST_LOADED_RESOURCE_ELEMENT)
+			this.lastLoadedResourceElement = _LAST_LOADED_RESOURCE_ELEMENT;
 
 		// EVENTS
-		this.app.resources.loadingManager.onStart = () => {
+		this.experience.app.resources.loadingManager.onStart = () => {
 			this.progress = 0;
+			this.lastLoadedResourceElement?.classList.remove("animate-pulse");
+			if (this.loadedResourcesProgressLineElements)
+				this.loadedResourcesProgressLineElements.style.width = "0%";
+			if (this.loadedResourcesProgressElements)
+				this.loadedResourcesProgressElements.innerHTML = "0%";
 			this.emit("start", this.progress);
 		};
 
-		this.app.resources.loadingManager.onProgress = (
+		this.experience.app.resources.loadingManager.onProgress = (
 			_itemUrl,
 			itemsLoaded,
 			itemsToLoad
 		) => {
 			this.progress = (itemsLoaded / itemsToLoad) * 100;
+
+			if (this.loadedResourcesProgressLineElements)
+				this.loadedResourcesProgressLineElements.style.width =
+					this.progress + "%";
+			if (this.loadedResourcesProgressElements)
+				this.loadedResourcesProgressElements.innerHTML =
+					this.progress.toFixed(0) + "%";
+			if (this.lastLoadedResourceElement)
+				this.lastLoadedResourceElement.innerHTML = _itemUrl.replace(
+					/^.*\//,
+					""
+				);
 			this.emit("progress", this.progress, _itemUrl);
 		};
 
-		this.app.resources.loadingManager.onLoad = () => {
+		this.experience.app.resources.loadingManager.onLoad = () => {
 			this.correctTextures();
-			this.start();
+
+			if (this.loadedResourcesProgressElements)
+				this.loadedResourcesProgressElements.innerHTML = "100%";
+			if (this.loadedResourcesProgressLineElements)
+				this.loadedResourcesProgressLineElements.style.width = "100%";
+
+			setTimeout(() => {
+				if (this.lastLoadedResourceElement)
+					this.lastLoadedResourceElement.innerHTML =
+						"Resources Loaded Successfully";
+			}, 500);
+
+			this.startIntro();
 			this.emit("load", this.progress);
 		};
+
+		this.experience.app.resources.startLoading();
 	}
 
+	destruct() {
+		this.experience.app.resources.loadingManager.removeHandler(
+			/onStart|onError|onProgress|onLoad/
+		);
+		this.experience.app.resources.setSources([]);
+	}
+
+	/**
+	 *
+	 */
 	correctTextures() {
-		Object.keys(this.app.resources.items).forEach((key) => {
-			const ITEM = this.app.resources.items[key];
+		Object.keys(this.experience.app.resources.items).forEach((key) => {
+			const ITEM = this.experience.app.resources.items[key];
 			if (ITEM instanceof THREE.Texture) {
 				ITEM.flipY = false;
 				ITEM.colorSpace = THREE.SRGBColorSpace;
@@ -85,7 +145,7 @@ export default class Preloader extends EventEmitter {
 	/**
 	 * Launch the intro animation of the experience.
 	 */
-	start() {
+	startIntro() {
 		this.experience.world?.construct();
 
 		const _DEFAULT_PROPS = {
@@ -99,32 +159,43 @@ export default class Preloader extends EventEmitter {
 			opacity: 0,
 			delay: 2,
 			onComplete: () => {
-				document
-					.querySelector("#landing-view-wrapper")
-					?.classList.add("hidden");
+				const _LANDING_VIEW_WRAPPER = document.getElementById(
+					"landing-view-wrapper"
+				);
+
+				if (_LANDING_VIEW_WRAPPER?.style)
+					_LANDING_VIEW_WRAPPER.style.display = "none";
 			},
 		});
 
-		if (this.app.camera.instance && this.experience.world) {
-			const { x, y, z } = this.experience.world.cameraCurvePath.getPointAt(0);
+		if (
+			this.experience.app.camera.instance &&
+			this.experience.world &&
+			this.experience.world.interactions
+		) {
+			const { x, y, z } =
+				this.experience.world?.interactions?.cameraCurvePath.getPointAt(0);
 
-			GSAP.to(this.app.camera.instance.position, {
-				...this.experience.world?.getGsapDefaultProps(),
+			GSAP.to(this.experience.app.camera.instance.position, {
+				...this.experience.world?.interactions?.getGsapDefaultProps(),
 				..._DEFAULT_PROPS,
 				x,
 				y,
 				z,
 				delay: _DEFAULT_PROPS.duration * 0.8,
 				onUpdate: () => {
-					this.experience.world?.setCameraLookAt(
-						this.experience.world?.initialLookAtPosition
+					this.experience.world?.interactions?.setCameraLookAt(
+						this.experience.world?.interactions?.initialLookAtPosition
 					);
 				},
 				onComplete: () => {
 					setTimeout(() => {
-						if (this.experience.world) {
-							this.experience.world.getGsapDefaultProps().onComplete();
-							this.experience.world.autoCameraAnimation = true;
+						if (this.experience.world?.interactions) {
+							this.experience.world?.interactions
+								?.getGsapDefaultProps()
+								.onComplete();
+
+							this.experience.world.interactions.autoCameraAnimation = true;
 						}
 					}, 1000);
 				},

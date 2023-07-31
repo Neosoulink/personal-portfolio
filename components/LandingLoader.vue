@@ -1,13 +1,5 @@
 <script lang="ts" setup>
 import packageJson from "../package.json";
-
-// PROPS
-const props = withDefaults(
-	defineProps<{ progress?: number; loadedItem?: string }>(),
-	{
-		progress: 0,
-	}
-);
 </script>
 
 <template>
@@ -22,11 +14,13 @@ const props = withDefaults(
 		<div class="flex-1 flex flex-col justify-center items-center w-full">
 			<div class="w-1/6 bg-black mb-3 progress-container">
 				<div
+					id="loaded-resources-progress-line"
 					class="h-full bg-light duration-700"
-					:style="{ width: props.progress + '%' }"
+					style="width: 0%"
 				/>
 			</div>
-			<p class="text-center text-sm">{{ props.progress.toFixed(0) + "%" }}</p>
+
+			<p id="loaded-resources-progress" class="text-center text-sm">0%</p>
 		</div>
 
 		<div class="w-full flex justify-between items-center opacity-40 text-xs">
@@ -39,9 +33,9 @@ const props = withDefaults(
 					>@{{ packageJson.author }}</a
 				></span
 			>
-			<span v-if="progress === 0" class="animate-pulse">⚙ Loading resources...</span>
-			<span v-if="progress > 0 && progress < 100">Loaded: {{ props.loadedItem }}</span>
-			<span v-if="progress === 100">Resources loaded successfully</span>
+			<span id="last-loaded-resource" class="animate-pulse"
+				>⚙ Loading resources...</span
+			>
 		</div>
 	</div>
 </template>

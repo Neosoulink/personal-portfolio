@@ -35,8 +35,6 @@ export default class IsometricRoom {
 				map: this.app.resources.items.baked_room_background as THREE.Texture,
 			});
 
-			console.log("SCENE ==>", this.model);
-
 			this.mainGroup?.children.forEach((child) => {
 				if (child instanceof THREE.Mesh && child.name === "floor") {
 					child.material = BAKED_MATERIAL_FLOOR;
@@ -53,6 +51,7 @@ export default class IsometricRoom {
 				if (child instanceof THREE.Mesh && child.name === "scene-background") {
 					child.material = BAKED_MATERIAL_BACKGROUND;
 				}
+
 				if (child instanceof THREE.Mesh && child.name === "monitor-screen-a") {
 					this.monitorAScreen = child;
 				}

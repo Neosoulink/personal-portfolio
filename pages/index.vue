@@ -4,48 +4,29 @@ import type { HomeExperience as _HomeExperience } from "@/plugins/HomeExperience
 
 // NUXT
 const { $HomeExperience } = useNuxtApp();
+
+// DATA
 const HomeExperience = $HomeExperience as typeof _HomeExperience | undefined;
 
 // STATES
 const STATES = reactive<{
 	domElementID: string;
 	experience?: _HomeExperience;
-	sceneProgress: number;
-	displayLoader: boolean;
-	currentLoadedItem?: string;
 }>({
 	domElementID: "home-three-app",
-	sceneProgress: 0,
-	displayLoader: true,
 });
 
 onMounted(() => {
-	if (process.client && !STATES.experience && HomeExperience) {
+	if (process.client && !STATES.experience) {
 		STATES.experience = new HomeExperience({
 			domElementRef: "#" + STATES.domElementID,
-		});
-
-		STATES.experience.preloader?.on("start", (progress: number) => {
-			STATES.sceneProgress = progress;
-		});
-
-		STATES.experience.preloader?.on(
-			"progress",
-			(progress: number, item: string) => {
-				STATES.sceneProgress = progress;
-				STATES.currentLoadedItem = item.replace(/^.*\//, "");
-			}
-		);
-
-		STATES.experience.preloader?.on("load", (progress: number) => {
-			STATES.sceneProgress = progress;
 		});
 	}
 });
 
 onBeforeUnmount(() => {
-	if (STATES.experience) {
-		STATES.experience.destroy();
+	if (STATES.experience.destruct) {
+		STATES.experience.destruct();
 		STATES.experience = undefined;
 	}
 });
@@ -53,10 +34,7 @@ onBeforeUnmount(() => {
 
 <template>
 	<div>
-		<LandingLoader
-			:progress="STATES.sceneProgress"
-			:loadedItem="STATES.currentLoadedItem"
-		/>
+		<LandingLoader />
 
 		<main class="w-full bg-dark text-white">
 			<div class="h-screen w-screen absolute e z-0">
@@ -67,4 +45,3 @@ onBeforeUnmount(() => {
 		</main>
 	</div>
 </template>
-@/plugins/Experience.client/Experience.client
