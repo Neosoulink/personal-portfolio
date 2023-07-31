@@ -1,5 +1,4 @@
 import QuickThree from "quick-threejs";
-import GUI from "lil-gui";
 
 // CLASSES
 import World from "./World";
