@@ -10,6 +10,9 @@ export default class Preloader extends EventEmitter {
 	loadedResourcesProgressLineElements?: HTMLElement | null;
 	loadedResourcesProgressElements?: HTMLElement | null;
 	lastLoadedResourceElement?: HTMLElement | null;
+	texturesMeshBasicMaterials: {
+		[name: string]: THREE.MeshBasicMaterial;
+	} = {};
 	progress = 0;
 
 	constructor() {
@@ -47,6 +50,46 @@ export default class Preloader extends EventEmitter {
 				name: "baked_room_woods",
 				type: "texture",
 				path: "/3d_models/isometric_room/baked-room-woods.jpg",
+			},
+			{
+				name: "windows_10_lock_screen",
+				type: "texture",
+				path: "textures/windows_10_lock_screen.png",
+			},
+			{
+				name: "windows_11_lock_screen",
+				type: "texture",
+				path: "textures/windows_11_lock_screen.jpg",
+			},
+			{
+				name: "phone_lock_screen",
+				type: "texture",
+				path: "textures/phone_lock_screen.jpg",
+			},
+			{
+				name: "github_screenshot",
+				type: "texture",
+				path: "textures/github_screenshot.png",
+			},
+			{
+				name: "code_screenshot",
+				type: "texture",
+				path: "textures/code_screenshot.png",
+			},
+			{
+				name: "typescript_logo",
+				type: "texture",
+				path: "textures/typescript_logo.jpg",
+			},
+			{
+				name: "javascript_logo",
+				type: "texture",
+				path: "textures/javascript_logo.jpg",
+			},
+			{
+				name: "profile_photo",
+				type: "texture",
+				path: "textures/profile_photo.jpg",
 			},
 		]);
 	}
@@ -103,6 +146,7 @@ export default class Preloader extends EventEmitter {
 
 		this.experience.app.resources.loadingManager.onLoad = () => {
 			this.correctTextures();
+			this.setTexturesMeshBasicMaterials();
 
 			if (this.loadedResourcesProgressElements)
 				this.loadedResourcesProgressElements.innerHTML = "100%";
@@ -113,7 +157,7 @@ export default class Preloader extends EventEmitter {
 				if (this.lastLoadedResourceElement)
 					this.lastLoadedResourceElement.innerHTML =
 						"Resources Loaded Successfully";
-			}, 500);
+			}, 1000);
 
 			this.startIntro();
 			this.emit("load", this.progress);
@@ -127,6 +171,13 @@ export default class Preloader extends EventEmitter {
 			/onStart|onError|onProgress|onLoad/
 		);
 		this.experience.app.resources.setSources([]);
+		this.loadedResourcesProgressLineElements = undefined;
+		this.loadedResourcesProgressElements = undefined;
+		this.lastLoadedResourceElement = undefined;
+		Object.keys(this.texturesMeshBasicMaterials).forEach((key) =>
+			this.texturesMeshBasicMaterials[key].dispose()
+		);
+		this.texturesMeshBasicMaterials = {};
 	}
 
 	/**
@@ -140,6 +191,26 @@ export default class Preloader extends EventEmitter {
 				ITEM.colorSpace = THREE.SRGBColorSpace;
 			}
 		});
+	}
+
+	/**
+	 *
+	 */
+	setTexturesMeshBasicMaterials() {
+		if (this.experience.app?.resources.items) {
+			const _ITEMS = this.experience.app.resources.items;
+			const _ITEMS_KEYS = Object.keys(_ITEMS);
+
+			_ITEMS_KEYS.forEach((key) => {
+				const _ITEM = _ITEMS[key];
+
+				if (_ITEM instanceof THREE.Texture) {
+					this.texturesMeshBasicMaterials[key] = new THREE.MeshBasicMaterial({
+						map: _ITEM,
+					});
+				}
+			});
+		}
 	}
 
 	/**

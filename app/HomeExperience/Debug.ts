@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import GSAP from "gsap";
 import GUI from "lil-gui";
 
 // CLASSES
@@ -125,6 +126,42 @@ export default class Debug {
 				"fn"
 			)
 			.name("Focus desc");
+
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						if (
+							this.experience.world?.isometricRoom?.monitorAScreen &&
+							this.experience.world.isometricRoom.monitorAScreen
+								.material instanceof THREE.MeshBasicMaterial
+						) {
+							if (
+								this.experience.world.isometricRoom.monitorAScreen.material
+									.opacity != 0
+							) {
+								GSAP.to(
+									this.experience.world.isometricRoom.monitorAScreen.material,
+									{
+										duration: 1,
+										opacity: 0,
+									}
+								);
+							} else {
+								GSAP.to(
+									this.experience.world.isometricRoom.monitorAScreen.material,
+									{
+										duration: 1,
+										opacity: 1,
+									}
+								);
+							}
+						}
+					},
+				},
+				"fn"
+			)
+			.name("Toggle screen A size");
 	}
 
 	constructExperience() {
