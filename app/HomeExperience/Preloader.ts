@@ -207,6 +207,7 @@ export default class Preloader extends EventEmitter {
 				if (_ITEM instanceof THREE.Texture) {
 					this.texturesMeshBasicMaterials[key] = new THREE.MeshBasicMaterial({
 						map: _ITEM,
+						transparent: true,
 					});
 				}
 			});
