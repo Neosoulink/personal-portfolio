@@ -45,87 +45,61 @@ export default class Debug {
 		this.constructExperience();
 		this.destructExperience();
 
-		if (!this.gui || !this.experience.world) {
-			return;
-		}
+		if (!this.gui || !this.experience.world) return;
 
 		this.gui
 			?.add(
 				{
 					fn: () => {
-						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.experience.world?.isometricRoom?.roomBoard?.position ??
-								new THREE.Vector3()
-						);
-						const _POS = new THREE.Vector3()
-							.copy(_POS_LOOK_AT)
-							.set(
-								_POS_LOOK_AT.x,
-								_POS_LOOK_AT.y,
-								_POS_LOOK_AT.z - _POS_LOOK_AT.z
+						const _INTERACTIONS = this.experience.world?.interactions;
+						if (_INTERACTIONS) {
+							const _CURRENT_INDEX =
+								_INTERACTIONS.focusedPosition &&
+								_INTERACTIONS.positionsToFocus.length - 1 >
+									_INTERACTIONS.currentFocusedPositionIndex
+									? _INTERACTIONS.currentFocusedPositionIndex + 1
+									: 0;
+							const CURRENT_FOCUSED_POSITION =
+								_INTERACTIONS.positionsToFocus[_CURRENT_INDEX];
+							const _PREV_LOOK_AT_POINT = _INTERACTIONS.focusedPosition
+								? _CURRENT_INDEX - 1 < 0
+									? _INTERACTIONS.getFocusedLookAtPosition(
+											_INTERACTIONS.positionsToFocus[
+												_INTERACTIONS.positionsToFocus.length - 1
+											].point
+									  )
+									: _INTERACTIONS.getFocusedLookAtPosition(
+											_INTERACTIONS.positionsToFocus[_CURRENT_INDEX - 1].point
+									  )
+								: _INTERACTIONS.initialLookAtPosition;
+
+							_INTERACTIONS.focusedRadius = _CURRENT_INDEX === 0 ? 2.5 : 0.8;
+							_INTERACTIONS.currentFocusedPositionIndex = _CURRENT_INDEX;
+
+							console.log(
+								"POINTS ==>",
+								CURRENT_FOCUSED_POSITION.point,
+								_PREV_LOOK_AT_POINT
 							);
 
-						if (this.experience.world?.interactions) {
-							this.experience.world.interactions.focusedElementRadius = 0.5;
-							this.experience.world.interactions.toggleFocusMode(
-								_POS,
-								_POS_LOOK_AT
+							_INTERACTIONS.focusPoint(
+								CURRENT_FOCUSED_POSITION.cameraPosition,
+								CURRENT_FOCUSED_POSITION.point,
+								_PREV_LOOK_AT_POINT
 							);
 						}
 					},
 				},
 				"fn"
 			)
-			.name("Focus Board");
+			.name("Focus mode");
+
 		this.gui
 			?.add(
-				{
-					fn: () => {
-						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.experience.world?.isometricRoom?.roomShelves?.position ??
-								new THREE.Vector3()
-						);
-						const _POS = new THREE.Vector3().copy(_POS_LOOK_AT);
-						_POS.x += 3;
-						_POS.y += 0.2;
-
-						if (this.experience.world?.interactions) {
-							this.experience.world.interactions.focusedElementRadius = 0.5;
-							this.experience.world.interactions.toggleFocusMode(
-								_POS,
-								_POS_LOOK_AT
-							);
-						}
-					},
-				},
+				{ fn: () => this.experience?.world?.interactions?.unFocusPoint() },
 				"fn"
 			)
-			.name("Room shelves");
-		this.gui
-			?.add(
-				{
-					fn: () => {
-						const _POS_LOOK_AT = new THREE.Vector3().copy(
-							this.experience.world?.isometricRoom?.pcScreen?.position ??
-								new THREE.Vector3()
-						);
-
-						if (this.experience.world?.interactions) {
-							this.experience.world.interactions.focusedElementRadius = 2.5;
-							const _POS = new THREE.Vector3()
-								.copy(_POS_LOOK_AT)
-								.set(0, _POS_LOOK_AT.y + 0.2, 0);
-
-							this.experience.world.interactions.toggleFocusMode(
-								_POS,
-								_POS_LOOK_AT
-							);
-						}
-					},
-				},
-				"fn"
-			)
-			.name("Focus desc");
+			.name("Out focus mode");
 
 		this.gui
 			?.add(

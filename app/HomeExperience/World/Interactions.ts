@@ -66,10 +66,15 @@ export default class Interactions {
 	 * Curve path backward animation
 	 */
 	backwardCurveAnimation = false;
-	focusedElementPosition?: THREE.Vector3;
-	focusedElementRadius = 2;
-	focusedElementAngleX = 0;
-	focusedElementAngleY = 0;
+	positionsToFocus: {
+		cameraPosition: THREE.Vector3;
+		point: THREE.Vector3;
+	}[] = [];
+	currentFocusedPositionIndex: number = 0;
+	focusedPosition?: THREE.Vector3;
+	focusedRadius = 2;
+	focusedAngleX = 0;
+	focusedAngleY = 0;
 
 	constructor() {
 		if (
@@ -81,6 +86,7 @@ export default class Interactions {
 			);
 		}
 
+		this.setPositionsToFocus();
 		this.setWheelEventListener();
 		this.setMouseMoveEventListener();
 	}
@@ -131,18 +137,16 @@ export default class Interactions {
 		if (
 			this.experience.app.camera.instance &&
 			!this.autoCameraAnimation &&
-			this.focusedElementPosition &&
+			this.focusedPosition &&
 			!this.isGsapAnimating
 		) {
-			this.cameraLookAtPosition.copy(this.getFocusedElementLookAtPosition());
+			this.cameraLookAtPosition.copy(this.getFocusedLookAtPosition());
 		}
 
-		this.focusedElementAngleX +=
-			(this.normalizedCursorPosition.x * Math.PI - this.focusedElementAngleX) *
-			0.1;
-		this.focusedElementAngleY +=
-			(this.normalizedCursorPosition.y * Math.PI - this.focusedElementAngleY) *
-			0.1;
+		this.focusedAngleX +=
+			(this.normalizedCursorPosition.x * Math.PI - this.focusedAngleX) * 0.1;
+		this.focusedAngleY +=
+			(this.normalizedCursorPosition.y * Math.PI - this.focusedAngleY) * 0.1;
 
 		if (this.autoCameraAnimation || !this.isGsapAnimating)
 			this.setCameraLookAt(this.cameraLookAtPosition);
@@ -175,24 +179,23 @@ export default class Interactions {
 		});
 	}
 
-	getFocusedElementLookAtPosition() {
-		if (!(this.focusedElementPosition && this.experience.app.camera.instance))
+	getFocusedLookAtPosition(position = this.focusedPosition) {
+		if (!(position && this.experience.app.camera.instance))
 			return new THREE.Vector3();
 
 		return new THREE.Vector3(
-			this.focusedElementPosition.x -
-				this.focusedElementRadius *
+			position.x -
+				this.focusedRadius *
 					Math.cos(
-						this.focusedElementAngleX -
+						this.focusedAngleX -
 							this.experience.app.camera.instance.rotation.y +
 							Math.PI * 0.5
 					),
-			this.focusedElementPosition.y -
-				this.focusedElementRadius * Math.sin(this.focusedElementAngleY),
-			this.focusedElementPosition.z -
-				this.focusedElementRadius *
+			position.y - this.focusedRadius * Math.sin(this.focusedAngleY),
+			position.z -
+				this.focusedRadius *
 					Math.sin(
-						this.focusedElementAngleX -
+						this.focusedAngleX -
 							this.experience.app.camera.instance.rotation.y +
 							Math.PI * 0.5
 					)
@@ -237,9 +240,7 @@ export default class Interactions {
 		cameraLookAtPosition = new THREE.Vector3()
 	) {
 		if (this.experience.app.camera.instance) {
-			this.focusedElementPosition = new THREE.Vector3().copy(
-				cameraLookAtPosition
-			);
+			this.focusedPosition = new THREE.Vector3().copy(cameraLookAtPosition);
 
 			let _lerpProgress = 0;
 
@@ -257,7 +258,7 @@ export default class Interactions {
 					onUpdate: () => {
 						const _LERP_POSITION = this.getLerpPosition(
 							this.initialLookAtPosition,
-							this.getFocusedElementLookAtPosition(),
+							this.getFocusedLookAtPosition(),
 							_lerpProgress
 						);
 						_lerpProgress += 0.015;
@@ -270,7 +271,7 @@ export default class Interactions {
 				return;
 			}
 
-			const _FOCUSED_ELEMENT_POSITION = this.getFocusedElementLookAtPosition();
+			const _FOCUSED_POSITION = this.getFocusedLookAtPosition();
 
 			GSAP.to(this.experience.app.camera.instance.position, {
 				...this.getGsapDefaultProps(),
@@ -280,7 +281,7 @@ export default class Interactions {
 				duration: 2,
 				onUpdate: (e) => {
 					const _LERP_POSITION = this.getLerpPosition(
-						_FOCUSED_ELEMENT_POSITION,
+						_FOCUSED_POSITION,
 						this.initialLookAtPosition,
 						_lerpProgress
 					);
@@ -298,6 +299,79 @@ export default class Interactions {
 	}
 
 	/**
+	 * Move the camera position with transition from
+	 * the origin position to the passed position and enable the camera movement
+	 *
+	 * @param cameraToPosition The camera position
+	 * @param pointToFocus The camera position where to loo at
+	 */
+	focusPoint(
+		cameraToPosition = new THREE.Vector3(),
+		pointToFocus = new THREE.Vector3(),
+		prevLookAtPoint = this.initialLookAtPosition
+	) {
+		if (this.experience.app.camera.instance) {
+			let _lerpProgress = 0;
+
+			this.focusedPosition = new THREE.Vector3().copy(pointToFocus);
+
+			GSAP.to(this.experience.app.camera.instance.position, {
+				...this.getGsapDefaultProps(),
+				x: cameraToPosition.x,
+				y: cameraToPosition.y,
+				z: cameraToPosition.z,
+				duration: 1.5,
+				onStart: () => {
+					this.getGsapDefaultProps().onStart();
+					this.autoCameraAnimation = false;
+				},
+				onUpdate: () => {
+					const _LERP_POSITION = this.getLerpPosition(
+						prevLookAtPoint,
+						this.getFocusedLookAtPosition(),
+						_lerpProgress
+					);
+					_lerpProgress += 0.015;
+
+					this.cameraLookAtPosition.copy(_LERP_POSITION);
+					this.setCameraLookAt(_LERP_POSITION);
+				},
+			});
+		}
+	}
+
+	unFocusPoint() {
+		if (this.experience.app.camera.instance && this.focusedPosition) {
+			let _lerpProgress = 0;
+			const _FOCUSED_POSITION = this.getFocusedLookAtPosition();
+
+			GSAP.to(this.experience.app.camera.instance.position, {
+				...this.getGsapDefaultProps(),
+				x: this.cameraCurvePosition.x,
+				y: this.cameraCurvePosition.y,
+				z: this.cameraCurvePosition.z,
+				duration: 2,
+				onUpdate: (e) => {
+					const _LERP_POSITION = this.getLerpPosition(
+						_FOCUSED_POSITION,
+						this.initialLookAtPosition,
+						_lerpProgress
+					);
+					_lerpProgress += 0.01;
+
+					this.cameraLookAtPosition.copy(_LERP_POSITION);
+					this.setCameraLookAt(_LERP_POSITION);
+				},
+				onComplete: () => {
+					this.getGsapDefaultProps().onComplete();
+					this.autoCameraAnimation = true;
+					this.focusedPosition = undefined;
+				},
+			});
+		}
+	}
+
+	/**
 	 * Set the camera look at position
 	 * @param v3 Vector 3 position where the the camera should look at
 	 */
@@ -308,5 +382,49 @@ export default class Interactions {
 			this.experience.app.debug.cameraControls.target = v3;
 
 		this.cameraLookAtPointIndicator.position.copy(v3);
+	}
+
+	setPositionsToFocus() {
+		const _DESK_POSITION =
+			this.experience.world?.isometricRoom?.pcScreen?.position ??
+			new THREE.Vector3();
+		const _SHELVES_POSITION = new THREE.Vector3(-3, 1.4, 3);
+		const _BOARD_POSITION = new THREE.Vector3(-1.2, 3.8, -4.1);
+		const _SUPPORTS_POSITION = new THREE.Vector3(-3, 4, 1.85);
+
+		this.positionsToFocus = [
+			{
+				cameraPosition: _DESK_POSITION
+					.clone()
+					.set(0, _DESK_POSITION.y + 0.2, 0),
+				point: _DESK_POSITION,
+			},
+			{
+				cameraPosition: _SHELVES_POSITION
+					.clone()
+					.set(
+						_SHELVES_POSITION.x + 3,
+						_SHELVES_POSITION.y + 0.8,
+						_SHELVES_POSITION.z
+					),
+				point: _SHELVES_POSITION,
+			},
+			{
+				cameraPosition: _BOARD_POSITION
+					.clone()
+					.set(_BOARD_POSITION.x, _BOARD_POSITION.y, _BOARD_POSITION.z + 3.2),
+				point: _BOARD_POSITION,
+			},
+			{
+				cameraPosition: _SUPPORTS_POSITION
+					.clone()
+					.set(
+						_SUPPORTS_POSITION.x + 3,
+						_SUPPORTS_POSITION.y + 0.8,
+						_SUPPORTS_POSITION.z
+					),
+				point: _SUPPORTS_POSITION,
+			},
+		];
 	}
 }
