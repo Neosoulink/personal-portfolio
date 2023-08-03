@@ -17,7 +17,7 @@ export default class Interactions {
 	);
 	normalizedCursorPosition = { x: 0, y: 0 };
 	initialLookAtPosition = new THREE.Vector3(0, 2, 0);
-	initialCameraFov = 35;
+
 	/**
 	 * The curve path of the camera
 	 */
@@ -178,34 +178,28 @@ export default class Interactions {
 
 	setMouseDownEventListener() {
 		window.addEventListener("mousedown", (e) => {
-			if (
-				this.focusedPosition &&
-				this.experience.app.camera.instance instanceof THREE.PerspectiveCamera
-			)
-				this.cameraZoomIn();
+			if (this.focusedPosition) this.cameraZoomIn();
 		});
 	}
 
 	setMouseUpEventListener() {
 		window.addEventListener("mouseup", (e) => {
-			if (
-				this.focusedPosition &&
-				this.experience.app.camera.instance instanceof THREE.PerspectiveCamera
-			)
-				this.cameraZoomOut();
+			if (this.focusedPosition) this.cameraZoomOut();
 		});
 	}
 
 	cameraZoomIn() {
-		GSAP.to(this.experience.app.camera.instance, {
-			fov: 25,
-		});
+		if (this.experience.app.camera.instance instanceof THREE.PerspectiveCamera)
+			GSAP.to(this.experience.app.camera.instance, {
+				fov: 25,
+			});
 	}
 
 	cameraZoomOut() {
-		GSAP.to(this.experience.app.camera.instance, {
-			fov: this.initialCameraFov,
-		});
+		if (this.experience.app.camera.instance instanceof THREE.PerspectiveCamera)
+			GSAP.to(this.experience.app.camera.instance, {
+				fov: this.experience.world?.initialCameraFov ?? 0,
+			});
 	}
 
 	getFocusedLookAtPosition(position = this.focusedPosition) {
@@ -364,6 +358,15 @@ export default class Interactions {
 
 					this.cameraLookAtPosition.copy(_LERP_POSITION);
 					this.setCameraLookAt(_LERP_POSITION);
+				},
+				onComplete: () => {
+					this.getGsapDefaultProps().onComplete();
+					if (
+						this.experience.app.camera.instance instanceof
+						THREE.PerspectiveCamera
+					)
+						this.experience.app.camera.instance.fov =
+							this.experience.world?.initialCameraFov ?? 0;
 				},
 			});
 		}

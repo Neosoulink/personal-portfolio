@@ -14,6 +14,7 @@ export default class World extends EventEmitter {
 	scene?: THREE.Group;
 	isometricRoom?: IsometricRoom;
 	interactions?: Interactions;
+	initialCameraFov = 35;
 
 	constructor() {
 		super();
@@ -67,7 +68,7 @@ export default class World extends EventEmitter {
 			}
 
 			// CAMERA
-			this.experience.app.camera.instance.fov = 35;
+			this.experience.app.camera.instance.fov = this.initialCameraFov;
 			this.experience.app.camera.instance.far = 50;
 			this.experience.app.camera.instance.position.y += 8;
 			this.experience.app.camera.instance.position.x -= 2;

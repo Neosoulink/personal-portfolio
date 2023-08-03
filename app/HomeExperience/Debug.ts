@@ -134,26 +134,45 @@ export default class Debug {
 							this.experience.world.isometricRoom.monitorAScreen
 								.material instanceof THREE.MeshBasicMaterial
 						) {
-							if (
+							GSAP.to(
 								this.experience.world.isometricRoom.monitorAScreen.material
-									.opacity != 0
-							) {
-								GSAP.to(
-									this.experience.world.isometricRoom.monitorAScreen.material,
-									{
-										duration: 1,
-										opacity: 0,
-									}
-								);
-							} else {
-								GSAP.to(
-									this.experience.world.isometricRoom.monitorAScreen.material,
-									{
-										duration: 1,
-										opacity: 1,
-									}
-								);
-							}
+									.color,
+								{
+									duration: 0.1,
+									r: this.experience.world.isometricRoom.monitorAScreen.material
+										.color.r
+										? 0
+										: 1,
+									g: this.experience.world.isometricRoom.monitorAScreen.material
+										.color.r
+										? 0
+										: 1,
+									b: this.experience.world.isometricRoom.monitorAScreen.material
+										.color.r
+										? 0
+										: 1,
+								}
+							);
+							// if (
+							// 	this.experience.world.isometricRoom.monitorAScreen.material
+							// 		.opacity != 0
+							// ) {
+							// 	GSAP.to(
+							// 		this.experience.world.isometricRoom.monitorAScreen.material,
+							// 		{
+							// 			duration: 1,
+							// 			opacity: 0,
+							// 		}
+							// 	);
+							// } else {
+							// 	GSAP.to(
+							// 		this.experience.world.isometricRoom.monitorAScreen.material,
+							// 		{
+							// 			duration: 1,
+							// 			opacity: 1,
+							// 		}
+							// 	);
+							// }
 						}
 					},
 				},
