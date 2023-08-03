@@ -15,14 +15,9 @@ export default class Interactions {
 		new THREE.SphereGeometry(0.1, 12, 12),
 		new THREE.MeshBasicMaterial({ color: "#ff0040" })
 	);
-	/**
-	 *
-	 */
 	normalizedCursorPosition = { x: 0, y: 0 };
-	/**
-	 *
-	 */
 	initialLookAtPosition = new THREE.Vector3(0, 2, 0);
+	initialCameraFov = 35;
 	/**
 	 * The curve path of the camera
 	 */
@@ -89,6 +84,8 @@ export default class Interactions {
 		this.setPositionsToFocus();
 		this.setWheelEventListener();
 		this.setMouseMoveEventListener();
+		this.setMouseDownEventListener();
+		this.setMouseUpEventListener();
 	}
 
 	destroy() {}
@@ -176,6 +173,38 @@ export default class Interactions {
 				e.clientX / this.experience.app.sizes.width - 0.5;
 			this.normalizedCursorPosition.y =
 				e.clientY / this.experience.app.sizes.height - 0.5;
+		});
+	}
+
+	setMouseDownEventListener() {
+		window.addEventListener("mousedown", (e) => {
+			if (
+				this.focusedPosition &&
+				this.experience.app.camera.instance instanceof THREE.PerspectiveCamera
+			)
+				this.cameraZoomIn();
+		});
+	}
+
+	setMouseUpEventListener() {
+		window.addEventListener("mouseup", (e) => {
+			if (
+				this.focusedPosition &&
+				this.experience.app.camera.instance instanceof THREE.PerspectiveCamera
+			)
+				this.cameraZoomOut();
+		});
+	}
+
+	cameraZoomIn() {
+		GSAP.to(this.experience.app.camera.instance, {
+			fov: 25,
+		});
+	}
+
+	cameraZoomOut() {
+		GSAP.to(this.experience.app.camera.instance, {
+			fov: this.initialCameraFov,
 		});
 	}
 

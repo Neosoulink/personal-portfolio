@@ -96,6 +96,30 @@ export default class Debug {
 
 		this.gui
 			?.add(
+				{
+					fn: () => {
+						const _INTERACTIONS = this.experience.world?.interactions;
+						if (_INTERACTIONS) _INTERACTIONS.cameraZoomIn();
+					},
+				},
+				"fn"
+			)
+			.name("Camera zoom in");
+
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						const _INTERACTIONS = this.experience.world?.interactions;
+						if (_INTERACTIONS) _INTERACTIONS.cameraZoomOut();
+					},
+				},
+				"fn"
+			)
+			.name("Camera zoom out");
+
+		this.gui
+			?.add(
 				{ fn: () => this.experience?.world?.interactions?.unFocusPoint() },
 				"fn"
 			)
