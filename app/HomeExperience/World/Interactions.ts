@@ -376,15 +376,6 @@ export default class Interactions {
 					this.cameraLookAtPosition.copy(_LERP_POSITION);
 					this.setCameraLookAt(_LERP_POSITION);
 				},
-				onComplete: () => {
-					this.getGsapDefaultProps().onComplete();
-					if (
-						this.experience.app.camera.instance instanceof
-						THREE.PerspectiveCamera
-					)
-						this.experience.app.camera.instance.fov =
-							this.experience.world?.initialCameraFov ?? 0;
-				},
 			});
 		}
 	}
@@ -415,6 +406,11 @@ export default class Interactions {
 					this.getGsapDefaultProps().onComplete();
 					this.autoCameraAnimation = true;
 					this.focusedPosition = undefined;
+					if (
+						this.experience.app.camera.instance instanceof
+						THREE.PerspectiveCamera
+					)
+						this.cameraZoomOut();
 				},
 			});
 		}
