@@ -174,7 +174,7 @@ export default class Interactions {
 				if (e.clientX < this.lastMouseCoordinate.x) {
 					this.cameraCurvePathProgress.target += 0.002;
 					this.backwardCurveAnimation = false;
-				} else {
+				} else if (e.clientX > this.lastMouseCoordinate.x) {
 					this.cameraCurvePathProgress.target -= 0.002;
 					this.backwardCurveAnimation = true;
 				}
