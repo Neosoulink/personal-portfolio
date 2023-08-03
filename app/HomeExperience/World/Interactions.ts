@@ -71,6 +71,9 @@ export default class Interactions {
 	focusedAngleX = 0;
 	focusedAngleY = 0;
 
+	mouseDowned = false;
+	lastMouseCoordinate = { x: 0, y: 0 };
+
 	constructor() {
 		if (
 			this.experience.app.camera.instance instanceof THREE.PerspectiveCamera
@@ -167,23 +170,37 @@ export default class Interactions {
 
 	setMouseMoveEventListener() {
 		window.addEventListener("mousemove", (e) => {
-			if (this.autoCameraAnimation) return;
+			if (this.autoCameraAnimation === true && this.mouseDowned) {
+				if (e.clientX < this.lastMouseCoordinate.x) {
+					this.cameraCurvePathProgress.target += 0.002;
+					this.backwardCurveAnimation = false;
+				} else {
+					this.cameraCurvePathProgress.target -= 0.002;
+					this.backwardCurveAnimation = true;
+				}
+			}
 
-			this.normalizedCursorPosition.x =
-				e.clientX / this.experience.app.sizes.width - 0.5;
-			this.normalizedCursorPosition.y =
-				e.clientY / this.experience.app.sizes.height - 0.5;
+			if (!this.autoCameraAnimation) {
+				this.normalizedCursorPosition.x =
+					e.clientX / this.experience.app.sizes.width - 0.5;
+				this.normalizedCursorPosition.y =
+					e.clientY / this.experience.app.sizes.height - 0.5;
+			}
+
+			this.lastMouseCoordinate = { x: e.clientX, y: e.clientY };
 		});
 	}
 
 	setMouseDownEventListener() {
-		window.addEventListener("mousedown", (e) => {
+		window.addEventListener("mousedown", () => {
+			this.mouseDowned = true;
 			if (this.focusedPosition) this.cameraZoomIn();
 		});
 	}
 
 	setMouseUpEventListener() {
-		window.addEventListener("mouseup", (e) => {
+		window.addEventListener("mouseup", () => {
+			this.mouseDowned = false;
 			if (this.focusedPosition) this.cameraZoomOut();
 		});
 	}
