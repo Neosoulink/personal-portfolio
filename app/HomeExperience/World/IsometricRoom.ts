@@ -12,20 +12,14 @@ export default class IsometricRoom {
 	focusPointPositions: {
 		camera: THREE.Vector3;
 		point: THREE.Vector3;
-		bubbles: {
-			point: THREE.Vector3;
-			domElement: HTMLDivElement | null;
+		bubbles?: {
+			coordinates: THREE.Vector3;
+			label: string;
+			content: string;
+			action?: string;
+			icon?: string;
 		}[];
 	}[] = [];
-	elementsPoints: {
-		position: THREE.Vector3;
-		element: HTMLDivElement | null;
-	}[] = [
-		{
-			position: new THREE.Vector3(-2.8, 1.4, 3),
-			element: document.querySelector(".point-0"),
-		},
-	];
 
 	constructor() {
 		const _ISOMETRIC_ROOM = this.experience.app.resources.items
@@ -130,20 +124,53 @@ export default class IsometricRoom {
 	}
 
 	setFocusPointPositions() {
-		const _DESK_POSITION =
+		const _MONITOR_A_SCREEN_POSITION =
+			this.modelMeshes["monitorAScreen"]?.position ?? new THREE.Vector3();
+		const _PC_SCREEN_POSITION =
 			this.modelMeshes["pcScreen"]?.position ?? new THREE.Vector3();
+		const _MONITOR_B_SCREEN_POSITION =
+			this.modelMeshes["monitorBScreen"]?.position ?? new THREE.Vector3();
+		const _PHONE_SCREEN_POSITION =
+			this.modelMeshes["phoneScreen"]?.position ?? new THREE.Vector3();
+
 		const _SHELVES_POSITION = new THREE.Vector3(-3, 1.4, 3);
 		const _BOARD_POSITION = new THREE.Vector3(-1.2, 3.8, -4.1);
 		const _SUPPORTS_POSITION = new THREE.Vector3(-3, 4, 1.85);
 
 		this.focusPointPositions = [
 			{
-				camera: _DESK_POSITION.clone().set(0, _DESK_POSITION.y + 0.2, 0),
-				point: _DESK_POSITION,
+				camera: _PC_SCREEN_POSITION
+					.clone()
+					.set(0, _PC_SCREEN_POSITION.y + 0.2, 0),
+				point: _PC_SCREEN_POSITION,
 				bubbles: [
 					{
-						point: new THREE.Vector3(0, 0, 0),
-						domElement: null,
+						coordinates: _MONITOR_A_SCREEN_POSITION
+							.clone()
+							.setY(_MONITOR_A_SCREEN_POSITION.y + 0.555),
+						label: "1",
+						content: "lorem: fkjsf hàzefjàzf zi zofjzafpzj",
+					},
+					{
+						coordinates: _PC_SCREEN_POSITION
+							.clone()
+							.setY(_PC_SCREEN_POSITION.y + 0.52),
+						label: "2",
+						content: "lorem: fkjsf hàzefjàzf zi zofjzafpzj",
+					},
+					{
+						coordinates: _MONITOR_B_SCREEN_POSITION
+							.clone()
+							.setY(_MONITOR_B_SCREEN_POSITION.y + 0.555),
+						label: "3",
+						content: "lorem: fkjsf hàzefjàzf zi zofjzafpzj",
+					},
+					{
+						coordinates: _PHONE_SCREEN_POSITION
+							.clone()
+							.setY(_PHONE_SCREEN_POSITION.y + 0.225),
+						label: "4",
+						content: "lorem: fkjsf hàzefjàzf zi zofjzafpzj",
 					},
 				],
 			},
@@ -156,24 +183,14 @@ export default class IsometricRoom {
 						_SHELVES_POSITION.z
 					),
 				point: _SHELVES_POSITION,
-				bubbles: [
-					{
-						point: new THREE.Vector3(0, 0, 0),
-						domElement: null,
-					},
-				],
+				bubbles: [],
 			},
 			{
 				camera: _BOARD_POSITION
 					.clone()
 					.set(_BOARD_POSITION.x, _BOARD_POSITION.y, _BOARD_POSITION.z + 3.2),
 				point: _BOARD_POSITION,
-				bubbles: [
-					{
-						point: new THREE.Vector3(0, 0, 0),
-						domElement: null,
-					},
-				],
+				bubbles: [],
 			},
 			{
 				camera: _SUPPORTS_POSITION
@@ -184,12 +201,7 @@ export default class IsometricRoom {
 						_SUPPORTS_POSITION.z
 					),
 				point: _SUPPORTS_POSITION,
-				bubbles: [
-					{
-						point: new THREE.Vector3(0, 0, 0),
-						domElement: null,
-					},
-				],
+				bubbles: [],
 			},
 		];
 	}

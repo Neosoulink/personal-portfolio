@@ -72,6 +72,11 @@ export default class Interactions {
 	mouseDowned = false;
 	lastMouseCoordinate = { x: 0, y: 0 };
 
+	modelBubbles: {
+		coordinates: THREE.Vector3;
+		DOMelement: HTMLElement;
+	}[] = [];
+
 	constructor() {
 		if (
 			this.experience.app.camera.instance instanceof THREE.PerspectiveCamera
@@ -140,7 +145,7 @@ export default class Interactions {
 			this.cameraLookAtPosition.copy(this.getFocusedLookAtPosition());
 		}
 
-		this.updateModelInfoBubbles();
+		this.updateModelBubblesDomElements();
 
 		this.focusedAngleX +=
 			(this.normalizedCursorPosition.x * Math.PI - this.focusedAngleX) * 0.1;
@@ -151,14 +156,13 @@ export default class Interactions {
 			this.setCameraLookAt(this.cameraLookAtPosition);
 	}
 
-	updateModelInfoBubbles() {
+	updateModelBubblesDomElements() {
 		const _CAMERA = this.experience.app.camera.instance;
 		if (!(_CAMERA instanceof THREE.PerspectiveCamera)) return;
 
-		for (const point of this.experience.world?.isometricRoom?.elementsPoints ??
-			[]) {
-			if (point.element) {
-				const screenPosition = point.position.clone();
+		for (const point of this.modelBubbles) {
+			if (point.DOMelement) {
+				const screenPosition = point.coordinates.clone();
 				screenPosition.project(_CAMERA);
 
 				const translateX =
@@ -168,7 +172,7 @@ export default class Interactions {
 					this.experience.app.sizes.height *
 					0.5
 				);
-				point.element.style.transform = `translate(${translateX}px, ${translateY}px)`;
+				point.DOMelement.style.transform = `translate(${translateX}px, ${translateY}px)`;
 			}
 		}
 	}
@@ -343,10 +347,36 @@ export default class Interactions {
 		fromWhereToLooAt = this.initialLookAtPosition
 	) {
 		const _ISOMETRIC_ROOM = this.experience.world?.isometricRoom;
+		const _MODEL_BUBBLE_CONTAINER_DOM =
+			this.experience.preloader?.modelBubbleContainerDom;
 
 		if (_ISOMETRIC_ROOM) {
 			const _CURRENT_FOCUS_POINT_POSITION =
 				_ISOMETRIC_ROOM.focusPointPositions[focusPointPositionIndex];
+			if (_MODEL_BUBBLE_CONTAINER_DOM) {
+				this.modelBubbles = [];
+				_MODEL_BUBBLE_CONTAINER_DOM.innerHTML = "";
+
+				_CURRENT_FOCUS_POINT_POSITION.bubbles?.map((bubble, index) => {
+					const _BUBBLE_DOM_ELEMENT = document.createElement("div");
+					const _BUBBLE_TITLE_DOM_ELEMENT = document.createElement("span");
+					const _BUBBLE_CONTENT_DOM_ELEMENT = document.createElement("span");
+
+					_BUBBLE_DOM_ELEMENT.className = `model-bubble model-bubble-${index}`;
+					_BUBBLE_TITLE_DOM_ELEMENT.className = "title";
+					_BUBBLE_TITLE_DOM_ELEMENT.textContent = bubble.label;
+					_BUBBLE_CONTENT_DOM_ELEMENT.className = "content";
+					_BUBBLE_CONTENT_DOM_ELEMENT.textContent = bubble.content;
+
+					_BUBBLE_DOM_ELEMENT.appendChild(_BUBBLE_TITLE_DOM_ELEMENT);
+					_BUBBLE_DOM_ELEMENT.appendChild(_BUBBLE_CONTENT_DOM_ELEMENT);
+					this.modelBubbles.push({
+						coordinates: bubble.coordinates,
+						DOMelement: _BUBBLE_DOM_ELEMENT,
+					});
+					_MODEL_BUBBLE_CONTAINER_DOM.appendChild(_BUBBLE_DOM_ELEMENT);
+				});
+			}
 
 			this.focusedRadius = focusPointPositionIndex === 0 ? 2.5 : 0.8;
 			this.focusPointPositionIndex = focusPointPositionIndex;
@@ -411,7 +441,17 @@ export default class Interactions {
 				y: this.cameraCurvePosition.y,
 				z: this.cameraCurvePosition.z,
 				duration: 2,
-				onUpdate: (e) => {
+				onStart: () => {
+					this.getGsapDefaultProps().onStart();
+					const _MODEL_BUBBLE_CONTAINER_DOM =
+						this.experience.preloader?.modelBubbleContainerDom;
+
+					if (_MODEL_BUBBLE_CONTAINER_DOM) {
+						this.modelBubbles = [];
+						_MODEL_BUBBLE_CONTAINER_DOM.innerHTML = "";
+					}
+				},
+				onUpdate: () => {
 					const _LERP_POSITION = this.getLerpPosition(
 						_FOCUSED_POSITION,
 						this.initialLookAtPosition,

@@ -18,14 +18,14 @@ body {
 	scrollbar-width: none;
 }
 
-.point {
+.model-bubble {
 	position: absolute;
 	top: 50%;
 	left: 50%;
 	z-index: 999;
 }
 
-.point .label {
+.model-bubble .title {
 	position: absolute;
 	top: -20px;
 	left: -20px;
@@ -45,11 +45,11 @@ body {
 	transition: transform 0.3s;
 }
 
-.point.visible .label {
+.model-bubble .title {
 	transform: scale(1, 1);
 }
 
-.point .text {
+.model-bubble .content {
 	position: absolute;
 	top: 30px;
 	left: -120px;
@@ -69,6 +69,6 @@ body {
 	pointer-events: none;
 }
 
-.point:hover .text {
+.model-bubble:hover .content {
 	opacity: 1;
 }

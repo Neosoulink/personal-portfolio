@@ -14,6 +14,9 @@ export default class Preloader extends EventEmitter {
 		[name: string]: THREE.MeshBasicMaterial;
 	} = {};
 	progress = 0;
+	modelBubbleContainerDom = document.querySelector<HTMLDivElement>(
+		"#mode-bubbles-container"
+	);
 
 	constructor() {
 		super();
