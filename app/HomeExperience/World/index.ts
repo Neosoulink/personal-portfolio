@@ -63,8 +63,8 @@ export default class World extends EventEmitter {
 			this.isometricRoom = new IsometricRoom();
 			this.interactions = new Interactions();
 
-			if (this.isometricRoom.mainGroup) {
-				this.scene.add(this.isometricRoom.mainGroup);
+			if (this.isometricRoom.modelGroup) {
+				this.scene.add(this.isometricRoom.modelGroup);
 			}
 
 			// CAMERA

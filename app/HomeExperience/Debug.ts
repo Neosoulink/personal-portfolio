@@ -52,24 +52,26 @@ export default class Debug {
 				{
 					fn: () => {
 						const _INTERACTIONS = this.experience.world?.interactions;
-						if (_INTERACTIONS) {
+						const _ISOMETRIC_ROOM = this.experience.world?.isometricRoom;
+						if (_INTERACTIONS && _ISOMETRIC_ROOM) {
 							const _CURRENT_INDEX =
 								_INTERACTIONS.focusedPosition &&
-								_INTERACTIONS.positionsToFocus.length - 1 >
+								_ISOMETRIC_ROOM.focusPointPositions.length - 1 >
 									_INTERACTIONS.currentFocusedPositionIndex
 									? _INTERACTIONS.currentFocusedPositionIndex + 1
 									: 0;
 							const CURRENT_FOCUSED_POSITION =
-								_INTERACTIONS.positionsToFocus[_CURRENT_INDEX];
+								_ISOMETRIC_ROOM.focusPointPositions[_CURRENT_INDEX];
 							const _PREV_LOOK_AT_POINT = _INTERACTIONS.focusedPosition
 								? _CURRENT_INDEX - 1 < 0
 									? _INTERACTIONS.getFocusedLookAtPosition(
-											_INTERACTIONS.positionsToFocus[
-												_INTERACTIONS.positionsToFocus.length - 1
+											_ISOMETRIC_ROOM.focusPointPositions[
+												_ISOMETRIC_ROOM.focusPointPositions.length - 1
 											].point
 									  )
 									: _INTERACTIONS.getFocusedLookAtPosition(
-											_INTERACTIONS.positionsToFocus[_CURRENT_INDEX - 1].point
+											_ISOMETRIC_ROOM.focusPointPositions[_CURRENT_INDEX - 1]
+												.point
 									  )
 								: _INTERACTIONS.initialLookAtPosition;
 
@@ -83,7 +85,7 @@ export default class Debug {
 							);
 
 							_INTERACTIONS.focusPoint(
-								CURRENT_FOCUSED_POSITION.cameraPosition,
+								CURRENT_FOCUSED_POSITION.camera,
 								CURRENT_FOCUSED_POSITION.point,
 								_PREV_LOOK_AT_POINT
 							);
@@ -130,49 +132,28 @@ export default class Debug {
 				{
 					fn: () => {
 						if (
-							this.experience.world?.isometricRoom?.monitorAScreen &&
-							this.experience.world.isometricRoom.monitorAScreen
-								.material instanceof THREE.MeshBasicMaterial
+							this.experience.world?.isometricRoom?.modelMeshes?.monitorAScreen
+								?.material instanceof THREE.MeshBasicMaterial
 						) {
 							GSAP.to(
-								this.experience.world.isometricRoom.monitorAScreen.material
-									.color,
+								this.experience.world.isometricRoom.modelMeshes.monitorAScreen
+									?.material.color,
 								{
 									duration: 0.1,
-									r: this.experience.world.isometricRoom.monitorAScreen.material
-										.color.r
+									r: this.experience.world.isometricRoom.modelMeshes
+										.monitorAScreen?.material.color.r
 										? 0
 										: 1,
-									g: this.experience.world.isometricRoom.monitorAScreen.material
-										.color.r
+									g: this.experience.world.isometricRoom.modelMeshes
+										.monitorAScreen?.material.color.r
 										? 0
 										: 1,
-									b: this.experience.world.isometricRoom.monitorAScreen.material
-										.color.r
+									b: this.experience.world.isometricRoom.modelMeshes
+										.monitorAScreen?.material.color.r
 										? 0
 										: 1,
 								}
 							);
-							// if (
-							// 	this.experience.world.isometricRoom.monitorAScreen.material
-							// 		.opacity != 0
-							// ) {
-							// 	GSAP.to(
-							// 		this.experience.world.isometricRoom.monitorAScreen.material,
-							// 		{
-							// 			duration: 1,
-							// 			opacity: 0,
-							// 		}
-							// 	);
-							// } else {
-							// 	GSAP.to(
-							// 		this.experience.world.isometricRoom.monitorAScreen.material,
-							// 		{
-							// 			duration: 1,
-							// 			opacity: 1,
-							// 		}
-							// 	);
-							// }
 						}
 					},
 				},

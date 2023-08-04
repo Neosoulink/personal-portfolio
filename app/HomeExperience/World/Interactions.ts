@@ -6,6 +6,7 @@ import Experience from "..";
 
 export default class Interactions {
 	private experience = new Experience();
+	rayCaster = new THREE.Raycaster();
 	/**
 	 * Indicate where the camera is looking at.
 	 *
@@ -61,10 +62,7 @@ export default class Interactions {
 	 * Curve path backward animation
 	 */
 	backwardCurveAnimation = false;
-	positionsToFocus: {
-		cameraPosition: THREE.Vector3;
-		point: THREE.Vector3;
-	}[] = [];
+
 	currentFocusedPositionIndex: number = 0;
 	focusedPosition?: THREE.Vector3;
 	focusedRadius = 2;
@@ -84,7 +82,6 @@ export default class Interactions {
 			);
 		}
 
-		this.setPositionsToFocus();
 		this.setWheelEventListener();
 		this.setMouseMoveEventListener();
 		this.setMouseDownEventListener();
@@ -143,6 +140,8 @@ export default class Interactions {
 			this.cameraLookAtPosition.copy(this.getFocusedLookAtPosition());
 		}
 
+		this.updateModelInfoBubbles();
+
 		this.focusedAngleX +=
 			(this.normalizedCursorPosition.x * Math.PI - this.focusedAngleX) * 0.1;
 		this.focusedAngleY +=
@@ -150,6 +149,28 @@ export default class Interactions {
 
 		if (this.autoCameraAnimation || !this.isGsapAnimating)
 			this.setCameraLookAt(this.cameraLookAtPosition);
+	}
+
+	updateModelInfoBubbles() {
+		const _CAMERA = this.experience.app.camera.instance;
+		if (!(_CAMERA instanceof THREE.PerspectiveCamera)) return;
+
+		for (const point of this.experience.world?.isometricRoom?.elementsPoints ??
+			[]) {
+			if (point.element) {
+				const screenPosition = point.position.clone();
+				screenPosition.project(_CAMERA);
+
+				const translateX =
+					screenPosition.x * this.experience.app.sizes.width * 0.5;
+				const translateY = -(
+					screenPosition.y *
+					this.experience.app.sizes.height *
+					0.5
+				);
+				point.element.style.transform = `translate(${translateX}px, ${translateY}px)`;
+			}
+		}
 	}
 
 	setWheelEventListener() {
@@ -427,49 +448,5 @@ export default class Interactions {
 			this.experience.app.debug.cameraControls.target = v3;
 
 		this.cameraLookAtPointIndicator.position.copy(v3);
-	}
-
-	setPositionsToFocus() {
-		const _DESK_POSITION =
-			this.experience.world?.isometricRoom?.pcScreen?.position ??
-			new THREE.Vector3();
-		const _SHELVES_POSITION = new THREE.Vector3(-3, 1.4, 3);
-		const _BOARD_POSITION = new THREE.Vector3(-1.2, 3.8, -4.1);
-		const _SUPPORTS_POSITION = new THREE.Vector3(-3, 4, 1.85);
-
-		this.positionsToFocus = [
-			{
-				cameraPosition: _DESK_POSITION
-					.clone()
-					.set(0, _DESK_POSITION.y + 0.2, 0),
-				point: _DESK_POSITION,
-			},
-			{
-				cameraPosition: _SHELVES_POSITION
-					.clone()
-					.set(
-						_SHELVES_POSITION.x + 3,
-						_SHELVES_POSITION.y + 0.8,
-						_SHELVES_POSITION.z
-					),
-				point: _SHELVES_POSITION,
-			},
-			{
-				cameraPosition: _BOARD_POSITION
-					.clone()
-					.set(_BOARD_POSITION.x, _BOARD_POSITION.y, _BOARD_POSITION.z + 3.2),
-				point: _BOARD_POSITION,
-			},
-			{
-				cameraPosition: _SUPPORTS_POSITION
-					.clone()
-					.set(
-						_SUPPORTS_POSITION.x + 3,
-						_SUPPORTS_POSITION.y + 0.8,
-						_SUPPORTS_POSITION.z
-					),
-				point: _SUPPORTS_POSITION,
-			},
-		];
 	}
 }
