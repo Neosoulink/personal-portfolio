@@ -52,49 +52,26 @@ export default class Debug {
 				{
 					fn: () => {
 						const _INTERACTIONS = this.experience.world?.interactions;
-						const _ISOMETRIC_ROOM = this.experience.world?.isometricRoom;
-						if (_INTERACTIONS && _ISOMETRIC_ROOM) {
-							const _CURRENT_INDEX =
-								_INTERACTIONS.focusedPosition &&
-								_ISOMETRIC_ROOM.focusPointPositions.length - 1 >
-									_INTERACTIONS.currentFocusedPositionIndex
-									? _INTERACTIONS.currentFocusedPositionIndex + 1
-									: 0;
-							const CURRENT_FOCUSED_POSITION =
-								_ISOMETRIC_ROOM.focusPointPositions[_CURRENT_INDEX];
-							const _PREV_LOOK_AT_POINT = _INTERACTIONS.focusedPosition
-								? _CURRENT_INDEX - 1 < 0
-									? _INTERACTIONS.getFocusedLookAtPosition(
-											_ISOMETRIC_ROOM.focusPointPositions[
-												_ISOMETRIC_ROOM.focusPointPositions.length - 1
-											].point
-									  )
-									: _INTERACTIONS.getFocusedLookAtPosition(
-											_ISOMETRIC_ROOM.focusPointPositions[_CURRENT_INDEX - 1]
-												.point
-									  )
-								: _INTERACTIONS.initialLookAtPosition;
 
-							_INTERACTIONS.focusedRadius = _CURRENT_INDEX === 0 ? 2.5 : 0.8;
-							_INTERACTIONS.currentFocusedPositionIndex = _CURRENT_INDEX;
-
-							console.log(
-								"POINTS ==>",
-								CURRENT_FOCUSED_POSITION.point,
-								_PREV_LOOK_AT_POINT
-							);
-
-							_INTERACTIONS.focusPoint(
-								CURRENT_FOCUSED_POSITION.camera,
-								CURRENT_FOCUSED_POSITION.point,
-								_PREV_LOOK_AT_POINT
-							);
-						}
+						if (_INTERACTIONS) _INTERACTIONS.nextFocusPoint();
 					},
 				},
 				"fn"
 			)
-			.name("Focus mode");
+			.name("Next focus position");
+
+		this.gui
+			?.add(
+				{
+					fn: () => {
+						const _INTERACTIONS = this.experience.world?.interactions;
+
+						if (_INTERACTIONS) _INTERACTIONS.prevFocusPoint();
+					},
+				},
+				"fn"
+			)
+			.name("Prev focus position");
 
 		this.gui
 			?.add(

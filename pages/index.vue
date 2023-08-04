@@ -36,14 +36,6 @@ onBeforeUnmount(() => {
 	<main>
 		<LandingLoader />
 
-			<canvas :id="STATES.domElementID" class="fixed top-0 left-0 z-0" />
-
-		<div class="point point-0">
-			<div class="label">1</div>
-			<div class="text">
-				Front and top screen with HUD aggregating terrain and battle
-				informations.
-			</div>
-		</div>
+		<canvas :id="STATES.domElementID" class="fixed top-0 left-0 z-0" />
 	</main>
 </template>

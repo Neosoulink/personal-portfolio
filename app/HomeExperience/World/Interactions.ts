@@ -63,7 +63,7 @@ export default class Interactions {
 	 */
 	backwardCurveAnimation = false;
 
-	currentFocusedPositionIndex: number = 0;
+	focusPointPositionIndex: number = 0;
 	focusedPosition?: THREE.Vector3;
 	focusedRadius = 2;
 	focusedAngleX = 0;
@@ -290,91 +290,22 @@ export default class Interactions {
 	}
 
 	/**
-	 * Toggle the camera position with transition from
-	 * the origin position to the passed position
-	 *
-	 * @param cameraToPosition The camera position
-	 * @param cameraLookAtPosition The camera position where to loo at
-	 */
-	toggleFocusMode(
-		cameraToPosition = new THREE.Vector3(),
-		cameraLookAtPosition = new THREE.Vector3()
-	) {
-		if (this.experience.app.camera.instance) {
-			this.focusedPosition = new THREE.Vector3().copy(cameraLookAtPosition);
-
-			let _lerpProgress = 0;
-
-			if (this.autoCameraAnimation) {
-				GSAP.to(this.experience.app.camera.instance.position, {
-					...this.getGsapDefaultProps(),
-					x: cameraToPosition.x,
-					y: cameraToPosition.y,
-					z: cameraToPosition.z,
-					duration: 1.5,
-					onStart: () => {
-						this.getGsapDefaultProps().onStart();
-						this.autoCameraAnimation = false;
-					},
-					onUpdate: () => {
-						const _LERP_POSITION = this.getLerpPosition(
-							this.initialLookAtPosition,
-							this.getFocusedLookAtPosition(),
-							_lerpProgress
-						);
-						_lerpProgress += 0.015;
-
-						this.cameraLookAtPosition.copy(_LERP_POSITION);
-						this.setCameraLookAt(_LERP_POSITION);
-					},
-				});
-
-				return;
-			}
-
-			const _FOCUSED_POSITION = this.getFocusedLookAtPosition();
-
-			GSAP.to(this.experience.app.camera.instance.position, {
-				...this.getGsapDefaultProps(),
-				x: this.cameraCurvePosition.x,
-				y: this.cameraCurvePosition.y,
-				z: this.cameraCurvePosition.z,
-				duration: 2,
-				onUpdate: (e) => {
-					const _LERP_POSITION = this.getLerpPosition(
-						_FOCUSED_POSITION,
-						this.initialLookAtPosition,
-						_lerpProgress
-					);
-					_lerpProgress += 0.01;
-
-					this.cameraLookAtPosition.copy(_LERP_POSITION);
-					this.setCameraLookAt(_LERP_POSITION);
-				},
-				onComplete: () => {
-					this.getGsapDefaultProps().onComplete();
-					this.autoCameraAnimation = true;
-				},
-			});
-		}
-	}
-
-	/**
 	 * Move the camera position with transition from
 	 * the origin position to the passed position and enable the camera movement
 	 *
 	 * @param cameraToPosition The camera position
-	 * @param pointToFocus The camera position where to loo at
+	 * @param whereToLookAt The camera position where to look at
+	 * @param fromWhereToLooAt From where the camera will start looking at
 	 */
 	focusPoint(
 		cameraToPosition = new THREE.Vector3(),
-		pointToFocus = new THREE.Vector3(),
-		prevLookAtPoint = this.initialLookAtPosition
+		whereToLookAt = new THREE.Vector3(),
+		fromWhereToLooAt = this.initialLookAtPosition
 	) {
 		if (this.experience.app.camera.instance) {
 			let _lerpProgress = 0;
 
-			this.focusedPosition = new THREE.Vector3().copy(pointToFocus);
+			this.focusedPosition = new THREE.Vector3().copy(whereToLookAt);
 
 			GSAP.to(this.experience.app.camera.instance.position, {
 				...this.getGsapDefaultProps(),
@@ -388,7 +319,7 @@ export default class Interactions {
 				},
 				onUpdate: () => {
 					const _LERP_POSITION = this.getLerpPosition(
-						prevLookAtPoint,
+						fromWhereToLooAt,
 						this.getFocusedLookAtPosition(),
 						_lerpProgress
 					);
@@ -399,6 +330,74 @@ export default class Interactions {
 				},
 			});
 		}
+	}
+
+	/**
+	 * Focus switcher, will move the camera and the position of the camera where to look at.
+	 *
+	 * @param focusPointPositionIndex The index of the point to focus
+	 * @param fromWhereToLooAt From where the camera will start looking at
+	 */
+	focusPointSwitch(
+		focusPointPositionIndex = 0,
+		fromWhereToLooAt = this.initialLookAtPosition
+	) {
+		const _ISOMETRIC_ROOM = this.experience.world?.isometricRoom;
+
+		if (_ISOMETRIC_ROOM) {
+			const _CURRENT_FOCUS_POINT_POSITION =
+				_ISOMETRIC_ROOM.focusPointPositions[focusPointPositionIndex];
+
+			this.focusedRadius = focusPointPositionIndex === 0 ? 2.5 : 0.8;
+			this.focusPointPositionIndex = focusPointPositionIndex;
+
+			this.focusPoint(
+				_CURRENT_FOCUS_POINT_POSITION.camera,
+				_CURRENT_FOCUS_POINT_POSITION.point,
+				fromWhereToLooAt
+			);
+		}
+	}
+
+	nextFocusPoint() {
+		const _ISOMETRIC_ROOM = this.experience.world?.isometricRoom;
+
+		if (!_ISOMETRIC_ROOM) return;
+
+		const _NEXT_INDEX =
+			this.focusedPosition &&
+			_ISOMETRIC_ROOM.focusPointPositions.length - 1 >
+				this.focusPointPositionIndex
+				? this.focusPointPositionIndex + 1
+				: 0;
+		const _PREV_LOOK_AT_POSITION = this.focusedPosition
+			? this.getFocusedLookAtPosition(
+					_ISOMETRIC_ROOM.focusPointPositions[this.focusPointPositionIndex]
+						.point
+			  )
+			: this.initialLookAtPosition;
+
+		this.focusPointSwitch(_NEXT_INDEX, _PREV_LOOK_AT_POSITION);
+	}
+
+	prevFocusPoint() {
+		const _ISOMETRIC_ROOM = this.experience.world?.isometricRoom;
+
+		if (!_ISOMETRIC_ROOM) return;
+
+		const _NEXT_INDEX = this.focusedPosition
+			? this.focusPointPositionIndex - 1 >= 0
+				? this.focusPointPositionIndex - 1
+				: _ISOMETRIC_ROOM.focusPointPositions.length - 1
+			: 0;
+		const _PREV_LOOK_AT_POSITION = this.focusedPosition
+			? this.getFocusedLookAtPosition(
+					_ISOMETRIC_ROOM.focusPointPositions[this.focusPointPositionIndex]
+						.point
+			  )
+			: this.initialLookAtPosition;
+
+		this.focusPointSwitch(_NEXT_INDEX, _PREV_LOOK_AT_POSITION);
 	}
 
 	unFocusPoint() {
