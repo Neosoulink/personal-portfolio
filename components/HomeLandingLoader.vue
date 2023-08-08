@@ -5,7 +5,7 @@ import packageJson from "../package.json";
 <template>
 	<div
 		id="landing-view-wrapper"
-		class="fixed top-0 h-screen w-screen flex flex-col justify-center items-center text-light bg-dark px-[50px] py-[40px] overflow-hidden z-50"
+		class="fixed top-0 h-screen w-screen flex flex-col justify-center items-center text-light bg-dark px-[50px] py-[40px] overflow-hidden z-[1000]"
 	>
 		<div class="w-full">
 			<a href="/" class="text-lg uppercase">{{ packageJson.name }}</a>
