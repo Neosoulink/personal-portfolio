@@ -1,5 +1,5 @@
 <template>
-	<div class="container mx-auto md:px-20 px-2" :class="className" :style="style">
+	<div class="mx-auto md:px-16 px-2" :class="className" :style="style">
 		<slot />
 	</div>
 </template>
@@ -12,4 +12,3 @@ export default {
 	},
 };
 </script>
-q
