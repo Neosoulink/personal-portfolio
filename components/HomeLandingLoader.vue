@@ -25,7 +25,7 @@ import packageJson from "../package.json";
 
 		<div class="w-full flex justify-between items-center opacity-40 text-xs">
 			<span
-				>Made with ❤ by
+				>v{{ packageJson.version }} | Made with ❤ by
 				<a
 					:href="packageJson.repository.directory"
 					target="_blank"

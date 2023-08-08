@@ -34,7 +34,7 @@ onBeforeUnmount(() => {
 
 <template>
 	<main>
-		<LandingLoader />
+		<HomeLandingLoader />
 
 		<canvas :id="STATES.domElementID" class="fixed top-0 left-0 z-0" />
 
