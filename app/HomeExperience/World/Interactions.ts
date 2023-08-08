@@ -70,6 +70,7 @@ export default class Interactions {
 	focusedAngleY = 0;
 
 	mouseDowned = false;
+	mouseOverBubble = false;
 	lastMouseCoordinate = { x: 0, y: 0 };
 
 	modelBubbles: {
@@ -219,14 +220,14 @@ export default class Interactions {
 	setMouseDownEventListener() {
 		window.addEventListener("mousedown", () => {
 			this.mouseDowned = true;
-			if (this.focusedPosition) this.cameraZoomIn();
+			if (this.focusedPosition && !this.mouseOverBubble) this.cameraZoomIn();
 		});
 	}
 
 	setMouseUpEventListener() {
 		window.addEventListener("mouseup", () => {
 			this.mouseDowned = false;
-			if (this.focusedPosition) this.cameraZoomOut();
+			if (this.focusedPosition && !this.mouseOverBubble) this.cameraZoomOut();
 		});
 	}
 
@@ -355,6 +356,10 @@ export default class Interactions {
 								document.createElement("span");
 
 							_BUBBLE_DOM_ELEMENT.className = `model-bubble model-bubble-${index}`;
+							_BUBBLE_DOM_ELEMENT.onmouseenter = () =>
+								(this.mouseOverBubble = true);
+							_BUBBLE_DOM_ELEMENT.onmouseleave = () =>
+								(this.mouseOverBubble = false);
 							_BUBBLE_TITLE_DOM_ELEMENT.className = "title";
 							_BUBBLE_TITLE_DOM_ELEMENT.textContent = bubble.label;
 							_BUBBLE_CONTENT_DOM_ELEMENT.className = "content";
