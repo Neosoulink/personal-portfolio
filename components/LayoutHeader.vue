@@ -10,41 +10,43 @@ const IS_MENU_OPEN = useMenuState();
 </script>
 
 <template>
-	<nav class="text-light w-screen relative z-40">
-		<Container
-			className="flex flex-row justify-between items-center md:mt-[50px] mt-6"
-		>
-			<h1>
-				<a href="/" class="flex flex-row items-center text-2xl font-semibold">
-					<img
-						src="../assets/img/logo.png"
-						class="h-10 min-w-[40px] rounded-full drop-shadow-md mr-3 transition-all"
-					/>
+	<header class="text-light w-screen relative z-40">
+		<nav>
+			<Container
+				className="flex flex-row justify-between items-center md:mt-[50px] mt-6"
+			>
+				<h1>
+					<a href="/" class="flex flex-row items-center text-2xl font-semibold">
+						<img
+							src="../assets/img/logo.png"
+							class="h-10 min-w-[40px] rounded-full drop-shadow-md mr-3 transition-all"
+						/>
 
-					<span
-						class="font-semibold uppercase text-lg flex items-center flex-row"
-					>
-						<div
-							v-for="(c, i) in packageJson.name.split('')"
-							:key="i"
-							class="drop-shadow-md transition-all"
+						<span
+							class="font-semibold uppercase text-lg flex items-center flex-row"
 						>
-							{{ c }}
-						</div>
-					</span>
-				</a>
-			</h1>
+							<div
+								v-for="(c, i) in packageJson.name.split('')"
+								:key="i"
+								class="drop-shadow-md transition-all"
+							>
+								{{ c }}
+							</div>
+						</span>
+					</a>
+				</h1>
 
-			<hamburger-menu-button
-				:active="IS_MENU_OPEN"
-				@click="
-					() => {
-						IS_MENU_OPEN = !IS_MENU_OPEN;
-					}
-				"
-			/>
-		</Container>
-	</nav>
+				<hamburger-menu-button
+					:active="IS_MENU_OPEN"
+					@click="
+						() => {
+							IS_MENU_OPEN = !IS_MENU_OPEN;
+						}
+					"
+				/>
+			</Container>
+		</nav>
+	</header>
 </template>
 
 <style lang="scss" scoped>

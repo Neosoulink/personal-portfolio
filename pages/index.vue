@@ -33,10 +33,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<main>
+	<main class="flex flex-1">
 		<HomeLandingLoader />
 
 		<canvas :id="STATES.domElementID" class="fixed top-0 left-0 -z-10" />
+
+		<div class="flex-1"></div>
 
 		<div id="mode-bubbles-container" />
 	</main>

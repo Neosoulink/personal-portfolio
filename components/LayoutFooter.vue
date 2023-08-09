@@ -1,19 +1,27 @@
 <template>
-	<nav class="bg-dark text-white text-center w-screen absolute z-40">
-		<Container className="flex flex-col justify-between items-center py-10">
-			<div class="h-12 w-12 rounded-full bg-primary-900 mb-4" />
+	<footer class="text-light w-screen md:mb-[50px] mb-6 z-40">
+		<Container class="flex flex-row justify-between items-end">
+			<div class="flex flex-col items-start">
+				<span>Leave 🌟 a star on the GitHub repo</span>
+				<a
+					href="/"
+					class="text-[rgba(var(--light),0.5)] hover:text-light transition underline"
+					>Neosoulink/mydevjourney</a
+				>
+			</div>
 
-			<h3 class="flex flex-row items-center text-2xl font-extrabold mb-5">
-				Nathan Mande
-			</h3>
+			<div class="flex flex-col text-right items-end">
+				<span>Feel free to checkout my</span>
+				<span class="mb-4">social networks</span>
 
-			<div class="w-full border border-white/50 mb-4" />
-
-			<p>
-				Build with love & passion ❤. Leave a stare on the
-				<a href="/" class="text-primary-900">Github repo ⭐</a> or send me an
-				<a href="/" class="text-primary-900">Email 📧</a> if you like it
-			</p>
+				<div class="flex flex-row space-x-2">
+					<div
+						v-for="i in Array(4).keys()"
+						:key="i"
+						class="h-9 w-9 border rounded-full"
+					/>
+				</div>
+			</div>
 		</Container>
-	</nav>
+	</footer>
 </template>
