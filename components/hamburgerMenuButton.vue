@@ -30,7 +30,6 @@ onMounted(() => {
 		type="button"
 		@click="
 			() => {
-				console.log(props.onclick);
 				props.onclick;
 			}
 		"

@@ -1,19 +1,12 @@
 <script lang="ts" setup>
+// CONSTANTS
 import packageJson from "../package.json";
 
-const state = reactive({
-	links: [
-		{
-			label: "Projects",
-			path: "/projects",
-		},
-		{
-			label: "Blog",
-			path: "/blog",
-		},
-	],
-	isMenuOpen: false,
-});
+// COMPOSAPLES
+import { useMenuState } from "../composables/menu";
+
+// STATES
+const IS_MENU_OPEN = useMenuState();
 </script>
 
 <template>
@@ -42,20 +35,11 @@ const state = reactive({
 				</a>
 			</h1>
 
-			<!-- <ul class="flex flex-row list-none">
-				<li v-for="(item, index) in STATES.links" :key="index" class="mr-4">
-					<nuxt-link
-						:to="item.path"
-						class="cursor-pointer text-2xl font-medium opacity-60 hover:opacity-100"
-						>{{ item.label }}</nuxt-link
-					>
-				</li>
-			</ul> -->
 			<hamburger-menu-button
-				:active="state.isMenuOpen"
+				:active="IS_MENU_OPEN"
 				@click="
 					() => {
-						state.isMenuOpen = !state.isMenuOpen;
+						IS_MENU_OPEN = !IS_MENU_OPEN;
 					}
 				"
 			/>

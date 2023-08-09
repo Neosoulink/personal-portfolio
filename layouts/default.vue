@@ -1,6 +1,8 @@
 <template>
 	<LayoutHeader />
 
+	<Menu />
+
 	<slot />
 
 	<!-- <LayoutFooter /> -->
