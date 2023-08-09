@@ -24,7 +24,17 @@ onMounted(() => {
 </script>
 
 <template>
-	<button id="hamburger-menu-button" class="space-y-2" :onclick="props.onclick">
+	<button
+		id="hamburger-menu-button"
+		class="space-y-2"
+		type="button"
+		@click="
+			() => {
+				console.log(props.onclick);
+				props.onclick;
+			}
+		"
+	>
 		<div
 			v-for="i in [0, 1, 2]"
 			:key="i"

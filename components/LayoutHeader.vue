@@ -43,9 +43,8 @@ const state = reactive({
 			</ul> -->
 			<hamburger-menu-button
 				:active="state.isMenuOpen"
-				:onclick="
+				@click="
 					() => {
-						console.log('one here');
 						state.isMenuOpen = !state.isMenuOpen;
 					}
 				"
