@@ -18,7 +18,7 @@ body {
 	scrollbar-width: none;
 }
 
-.model-bubble {
+#mode-bubbles-container .model-bubble {
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -31,11 +31,11 @@ body {
 }
 
 
-.model-bubble:hover {
+#mode-bubbles-container .model-bubble:hover {
 	opacity: 1;
 }
 
-.model-bubble .title {
+#mode-bubbles-container .model-bubble .title {
 	position: absolute;
 	top: -20px;
 	left: -20px;
@@ -55,11 +55,11 @@ body {
 }
 
 
-.model-bubble.visible .title {
+#mode-bubbles-container .model-bubble.visible .title {
 	transform: scale(1, 1);
 }
 
-.model-bubble .content {
+#mode-bubbles-container .model-bubble .content {
 	width: 240px;
 	padding: 40px 20px;
 	border-radius: 20px;
@@ -75,8 +75,8 @@ body {
 	z-index: 1;
 }
 
-.model-bubble:hover .content,
-.model-bubble:hover .content {
+#mode-bubbles-container .model-bubble:hover .content,
+#mode-bubbles-container .model-bubble:hover .content {
 	transform: scale(1, 1);
 	background: rgba(var(--dark), 0.9);
 }
