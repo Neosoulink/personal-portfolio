@@ -58,6 +58,12 @@ watch(IS_MENU_OPEN, async (newState) => {
 			id="menu"
 			v-if="IS_MENU_OPEN"
 			class="fixed top-0 left-0 transform h-screen w-screen flex justify-center items-center bg-[rgba(var(--dark),0.3)] text-light backdrop-blur transition-all z-30"
+			@click="
+				(e) => {
+					e.stopPropagation();
+					IS_MENU_OPEN = false;
+				}
+			"
 		>
 			<ul id="menu-links-container" class="text-center">
 				<li v-for="(link, index) in LINKS" :key="index" class="mb-5">
