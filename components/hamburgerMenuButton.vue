@@ -53,7 +53,7 @@ onMounted(() => {
 	</button>
 </template>
 
-<style lang="css">
+<style lang="css" scoped>
 #hamburger-menu-button:hover > .transition > div {
 	animation: start-animation 0.5s;
 }
