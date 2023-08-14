@@ -1,14 +1,12 @@
 <script lang="ts" setup>
 // @ts-ignore
 import type { HomeExperience as _HomeExperience } from "@/plugins/HomeExperience.client";
-import { useRouter, useRoute } from "vue-router";
 
 // NUXT
 const { $HomeExperience } = useNuxtApp();
 
 // ROUTER
-const ROUTER = useRouter();
-const ROUTE = useRoute();
+const HASH = useHashUrl();
 
 // DATA
 const HOME_EXPERIENCE = $HomeExperience as typeof _HomeExperience | undefined;
@@ -23,10 +21,8 @@ const HASH_SECTIONS: { [hash: string]: { content: string } } = {
 const STATES = reactive<{
 	domElementID: string;
 	experience?: _HomeExperience;
-	currentSectionHash: string;
 }>({
 	domElementID: "home-three-app",
-	currentSectionHash: (ROUTE?.hash ?? "").replace("#", "")
 });
 
 onMounted(() => {
@@ -43,10 +39,6 @@ onBeforeUnmount(() => {
 		STATES.experience = undefined;
 	}
 });
-
-watch(ROUTE, async (newState) => {
-	STATES.currentSectionHash = (newState?.hash ?? "").replace("#", "");
-});
 </script>
 
 <template>
@@ -59,9 +51,8 @@ watch(ROUTE, async (newState) => {
 			<section class="flex-1 flex">
 				<h2 class="text-7xl w-1/2 font-bold leading-normal">
 					{{
-						STATES.currentSectionHash &&
-						HASH_SECTIONS[STATES.currentSectionHash]
-							? HASH_SECTIONS[STATES.currentSectionHash].content
+						HASH.current && HASH_SECTIONS[HASH.current]
+							? HASH_SECTIONS[HASH.current].content
 							: HASH_SECTIONS.about.content
 					}}
 				</h2>
