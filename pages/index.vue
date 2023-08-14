@@ -1,24 +1,37 @@
 <script lang="ts" setup>
 // @ts-ignore
 import type { HomeExperience as _HomeExperience } from "@/plugins/HomeExperience.client";
+import { useRouter, useRoute } from "vue-router";
 
 // NUXT
 const { $HomeExperience } = useNuxtApp();
 
+// ROUTER
+const ROUTER = useRouter();
+const ROUTE = useRoute();
+
 // DATA
-const HomeExperience = $HomeExperience as typeof _HomeExperience | undefined;
+const HOME_EXPERIENCE = $HomeExperience as typeof _HomeExperience | undefined;
+const HASH_SECTIONS: { [hash: string]: { content: string } } = {
+	about: {
+		content: "WELCOME TO MY SPACE SHIP",
+	},
+	skills: { content: "Skills" },
+};
 
 // STATES
 const STATES = reactive<{
 	domElementID: string;
 	experience?: _HomeExperience;
+	currentSectionHash: string;
 }>({
 	domElementID: "home-three-app",
+	currentSectionHash: (ROUTE?.hash ?? "").replace("#", "")
 });
 
 onMounted(() => {
 	if (process.client && !STATES.experience) {
-		STATES.experience = new HomeExperience({
+		STATES.experience = new HOME_EXPERIENCE({
 			domElementRef: "#" + STATES.domElementID,
 		});
 	}
@@ -29,6 +42,10 @@ onBeforeUnmount(() => {
 		STATES.experience.destruct();
 		STATES.experience = undefined;
 	}
+});
+
+watch(ROUTE, async (newState) => {
+	STATES.currentSectionHash = (newState?.hash ?? "").replace("#", "");
 });
 </script>
 
@@ -41,7 +58,12 @@ onBeforeUnmount(() => {
 		<Container class="flex-1 flex items-center text-light">
 			<section class="flex-1 flex">
 				<h2 class="text-7xl w-1/2 font-bold leading-normal">
-					WELCOME TO MY SPACE SHIP
+					{{
+						STATES.currentSectionHash &&
+						HASH_SECTIONS[STATES.currentSectionHash]
+							? HASH_SECTIONS[STATES.currentSectionHash].content
+							: HASH_SECTIONS.about.content
+					}}
 				</h2>
 			</section>
 
@@ -51,9 +73,10 @@ onBeforeUnmount(() => {
 				<div class="absolute w-1 h-full rounded-sm bg-light" />
 
 				<div class="absolute h-full flex flex-col justify-center items-center">
-					<div
-						v-for="i in Array(3).keys()"
-						:key="i"
+					<a
+						v-for="(hash, index) in Object.keys(HASH_SECTIONS)"
+						:key="index"
+						:href="`#${hash}`"
 						class="rounded-full h-4 w-4 cursor-pointer bg-light my-2 transition-all hover:h-6 hover:w-6 hover:my-1"
 					/>
 				</div>
