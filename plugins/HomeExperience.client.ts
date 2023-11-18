@@ -1,4 +1,4 @@
-import HomeExperience from "../app/HomeExperience";
+import HomeExperience from "../experiences/Home";
 
 export default defineNuxtPlugin(() => {
 	return {
