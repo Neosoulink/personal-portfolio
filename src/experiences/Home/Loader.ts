@@ -137,31 +137,31 @@ export default class Loader extends EventEmitter implements Base {
 		if (
 			this.experience.app.camera.instance &&
 			this.experience.world &&
-			this.experience.world.interactions
+			this.experience.world.controls
 		) {
 			const { x, y, z } =
-				this.experience.world?.interactions?.cameraCurvePath.getPointAt(0);
+				this.experience.world?.controls?.cameraCurvePath.getPointAt(0);
 
 			GSAP.to(this.experience.app.camera.instance.position, {
-				...this.experience.world?.interactions?.getGsapDefaultProps(),
+				...this.experience.world?.controls?.getGsapDefaultProps(),
 				..._DEFAULT_PROPS,
 				x,
 				y,
 				z,
 				delay: _DEFAULT_PROPS.duration * 0.8,
 				onUpdate: () => {
-					this.experience.world?.interactions?.setCameraLookAt(
-						this.experience.world?.interactions?.initialLookAtPosition
+					this.experience.world?.controls?.setCameraLookAt(
+						this.experience.world?.controls?.initialLookAtPosition
 					);
 				},
 				onComplete: () => {
 					setTimeout(() => {
-						if (this.experience.world?.interactions) {
-							this.experience.world?.interactions
+						if (this.experience.world?.controls) {
+							this.experience.world?.controls
 								?.getGsapDefaultProps()
 								.onComplete();
 
-							this.experience.world.interactions.autoCameraAnimation = true;
+							this.experience.world.controls.autoCameraAnimation = true;
 						}
 					}, 1000);
 				},

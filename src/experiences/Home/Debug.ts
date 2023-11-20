@@ -48,7 +48,7 @@ export default class Debug {
 			?.add(
 				{
 					fn: () => {
-						const _INTERACTIONS = this.experience.world?.interactions;
+						const _INTERACTIONS = this.experience.world?.controls;
 						if (_INTERACTIONS) _INTERACTIONS.cameraZoomIn();
 					},
 				},
@@ -60,7 +60,7 @@ export default class Debug {
 			?.add(
 				{
 					fn: () => {
-						const _INTERACTIONS = this.experience.world?.interactions;
+						const _INTERACTIONS = this.experience.world?.controls;
 						if (_INTERACTIONS) _INTERACTIONS.cameraZoomOut();
 					},
 				},

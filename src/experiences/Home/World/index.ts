@@ -9,7 +9,7 @@ import Scene_2 from "./Scene_2";
 import Scene_3 from "./Scene_3";
 
 // INTERFACES
-import BaseExperience from "@/interfaces/BaseExperience";
+import type BaseExperience from "@/interfaces/BaseExperience";
 
 export default class World extends EventEmitter implements BaseExperience {
 	private readonly experience = new Experience();
@@ -71,7 +71,7 @@ export default class World extends EventEmitter implements BaseExperience {
 			this.scene_1 = new Scene_1();
 			this.scene_2 = new Scene_2();
 			this.scene_3 = new Scene_3();
-			this.interactions = new Controls();
+			this.controls = new Controls();
 
 			if (this.scene_1.modelGroup) {
 				this.scene.add(this.scene_1.modelGroup);
@@ -87,18 +87,18 @@ export default class World extends EventEmitter implements BaseExperience {
 
 			if (this.experience.app.debug?.cameraControls)
 				this.experience.app.debug.cameraControls.target =
-					this.interactions.initialLookAtPosition;
+					this.controls.initialLookAtPosition;
 
 			// ADD TO SCENE
 			this.scene.add(
-				this.interactions.curvePathLine,
-				this.interactions.cameraLookAtPointIndicator
+				this.controls.curvePathLine,
+				this.controls.cameraLookAtPointIndicator
 			);
 			this.experience.app.scene.add(this.scene);
 		}
 	}
 
 	update() {
-		// this.interactions?.update();
+		// this.controls?.update();
 	}
 }
