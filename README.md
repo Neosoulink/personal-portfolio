@@ -1,7 +1,42 @@
-# nsl-me
+# Content v2 Minimal Starter
 
-## About
-This is the official website of Neosoulink (@MNath_)
+Look at the [Content documentation](https://content-v2.nuxtjs.org/) to learn more.
 
-### Live preview
-<a href="https://nsl-me.web.app">nsl-me.web.app</a>
+## Setup
+
+Make sure to install the dependencies:
+
+```bash
+# yarn
+yarn install
+
+# npm
+npm install
+
+# pnpm
+pnpm install
+```
+
+## Development Server
+
+Start the development server on http://localhost:3000
+
+```bash
+npm run dev
+```
+
+## Production
+
+Build the application for production:
+
+```bash
+npm run build
+```
+
+Locally preview production build:
+
+```bash
+npm run preview
+```
+
+Checkout the [deployment documentation](https://v3.nuxtjs.org/docs/deployment) for more information.
