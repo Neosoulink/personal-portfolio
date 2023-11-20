@@ -4,13 +4,7 @@
 	"compilerOptions": {
 		"types": ["node"],
 		"paths": {
-			"@/*": ["./*"],
-			"@app": ["./app/*"],
-			"@components/*": ["./components/*"],
-			"@utils/*": ["./utils/*"],
-			"@public/*": ["./public/*"],
-			"@assets*": ["./assets/*"],
-			"@styles/*": ["./assets/css/*"]
+			"@/*": ["./src/*"]
 		}
 	}
 }

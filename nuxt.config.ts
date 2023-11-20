@@ -20,4 +20,5 @@ export default defineNuxtConfig({
 			autoprefixer: {},
 		},
 	},
+	srcDir: "./src",
 });
