@@ -4,4 +4,5 @@
 export default interface BaseExperience {
 	construct: () => unknown;
 	destruct: () => unknown;
+	update?: () => unknown;
 }
