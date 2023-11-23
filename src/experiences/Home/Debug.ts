@@ -6,47 +6,35 @@ import Experience from ".";
 // INTERFACES
 import type BaseExperience from "@/interfaces/BaseExperience";
 
+// var url_parts = url.parse(request.url, true);
+// var query = url_parts.query;
+
 export default class Debug implements BaseExperience {
 	private experience = new Experience();
-	/**
-	 * Graphic user interface of the experience instance
-	 */
+	/** Graphic user interface of the experience instance */
 	gui?: GUI;
-	/**
-	 *
-	 */
-	debugMode = window?.location?.hash === "#debug";
+	/** Running experience in debug mode*/
+	static debugMode = false;
+	// static debugMode = window?.location?.hash === "#debug";
 
-	constructor() {}
-
-	construct() {
-		if (!this.debugMode) return;
-
-		this.initDebugOptions();
-	}
-
-	destruct() {
-		if (!this?.gui) return;
-
-		this.gui.destroy();
-		this.gui = undefined;
-	}
-
-	/**
-	 * Initialize debug options
-	 */
-	private initDebugOptions() {
-		if (this.gui) this.destruct();
+	constructor() {
+		if (!Debug.debugMode) return;
 
 		this.gui = this.experience.app.debug?.ui?.addFolder(Experience.name);
+	}
 
-		this.constructExperience();
-		this.destructExperience();
+	construct() {
+		if (this.gui) this.destruct();
 
 		if (!this.gui || !this.experience.world) return;
 
+		this.gui.add(
+			{ destruct_experience: () => this.experience?.destruct() },
+			"destruct_experience"
+		);
+
 		this.gui
-			?.add(
+			.add(
 				{
 					fn: () => {
 						const _INTERACTIONS = this.experience.world?.controls;
@@ -58,7 +46,7 @@ export default class Debug implements BaseExperience {
 			.name("Camera zoom in");
 
 		this.gui
-			?.add(
+			.add(
 				{
 					fn: () => {
 						const _INTERACTIONS = this.experience.world?.controls;
@@ -70,26 +58,23 @@ export default class Debug implements BaseExperience {
 			.name("Camera zoom out");
 	}
 
-	private constructExperience() {
-		if (!this.experience.world) {
-			this.gui?.add(
-				{
-					construct_experience: () => {
-						this.experience?.construct();
-						this.construct();
-					},
-				},
-				"construct_experience"
-			);
-		}
-	}
+	destruct() {
+		if (!this?.gui) return;
 
-	private destructExperience() {
-		if (this.experience.world) {
-			this.gui?.add(
-				{ destruct_experience: () => this.experience?.destruct() },
-				"destruct_experience"
-			);
-		}
+		this.gui.destroy();
+		this.gui = undefined;
+
+		// TODO: find a way to construct the project from `Debug` class
+		// if (!this.experience.world) {
+		// 	this.gui?.add(
+		// 		{
+		// 			construct_experience: () => {
+		// 				this.experience?.construct();
+		// 				this.construct();
+		// 			},
+		// 		},
+		// 		"construct_experience"
+		// 	);
+		// }
 	}
 }

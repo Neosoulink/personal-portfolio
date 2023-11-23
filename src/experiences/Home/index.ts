@@ -50,48 +50,52 @@ class HomeExperience implements BaseExperience {
 
 		HomeExperience.self = this;
 
-		this.debug = new Debug();
 		this.app = new QuickThree(
 			{
-				enableDebug: this.debug.debugMode,
-				axesSizes: this.debug.debugMode ? 5 : undefined,
-				gridSizes: this.debug.debugMode ? 30 : undefined,
-				withMiniCamera: this.debug.debugMode,
+				enableDebug: Debug.debugMode,
+				axesSizes: Debug.debugMode ? 5 : undefined,
+				gridSizes: Debug.debugMode ? 30 : undefined,
+				withMiniCamera: Debug.debugMode,
 				camera: "Perspective",
 			},
 			props?.domElementRef
 		);
-		this.construct();
-		this.debug.construct();
+		this.renderer = new Renderer();
+		this.ui = new UI();
+		this.loader = new Loader();
+		this.world = new World();
+		this.debug = new Debug();
 
 		this.onConstruct = props?.onConstruct;
 		this.onDestruct = props?.onDestruct;
-
-		this.app.setUpdateCallback(HomeExperience.name, () => this.update());
 	}
 
 	destruct() {
 		this.app.updateCallbacks[HomeExperience.name] &&
 			delete this.app.updateCallbacks[HomeExperience.name];
 
+		this.renderer?.destruct();
+		this.ui?.destruct();
 		this.loader?.destruct();
 		this.world?.destruct();
 		this.debug?.destruct();
 		this.app.destroy();
+		HomeExperience.self = undefined;
 
 		this.onDestruct && this.onDestruct();
-
-		HomeExperience.self = undefined;
 	}
 
 	construct() {
 		if (this.world?.scene) this.destruct();
 
-		this.renderer = new Renderer();
-		this.loader = new Loader();
-		this.world = new World();
-		this.ui = new UI();
+		this.renderer?.construct();
+		this.ui?.construct();
 		this.loader?.construct();
+		this.world?.construct();
+		this.debug?.construct();
+
+		this.app.setUpdateCallback(HomeExperience.name, () => this.update());
+
 		this.onConstruct && this.onConstruct();
 	}
 

@@ -110,7 +110,12 @@ export default class Loader extends EventEmitter implements Base {
 		}
 	}
 
-	/** Launch the intro animation of the experience. */
+	/**
+	 * Launch the intro animation of the experience.
+	 *
+	 * @deprecated Should use the one the {@link [UI](./UI.ts)} class
+	 *
+	 */
 	startIntro() {
 		this.experience.world?.construct();
 
