@@ -1,51 +1,49 @@
 <script lang="ts" setup>
-// @ts-ignore
-import type { HomeExperience as _HomeExperience } from "@/plugins/HomeExperience.client";
+// EXPERIENCES
+import HomeExperience from "@/experiences/Home";
 
-// NUXT
-const { $HomeExperience } = useNuxtApp();
-
-// ROUTER
-const HASH = useHashUrl();
+// CONSTANTS
+import { HOME_DOM_REF } from "@/constants/UI";
 
 // DATA
-const HOME_EXPERIENCE = $HomeExperience as typeof _HomeExperience | undefined;
-const HASH_SECTIONS: { [hash: string]: { content: string } } = {
-	about: {
-		content: "WELCOME TO MY SPACE SHIP",
-	},
-	skills: { content: "Skills" },
+const STATES = reactive<{
+	experience?: HomeExperience;
+}>({});
+
+// FUNCTIONS
+const initExperience = () => {
+	const { $HomeExperience } = useNuxtApp();
+
+	const H_EXPERIENCE = $HomeExperience as typeof HomeExperience | undefined;
+
+	if (!process.client || !H_EXPERIENCE) return;
+
+	const EXPERIENCE = new H_EXPERIENCE({
+		domElementRef: "#" + HOME_DOM_REF,
+	});
+
+	EXPERIENCE.construct();
+	STATES.experience = EXPERIENCE;
 };
 
-// STATES
-const STATES = reactive<{
-	domElementID: string;
-	experience?: _HomeExperience;
-}>({
-	domElementID: "home-three-app",
-});
+const endExperience = () => {
+	if (!STATES.experience) return;
 
+	STATES.experience.destruct();
+	STATES.experience = undefined;
+};
+
+// HOOKS
 onMounted(() => {
-	if (process.client && !STATES.experience) {
-		STATES.experience = new HOME_EXPERIENCE({
-			domElementRef: "#" + STATES.domElementID,
-		});
-	}
+	!STATES.experience && setTimeout(() => initExperience(), 500);
 });
-
-onBeforeUnmount(() => {
-	if (STATES.experience.destruct) {
-		STATES.experience.destruct();
-		STATES.experience = undefined;
-	}
-});
+onBeforeUnmount(() => setTimeout(() => endExperience(), 500));
 </script>
 
 <template>
 	<main class="flex flex-1">
 		<!-- <HomeLandingLoader /> -->
-
-		<canvas :id="STATES.domElementID" class="fixed top-0 left-0" />
+		<canvas :id="HOME_DOM_REF" class="fixed top-0 left-0 w-full h-full" />
 
 		<!-- <div id="mode-bubbles-container" /> -->
 	</main>
