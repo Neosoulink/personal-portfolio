@@ -1,11 +1,12 @@
-import * as THREE from "three";
-import GSAP from "gsap";
 import GUI from "lil-gui";
 
-// CLASSES
+// EXPERIENCE
 import Experience from ".";
 
-export default class Debug {
+// INTERFACES
+import type BaseExperience from "@/interfaces/BaseExperience";
+
+export default class Debug implements BaseExperience {
 	private experience = new Experience();
 	/**
 	 * Graphic user interface of the experience instance
@@ -21,7 +22,7 @@ export default class Debug {
 	construct() {
 		if (!this.debugMode) return;
 
-		this.setGui();
+		this.initDebugOptions();
 	}
 
 	destruct() {
@@ -32,9 +33,9 @@ export default class Debug {
 	}
 
 	/**
-	 *
+	 * Initialize debug options
 	 */
-	setGui() {
+	private initDebugOptions() {
 		if (this.gui) this.destruct();
 
 		this.gui = this.experience.app.debug?.ui?.addFolder(Experience.name);
@@ -69,7 +70,7 @@ export default class Debug {
 			.name("Camera zoom out");
 	}
 
-	constructExperience() {
+	private constructExperience() {
 		if (!this.experience.world) {
 			this.gui?.add(
 				{
@@ -83,7 +84,7 @@ export default class Debug {
 		}
 	}
 
-	destructExperience() {
+	private destructExperience() {
 		if (this.experience.world) {
 			this.gui?.add(
 				{ destruct_experience: () => this.experience?.destruct() },
