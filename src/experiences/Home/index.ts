@@ -44,9 +44,7 @@ class HomeExperience implements ExperienceBase {
 	private onDestruct?: () => unknown;
 
 	constructor(props?: ExperienceProps) {
-		if (HomeExperience.self) {
-			return HomeExperience.self;
-		}
+		if (HomeExperience.self) return HomeExperience.self;
 
 		HomeExperience.self = this;
 

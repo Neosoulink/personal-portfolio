@@ -11,8 +11,13 @@ export default class Debug implements ExperienceBase {
 	/** Graphic user interface of the experience instance */
 	gui?: GUI;
 	/** Running experience in debug mode*/
-	static debugMode = false;
-	// static debugMode = window?.location?.hash === "#debug";
+	static debugMode = (() => {
+		try {
+			return window?.location?.hash === "#debug";
+		} catch (_) {
+			return false;
+		}
+	})();
 
 	constructor() {
 		if (!Debug.debugMode) return;

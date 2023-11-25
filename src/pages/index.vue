@@ -12,13 +12,9 @@ const STATES = reactive<{
 
 // FUNCTIONS
 const initExperience = () => {
-	const { $HomeExperience } = useNuxtApp();
+	if (!process.client) return;
 
-	const H_EXPERIENCE = $HomeExperience as typeof HomeExperience | undefined;
-
-	if (!process.client || !H_EXPERIENCE) return;
-
-	const EXPERIENCE = new H_EXPERIENCE({
+	const EXPERIENCE = new HomeExperience({
 		domElementRef: "#" + HOME_DOM_REF,
 	});
 
