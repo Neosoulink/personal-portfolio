@@ -83,18 +83,19 @@ export default class Controls implements ExperienceBase {
 
 	constructor() {
 		if (
-			this.experience.app.camera.instance instanceof THREE.PerspectiveCamera
+			this.experience.app?.camera.instance instanceof THREE.PerspectiveCamera
 		) {
 			this.cameraCurvePath.getPointAt(
 				0,
-				this.experience.app.camera.instance.position
+				this.experience.app?.camera.instance.position
 			);
 		}
 
-		this.setWheelEventListener();
-		this.setMouseMoveEventListener();
-		this.setMouseDownEventListener();
-		this.setMouseUpEventListener();
+		// No more camera movements triggered by the mouse | Using Orbit control
+		// this.setWheelEventListener();
+		// this.setMouseMoveEventListener();
+		// this.setMouseDownEventListener();
+		// this.setMouseUpEventListener();
 	}
 
 	construct() {}
@@ -136,13 +137,13 @@ export default class Controls implements ExperienceBase {
 				this.cameraCurvePathProgress.current,
 				this.cameraCurvePosition
 			);
-			this.experience.app.camera.instance?.position.copy(
+			this.experience.app?.camera.instance?.position.copy(
 				this.cameraCurvePosition
 			);
 		}
 
 		if (
-			this.experience.app.camera.instance &&
+			this.experience.app?.camera.instance &&
 			!this.autoCameraAnimation &&
 			this.focusedPosition &&
 			!this.isGsapAnimating
@@ -162,7 +163,7 @@ export default class Controls implements ExperienceBase {
 	}
 
 	updateModelBubblesDomElements() {
-		const _CAMERA = this.experience.app.camera.instance;
+		const _CAMERA = this.experience.app?.camera.instance;
 		if (!(_CAMERA instanceof THREE.PerspectiveCamera)) return;
 
 		for (const bubble of this.modelBubbles) {
@@ -212,9 +213,9 @@ export default class Controls implements ExperienceBase {
 
 			if (!this.autoCameraAnimation) {
 				this.normalizedCursorPosition.x =
-					e.clientX / this.experience.app.sizes.width - 0.5;
+					e.clientX / this.experience.app?.sizes.width - 0.5;
 				this.normalizedCursorPosition.y =
-					e.clientY / this.experience.app.sizes.height - 0.5;
+					e.clientY / this.experience.app?.sizes.height - 0.5;
 			}
 
 			this.lastMouseCoordinate = { x: e.clientX, y: e.clientY };
@@ -236,21 +237,21 @@ export default class Controls implements ExperienceBase {
 	}
 
 	cameraZoomIn() {
-		if (this.experience.app.camera.instance instanceof THREE.PerspectiveCamera)
-			GSAP.to(this.experience.app.camera.instance, {
+		if (this.experience.app?.camera.instance instanceof THREE.PerspectiveCamera)
+			GSAP.to(this.experience.app?.camera.instance, {
 				fov: 25,
 			});
 	}
 
 	cameraZoomOut() {
-		if (this.experience.app.camera.instance instanceof THREE.PerspectiveCamera)
-			GSAP.to(this.experience.app.camera.instance, {
+		if (this.experience.app?.camera.instance instanceof THREE.PerspectiveCamera)
+			GSAP.to(this.experience.app?.camera.instance, {
 				fov: this.experience.world?.initialCameraFov ?? 0,
 			});
 	}
 
 	getFocusedLookAtPosition(position = this.focusedPosition) {
-		if (!(position && this.experience.app.camera.instance))
+		if (!(position && this.experience.app?.camera.instance))
 			return new THREE.Vector3();
 
 		return new THREE.Vector3(
@@ -258,7 +259,7 @@ export default class Controls implements ExperienceBase {
 				this.focusedRadius *
 					Math.cos(
 						this.focusedAngleX -
-							this.experience.app.camera.instance.rotation.y +
+							this.experience.app?.camera.instance.rotation.y +
 							Math.PI * 0.5
 					),
 			position.y - this.focusedRadius * Math.sin(this.focusedAngleY),
@@ -266,7 +267,7 @@ export default class Controls implements ExperienceBase {
 				this.focusedRadius *
 					Math.sin(
 						this.focusedAngleX -
-							this.experience.app.camera.instance.rotation.y +
+							this.experience.app?.camera.instance.rotation.y +
 							Math.PI * 0.5
 					)
 		);
@@ -311,12 +312,12 @@ export default class Controls implements ExperienceBase {
 		whereToLookAt = new THREE.Vector3(),
 		fromWhereToLooAt = this.initialLookAtPosition
 	) {
-		if (this.experience.app.camera.instance) {
+		if (this.experience.app?.camera.instance) {
 			let _lerpProgress = 0;
 
 			this.focusedPosition = new THREE.Vector3().copy(whereToLookAt);
 
-			GSAP.to(this.experience.app.camera.instance.position, {
+			GSAP.to(this.experience.app?.camera.instance.position, {
 				...this.getGsapDefaultProps(),
 				x: cameraToPosition.x,
 				y: cameraToPosition.y,
@@ -349,9 +350,9 @@ export default class Controls implements ExperienceBase {
 	 * @param v3 Vector 3 position where the the camera should look at
 	 */
 	setCameraLookAt(v3: THREE.Vector3) {
-		this.experience.app.camera.instance?.lookAt(v3);
+		this.experience.app?.camera.instance?.lookAt(v3);
 
-		if (this.experience.app.debug?.cameraControls)
+		if (this.experience.app?.debug?.cameraControls)
 			this.experience.app.debug.cameraControls.target = v3;
 
 		this.cameraLookAtPointIndicator.position.copy(v3);
