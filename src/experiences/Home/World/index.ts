@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import EventEmitter from "events";
+import GSAP from "gsap";
 
 // EXPERIENCE
 import Experience from "..";
@@ -10,6 +11,9 @@ import Scene_3 from "./Scene_3";
 
 // INTERFACES
 import { type ExperienceBase } from "@/interfaces/experienceBase";
+
+// CONSTANTS
+import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
 
 export default class World extends EventEmitter implements ExperienceBase {
 	private readonly experience = new Experience();
@@ -26,17 +30,7 @@ export default class World extends EventEmitter implements ExperienceBase {
 
 	constructor() {
 		super();
-
-		this.setEvents();
 	}
-
-	setEvents() {
-		this.experience.app.resources.on("ready", () => {
-			this.emit("ready");
-		});
-	}
-
-	resize() {}
 
 	destruct() {
 		if (this.scene) {
@@ -58,15 +52,18 @@ export default class World extends EventEmitter implements ExperienceBase {
 
 			this.scene?.clear();
 			this.scene = undefined;
-
-			this.experience.app.destroy();
 		}
 	}
 
 	construct() {
-		if (
-			this.experience.app.camera.instance instanceof THREE.PerspectiveCamera
-		) {
+		this.experience.loader?.on("load", () => {
+			if (
+				!(
+					this.experience.app.camera.instance instanceof THREE.PerspectiveCamera
+				)
+			)
+				return;
+
 			this.scene = new THREE.Group();
 			this.scene_1 = new Scene_1();
 			this.scene_2 = new Scene_2();
@@ -95,10 +92,47 @@ export default class World extends EventEmitter implements ExperienceBase {
 				this.controls.cameraLookAtPointIndicator
 			);
 			this.experience.app.scene.add(this.scene);
-		}
+		});
+
+		this.experience.ui?.on("ready", () => {
+			this.intro();
+		});
 	}
 
 	update() {
-		// this.controls?.update();
+		this.controls?.update();
+	}
+
+	intro() {
+		if (
+			!(
+				this.controls &&
+				this.experience.app.camera.instance instanceof THREE.PerspectiveCamera
+			)
+		)
+			return;
+
+		const { x, y, z } = this.controls.cameraCurvePath.getPointAt(0);
+
+		GSAP.to(this.experience.app.camera.instance.position, {
+			...this.experience.world?.controls?.getGsapDefaultProps(),
+			...GSAP_DEFAULT_INTRO_PROPS,
+			x,
+			y,
+			z,
+			delay: GSAP_DEFAULT_INTRO_PROPS.duration * 0.8,
+			onUpdate: () => {
+				this.controls?.setCameraLookAt(this.controls.initialLookAtPosition);
+			},
+			onComplete: () => {
+				setTimeout(() => {
+					if (this.experience.world?.controls) {
+						this.controls?.getGsapDefaultProps().onComplete();
+
+						this.experience.world.controls.autoCameraAnimation = true;
+					}
+				}, 1000);
+			},
+		});
 	}
 }

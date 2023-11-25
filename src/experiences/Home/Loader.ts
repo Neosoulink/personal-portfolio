@@ -7,6 +7,7 @@ import Experience from ".";
 
 // INTERFACES
 import { type ExperienceBase } from "@/interfaces/experienceBase";
+import { type ExperienceEvents } from "@/interfaces/experienceEvents";
 
 export default class Loader extends EventEmitter implements ExperienceBase {
 	private readonly experience = new Experience();
@@ -61,7 +62,6 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 			this.correctTextures();
 			this.initMeshTextures();
 
-			this.startIntro();
 			this.emit("load", this.progress);
 		});
 
@@ -93,7 +93,7 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 
 	/** Initialize Mesh textures. */
 	initMeshTextures() {
-		if (this.experience.app?.resources.items) {
+		if (this.experience.app.resources.items) {
 			const _ITEMS = this.experience.app.resources.items;
 			const _ITEMS_KEYS = Object.keys(_ITEMS);
 
@@ -106,70 +106,6 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 						transparent: true,
 					});
 				}
-			});
-		}
-	}
-
-	/**
-	 * Launch the intro animation of the experience.
-	 *
-	 * @deprecated Should use the one the {@link [UI](./UI.ts)} class
-	 *
-	 */
-	startIntro() {
-		this.experience.world?.construct();
-
-		const _DEFAULT_PROPS = {
-			duration: 3,
-			ease: "M0,0 C0.001,0.001 0.002,0.003 0.003,0.004 0.142,0.482 0.284,0.75 0.338,0.836 0.388,0.924 0.504,1 1,1 ",
-		};
-
-		const _TIMELINE = GSAP.timeline();
-		_TIMELINE.to("#landing-view-wrapper", {
-			..._DEFAULT_PROPS,
-			opacity: 0,
-			delay: 2,
-			onComplete: () => {
-				const _LANDING_VIEW_WRAPPER = document.getElementById(
-					"landing-view-wrapper"
-				);
-
-				if (_LANDING_VIEW_WRAPPER?.style)
-					_LANDING_VIEW_WRAPPER.style.display = "none";
-			},
-		});
-
-		if (
-			this.experience.app.camera.instance &&
-			this.experience.world &&
-			this.experience.world.controls
-		) {
-			const { x, y, z } =
-				this.experience.world?.controls?.cameraCurvePath.getPointAt(0);
-
-			GSAP.to(this.experience.app.camera.instance.position, {
-				...this.experience.world?.controls?.getGsapDefaultProps(),
-				..._DEFAULT_PROPS,
-				x,
-				y,
-				z,
-				delay: _DEFAULT_PROPS.duration * 0.8,
-				onUpdate: () => {
-					this.experience.world?.controls?.setCameraLookAt(
-						this.experience.world?.controls?.initialLookAtPosition
-					);
-				},
-				onComplete: () => {
-					setTimeout(() => {
-						if (this.experience.world?.controls) {
-							this.experience.world?.controls
-								?.getGsapDefaultProps()
-								.onComplete();
-
-							this.experience.world.controls.autoCameraAnimation = true;
-						}
-					}, 1000);
-				},
 			});
 		}
 	}

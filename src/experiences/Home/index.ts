@@ -82,6 +82,7 @@ class HomeExperience implements ExperienceBase {
 		this.world?.destruct();
 		this.debug?.destruct();
 		this.app.destroy();
+
 		HomeExperience.self = undefined;
 
 		this.onDestruct && this.onDestruct();

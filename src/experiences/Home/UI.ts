@@ -1,13 +1,19 @@
+import GSAP from "gsap";
+import { EventEmitter } from "events";
+
 // EXPERIENCE
 import HomeExperience from ".";
 
 // INTERFACES
-import { type ExperienceBase } from "../../interfaces/experienceBase";
+import { type ExperienceBase } from "@/interfaces/experienceBase";
+
+// CONSTANTS
+import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
 
 /**
  * Class in charge of all DOM HTML interactions (HTML user interface)
  */
-export default class UI implements ExperienceBase {
+export default class UI extends EventEmitter implements ExperienceBase {
 	private readonly experience = new HomeExperience();
 
 	loadedResourcesProgressLineElements?: HTMLElement | null;
@@ -18,6 +24,8 @@ export default class UI implements ExperienceBase {
 	);
 
 	constructor() {
+		super();
+
 		const _LOADED_RESOURCES_PROGRESS_LINE_ELEMENT = document.getElementById(
 			"loaded-resources-progress-line"
 		);
@@ -67,6 +75,9 @@ export default class UI implements ExperienceBase {
 				if (this.lastLoadedResourceElement)
 					this.lastLoadedResourceElement.innerHTML =
 						"Resources Loaded Successfully";
+
+				this.intro();
+				this.emit("ready");
 			}, 1000);
 		});
 
@@ -77,5 +88,22 @@ export default class UI implements ExperienceBase {
 		this.loadedResourcesProgressLineElements = undefined;
 		this.loadedResourcesProgressElements = undefined;
 		this.lastLoadedResourceElement = undefined;
+	}
+
+	intro() {
+		const _TIMELINE = GSAP.timeline();
+		_TIMELINE.to("#landing-view-wrapper", {
+			...GSAP_DEFAULT_INTRO_PROPS,
+			opacity: 0,
+			delay: 2,
+			onComplete: () => {
+				const _LANDING_VIEW_WRAPPER = document.getElementById(
+					"landing-view-wrapper"
+				);
+
+				if (_LANDING_VIEW_WRAPPER?.style)
+					_LANDING_VIEW_WRAPPER.style.display = "none";
+			},
+		});
 	}
 }
