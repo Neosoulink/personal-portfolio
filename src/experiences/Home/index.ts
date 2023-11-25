@@ -3,6 +3,7 @@ import QuickThree from "quick-threejs";
 // EXPERIENCES
 import Renderer from "./Renderer";
 import Loader from "./Loader";
+import { Camera } from "./Camera";
 import World from "./World";
 import UI from "./UI";
 import Debug from "./Debug";
@@ -35,10 +36,11 @@ class HomeExperience implements ExperienceBase {
 	 */
 	app!: QuickThree;
 	renderer?: Renderer;
-	loader?: Loader;
-	debug?: Debug;
-	world?: World;
 	ui?: UI;
+	loader?: Loader;
+	camera?: Camera;
+	world?: World;
+	debug?: Debug;
 
 	private onConstruct?: () => unknown;
 	private onDestruct?: () => unknown;
@@ -61,6 +63,7 @@ class HomeExperience implements ExperienceBase {
 		this.renderer = new Renderer();
 		this.ui = new UI();
 		this.loader = new Loader();
+		this.camera = new Camera();
 		this.world = new World();
 		this.debug = new Debug();
 
@@ -75,6 +78,7 @@ class HomeExperience implements ExperienceBase {
 		this.renderer?.destruct();
 		this.ui?.destruct();
 		this.loader?.destruct();
+		this.camera?.destruct();
 		this.world?.destruct();
 		this.debug?.destruct();
 		this.app.destroy();
@@ -89,6 +93,7 @@ class HomeExperience implements ExperienceBase {
 		this.renderer?.construct();
 		this.ui?.construct();
 		this.loader?.construct();
+		this.camera?.construct();
 		this.world?.construct();
 		this.debug?.construct();
 
