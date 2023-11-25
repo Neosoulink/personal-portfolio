@@ -6,9 +6,6 @@ import Experience from ".";
 // INTERFACES
 import type BaseExperience from "@/interfaces/BaseExperience";
 
-// var url_parts = url.parse(request.url, true);
-// var query = url_parts.query;
-
 export default class Debug implements BaseExperience {
 	private experience = new Experience();
 	/** Graphic user interface of the experience instance */
