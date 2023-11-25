@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 // CONSTANTS
-import packageJson from "../package.json";
+import packageJson from "../../package.json";
 
 // COMPOSAPLES
 import { useMenuState } from "../composables/menu";
@@ -10,7 +10,7 @@ const IS_MENU_OPEN = useMenuState();
 </script>
 
 <template>
-	<header class="text-light w-screen relative z-40">
+	<header class="relative z-40 w-screen text-light">
 		<nav>
 			<Container
 				className="flex flex-row justify-between items-center md:mt-[50px] mt-6"
@@ -23,12 +23,12 @@ const IS_MENU_OPEN = useMenuState();
 						/>
 
 						<span
-							class="font-semibold uppercase text-lg flex items-center flex-row"
+							class="flex flex-row items-center text-lg font-semibold uppercase"
 						>
 							<div
 								v-for="(c, i) in packageJson.name.split('')"
 								:key="i"
-								class="drop-shadow-md transition-all"
+								class="transition-all drop-shadow-md"
 							>
 								{{ c }}
 							</div>
