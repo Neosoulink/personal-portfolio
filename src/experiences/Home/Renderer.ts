@@ -4,10 +4,10 @@ import * as THREE from "three";
 import HomeExperience from ".";
 
 // INTERFACES
-import type BaseExperience from "@/interfaces/BaseExperience";
+import { type ExperienceBase } from "@/interfaces/experienceBase";
 
 /** Renderer */
-export default class Renderer implements BaseExperience {
+export default class Renderer implements ExperienceBase {
 	private readonly experience = new HomeExperience();
 
 	constructor() {}

@@ -1,7 +1,6 @@
-// INTERFACES
 import { type ExperienceBase } from "@/interfaces/experienceBase";
 
-export default class Scene_3 implements ExperienceBase {
+export class Camera implements ExperienceBase {
 	constructor() {}
 	construct() {}
 	destruct() {}

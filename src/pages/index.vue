@@ -43,6 +43,7 @@ onBeforeUnmount(() => setTimeout(() => endExperience(), 500));
 <template>
 	<main class="flex flex-1">
 		<!-- <HomeLandingLoader /> -->
+
 		<canvas :id="HOME_DOM_REF" class="fixed top-0 left-0 w-full h-full" />
 
 		<!-- <div id="mode-bubbles-container" /> -->

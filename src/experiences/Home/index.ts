@@ -8,7 +8,7 @@ import UI from "./UI";
 import Debug from "./Debug";
 
 // INTERFACES
-import type BaseExperience from "@/interfaces/BaseExperience";
+import { type ExperienceBase } from "@/interfaces/experienceBase";
 
 export interface ExperienceProps {
 	/**
@@ -25,7 +25,7 @@ export interface ExperienceProps {
 	onDestruct?: () => unknown;
 }
 
-class HomeExperience implements BaseExperience {
+class HomeExperience implements ExperienceBase {
 	/** HomExperience object */
 	static self?: HomeExperience;
 	/**
@@ -52,7 +52,7 @@ class HomeExperience implements BaseExperience {
 
 		this.app = new QuickThree(
 			{
-				enableDebug: Debug.debugMode,
+				enableDebug: true,
 				axesSizes: Debug.debugMode ? 5 : undefined,
 				gridSizes: Debug.debugMode ? 30 : undefined,
 				withMiniCamera: Debug.debugMode,

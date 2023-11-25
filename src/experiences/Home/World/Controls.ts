@@ -5,9 +5,9 @@ import GSAP from "gsap";
 import Experience from "..";
 
 // INTERFACES
-import type BaseExperience from "@/interfaces/BaseExperience";
+import { type ExperienceBase } from "@/interfaces/experienceBase";
 
-export default class Controls implements BaseExperience {
+export default class Controls implements ExperienceBase {
 	private experience = new Experience();
 	rayCaster = new THREE.Raycaster();
 	/**

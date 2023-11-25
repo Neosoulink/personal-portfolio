@@ -5,9 +5,9 @@ import * as THREE from "three";
 import Experience from "..";
 
 // Interfaces
-import type Base from "@/interfaces/BaseExperience";
+import { type ExperienceBase } from "@/interfaces/experienceBase";
 
-export default class Scene_1 implements Base {
+export default class Scene_1 implements ExperienceBase {
 	private experience = new Experience();
 	model?: GLTF;
 	modelGroup?: THREE.Group;

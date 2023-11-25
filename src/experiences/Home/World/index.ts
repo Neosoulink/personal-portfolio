@@ -9,9 +9,9 @@ import Scene_2 from "./Scene_2";
 import Scene_3 from "./Scene_3";
 
 // INTERFACES
-import type BaseExperience from "@/interfaces/BaseExperience";
+import { type ExperienceBase } from "@/interfaces/experienceBase";
 
-export default class World extends EventEmitter implements BaseExperience {
+export default class World extends EventEmitter implements ExperienceBase {
 	private readonly experience = new Experience();
 	controls?: Controls;
 

@@ -2,12 +2,12 @@
 import HomeExperience from ".";
 
 // INTERFACES
-import type BaseExperience from "../../interfaces/BaseExperience";
+import { type ExperienceBase } from "../../interfaces/experienceBase";
 
 /**
  * Class in charge of all DOM HTML interactions (HTML user interface)
  */
-export default class UI implements BaseExperience {
+export default class UI implements ExperienceBase {
 	private readonly experience = new HomeExperience();
 
 	loadedResourcesProgressLineElements?: HTMLElement | null;

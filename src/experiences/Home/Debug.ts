@@ -4,14 +4,14 @@ import GUI from "lil-gui";
 import Experience from ".";
 
 // INTERFACES
-import type BaseExperience from "@/interfaces/BaseExperience";
+import { type ExperienceBase } from "@/interfaces/experienceBase";
 
-export default class Debug implements BaseExperience {
+export default class Debug implements ExperienceBase {
 	private experience = new Experience();
 	/** Graphic user interface of the experience instance */
 	gui?: GUI;
 	/** Running experience in debug mode*/
-	static debugMode = true;
+	static debugMode = false;
 	// static debugMode = window?.location?.hash === "#debug";
 
 	constructor() {

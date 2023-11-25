@@ -1,7 +1,7 @@
 // INTERFACES
-import type BaseExperience from "@/interfaces/BaseExperience";
+import { type ExperienceBase } from "@/interfaces/experienceBase";
 
-export default class Scene_2 implements BaseExperience {
+export default class Scene_2 implements ExperienceBase {
 	constructor() {}
 	construct() {}
 	destruct() {}

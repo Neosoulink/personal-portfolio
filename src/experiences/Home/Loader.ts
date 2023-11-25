@@ -6,9 +6,9 @@ import EventEmitter from "events";
 import Experience from ".";
 
 // INTERFACES
-import type Base from "@/interfaces/BaseExperience";
+import { type ExperienceBase } from "@/interfaces/experienceBase";
 
-export default class Loader extends EventEmitter implements Base {
+export default class Loader extends EventEmitter implements ExperienceBase {
 	private readonly experience = new Experience();
 
 	texturesMeshBasicMaterials: {
