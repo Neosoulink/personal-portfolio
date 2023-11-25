@@ -97,7 +97,7 @@ class HomeExperience implements ExperienceBase {
 		this.world?.construct();
 		this.debug?.construct();
 
-		this.app.setUpdateCallback(HomeExperience.name, () => this.update());
+		this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
 
 		this.onConstruct && this.onConstruct();
 	}
