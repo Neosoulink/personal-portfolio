@@ -10,31 +10,30 @@ import GSAP from "gsap";
 
 // EXPERIENCES
 import Experience from "..";
+import { SceneFactory } from "./SceneFactory";
 
 // CONSTANTS
 import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
 
-// INTERFACES
-import { type ExperienceBase } from "@/interfaces/experienceBase";
-
-export default class Scene_1 implements ExperienceBase {
-	private readonly experience = new Experience();
-	private readonly appCamera = this.experience.app.camera;
-	model?: GLTF;
-	modelGroup?: Group;
-	modelMeshes: { [name: string]: Mesh | undefined } = {};
-	cameraCurvePath = new CatmullRomCurve3([
-		new Vector3(0, 5.5, 21),
-		new Vector3(12, 10, 12),
-		new Vector3(21, 5.5, 0),
-		new Vector3(12, 3.7, 12),
-		new Vector3(0, 5.5, 21),
-	]);
+export default class Scene_1 extends SceneFactory {
+	protected readonly _appCamera = this._experience.app.camera;
+	public model?: GLTF;
+	public modelGroup?: Group;
+	public modelMeshes: { [name: string]: Mesh | undefined } = {};
 
 	constructor() {
-		const _ISOMETRIC_ROOM = this.experience.app.resources.items.scene_1_room as
-			| GLTF
-			| undefined;
+		super({
+			cameraPath: new CatmullRomCurve3([
+				new Vector3(0, 5.5, 21),
+				new Vector3(12, 10, 12),
+				new Vector3(21, 5.5, 0),
+				new Vector3(12, 3.7, 12),
+				new Vector3(0, 5.5, 21),
+			]),
+		});
+
+		const _ISOMETRIC_ROOM = this._experience.app.resources.items
+			.scene_1_room as GLTF | undefined;
 
 		if (_ISOMETRIC_ROOM?.scene) {
 			this.model = _ISOMETRIC_ROOM;
@@ -45,19 +44,19 @@ export default class Scene_1 implements ExperienceBase {
 	}
 
 	construct() {
-		if (!this.appCamera.instance) return;
+		if (!this._appCamera.instance) return;
 
-		this.cameraCurvePath.getPointAt(0, this.appCamera.instance.position);
-		this.appCamera.instance.position.y += 8;
-		this.appCamera.instance.position.x -= 2;
-		this.appCamera.instance.position.z += 10;
+		this.cameraPath.getPointAt(0, this._appCamera.instance.position);
+		this._appCamera.instance.position.y += 8;
+		this._appCamera.instance.position.x -= 2;
+		this._appCamera.instance.position.z += 10;
 	}
 
 	destruct() {}
 
 	private setModelMeshes() {
 		const _TEXTURES_MESH_BASIC_MATERIALS =
-			this.experience.loader?.texturesMeshBasicMaterials;
+			this._experience.loader?.texturesMeshBasicMaterials;
 
 		if (!_TEXTURES_MESH_BASIC_MATERIALS) return;
 
@@ -82,18 +81,18 @@ export default class Scene_1 implements ExperienceBase {
 		});
 	}
 
-	intro() {
-		const WORLD_CONTROLS = this.experience.world?.controls;
+	public intro(): void {
+		const WORLD_CONTROLS = this._experience.world?.controls;
 
 		if (
-			!(WORLD_CONTROLS && this.appCamera.instance instanceof PerspectiveCamera)
+			!(WORLD_CONTROLS && this._appCamera.instance instanceof PerspectiveCamera)
 		)
 			return;
 
-		const { x, y, z } = WORLD_CONTROLS.cameraCurvePath.getPointAt(0);
+		const { x, y, z } = this.cameraPath.getPointAt(0);
 
-		GSAP.to(this.appCamera.instance.position, {
-			...this.experience.world?.controls?.getGsapDefaultProps(),
+		GSAP.to(this._appCamera.instance.position, {
+			...this._experience.world?.controls?.getGsapDefaultProps(),
 			...GSAP_DEFAULT_INTRO_PROPS,
 			x,
 			y,
@@ -104,15 +103,19 @@ export default class Scene_1 implements ExperienceBase {
 			},
 			onComplete: () => {
 				setTimeout(() => {
-					if (this.experience.world?.controls) {
+					if (this._experience.world?.controls) {
 						WORLD_CONTROLS?.getGsapDefaultProps().onComplete();
 
-						this.experience.world.controls.autoCameraAnimation = true;
+						this._experience.world.controls.autoCameraAnimation = true;
 
-						console.log(this.appCamera.instance?.position);
+						console.log(this._appCamera.instance?.position);
 					}
 				}, 1000);
 			},
 		});
 	}
+
+	public outro(): void {}
+
+	public update(): void {}
 }
