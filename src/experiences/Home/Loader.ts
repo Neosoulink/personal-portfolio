@@ -1,5 +1,4 @@
-import * as THREE from "three";
-import GSAP from "gsap";
+import { Mesh, MeshBasicMaterial, SRGBColorSpace, Texture } from "three";
 import EventEmitter from "events";
 
 // ---
@@ -7,13 +6,13 @@ import Experience from ".";
 
 // INTERFACES
 import { type ExperienceBase } from "@/interfaces/experienceBase";
-import { type ExperienceEvents } from "@/interfaces/experienceEvents";
 
 export default class Loader extends EventEmitter implements ExperienceBase {
-	private readonly experience = new Experience();
+	protected readonly _experience = new Experience();
+	protected readonly _appResources = this._experience.app.resources;
 
 	texturesMeshBasicMaterials: {
-		[name: string]: THREE.MeshBasicMaterial;
+		[name: string]: MeshBasicMaterial;
 	} = {};
 	progress = 0;
 
@@ -21,8 +20,8 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 		super();
 
 		// RESOURCES
-		this.experience.app.resources.setDracoLoader("/decoders/draco/");
-		this.experience.app.resources.setSources([
+		this._appResources.setDracoLoader("/decoders/draco/");
+		this._appResources.setSources([
 			{
 				name: "scene_1_room",
 				type: "gltfModel",
@@ -42,11 +41,11 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 	}
 
 	construct() {
-		~(this.experience.app.resources.loadingManager.onStart = () => {
+		~(this._appResources.loadingManager.onStart = () => {
 			this.emit("start", (this.progress = 0));
 		});
 
-		~(this.experience.app.resources.loadingManager.onProgress = (
+		~(this._appResources.loadingManager.onProgress = (
 			itemUrl,
 			itemsLoaded,
 			itemsToLoad
@@ -58,14 +57,14 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 			);
 		});
 
-		~(this.experience.app.resources.loadingManager.onLoad = () => {
+		~(this._appResources.loadingManager.onLoad = () => {
 			this.correctTextures();
-			this.initMeshTextures();
+			this._initMeshTextures();
 
 			this.emit("load", this.progress);
 		});
 
-		this.experience.app.resources.startLoading();
+		this._appResources.startLoading();
 	}
 
 	destruct() {
@@ -74,34 +73,34 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 		);
 		this.texturesMeshBasicMaterials = {};
 
-		this.experience.app.resources.loadingManager.removeHandler(
+		this._appResources.loadingManager.removeHandler(
 			/onStart|onError|onProgress|onLoad/
 		);
-		this.experience.app.resources.setSources([]);
+		this._appResources.setSources([]);
 	}
 
 	/** Correct resources texture color and flip faces. */
 	correctTextures() {
-		Object.keys(this.experience.app.resources.items).forEach((key) => {
-			const ITEM = this.experience.app.resources.items[key];
-			if (ITEM instanceof THREE.Texture) {
+		Object.keys(this._appResources.items).forEach((key) => {
+			const ITEM = this._appResources.items[key];
+			if (ITEM instanceof Texture) {
 				ITEM.flipY = false;
-				ITEM.colorSpace = THREE.SRGBColorSpace;
+				ITEM.colorSpace = SRGBColorSpace;
 			}
 		});
 	}
 
 	/** Initialize Mesh textures. */
-	initMeshTextures() {
-		if (this.experience.app.resources.items) {
-			const _ITEMS = this.experience.app.resources.items;
+	protected _initMeshTextures() {
+		if (this._appResources.items) {
+			const _ITEMS = this._appResources.items;
 			const _ITEMS_KEYS = Object.keys(_ITEMS);
 
 			_ITEMS_KEYS.forEach((key) => {
 				const _ITEM = _ITEMS[key];
 
-				if (_ITEM instanceof THREE.Texture) {
-					this.texturesMeshBasicMaterials[key] = new THREE.MeshBasicMaterial({
+				if (_ITEM instanceof Texture) {
+					this.texturesMeshBasicMaterials[key] = new MeshBasicMaterial({
 						map: _ITEM,
 						transparent: true,
 					});
