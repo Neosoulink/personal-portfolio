@@ -1,17 +1,35 @@
+import {
+	CatmullRomCurve3,
+	Group,
+	Mesh,
+	PerspectiveCamera,
+	Vector3,
+} from "three";
 import { type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
-import * as THREE from "three";
+import GSAP from "gsap";
 
-// ---
+// EXPERIENCES
 import Experience from "..";
 
-// Interfaces
+// CONSTANTS
+import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
+
+// INTERFACES
 import { type ExperienceBase } from "@/interfaces/experienceBase";
 
 export default class Scene_1 implements ExperienceBase {
-	private experience = new Experience();
+	private readonly experience = new Experience();
+	private readonly appCamera = this.experience.app.camera;
 	model?: GLTF;
-	modelGroup?: THREE.Group;
-	modelMeshes: { [name: string]: THREE.Mesh | undefined } = {};
+	modelGroup?: Group;
+	modelMeshes: { [name: string]: Mesh | undefined } = {};
+	cameraCurvePath = new CatmullRomCurve3([
+		new Vector3(0, 5.5, 21),
+		new Vector3(12, 10, 12),
+		new Vector3(21, 5.5, 0),
+		new Vector3(12, 3.7, 12),
+		new Vector3(0, 5.5, 21),
+	]);
 
 	constructor() {
 		const _ISOMETRIC_ROOM = this.experience.app.resources.items.scene_1_room as
@@ -26,7 +44,15 @@ export default class Scene_1 implements ExperienceBase {
 		}
 	}
 
-	construct() {}
+	construct() {
+		if (!this.appCamera.instance) return;
+
+		this.cameraCurvePath.getPointAt(0, this.appCamera.instance.position);
+		this.appCamera.instance.position.y += 8;
+		this.appCamera.instance.position.x -= 2;
+		this.appCamera.instance.position.z += 10;
+	}
+
 	destruct() {}
 
 	private setModelMeshes() {
@@ -35,32 +61,58 @@ export default class Scene_1 implements ExperienceBase {
 
 		if (!_TEXTURES_MESH_BASIC_MATERIALS) return;
 
-		console.log(
-			"this.modelGroup?.children ==>",
-			this.modelGroup?.children,
-			_TEXTURES_MESH_BASIC_MATERIALS
-		);
-
 		this.modelGroup?.children.forEach((child) => {
 			// Applying baked texture to Model
 			if (
-				child instanceof THREE.Mesh &&
+				child instanceof Mesh &&
 				child.name === "scene_1_room" &&
 				_TEXTURES_MESH_BASIC_MATERIALS.scene_1_room_baked_texture
-			) {
+			)
 				~(child.material =
 					_TEXTURES_MESH_BASIC_MATERIALS.scene_1_room_baked_texture);
-			}
 
 			// Applying custom texture to Models objects
 			if (
-				child instanceof THREE.Mesh &&
+				child instanceof Mesh &&
 				child.name === "pc-screen" &&
 				_TEXTURES_MESH_BASIC_MATERIALS.typescript_logo
-			) {
+			)
 				~((this.modelMeshes["pcScreen"] = child).material =
 					_TEXTURES_MESH_BASIC_MATERIALS.typescript_logo);
-			}
+		});
+	}
+
+	intro() {
+		const WORLD_CONTROLS = this.experience.world?.controls;
+
+		if (
+			!(WORLD_CONTROLS && this.appCamera.instance instanceof PerspectiveCamera)
+		)
+			return;
+
+		const { x, y, z } = WORLD_CONTROLS.cameraCurvePath.getPointAt(0);
+
+		GSAP.to(this.appCamera.instance.position, {
+			...this.experience.world?.controls?.getGsapDefaultProps(),
+			...GSAP_DEFAULT_INTRO_PROPS,
+			x,
+			y,
+			z,
+			delay: GSAP_DEFAULT_INTRO_PROPS.duration * 0.8,
+			onUpdate: () => {
+				WORLD_CONTROLS?.setCameraLookAt(WORLD_CONTROLS.initialLookAtPosition);
+			},
+			onComplete: () => {
+				setTimeout(() => {
+					if (this.experience.world?.controls) {
+						WORLD_CONTROLS?.getGsapDefaultProps().onComplete();
+
+						this.experience.world.controls.autoCameraAnimation = true;
+
+						console.log(this.appCamera.instance?.position);
+					}
+				}, 1000);
+			},
 		});
 	}
 }

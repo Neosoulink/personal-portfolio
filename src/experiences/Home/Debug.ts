@@ -1,3 +1,4 @@
+import { PerspectiveCamera } from "three";
 import GUI from "lil-gui";
 
 // EXPERIENCE
@@ -19,14 +20,12 @@ export default class Debug implements ExperienceBase {
 		}
 	})();
 
-	constructor() {
-		if (!Debug.debugMode) return;
-
-		this.gui = this.experience.app.debug?.ui?.addFolder(Experience.name);
-	}
+	constructor() {}
 
 	construct() {
 		if (this.gui) this.destruct();
+
+		this.gui = this.experience.app.debug?.ui?.addFolder(Experience.name);
 
 		if (!this.gui || !this.experience.world) return;
 
@@ -39,25 +38,38 @@ export default class Debug implements ExperienceBase {
 			.add(
 				{
 					fn: () => {
-						const _INTERACTIONS = this.experience.world?.controls;
-						if (_INTERACTIONS) _INTERACTIONS.cameraZoomIn();
+						const WORLD_CONTROLS = this.experience.world?.controls;
+						if (
+							!(
+								WORLD_CONTROLS &&
+								this.experience.app.camera.instance instanceof PerspectiveCamera
+							)
+						)
+							return;
+
+						this.experience.app.camera.instance.fov ===
+						this.experience.camera?.initialCameraFov
+							? WORLD_CONTROLS.cameraZoomIn()
+							: WORLD_CONTROLS.cameraZoomOut();
 					},
 				},
 				"fn"
 			)
-			.name("Camera zoom in");
+			.name("Toggle camera zoom");
 
 		this.gui
 			.add(
 				{
 					fn: () => {
-						const _INTERACTIONS = this.experience.world?.controls;
-						if (_INTERACTIONS) _INTERACTIONS.cameraZoomOut();
+						const WORLD_CONTROLS = this.experience.world?.controls;
+						if (WORLD_CONTROLS)
+							WORLD_CONTROLS.autoCameraAnimation =
+								!WORLD_CONTROLS.autoCameraAnimation;
 					},
 				},
 				"fn"
 			)
-			.name("Camera zoom out");
+			.name("Toggle auto camera animation");
 	}
 
 	destruct() {

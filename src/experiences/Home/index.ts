@@ -1,3 +1,4 @@
+import { PerspectiveCamera } from "three";
 import QuickThree from "quick-threejs";
 
 // EXPERIENCES

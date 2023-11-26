@@ -12,14 +12,11 @@ import Scene_3 from "./Scene_3";
 // INTERFACES
 import { type ExperienceBase } from "@/interfaces/experienceBase";
 
-// CONSTANTS
-import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
-
 export default class World extends EventEmitter implements ExperienceBase {
 	private readonly experience = new Experience();
 	controls?: Controls;
 
-	/** `Represent the Threejs `Group` containing the experience. */
+	/** Represent the Threejs `Group` containing the experience. */
 	scene?: THREE.Group;
 
 	scene_1?: Scene_1;
@@ -74,18 +71,6 @@ export default class World extends EventEmitter implements ExperienceBase {
 				this.scene.add(this.scene_1.modelGroup);
 			}
 
-			// CAMERA
-			this.experience.app.camera.instance.fov = this.initialCameraFov;
-			this.experience.app.camera.instance.far = 50;
-			this.experience.app.camera.instance.position.y += 8;
-			this.experience.app.camera.instance.position.x -= 2;
-			this.experience.app.camera.instance.position.z += 10;
-			this.experience.app.camera.miniCamera?.position.set(10, 8, 30);
-
-			if (this.experience.app.debug?.cameraControls)
-				this.experience.app.debug.cameraControls.target =
-					this.controls.initialLookAtPosition;
-
 			// ADD TO SCENE
 			this.scene.add(
 				this.controls.curvePathLine,
@@ -93,46 +78,9 @@ export default class World extends EventEmitter implements ExperienceBase {
 			);
 			this.experience.app.scene.add(this.scene);
 		});
-
-		this.experience.ui?.on("ready", () => {
-			this.intro();
-		});
 	}
 
 	update() {
 		this.controls?.update();
-	}
-
-	intro() {
-		if (
-			!(
-				this.controls &&
-				this.experience.app.camera.instance instanceof THREE.PerspectiveCamera
-			)
-		)
-			return;
-
-		const { x, y, z } = this.controls.cameraCurvePath.getPointAt(0);
-
-		GSAP.to(this.experience.app.camera.instance.position, {
-			...this.experience.world?.controls?.getGsapDefaultProps(),
-			...GSAP_DEFAULT_INTRO_PROPS,
-			x,
-			y,
-			z,
-			delay: GSAP_DEFAULT_INTRO_PROPS.duration * 0.8,
-			onUpdate: () => {
-				this.controls?.setCameraLookAt(this.controls.initialLookAtPosition);
-			},
-			onComplete: () => {
-				setTimeout(() => {
-					if (this.experience.world?.controls) {
-						this.controls?.getGsapDefaultProps().onComplete();
-
-						this.experience.world.controls.autoCameraAnimation = true;
-					}
-				}, 1000);
-			},
-		});
 	}
 }

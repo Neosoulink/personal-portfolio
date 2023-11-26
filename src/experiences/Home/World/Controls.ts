@@ -246,7 +246,7 @@ export default class Controls implements ExperienceBase {
 	cameraZoomOut() {
 		if (this.experience.app?.camera.instance instanceof THREE.PerspectiveCamera)
 			GSAP.to(this.experience.app?.camera.instance, {
-				fov: this.experience.world?.initialCameraFov ?? 0,
+				fov: this.experience.camera?.initialCameraFov ?? 0,
 			});
 	}
 
@@ -317,31 +317,31 @@ export default class Controls implements ExperienceBase {
 
 			this.focusedPosition = new THREE.Vector3().copy(whereToLookAt);
 
-			GSAP.to(this.experience.app?.camera.instance.position, {
-				...this.getGsapDefaultProps(),
-				x: cameraToPosition.x,
-				y: cameraToPosition.y,
-				z: cameraToPosition.z,
-				duration: 1.5,
-				onStart: () => {
-					this.getGsapDefaultProps().onStart();
-					this.autoCameraAnimation = false;
-				},
-				onUpdate: () => {
-					const _LERP_POSITION = this.getLerpPosition(
-						fromWhereToLooAt,
-						this.getFocusedLookAtPosition(),
-						_lerpProgress
-					);
-					_lerpProgress += 0.015;
+			// GSAP.to(this.experience.app?.camera.instance.position, {
+			// 	...this.getGsapDefaultProps(),
+			// 	x: cameraToPosition.x,
+			// 	y: cameraToPosition.y,
+			// 	z: cameraToPosition.z,
+			// 	duration: 1.5,
+			// 	onStart: () => {
+			// 		this.getGsapDefaultProps().onStart();
+			// 		this.autoCameraAnimation = false;
+			// 	},
+			// 	onUpdate: () => {
+			// 		const _LERP_POSITION = this.getLerpPosition(
+			// 			fromWhereToLooAt,
+			// 			this.getFocusedLookAtPosition(),
+			// 			_lerpProgress
+			// 		);
+			// 		_lerpProgress += 0.015;
 
-					this.cameraLookAtPosition.copy(_LERP_POSITION);
-					this.setCameraLookAt(_LERP_POSITION);
-				},
-				onComplete: () => {
-					this.getGsapDefaultProps().onComplete();
-				},
-			});
+			// 		this.cameraLookAtPosition.copy(_LERP_POSITION);
+			// 		this.setCameraLookAt(_LERP_POSITION);
+			// 	},
+			// 	onComplete: () => {
+			// 		this.getGsapDefaultProps().onComplete();
+			// 	},
+			// });
 		}
 	}
 
