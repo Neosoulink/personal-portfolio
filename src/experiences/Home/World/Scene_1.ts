@@ -35,12 +35,11 @@ export default class Scene_1 extends SceneFactory {
 		const _ISOMETRIC_ROOM = this._experience.app.resources.items
 			.scene_1_room as GLTF | undefined;
 
-		if (_ISOMETRIC_ROOM?.scene) {
-			this.model = _ISOMETRIC_ROOM;
-			this.modelGroup = this.model.scene;
+		if (!_ISOMETRIC_ROOM?.scene) return;
 
-			this.setModelMeshes();
-		}
+		this.group = new Group();
+		this.model = _ISOMETRIC_ROOM;
+		this.modelGroup = this.model.scene;
 	}
 
 	construct() {
@@ -50,9 +49,16 @@ export default class Scene_1 extends SceneFactory {
 		this._appCamera.instance.position.y += 8;
 		this._appCamera.instance.position.x -= 2;
 		this._appCamera.instance.position.z += 10;
+
+		this.setModelMeshes();
+		this.modelGroup && this.group?.add(this.modelGroup);
+		this.emit("constructed");
 	}
 
-	destruct() {}
+	destruct() {
+		this.emit("destructed");
+		this.group?.clear();
+	}
 
 	private setModelMeshes() {
 		const _TEXTURES_MESH_BASIC_MATERIALS =

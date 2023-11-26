@@ -41,14 +41,7 @@ export default class Controls implements ExperienceBase {
 		target: 0,
 		ease: 0.1,
 	};
-	curvePathLine = new THREE.Line(
-		new THREE.BufferGeometry().setFromPoints(
-			this.cameraCurvePath.getPoints(50)
-		),
-		new THREE.LineBasicMaterial({
-			color: 0xff0000,
-		})
-	);
+
 	/**
 	 * Where the camera will look at.
 	 */

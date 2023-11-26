@@ -1,4 +1,10 @@
-import { PerspectiveCamera } from "three";
+import {
+	BufferGeometry,
+	Line,
+	LineBasicMaterial,
+	PerspectiveCamera,
+	Vector3,
+} from "three";
 import GUI from "lil-gui";
 
 // EXPERIENCE
@@ -8,11 +14,11 @@ import Experience from ".";
 import { type ExperienceBase } from "@/interfaces/experienceBase";
 
 export default class Debug implements ExperienceBase {
-	private experience = new Experience();
+	protected readonly _experience = new Experience();
 	/** Graphic user interface of the experience instance */
-	gui?: GUI;
+	protected _gui?: GUI;
 	/** Running experience in debug mode*/
-	static debugMode = (() => {
+	static readonly enable = (() => {
 		try {
 			return window?.location?.hash === "#debug";
 		} catch (_) {
@@ -20,35 +26,46 @@ export default class Debug implements ExperienceBase {
 		}
 	})();
 
+	protected readonly _cameraCurvePathLine = new Line(
+		new BufferGeometry().setFromPoints(
+			[...Array(3).keys()].map(() => new Vector3(0, 0, 0))
+		),
+		new LineBasicMaterial({
+			color: 0xff0000,
+		})
+	);
+
 	constructor() {}
 
 	construct() {
-		if (this.gui) this.destruct();
+		if (!Debug.enable) return;
+		if (this._gui) this.destruct();
 
-		this.gui = this.experience.app.debug?.ui?.addFolder(Experience.name);
+		this._gui = this._experience.app.debug?.ui?.addFolder(Experience.name);
 
-		if (!this.gui || !this.experience.world) return;
+		if (!this._gui || !this._experience.world) return;
 
-		this.gui.add(
-			{ destruct_experience: () => this.experience?.destruct() },
+		this._gui.add(
+			{ destruct_experience: () => this._experience?.destruct() },
 			"destruct_experience"
 		);
 
-		this.gui
+		this._gui
 			.add(
 				{
 					fn: () => {
-						const WORLD_CONTROLS = this.experience.world?.controls;
+						const WORLD_CONTROLS = this._experience.world?.controls;
 						if (
 							!(
 								WORLD_CONTROLS &&
-								this.experience.app.camera.instance instanceof PerspectiveCamera
+								this._experience.app.camera.instance instanceof
+									PerspectiveCamera
 							)
 						)
 							return;
 
-						this.experience.app.camera.instance.fov ===
-						this.experience.camera?.initialCameraFov
+						this._experience.app.camera.instance.fov ===
+						this._experience.camera?.initialCameraFov
 							? WORLD_CONTROLS.cameraZoomIn()
 							: WORLD_CONTROLS.cameraZoomOut();
 					},
@@ -57,11 +74,11 @@ export default class Debug implements ExperienceBase {
 			)
 			.name("Toggle camera zoom");
 
-		this.gui
+		this._gui
 			.add(
 				{
 					fn: () => {
-						const WORLD_CONTROLS = this.experience.world?.controls;
+						const WORLD_CONTROLS = this._experience.world?.controls;
 						if (WORLD_CONTROLS)
 							WORLD_CONTROLS.autoCameraAnimation =
 								!WORLD_CONTROLS.autoCameraAnimation;
@@ -70,20 +87,41 @@ export default class Debug implements ExperienceBase {
 				"fn"
 			)
 			.name("Toggle auto camera animation");
+
+		this._gui
+			.add(
+				{
+					fn: () => {
+						this._experience.world?.nextScene();
+					},
+				},
+				"fn"
+			)
+			.name("Next Scene");
+
+		this._experience.app.scene.add(this._cameraCurvePathLine);
 	}
 
 	destruct() {
-		if (!this?.gui) return;
+		if (!Debug.enable) return;
 
-		this.gui.destroy();
-		this.gui = undefined;
+		~(() => {
+			if (!this?._gui) return;
+			this._gui.destroy();
+			this._gui = undefined;
+		})();
+
+		~(() => {
+			this._experience.app.scene.remove(this._cameraCurvePathLine);
+			this._cameraCurvePathLine.clear();
+		})();
 
 		// TODO: find a way to construct the project from `Debug` class
-		// if (!this.experience.world) {
-		// 	this.gui?.add(
+		// if (!this._experience.world) {
+		// 	this._gui?.add(
 		// 		{
 		// 			construct_experience: () => {
-		// 				this.experience?.construct();
+		// 				this._experience?.construct();
 		// 				this.construct();
 		// 			},
 		// 		},
