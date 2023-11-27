@@ -54,9 +54,9 @@ class HomeExperience implements ExperienceBase {
 		this.app = new QuickThree(
 			{
 				enableDebug: true,
-				axesSizes: Debug.debugMode ? 5 : undefined,
-				gridSizes: Debug.debugMode ? 30 : undefined,
-				withMiniCamera: Debug.debugMode,
+				axesSizes: Debug.enable ? 5 : undefined,
+				gridSizes: Debug.enable ? 30 : undefined,
+				withMiniCamera: Debug.enable,
 				camera: "Perspective",
 			},
 			props?.domElementRef
@@ -90,7 +90,7 @@ class HomeExperience implements ExperienceBase {
 	}
 
 	construct() {
-		if (this.world?.scene) this.destruct();
+		if (this.world?.currentSceneIndex !== undefined) this.destruct();
 
 		this.renderer?.construct();
 		this.ui?.construct();
