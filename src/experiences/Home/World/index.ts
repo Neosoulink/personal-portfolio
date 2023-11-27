@@ -74,44 +74,39 @@ export default class World extends EventEmitter implements ExperienceBase {
 	}
 
 	public nextScene() {
-		if (!this.scenes || !this.scenes.length) return;
-		const PREV_INDEX = this.currentSceneIndex;
+		try {
+			if (!this.scenes || !this.scenes.length) return;
 
-		if (
-			this.currentSceneIndex === undefined ||
-			this.currentSceneIndex + 2 > this.scenes.length
-		)
-			this.currentSceneIndex = 0;
-		else if (this.currentSceneIndex + 2 <= this.scenes.length)
-			this.currentSceneIndex += 1;
+			const PREV_INDEX = this.currentSceneIndex;
 
-		const CurrentScene = this.scenes[this.currentSceneIndex];
+			~(() => {
+				if (
+					typeof this.currentSceneIndex === "number" &&
+					this.currentSceneIndex + 2 <= this.scenes.length
+				)
+					this.currentSceneIndex += 1;
+				else this.currentSceneIndex = 0;
+			})();
 
-		if (PREV_INDEX === undefined) {
-			CurrentScene.construct();
-			CurrentScene.group && this.group?.add(CurrentScene.group);
+			~(() => {
+				const PrevScene =
+					typeof PREV_INDEX === "number" ? this.scenes[PREV_INDEX] : PREV_INDEX;
+				const CurrentScene = this.scenes[this.currentSceneIndex];
 
-			const onLoad = () => {
-				CurrentScene.intro();
-				this._experience.loader?.off("load", onLoad);
-			};
+				const constructCurrentScene = () => {
+					CurrentScene.construct();
+					CurrentScene.group && this.group?.add(CurrentScene.group);
+					PrevScene?.off("destructed", constructCurrentScene);
+				};
 
-			this._experience.ui?.on("ready", onLoad);
-		} else if (PREV_INDEX >= 0 && PREV_INDEX <= 2) {
-			const PrevScene = this.scenes[PREV_INDEX];
-			PrevScene.group && this.group?.remove(PrevScene.group);
-			CurrentScene.construct();
-
-			const onDestructed = () => {
-				console.log("destructed here", CurrentScene);
-				CurrentScene.group && this.group?.add(CurrentScene.group);
-				CurrentScene.intro();
-
-				PrevScene.off("destructed", onDestructed);
-			};
-
-			PrevScene.destruct();
-			PrevScene.on("destructed", onDestructed);
+				if (PrevScene) {
+					PrevScene.on("destructed", constructCurrentScene);
+					PrevScene.destruct();
+				} else constructCurrentScene();
+			})();
+		} catch (error) {
+			// TODO: Add an error handler
+			console.error(`🚧 ${World.name}->${this.nextScene.name}`, error);
 		}
 	}
 
