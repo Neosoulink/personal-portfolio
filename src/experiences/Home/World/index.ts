@@ -66,7 +66,6 @@ export default class World extends EventEmitter implements ExperienceBase {
 
 			this.controls = new Controls();
 
-			// ADD TO SCENE
 			this.group.add(this.controls.cameraLookAtPointIndicator);
 			this._experience.app.scene.add(this.group);
 			this.nextScene();
@@ -95,12 +94,18 @@ export default class World extends EventEmitter implements ExperienceBase {
 
 				const constructCurrentScene = () => {
 					CurrentScene.construct();
-					CurrentScene.group && this.group?.add(CurrentScene.group);
-					PrevScene?.off("destructed", constructCurrentScene);
+					PrevScene?.off(
+						PrevScene.eventListNames.destructed,
+						constructCurrentScene
+					);
 				};
 
 				if (PrevScene) {
-					PrevScene.on("destructed", constructCurrentScene);
+					PrevScene.on(
+						PrevScene.eventListNames.destructed,
+						constructCurrentScene
+					);
+
 					PrevScene.destruct();
 				} else constructCurrentScene();
 			})();

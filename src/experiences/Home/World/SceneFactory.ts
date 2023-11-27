@@ -1,4 +1,5 @@
-import type { CatmullRomCurve3, Group } from "three";
+import { Group, type CatmullRomCurve3 } from "three";
+import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import EventEmitter from "events";
 
 // EXPERIENCES
@@ -16,6 +17,12 @@ export abstract class SceneFactory
 	implements ExperienceBase
 {
 	protected readonly _experience = new HomeExperience();
+	protected readonly _appCamera = this._experience.app.camera;
+	public readonly eventListNames = {
+		constructed: "constructed",
+		destructed: "destructed",
+	};
+	public model?: GLTF;
 	public group?: Group;
 	public cameraPath: CatmullRomCurve3;
 
@@ -27,6 +34,7 @@ export abstract class SceneFactory
 	public abstract construct(): unknown;
 	public abstract destruct(): unknown;
 	public abstract update(): unknown;
-	public abstract intro(): unknown;
-	public abstract outro(): unknown;
+	protected abstract intro(): unknown;
+	protected abstract outro(): unknown;
+	protected abstract _setModelMeshes(): void;
 }

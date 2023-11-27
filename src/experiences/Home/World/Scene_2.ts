@@ -1,15 +1,8 @@
-import {
-	CatmullRomCurve3,
-	Group,
-	Mesh,
-	PerspectiveCamera,
-	Vector3,
-} from "three";
+import { CatmullRomCurve3, Mesh, PerspectiveCamera, Vector3 } from "three";
 import { type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import GSAP from "gsap";
 
 // EXPERIENCES
-import Experience from "..";
 import { SceneFactory } from "./SceneFactory";
 
 // CONSTANTS
@@ -17,56 +10,56 @@ import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
 
 export default class Scene_2 extends SceneFactory {
 	protected readonly _appCamera = this._experience.app.camera;
-	public model?: GLTF;
-	public modelGroup?: Group;
 	public modelMeshes: { [name: string]: Mesh | undefined } = {};
 
 	constructor() {
-		super({
-			cameraPath: new CatmullRomCurve3([
-				new Vector3(0, 5.5, 21),
-				new Vector3(12, 10, 12),
-				new Vector3(21, 5.5, 0),
-				new Vector3(12, 3.7, 12),
-				new Vector3(0, 5.5, 21),
-			]),
-		});
-
-		const _ISOMETRIC_ROOM = this._experience.app.resources.items
-			.scene_1_room as GLTF | undefined;
-
-		if (!_ISOMETRIC_ROOM?.scene) return;
-
-		this.group = new Group();
-		this.model = _ISOMETRIC_ROOM;
-		this.modelGroup = this.model.scene;
+		try {
+			super({
+				cameraPath: new CatmullRomCurve3([
+					new Vector3(0, 5.5, 21),
+					new Vector3(12, 10, 12),
+					new Vector3(21, 5.5, 0),
+					new Vector3(12, 3.7, 12),
+					new Vector3(0, 5.5, 21),
+				]),
+			});
+		} catch (error) {}
 	}
 
 	construct() {
 		if (!this._appCamera.instance) return;
+
+		const ISOMETRIC_ROOM = this._experience.app.resources.items.scene_1_room as
+			| GLTF
+			| undefined;
 
 		this.cameraPath.getPointAt(0, this._appCamera.instance.position);
 		this._appCamera.instance.position.y += 8;
 		this._appCamera.instance.position.x -= 2;
 		this._appCamera.instance.position.z += 10;
 
-		this.setModelMeshes();
-		this.modelGroup && this.group?.add(this.modelGroup);
+		this.model = ISOMETRIC_ROOM;
+		this.group = this.model?.scene.clone();
+		this.group && this._experience.world?.group?.add(this.group);
+
+		this._setModelMeshes();
 		this.emit("constructed");
 	}
 
 	destruct() {
 		this.group?.clear();
-		this.emit("destructed");
+		this.group?.removeFromParent();
+
+		this.emit(this.eventListNames.destructed);
 	}
 
-	private setModelMeshes() {
+	protected _setModelMeshes(): void {
 		const _TEXTURES_MESH_BASIC_MATERIALS =
 			this._experience.loader?.texturesMeshBasicMaterials;
 
 		if (!_TEXTURES_MESH_BASIC_MATERIALS) return;
 
-		this.modelGroup?.children.forEach((child) => {
+		this.group?.children.forEach((child) => {
 			// Applying baked texture to Model
 			if (
 				child instanceof Mesh &&
@@ -87,7 +80,7 @@ export default class Scene_2 extends SceneFactory {
 		});
 	}
 
-	public intro(): void {
+	protected intro(): void {
 		const WORLD_CONTROLS = this._experience.world?.controls;
 
 		if (
@@ -121,7 +114,7 @@ export default class Scene_2 extends SceneFactory {
 		});
 	}
 
-	public outro(): void {}
+	protected outro(): void {}
 
 	public update(): void {}
 }
