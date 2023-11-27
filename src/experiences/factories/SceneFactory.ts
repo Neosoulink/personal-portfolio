@@ -3,10 +3,10 @@ import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import EventEmitter from "events";
 
 // EXPERIENCES
-import HomeExperience from "..";
+import HomeExperience from "@/experiences/pages/Home";
 
 // INTERFACES
-import { type ExperienceBase } from "@/interfaces/experienceBase";
+import { type ExperienceBase } from "@interfaces/experienceBase";
 
 export interface SceneFactoryProps {
 	cameraPath: CatmullRomCurve3;

@@ -7,7 +7,7 @@ import Controls from "./Controls";
 import Scene_1 from "./Scene_1";
 import Scene_2 from "./Scene_2";
 import Scene_3 from "./Scene_3";
-import { SceneFactory } from "./SceneFactory";
+import { SceneFactory } from "@/experiences/factories/SceneFactory";
 
 // INTERFACES
 import { type ExperienceBase } from "@/interfaces/experienceBase";

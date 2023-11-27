@@ -3,12 +3,12 @@ import { type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import GSAP from "gsap";
 
 // EXPERIENCES
-import { SceneFactory } from "./SceneFactory";
+import { SceneFactory } from "@/experiences/factories/SceneFactory";
 
 // CONSTANTS
 import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
 
-export default class Scene_3 extends SceneFactory {
+export default class Scene_1 extends SceneFactory {
 	protected readonly _appCamera = this._experience.app.camera;
 	public modelMeshes: { [name: string]: Mesh | undefined } = {};
 

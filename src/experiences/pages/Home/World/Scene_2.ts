@@ -3,7 +3,7 @@ import { type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import GSAP from "gsap";
 
 // EXPERIENCES
-import { SceneFactory } from "./SceneFactory";
+import { SceneFactory } from "@/experiences/factories/SceneFactory";
 
 // CONSTANTS
 import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";

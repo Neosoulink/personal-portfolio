@@ -1,12 +1,8 @@
 import { CatmullRomCurve3, PerspectiveCamera, Vector3 } from "three";
-import GSAP from "gsap";
 
 // EXPERIENCES
 import HomeExperience from ".";
 import Debug from "./Debug";
-
-// CONSTANTS
-import { GSAP_DEFAULT_INTRO_PROPS } from "./../../constants/ANIMATION";
 
 // INTERFACES
 import { type ExperienceBase } from "@/interfaces/experienceBase";
@@ -20,7 +16,7 @@ export class Camera implements ExperienceBase {
 	constructor() {}
 
 	construct() {
-		if (!Debug.debugMode && this.experience.app.debug?.cameraHelper) {
+		if (!Debug.enable && this.experience.app.debug?.cameraHelper) {
 			this.experience.app.scene.remove(this.experience.app.debug?.cameraHelper);
 			this.experience.app.debug?.cameraHelper?.remove();
 			this.experience.app.debug?.cameraHelper?.dispose();

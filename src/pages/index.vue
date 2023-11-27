@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 // EXPERIENCES
-import HomeExperience from "@/experiences/Home";
+import HomeExperience from "@/experiences/pages/Home";
 
 // CONSTANTS
 import { HOME_DOM_REF } from "@/constants/UI";

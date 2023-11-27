@@ -3,13 +3,14 @@
 	"extends": "./.nuxt/tsconfig.json",
 	"compilerOptions": {
 		"types": ["node"],
+		"baseUrl": "./src",
 		"paths": {
-			"@/*": ["./src/*"],
-			"@exp_factories/*": ["./src/experiences/factories/*"],
-			"@exp_errors/*": ["./src/experiences/errors/*"],
-			"@exp_pages/*": ["./src/experiences/pages/*"],
-			"@interfaces/*": ["./src/interfaces/*"],
-			"@constants/*": ["./src/constants/*"]
+			"@/*": ["./*"],
+			"@exp_factories/*": ["./experiences/factories/*"],
+			"@exp_errors/*": ["./experiences/errors/*"],
+			"@exp_pages/*": ["./experiences/pages/*"],
+			"@interfaces/*": ["./interfaces/*"],
+			"@constants/*": ["./constants/*"]
 		}
 	}
 }
