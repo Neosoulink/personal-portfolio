@@ -4,7 +4,11 @@
 	"compilerOptions": {
 		"types": ["node"],
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"@exp_factories/*": ["./src/experiences/factories/*"],
+			"@exp_errors/*": ["./src/experiences/errors/*"],
+			"@exp_pages/*": ["./src/experiences/pages/*"],
+			"@interfaces/*": ["./src/interfaces"],
 		}
 	}
 }
