@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import { Group, Mesh, PerspectiveCamera } from "three";
 import EventEmitter from "events";
 
 // EXPERIENCE
@@ -19,7 +19,7 @@ export default class World extends EventEmitter implements ExperienceBase {
 	public scenes?: SceneFactory[] = [];
 	public currentSceneIndex?: number;
 	/** Represent the ThreeJs `Group` containing the experience. */
-	public group?: THREE.Group;
+	public group?: Group;
 
 	constructor() {
 		super();
@@ -28,7 +28,7 @@ export default class World extends EventEmitter implements ExperienceBase {
 	public destruct() {
 		if (this.group) {
 			this.group.traverse((child) => {
-				if (child instanceof THREE.Mesh) {
+				if (child instanceof Mesh) {
 					child.geometry.dispose();
 
 					for (const key in child.material) {
@@ -53,20 +53,13 @@ export default class World extends EventEmitter implements ExperienceBase {
 
 	public construct() {
 		this._experience.loader?.on("load", () => {
-			if (
-				!(
-					this._experience.app.camera.instance instanceof
-					THREE.PerspectiveCamera
-				)
-			)
+			if (!(this._experience.app.camera.instance instanceof PerspectiveCamera))
 				return;
 
-			this.group = new THREE.Group();
-			this.scenes?.push(new Scene_1(), new Scene_2(), new Scene_3());
-
+			this.group = new Group();
 			this.controls = new Controls();
 
-			this.group.add(this.controls.cameraLookAtPointIndicator);
+			this.scenes?.push(new Scene_1(), new Scene_2(), new Scene_3());
 			this._experience.app.scene.add(this.group);
 			this.nextScene();
 		});

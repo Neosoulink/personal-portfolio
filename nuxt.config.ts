@@ -22,4 +22,9 @@ export default defineNuxtConfig({
 		},
 	},
 	srcDir: "./src",
+	runtimeConfig: {
+		public: {
+			env: process.env.MODE,
+		},
+	},
 });

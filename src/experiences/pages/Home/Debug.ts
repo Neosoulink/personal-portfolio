@@ -2,7 +2,10 @@ import {
 	BufferGeometry,
 	Line,
 	LineBasicMaterial,
+	Mesh,
+	MeshBasicMaterial,
 	PerspectiveCamera,
+	SphereGeometry,
 	Vector3,
 } from "three";
 import GUI from "lil-gui";
@@ -15,40 +18,42 @@ import { type ExperienceBase } from "@/interfaces/experienceBase";
 
 export default class Debug implements ExperienceBase {
 	protected readonly _experience = new Experience();
+	protected readonly _appDebug = this._experience.app.debug;
+	protected readonly _appCamera = this._experience.app.camera;
+
 	/** Graphic user interface of the experience instance */
 	protected _gui?: GUI;
-	/** Running experience in debug mode*/
+	/** Indicate where the camera is looking at. */
+	protected cameraLookAtPointIndicator?: Mesh;
+	/** Running experience in debug mode */
 	static readonly enable = (() => {
 		try {
-			return window?.location?.hash === "#debug";
+			return useRuntimeConfig().public.env === "development";
 		} catch (_) {
 			return false;
 		}
 	})();
 
-	protected readonly _cameraCurvePathLine = new Line(
-		new BufferGeometry().setFromPoints(
-			[...Array(3).keys()].map(() => new Vector3(0, 0, 0))
-		),
-		new LineBasicMaterial({
-			color: 0xff0000,
-		})
-	);
+	protected _cameraCurvePathLine?: Line;
 
 	constructor() {}
 
 	construct() {
-		if (!Debug.enable) return;
+		if (!Debug.enable) {
+			this._appDebug?.ui?.destroy();
+			return;
+		}
+
 		if (this._gui) this.destruct();
 
 		this._gui = this._experience.app.debug?.ui?.addFolder(Experience.name);
 
 		if (!this._gui || !this._experience.world) return;
 
-		this._gui.add(
-			{ destruct_experience: () => this._experience?.destruct() },
-			"destruct_experience"
-		);
+		// this._gui.add(
+		// 	{ destruct_experience: () => this._experience?.destruct() },
+		// 	"destruct_experience"
+		// );
 
 		this._gui
 			.add(
@@ -66,8 +71,8 @@ export default class Debug implements ExperienceBase {
 
 						this._experience.app.camera.instance.fov ===
 						this._experience.camera?.initialCameraFov
-							? WORLD_CONTROLS.cameraZoomIn()
-							: WORLD_CONTROLS.cameraZoomOut();
+							? this._experience.camera.cameraZoomIn()
+							: this._experience.camera?.cameraZoomOut();
 					},
 				},
 				"fn"
@@ -99,7 +104,23 @@ export default class Debug implements ExperienceBase {
 			)
 			.name("Next Scene");
 
-		this._experience.app.scene.add(this._cameraCurvePathLine);
+		this.cameraLookAtPointIndicator = new Mesh(
+			new SphereGeometry(0.1, 12, 12),
+			new MeshBasicMaterial({ color: "#ff0040" })
+		);
+		this._cameraCurvePathLine = new Line(
+			new BufferGeometry().setFromPoints(
+				[...Array(3).keys()].map(() => new Vector3(0, 0, 0))
+			),
+			new LineBasicMaterial({
+				color: 0xff0000,
+			})
+		);
+
+		this._experience.app.scene.add(
+			this._cameraCurvePathLine,
+			this.cameraLookAtPointIndicator
+		);
 	}
 
 	destruct() {
@@ -112,8 +133,9 @@ export default class Debug implements ExperienceBase {
 		})();
 
 		~(() => {
-			this._experience.app.scene.remove(this._cameraCurvePathLine);
-			this._cameraCurvePathLine.clear();
+			this._cameraCurvePathLine &&
+				this._experience.app.scene.remove(this._cameraCurvePathLine);
+			this._cameraCurvePathLine?.clear();
 		})();
 
 		// TODO: find a way to construct the project from `Debug` class
@@ -128,5 +150,13 @@ export default class Debug implements ExperienceBase {
 		// 		"construct_experience"
 		// 	);
 		// }
+	}
+
+	update() {
+		this._appCamera?.instance &&
+			this._experience.camera &&
+			this.cameraLookAtPointIndicator?.position.copy(
+				this._experience.camera.lookAtPosition
+			);
 	}
 }

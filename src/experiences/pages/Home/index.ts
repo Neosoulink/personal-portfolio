@@ -106,6 +106,8 @@ class HomeExperience implements ExperienceBase {
 
 	update() {
 		this.world?.update();
+		this.camera?.update();
+		this.debug?.update();
 	}
 }
 

@@ -3,22 +3,15 @@ import GSAP from "gsap";
 
 // EXPERIENCE
 import Experience from "..";
+import { Camera } from "../Camera";
 
 // INTERFACES
 import { type ExperienceBase } from "@/interfaces/experienceBase";
 
 export default class Controls implements ExperienceBase {
-	private experience = new Experience();
+	protected readonly _experience = new Experience();
+
 	rayCaster = new THREE.Raycaster();
-	/**
-	 * Indicate where the camera is looking at.
-	 *
-	 * @deprecated Should remove in prod.
-	 */
-	cameraLookAtPointIndicator = new THREE.Mesh(
-		new THREE.SphereGeometry(0.1, 12, 12),
-		new THREE.MeshBasicMaterial({ color: "#ff0040" })
-	);
 	normalizedCursorPosition = { x: 0, y: 0 };
 	initialLookAtPosition = new THREE.Vector3(0, 2, 0);
 
@@ -76,11 +69,11 @@ export default class Controls implements ExperienceBase {
 
 	constructor() {
 		if (
-			this.experience.app?.camera.instance instanceof THREE.PerspectiveCamera
+			this._experience.app?.camera.instance instanceof THREE.PerspectiveCamera
 		) {
 			this.cameraCurvePath.getPointAt(
 				0,
-				this.experience.app?.camera.instance.position
+				this._experience.app?.camera.instance.position
 			);
 		}
 
@@ -130,13 +123,13 @@ export default class Controls implements ExperienceBase {
 				this.cameraCurvePathProgress.current,
 				this.cameraCurvePosition
 			);
-			this.experience.app?.camera.instance?.position.copy(
+			this._experience.app?.camera.instance?.position.copy(
 				this.cameraCurvePosition
 			);
 		}
 
 		if (
-			this.experience.app?.camera.instance &&
+			this._experience.app?.camera.instance &&
 			!this.autoCameraAnimation &&
 			this.focusedPosition &&
 			!this.isGsapAnimating
@@ -152,11 +145,11 @@ export default class Controls implements ExperienceBase {
 			(this.normalizedCursorPosition.y * Math.PI - this.focusedAngleY) * 0.1;
 
 		if (this.autoCameraAnimation || !this.isGsapAnimating)
-			this.setCameraLookAt(this.cameraLookAtPosition);
+			this._experience.camera?.setCameraLookAt(this.cameraLookAtPosition);
 	}
 
 	updateModelBubblesDomElements() {
-		const _CAMERA = this.experience.app?.camera.instance;
+		const _CAMERA = this._experience.app?.camera.instance;
 		if (!(_CAMERA instanceof THREE.PerspectiveCamera)) return;
 
 		for (const bubble of this.modelBubbles) {
@@ -165,10 +158,10 @@ export default class Controls implements ExperienceBase {
 				screenPosition.project(_CAMERA);
 
 				const translateX =
-					screenPosition.x * this.experience.app.sizes.width * 0.5;
+					screenPosition.x * this._experience.app.sizes.width * 0.5;
 				const translateY = -(
 					screenPosition.y *
-					this.experience.app.sizes.height *
+					this._experience.app.sizes.height *
 					0.5
 				);
 				bubble.DOMelement.style.transform = `translate(${translateX}px, ${translateY}px)`;
@@ -206,9 +199,9 @@ export default class Controls implements ExperienceBase {
 
 			if (!this.autoCameraAnimation) {
 				this.normalizedCursorPosition.x =
-					e.clientX / this.experience.app?.sizes.width - 0.5;
+					e.clientX / this._experience.app?.sizes.width - 0.5;
 				this.normalizedCursorPosition.y =
-					e.clientY / this.experience.app?.sizes.height - 0.5;
+					e.clientY / this._experience.app?.sizes.height - 0.5;
 			}
 
 			this.lastMouseCoordinate = { x: e.clientX, y: e.clientY };
@@ -218,33 +211,21 @@ export default class Controls implements ExperienceBase {
 	setMouseDownEventListener() {
 		window.addEventListener("mousedown", () => {
 			this.mouseDowned = true;
-			if (this.focusedPosition && !this.mouseOverBubble) this.cameraZoomIn();
+			if (this.focusedPosition && !this.mouseOverBubble)
+				this._experience.camera?.cameraZoomIn();
 		});
 	}
 
 	setMouseUpEventListener() {
 		window.addEventListener("mouseup", () => {
 			this.mouseDowned = false;
-			if (this.focusedPosition && !this.mouseOverBubble) this.cameraZoomOut();
+			if (this.focusedPosition && !this.mouseOverBubble)
+				this._experience.camera?.cameraZoomOut();
 		});
 	}
 
-	cameraZoomIn() {
-		if (this.experience.app?.camera.instance instanceof THREE.PerspectiveCamera)
-			GSAP.to(this.experience.app?.camera.instance, {
-				fov: 25,
-			});
-	}
-
-	cameraZoomOut() {
-		if (this.experience.app?.camera.instance instanceof THREE.PerspectiveCamera)
-			GSAP.to(this.experience.app?.camera.instance, {
-				fov: this.experience.camera?.initialCameraFov ?? 0,
-			});
-	}
-
 	getFocusedLookAtPosition(position = this.focusedPosition) {
-		if (!(position && this.experience.app?.camera.instance))
+		if (!(position && this._experience.app?.camera.instance))
 			return new THREE.Vector3();
 
 		return new THREE.Vector3(
@@ -252,7 +233,7 @@ export default class Controls implements ExperienceBase {
 				this.focusedRadius *
 					Math.cos(
 						this.focusedAngleX -
-							this.experience.app?.camera.instance.rotation.y +
+							this._experience.app?.camera.instance.rotation.y +
 							Math.PI * 0.5
 					),
 			position.y - this.focusedRadius * Math.sin(this.focusedAngleY),
@@ -260,7 +241,7 @@ export default class Controls implements ExperienceBase {
 				this.focusedRadius *
 					Math.sin(
 						this.focusedAngleX -
-							this.experience.app?.camera.instance.rotation.y +
+							this._experience.app?.camera.instance.rotation.y +
 							Math.PI * 0.5
 					)
 		);
@@ -305,12 +286,12 @@ export default class Controls implements ExperienceBase {
 		whereToLookAt = new THREE.Vector3(),
 		fromWhereToLooAt = this.initialLookAtPosition
 	) {
-		if (this.experience.app?.camera.instance) {
+		if (this._experience.app?.camera.instance) {
 			let _lerpProgress = 0;
 
 			this.focusedPosition = new THREE.Vector3().copy(whereToLookAt);
 
-			// GSAP.to(this.experience.app?.camera.instance.position, {
+			// GSAP.to(this._experience.app?.camera.instance.position, {
 			// 	...this.getGsapDefaultProps(),
 			// 	x: cameraToPosition.x,
 			// 	y: cameraToPosition.y,
@@ -341,13 +322,13 @@ export default class Controls implements ExperienceBase {
 	/**
 	 * Set the camera look at position
 	 * @param v3 Vector 3 position where the the camera should look at
+	 *
+	 * @deprecated Use {@link Camera Camera#setCameraLookAt}.
 	 */
 	setCameraLookAt(v3: THREE.Vector3) {
-		this.experience.app?.camera.instance?.lookAt(v3);
+		this._experience.app?.camera.instance?.lookAt(v3);
 
-		if (this.experience.app?.debug?.cameraControls)
-			this.experience.app.debug.cameraControls.target = v3;
-
-		this.cameraLookAtPointIndicator.position.copy(v3);
+		if (this._experience.app?.debug?.cameraControls)
+			this._experience.app.debug.cameraControls.target = v3;
 	}
 }
