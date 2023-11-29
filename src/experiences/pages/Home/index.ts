@@ -1,6 +1,3 @@
-import { PerspectiveCamera } from "three";
-import QuickThree from "quick-threejs";
-
 // EXPERIENCES
 import Renderer from "./Renderer";
 import Loader from "./Loader";
@@ -9,33 +6,13 @@ import World from "./World";
 import UI from "./UI";
 import Debug from "./Debug";
 
-// INTERFACES
-import { type ExperienceBase } from "@/interfaces/experienceBase";
+// FACTORIES
+import {
+	ExperienceFactory,
+	type ExperienceProps,
+} from "@/experiences/factories/Experience.factory";
 
-export interface ExperienceProps {
-	/**
-	 * String dom element reference of the canvas
-	 */
-	domElementRef: string;
-	/**
-	 * Event triggered when the scene is constructed
-	 */
-	onConstruct?: () => unknown;
-	/**
-	 * Event triggered when the scene is destructed
-	 */
-	onDestruct?: () => unknown;
-}
-
-class HomeExperience implements ExperienceBase {
-	/** HomExperience object */
-	static self?: HomeExperience;
-	/**
-	 * `quick-threejs` library instance.
-	 *
-	 * [Doc](https://www.npmjs.com/package/quick-threejs)
-	 */
-	app!: QuickThree;
+export class HomeExperience extends ExperienceFactory {
 	renderer?: Renderer;
 	ui?: UI;
 	loader?: Loader;
@@ -43,36 +20,25 @@ class HomeExperience implements ExperienceBase {
 	world?: World;
 	debug?: Debug;
 
-	private onConstruct?: () => unknown;
-	private onDestruct?: () => unknown;
-
-	constructor(props?: ExperienceProps) {
-		if (HomeExperience.self) return HomeExperience.self;
-
-		HomeExperience.self = this;
-
-		this.app = new QuickThree(
-			{
-				enableDebug: true,
-				axesSizes: Debug.enable ? 5 : undefined,
-				gridSizes: Debug.enable ? 30 : undefined,
-				withMiniCamera: Debug.enable,
-				camera: "Perspective",
-			},
-			props?.domElementRef
+	constructor(_?: Omit<ExperienceProps, "debug">) {
+		super(
+			HomeExperience._self ?? {
+				..._,
+				debug: Debug.enable,
+			}
 		);
+		if (HomeExperience._self) return HomeExperience._self;
+		HomeExperience._self = this;
+
 		this.renderer = new Renderer();
 		this.ui = new UI();
 		this.loader = new Loader();
 		this.camera = new Camera();
 		this.world = new World();
 		this.debug = new Debug();
-
-		this.onConstruct = props?.onConstruct;
-		this.onDestruct = props?.onDestruct;
 	}
 
-	destruct() {
+	public destruct() {
 		this.app.updateCallbacks[HomeExperience.name] &&
 			delete this.app.updateCallbacks[HomeExperience.name];
 
@@ -84,12 +50,11 @@ class HomeExperience implements ExperienceBase {
 		this.debug?.destruct();
 		this.app.destroy();
 
-		HomeExperience.self = undefined;
-
-		this.onDestruct && this.onDestruct();
+		HomeExperience._self = undefined;
+		this._onDestruct && this._onDestruct();
 	}
 
-	construct() {
+	public construct() {
 		if (this.world?.currentSceneIndex !== undefined) this.destruct();
 
 		this.renderer?.construct();
@@ -101,10 +66,10 @@ class HomeExperience implements ExperienceBase {
 
 		this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
 
-		this.onConstruct && this.onConstruct();
+		this._onConstruct && this._onConstruct();
 	}
 
-	update() {
+	public update() {
 		this.world?.update();
 		this.camera?.update();
 		this.debug?.update();
