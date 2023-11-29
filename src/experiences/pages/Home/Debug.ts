@@ -55,6 +55,33 @@ export default class Debug implements ExperienceBase {
 		// 	"destruct_experience"
 		// );
 
+		this.cameraLookAtPointIndicator = new Mesh(
+			new SphereGeometry(0.1, 12, 12),
+			new MeshBasicMaterial({ color: "#ff0040" })
+		);
+
+		this._gui
+			.add(
+				{
+					fn: () => {
+						if (this.cameraLookAtPointIndicator)
+							this.cameraLookAtPointIndicator.visible =
+								!this.cameraLookAtPointIndicator.visible;
+					},
+				},
+				"fn"
+			)
+			.name("Toggle LookAt indicator visibility");
+
+		this._cameraCurvePathLine = new Line(
+			new BufferGeometry().setFromPoints(
+				[...Array(3).keys()].map(() => new Vector3(0, 0, 0))
+			),
+			new LineBasicMaterial({
+				color: 0xff0000,
+			})
+		);
+
 		this._gui
 			.add(
 				{
@@ -103,19 +130,6 @@ export default class Debug implements ExperienceBase {
 				"fn"
 			)
 			.name("Next Scene");
-
-		this.cameraLookAtPointIndicator = new Mesh(
-			new SphereGeometry(0.1, 12, 12),
-			new MeshBasicMaterial({ color: "#ff0040" })
-		);
-		this._cameraCurvePathLine = new Line(
-			new BufferGeometry().setFromPoints(
-				[...Array(3).keys()].map(() => new Vector3(0, 0, 0))
-			),
-			new LineBasicMaterial({
-				color: 0xff0000,
-			})
-		);
 
 		this._experience.app.scene.add(
 			this._cameraCurvePathLine,
