@@ -3,6 +3,7 @@ import {
 	Material,
 	Mesh,
 	PerspectiveCamera,
+	ShaderMaterial,
 	Vector3,
 } from "three";
 import { type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -13,6 +14,10 @@ import { SceneFactory } from "@/experiences/factories/SceneFactory";
 
 // CONSTANTS
 import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
+
+// SHADERS
+import fragment from "./shaders/scene1/fragment.glsl";
+import vertex from "./shaders/scene1/vertex.glsl";
 
 export default class Scene_1 extends SceneFactory {
 	constructor() {
@@ -107,4 +112,30 @@ export default class Scene_1 extends SceneFactory {
 	public outro(): void {}
 
 	public update(): void {}
+
+	protected _setModelMaterials() {
+		const TEXTURES_MESH_BASIC_MATERIALS =
+			this._Loader?.texturesMeshBasicMaterials;
+
+		if (!TEXTURES_MESH_BASIC_MATERIALS) return;
+
+		this.modelScene?.children.forEach((child) => {
+			this._modelChildrenTextures.forEach((item) => {
+				const CHILD_TEXTURE =
+					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName];
+				if (
+					child instanceof Mesh &&
+					child.name === item.childName &&
+					CHILD_TEXTURE
+				)
+					~(child.material = new ShaderMaterial({
+						uniforms: {
+							uBakedTextureMaterial: { value: CHILD_TEXTURE },
+						},
+						fragmentShader: fragment,
+						vertexShader: vertex,
+					}));
+			});
+		});
+	}
 }
