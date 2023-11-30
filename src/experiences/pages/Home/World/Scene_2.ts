@@ -1,4 +1,4 @@
-import { CatmullRomCurve3, Mesh, PerspectiveCamera, Vector3 } from "three";
+import { CatmullRomCurve3, PerspectiveCamera, Vector3 } from "three";
 import { type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import GSAP from "gsap";
 
@@ -9,9 +9,6 @@ import { SceneFactory } from "@/experiences/factories/SceneFactory";
 import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
 
 export default class Scene_2 extends SceneFactory {
-	protected readonly _appCamera = this._experience.app.camera;
-	public modelMeshes: { [name: string]: Mesh | undefined } = {};
-
 	constructor() {
 		try {
 			super({
@@ -22,6 +19,12 @@ export default class Scene_2 extends SceneFactory {
 					new Vector3(12, 3.7, 12),
 					new Vector3(0, 5.5, 21),
 				]),
+				modelChildrenTextures: [
+					{
+						childName: "scene_1_room",
+						linkedTextureName: "scene_1_room_baked_texture",
+					},
+				],
 			});
 		} catch (error) {}
 	}
@@ -39,48 +42,20 @@ export default class Scene_2 extends SceneFactory {
 		this._appCamera.instance.position.z += 10;
 
 		this.model = ISOMETRIC_ROOM;
-		this.group = this.model?.scene.clone();
-		this.group && this._experience.world?.group?.add(this.group);
+		this.modelScene = this.model?.scene.clone();
+		this.modelScene && this._experience.world?.group?.add(this.modelScene);
 
-		this._setModelMeshes();
+		this._setModelMaterials();
 		this.emit("constructed");
 	}
 
 	destruct() {
-		this.group?.clear();
-		this.group?.removeFromParent();
-
+		this.modelScene?.clear();
+		this.modelScene?.removeFromParent();
 		this.emit(this.eventListNames.destructed);
 	}
 
-	protected _setModelMeshes(): void {
-		const _TEXTURES_MESH_BASIC_MATERIALS =
-			this._experience.loader?.texturesMeshBasicMaterials;
-
-		if (!_TEXTURES_MESH_BASIC_MATERIALS) return;
-
-		this.group?.children.forEach((child) => {
-			// Applying baked texture to Model
-			if (
-				child instanceof Mesh &&
-				child.name === "scene_1_room" &&
-				_TEXTURES_MESH_BASIC_MATERIALS.scene_1_room_baked_texture
-			)
-				~(child.material =
-					_TEXTURES_MESH_BASIC_MATERIALS.scene_1_room_baked_texture);
-
-			// Applying custom texture to Models objects
-			if (
-				child instanceof Mesh &&
-				child.name === "pc-screen" &&
-				_TEXTURES_MESH_BASIC_MATERIALS.typescript_logo
-			)
-				~((this.modelMeshes["pcScreen"] = child).material =
-					_TEXTURES_MESH_BASIC_MATERIALS.typescript_logo);
-		});
-	}
-
-	protected intro(): void {
+	public intro(): void {
 		const WORLD_CONTROLS = this._experience.world?.controls;
 
 		if (
@@ -114,7 +89,7 @@ export default class Scene_2 extends SceneFactory {
 		});
 	}
 
-	protected outro(): void {}
+	public outro(): void {}
 
 	public update(): void {}
 }
