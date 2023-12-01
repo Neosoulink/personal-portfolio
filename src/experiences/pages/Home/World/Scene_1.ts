@@ -1,9 +1,10 @@
 import {
 	CatmullRomCurve3,
+	Color,
 	Material,
 	Mesh,
 	PerspectiveCamera,
-	ShaderMaterial,
+	RawShaderMaterial,
 	Vector3,
 } from "three";
 import { type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -16,8 +17,8 @@ import { SceneFactory } from "@/experiences/factories/SceneFactory";
 import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
 
 // SHADERS
-import fragment from "./shaders/scene1/fragment.glsl";
-import vertex from "./shaders/scene1/vertex.glsl";
+import fragment from "./shaders/scene1/fragment.frag";
+import vertex from "./shaders/scene1/vertex.vert";
 
 export default class Scene_1 extends SceneFactory {
 	constructor() {
@@ -128,9 +129,11 @@ export default class Scene_1 extends SceneFactory {
 					child.name === item.childName &&
 					CHILD_TEXTURE
 				)
-					~(child.material = new ShaderMaterial({
+					~(child.material = new RawShaderMaterial({
 						uniforms: {
-							uBakedTextureMaterial: { value: CHILD_TEXTURE },
+							uBakedTexture: { value: CHILD_TEXTURE.map },
+							uTime: { value: 0 },
+							uColor: { value: new Color(0x00ff00) },
 						},
 						fragmentShader: fragment,
 						vertexShader: vertex,
