@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial, SRGBColorSpace, Texture } from "three";
+import { LinearSRGBColorSpace, Mesh, MeshBasicMaterial, SRGBColorSpace, Texture } from "three";
 import EventEmitter from "events";
 
 // ---
@@ -85,7 +85,7 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 			const ITEM = this._appResources.items[key];
 			if (ITEM instanceof Texture) {
 				ITEM.flipY = false;
-				ITEM.colorSpace = SRGBColorSpace;
+				ITEM.colorSpace = LinearSRGBColorSpace;
 			}
 		});
 	}
