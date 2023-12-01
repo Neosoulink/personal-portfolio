@@ -1,6 +1,7 @@
 import {
 	CatmullRomCurve3,
 	Color,
+	LinearSRGBColorSpace,
 	Material,
 	Mesh,
 	PerspectiveCamera,
@@ -123,21 +124,27 @@ export default class Scene_1 extends SceneFactory {
 		this.modelScene?.children.forEach((child) => {
 			this._modelChildrenTextures.forEach((item) => {
 				const CHILD_TEXTURE =
-					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName];
+					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName].clone();
+
 				if (
 					child instanceof Mesh &&
 					child.name === item.childName &&
-					CHILD_TEXTURE
-				)
+					CHILD_TEXTURE.map
+				) {
+					const MAP_TEXTURE = CHILD_TEXTURE.map.clone();
+					MAP_TEXTURE.colorSpace = LinearSRGBColorSpace;
+
 					~(child.material = new RawShaderMaterial({
 						uniforms: {
-							uBakedTexture: { value: CHILD_TEXTURE.map },
+							uBakedTexture: { value: MAP_TEXTURE },
 							uTime: { value: 0 },
 							uColor: { value: new Color(0x00ff00) },
 						},
 						fragmentShader: fragment,
 						vertexShader: vertex,
+						transparent: true,
 					}));
+				}
 			});
 		});
 	}
