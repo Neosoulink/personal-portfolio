@@ -26,7 +26,7 @@
 		"@nuxt/content": "^2.4.3",
 		"@nuxt/devtools": "latest",
 		"@types/node": "^18.11.18",
-		"@types/three": "^0.153.0",
+		"@types/three": "^0.159.0",
 		"autoprefixer": "^10.4.13",
 		"husky": "^8.0.3",
 		"lil-gui": "^0.18.1",
@@ -41,7 +41,7 @@
 	"dependencies": {
 		"events": "^3.3.0",
 		"gsap": "^3.11.4",
-		"quick-threejs": "0.1.20",
-		"three": "^0.153.0"
+		"quick-threejs": "^0.1.25",
+		"three": "^0.159.0"
 	}
 }
