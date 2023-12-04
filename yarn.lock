@@ -10640,6 +10640,13 @@ vite-plugin-checker@^0.6.2:
     vscode-languageserver-textdocument "^1.0.1"
     vscode-uri "^3.0.2"
 
+vite-plugin-glsl@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/vite-plugin-glsl/-/vite-plugin-glsl-1.2.0.tgz#a4b124825602199151a888455221b16e454675c2"
+  integrity sha512-geJc6oI/uaEZzRz6lkOGCXfOJBxu+crzHApPKptSkfh2bByCOHUrG9HJAENoQ09n9g5HQrlTa4vwmE8AG8dgBg==
+  dependencies:
+    "@rollup/pluginutils" "^5.0.2"
+
 vite-plugin-inspect@^0.7.42:
   version "0.7.42"
   resolved "https://registry.yarnpkg.com/vite-plugin-inspect/-/vite-plugin-inspect-0.7.42.tgz#e055ad2ff82f3eca2f101fcfb29b5fabfe1e7366"

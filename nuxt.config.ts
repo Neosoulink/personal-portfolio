@@ -1,3 +1,6 @@
+// vite.config.js
+import glsl from "vite-plugin-glsl";
+
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
 	devtools: { enabled: true },
@@ -13,7 +16,7 @@ export default defineNuxtConfig({
 			link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
 		},
 	},
-	modules: ["@nuxt/content"],
+	modules: ["@nuxt/content", ""],
 	css: ["~/assets/css/index.css"],
 	postcss: {
 		plugins: {
@@ -26,5 +29,8 @@ export default defineNuxtConfig({
 		public: {
 			env: process.env.MODE,
 		},
+	},
+	vite: {
+		plugins: [glsl()],
 	},
 });

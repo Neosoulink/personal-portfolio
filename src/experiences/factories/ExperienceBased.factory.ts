@@ -8,6 +8,7 @@ import type { ExperienceBase } from "@/interfaces/experienceBase";
 export abstract class ExperienceBasedFactory implements ExperienceBase {
 	protected abstract readonly _experience: ExperienceFactory;
 
-	abstract construct: () => unknown;
-	abstract destruct: () => unknown;
+	public abstract construct(): unknown;
+	public abstract destruct(): unknown;
+	public update() {}
 }
