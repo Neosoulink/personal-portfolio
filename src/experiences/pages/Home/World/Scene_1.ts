@@ -4,11 +4,12 @@ import {
 	LinearSRGBColorSpace,
 	Material,
 	Mesh,
+	MeshBasicMaterial,
 	PerspectiveCamera,
 	RawShaderMaterial,
 	Vector3,
+	WebGLRenderTarget,
 } from "three";
-import { type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import GSAP from "gsap";
 
 // EXPERIENCES
@@ -47,18 +48,36 @@ export default class Scene_1 extends SceneFactory {
 
 	construct() {
 		if (!this._appCamera.instance) return;
+		this.modelScene = this._model?.scene.clone();
+		if (!this.modelScene) return;
 
 		this.cameraPath.getPointAt(0, this._appCamera.instance.position);
 		this._appCamera.instance.position.y += 8;
 		this._appCamera.instance.position.x -= 2;
 		this._appCamera.instance.position.z += 10;
 
-		this.modelScene = this._model?.scene.clone();
+		try {
+			this.modelScene.children.forEach((child) => {
+				if (child.name === "scene_1_room_pc_screen")
+					throw new Error("CHILD_FOUND", { cause: child });
+			});
+		} catch (_err) {
+			if (_err instanceof Error && _err.cause instanceof Mesh) {
+				const mesh = _err.cause;
+				const camera = new PerspectiveCamera(75, 1.0, 0.1, 500.0);
+				const texture = new WebGLRenderTarget(256, 256);
+				mesh.material = new MeshBasicMaterial({ map: texture.texture });
+
+				this._renderer?.addPortalMeshAssets(Scene_1.name + "_screen_pc", {
+					mesh,
+					camera,
+					texture,
+				});
+			}
+		}
+
 		this._setModelMaterials();
-
-		this.modelScene && this._experience.world?.group?.add(this.modelScene);
-
-		// this._renderer?.addPortalMeshAssets(Scene_1.name + '_screen_pc', {});
+		this._experience.world?.group?.add(this.modelScene);
 
 		this.emit("constructed");
 	}
