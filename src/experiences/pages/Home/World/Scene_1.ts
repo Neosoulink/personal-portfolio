@@ -1,12 +1,9 @@
 import {
 	CatmullRomCurve3,
-	Color,
-	LinearSRGBColorSpace,
 	Material,
 	Mesh,
 	MeshBasicMaterial,
 	PerspectiveCamera,
-	RawShaderMaterial,
 	Vector3,
 	WebGLRenderTarget,
 } from "three";
@@ -17,10 +14,6 @@ import { SceneFactory } from "@/experiences/factories/SceneFactory";
 
 // CONSTANTS
 import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
-
-// SHADERS
-import fragment from "./shaders/scene1/fragment.frag";
-import vertex from "./shaders/scene1/vertex.vert";
 
 export default class Scene_1 extends SceneFactory {
 	protected _renderer = this._experience.renderer;
@@ -40,6 +33,10 @@ export default class Scene_1 extends SceneFactory {
 					{
 						childName: "scene_1_room",
 						linkedTextureName: "scene_1_room_baked_texture",
+					},
+					{
+						childName: "scene_1_room_woods",
+						linkedTextureName: "scene_1_room_woods_baked_texture",
 					},
 				],
 			});
@@ -134,38 +131,4 @@ export default class Scene_1 extends SceneFactory {
 	public outro(): void {}
 
 	public update(): void {}
-
-	protected _setModelMaterials() {
-		const TEXTURES_MESH_BASIC_MATERIALS =
-			this._Loader?.texturesMeshBasicMaterials;
-
-		if (!TEXTURES_MESH_BASIC_MATERIALS) return;
-
-		this.modelScene?.children.forEach((child) => {
-			this._modelChildrenTextures.forEach((item) => {
-				const CHILD_TEXTURE =
-					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName].clone();
-
-				if (
-					child instanceof Mesh &&
-					child.name === item.childName &&
-					CHILD_TEXTURE.map
-				) {
-					const MAP_TEXTURE = CHILD_TEXTURE.map.clone();
-					MAP_TEXTURE.colorSpace = LinearSRGBColorSpace;
-
-					~(child.material = new RawShaderMaterial({
-						uniforms: {
-							uBakedTexture: { value: MAP_TEXTURE },
-							uTime: { value: 0 },
-							uColor: { value: new Color(0x00ff00) },
-						},
-						fragmentShader: fragment,
-						vertexShader: vertex,
-						transparent: true,
-					}));
-				}
-			});
-		});
-	}
 }
