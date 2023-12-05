@@ -33,9 +33,9 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 				path: "/3d_models/isometric_room/scene_1_room_baked_texture.jpg",
 			},
 			{
-				name: "typescript_logo",
+				name: "scene_1_room_woods_baked_texture",
 				type: "texture",
-				path: "textures/typescript_logo.jpg",
+				path: "/3d_models/isometric_room/scene_1_room_woods_baked_texture.jpg",
 			},
 		]);
 	}
