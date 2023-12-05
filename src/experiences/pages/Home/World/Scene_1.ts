@@ -22,6 +22,8 @@ import fragment from "./shaders/scene1/fragment.frag";
 import vertex from "./shaders/scene1/vertex.vert";
 
 export default class Scene_1 extends SceneFactory {
+	protected _renderer = this._experience.renderer;
+
 	constructor() {
 		try {
 			super({
@@ -32,6 +34,7 @@ export default class Scene_1 extends SceneFactory {
 					new Vector3(12, 3.7, 12),
 					new Vector3(0, 5.5, 21),
 				]),
+				modelName: "scene_1_room",
 				modelChildrenTextures: [
 					{
 						childName: "scene_1_room",
@@ -45,20 +48,18 @@ export default class Scene_1 extends SceneFactory {
 	construct() {
 		if (!this._appCamera.instance) return;
 
-		const ISOMETRIC_ROOM = this._experience.app.resources.items.scene_1_room as
-			| GLTF
-			| undefined;
-
 		this.cameraPath.getPointAt(0, this._appCamera.instance.position);
 		this._appCamera.instance.position.y += 8;
 		this._appCamera.instance.position.x -= 2;
 		this._appCamera.instance.position.z += 10;
 
-		this.model = ISOMETRIC_ROOM;
-		this.modelScene = this.model?.scene.clone();
+		this.modelScene = this._model?.scene.clone();
+		this._setModelMaterials();
+
 		this.modelScene && this._experience.world?.group?.add(this.modelScene);
 
-		this._setModelMaterials();
+		// this._renderer?.addPortalMeshAssets(Scene_1.name + '_screen_pc', {});
+
 		this.emit("constructed");
 	}
 

@@ -16,6 +16,7 @@ export interface ModelChildrenTextures {
 
 export interface SceneFactoryProps {
 	cameraPath: CatmullRomCurve3;
+	modelName: string;
 	modelChildrenTextures: ModelChildrenTextures[];
 }
 
@@ -28,7 +29,7 @@ export abstract class SceneFactory
 	protected readonly _Loader = this._experience.loader;
 	protected readonly _modelMeshes: { [name: string]: Mesh | undefined } = {};
 	protected _modelChildrenTextures: ModelChildrenTextures[];
-	public model?: GLTF;
+	protected _model?: GLTF;
 	public modelScene?: Group;
 	public cameraPath: CatmullRomCurve3;
 	public readonly eventListNames = {
@@ -38,6 +39,10 @@ export abstract class SceneFactory
 
 	constructor(_: SceneFactoryProps) {
 		super();
+		const _MODEL = this._experience.app.resources.items[_.modelName] as
+			| GLTF
+			| undefined;
+		if (_MODEL?.scene) this._model = _MODEL;
 		this.cameraPath = _.cameraPath;
 		this._modelChildrenTextures = _.modelChildrenTextures;
 	}
