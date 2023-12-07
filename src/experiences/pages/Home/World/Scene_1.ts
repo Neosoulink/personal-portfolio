@@ -96,6 +96,7 @@ export default class Scene_1 extends SceneFactory {
 			onComplete: () => {
 				this.modelScene?.clear();
 				this.modelScene?.removeFromParent();
+				this._renderer?.removeBeforeUpdateCallback(Scene_1.name + "_screen_pc");
 				this.emit(this.eventListNames.destructed);
 			},
 		});
