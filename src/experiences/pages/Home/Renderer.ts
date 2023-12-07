@@ -37,7 +37,6 @@ export default class Renderer implements ExperienceBase {
 	constructor() {}
 
 	public construct() {
-		this._appRenderer.instance.useLegacyLights = true;
 		this._appRenderer.instance.outputColorSpace = SRGBColorSpace;
 		this._appRenderer.instance.toneMapping = ACESFilmicToneMapping;
 		this._appRenderer.instance.toneMappingExposure = 1;
