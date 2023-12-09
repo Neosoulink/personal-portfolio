@@ -29,7 +29,7 @@ export class Camera implements ExperienceBase {
 			if (!(this._appCamera?.instance instanceof PerspectiveCamera)) return;
 
 			this._appCamera.instance.fov = this.initialCameraFov;
-			this._appCamera.instance.far = 50;
+			this._appCamera.instance.far = 500;
 			this._appCamera.miniCamera?.position.set(10, 8, 30);
 
 			if (this._appDebug?.cameraControls) {
