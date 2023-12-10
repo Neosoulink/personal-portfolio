@@ -1,9 +1,14 @@
 import {
 	CatmullRomCurve3,
+	Color,
+	Group,
 	Material,
 	Mesh,
 	MeshBasicMaterial,
+	NoColorSpace,
 	PerspectiveCamera,
+	PlaneGeometry,
+	RawShaderMaterial,
 	Vector3,
 	WebGLRenderTarget,
 } from "three";
@@ -15,8 +20,17 @@ import { SceneFactory } from "@/experiences/factories/SceneFactory";
 // CONSTANTS
 import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
 
+// SHADERS
+import fragment from "./shaders/scene1/fragment.frag";
+import vertex from "./shaders/scene1/vertex.vert";
+
 export default class Scene_1 extends SceneFactory {
 	protected _renderer = this._experience.renderer;
+
+	public pcScreenWebglTexture?: WebGLRenderTarget;
+	public pcScreen?: Mesh;
+
+	modelScene2?: Group;
 
 	constructor() {
 		try {
@@ -35,7 +49,7 @@ export default class Scene_1 extends SceneFactory {
 						linkedTextureName: "scene_1_room_baked_texture",
 					},
 					{
-						childName: "scene_1_room_woods",
+						childName: "scene_1_woods",
 						linkedTextureName: "scene_1_room_woods_baked_texture",
 					},
 				],
@@ -48,34 +62,33 @@ export default class Scene_1 extends SceneFactory {
 		this.modelScene = this._model?.scene.clone();
 		if (!this.modelScene) return;
 
-		this.cameraPath.getPointAt(0, this._appCamera.instance.position);
-		this._appCamera.instance.position.y += 8;
-		this._appCamera.instance.position.x -= 2;
-		this._appCamera.instance.position.z += 10;
-
 		try {
 			this.modelScene.children.forEach((child) => {
-				if (child.name === "scene_1_room_pc_screen")
+				if (child.name === "scene_1_pc_screen")
 					throw new Error("CHILD_FOUND", { cause: child });
 			});
 		} catch (_err) {
 			if (_err instanceof Error && _err.cause instanceof Mesh) {
-				const mesh = _err.cause;
-				const camera = new PerspectiveCamera(75, 1.0, 0.1, 500.0);
-				const texture = new WebGLRenderTarget(256, 256);
-				mesh.material = new MeshBasicMaterial({ map: texture.texture });
-
-				this._renderer?.addPortalMeshAssets(Scene_1.name + "_screen_pc", {
-					mesh,
-					camera,
-					texture,
+				const planeGeo = new PlaneGeometry(1.25, 0.6728);
+				this.pcScreenWebglTexture = new WebGLRenderTarget(4096, 4096);
+				this.pcScreen = new Mesh(planeGeo);
+				this.pcScreen.material = new MeshBasicMaterial({
+					map: this.pcScreenWebglTexture.texture,
 				});
+
+				// TODO:: Correctly setup the portal by passing the texture to the screen it self
+				this.pcScreen.rotateY(Math.PI * 0.271);
+				this.pcScreen.rotateX(Math.PI * -0.03);
+				this.pcScreen.position.z += 0.048;
+				this.pcScreen.position.x -= 0.01;
+				_err.cause.localToWorld(this.pcScreen.position);
+				_err.cause.removeFromParent();
+
+				this.modelScene.add(this.pcScreen);
 			}
 		}
 
 		this._setModelMaterials();
-		this._experience.world?.group?.add(this.modelScene);
-
 		this.emit("constructed");
 	}
 
@@ -89,6 +102,7 @@ export default class Scene_1 extends SceneFactory {
 			onComplete: () => {
 				this.modelScene?.clear();
 				this.modelScene?.removeFromParent();
+				this._renderer?.removeBeforeUpdateCallback(Scene_1.name + "_screen_pc");
 				this.emit(this.eventListNames.destructed);
 			},
 		});
@@ -131,4 +145,38 @@ export default class Scene_1 extends SceneFactory {
 	public outro(): void {}
 
 	public update(): void {}
+
+	protected _setModelMaterials() {
+		const TEXTURES_MESH_BASIC_MATERIALS =
+			this._Loader?.texturesMeshBasicMaterials;
+
+		if (!TEXTURES_MESH_BASIC_MATERIALS) return;
+
+		this.modelScene?.children.forEach((child) => {
+			this._modelChildrenTextures.forEach((item) => {
+				const CHILD_TEXTURE =
+					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName].clone();
+
+				if (
+					child instanceof Mesh &&
+					child.name === item.childName &&
+					CHILD_TEXTURE.map
+				) {
+					const MAP_TEXTURE = CHILD_TEXTURE.map.clone();
+					MAP_TEXTURE.colorSpace = NoColorSpace;
+
+					~(child.material = new RawShaderMaterial({
+						uniforms: {
+							uBakedTexture: { value: MAP_TEXTURE },
+							uTime: { value: 0 },
+							uColor: { value: new Color(0x00ff00) },
+						},
+						fragmentShader: fragment,
+						vertexShader: vertex,
+						transparent: true,
+					}));
+				}
+			});
+		});
+	}
 }

@@ -1,5 +1,6 @@
 import {
 	BufferGeometry,
+	CameraHelper,
 	Line,
 	LineBasicMaterial,
 	Mesh,
@@ -8,7 +9,7 @@ import {
 	SphereGeometry,
 	Vector3,
 } from "three";
-import GUI from "lil-gui";
+import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 // EXPERIENCE
 import Experience from ".";
@@ -20,6 +21,7 @@ export default class Debug implements ExperienceBase {
 	protected readonly _experience = new Experience();
 	protected readonly _appDebug = this._experience.app.debug;
 	protected readonly _appCamera = this._experience.app.camera;
+	protected _worldSecondaryCameraHelper?: CameraHelper;
 
 	/** Graphic user interface of the experience instance */
 	protected _gui?: GUI;
@@ -50,15 +52,18 @@ export default class Debug implements ExperienceBase {
 
 		if (!this._gui || !this._experience.world) return;
 
-		// this._gui.add(
-		// 	{ destruct_experience: () => this._experience?.destruct() },
-		// 	"destruct_experience"
-		// );
-
 		this.cameraLookAtPointIndicator = new Mesh(
 			new SphereGeometry(0.1, 12, 12),
 			new MeshBasicMaterial({ color: "#ff0040" })
 		);
+		this.cameraLookAtPointIndicator.visible = false;
+
+		if (!this._experience.world?.secondaryCamera) return;
+
+		this._worldSecondaryCameraHelper = new CameraHelper(
+			this._experience.world.secondaryCamera
+		);
+		this._experience.app.scene.add(this._worldSecondaryCameraHelper);
 
 		this._gui
 			.add(
@@ -119,17 +124,6 @@ export default class Debug implements ExperienceBase {
 				"fn"
 			)
 			.name("Toggle auto camera animation");
-
-		this._gui
-			.add(
-				{
-					fn: () => {
-						this._experience.world?.nextScene();
-					},
-				},
-				"fn"
-			)
-			.name("Next Scene");
 
 		this._experience.app.scene.add(
 			this._cameraCurvePathLine,

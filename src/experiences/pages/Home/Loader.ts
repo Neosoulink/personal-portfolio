@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial, SRGBColorSpace, Texture } from "three";
+import { MeshBasicMaterial, Texture, SRGBColorSpace } from "three";
 import EventEmitter from "events";
 
 // ---

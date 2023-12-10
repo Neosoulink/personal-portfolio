@@ -1,10 +1,14 @@
 import {
 	ACESFilmicToneMapping,
+	Box3,
+	Matrix4,
+	Mesh,
 	PCFShadowMap,
+	PerspectiveCamera,
 	SRGBColorSpace,
 	Vector3,
+	WebGLRenderTarget,
 } from "three";
-import * as CameraUtils from "three/examples/jsm/utils/CameraUtils";
 
 // EXPERIENCE
 import HomeExperience from ".";
@@ -14,21 +18,33 @@ import { type ExperienceBase } from "@/interfaces/experienceBase";
 
 export interface PortalAssets {
 	mesh: THREE.Mesh;
-	texture: THREE.WebGLRenderTarget;
-	camera: THREE.PerspectiveCamera;
+	meshWebGLTexture: THREE.WebGLRenderTarget;
+	meshCamera: THREE.PerspectiveCamera;
+}
+
+export interface PortalMeshCorners {
+	bottomLeft: Vector3;
+	bottomRight: Vector3;
+	topLeft: Vector3;
+	topRight: Vector3;
 }
 
 /** Renderer */
 export default class Renderer implements ExperienceBase {
 	protected readonly _experience = new HomeExperience();
 	protected readonly _appRenderer = this._experience.app.renderer;
+	protected readonly _appRendererInstance =
+		this._experience.app.renderer.instance;
 	protected readonly _renderPortalAssets: {
-		[callbackName: string]: PortalAssets;
+		[callbackName: string]: {
+			assets: PortalAssets;
+			corners: PortalMeshCorners;
+		};
 	} = {};
-	protected _currentRenderTarget = this._appRenderer.instance.getRenderTarget();
-	protected _currentXrEnabled = this._appRenderer.instance.xr.enabled;
+	protected _currentRenderTarget = this._appRendererInstance.getRenderTarget();
+	protected _currentXrEnabled = this._appRendererInstance.xr.enabled;
 	protected _currentShadowAutoUpdate =
-		this._appRenderer.instance.shadowMap.autoUpdate;
+		this._appRendererInstance.shadowMap.autoUpdate;
 	protected _portalBottomLeftCorner = new Vector3();
 	protected _portalBottomRightCorner = new Vector3();
 	protected _portalTopLeftCorner = new Vector3();
@@ -37,21 +53,23 @@ export default class Renderer implements ExperienceBase {
 	constructor() {}
 
 	public construct() {
-		this._appRenderer.instance.useLegacyLights = true;
-		this._appRenderer.instance.outputColorSpace = SRGBColorSpace;
-		this._appRenderer.instance.toneMapping = ACESFilmicToneMapping;
-		this._appRenderer.instance.toneMappingExposure = 1;
-		this._appRenderer.instance.shadowMap.enabled = false;
-		this._appRenderer.instance.shadowMap.type = PCFShadowMap;
-		this._appRenderer.instance.setClearColor("#211d20");
-		this._appRenderer.instance.setSize(
-			this._experience.app.sizes.width,
-			this._experience.app.sizes.height
-		);
-		this._appRenderer.instance.setPixelRatio(
-			this._experience.app.sizes.pixelRatio
-		);
-		this._appRenderer.instance.localClippingEnabled = true;
+		// Configure renderer behaviors
+		~(() => {
+			this._appRendererInstance.outputColorSpace = SRGBColorSpace;
+			this._appRendererInstance.toneMapping = ACESFilmicToneMapping;
+			this._appRendererInstance.toneMappingExposure = 1;
+			this._appRendererInstance.shadowMap.enabled = false;
+			this._appRendererInstance.shadowMap.type = PCFShadowMap;
+			this._appRendererInstance.setClearColor("#211d20");
+			this._appRendererInstance.setSize(
+				this._experience.app.sizes.width,
+				this._experience.app.sizes.height
+			);
+			this._appRendererInstance.setPixelRatio(
+				this._experience.app.sizes.pixelRatio
+			);
+			this._appRendererInstance.localClippingEnabled = true;
+		})();
 
 		~(() => {
 			this._appRenderer.beforeRenderUpdate = () => {
@@ -60,24 +78,23 @@ export default class Renderer implements ExperienceBase {
 				Object.keys(this._renderPortalAssets).forEach((key: string) => {
 					if (this._renderPortalAssets[key]) {
 						this._currentRenderTarget =
-							this._appRenderer.instance.getRenderTarget();
-						this._currentXrEnabled = this._appRenderer.instance.xr.enabled;
+							this._appRendererInstance.getRenderTarget();
+						this._currentXrEnabled = this._appRendererInstance.xr.enabled;
 						this._currentShadowAutoUpdate =
-							this._appRenderer.instance.shadowMap.autoUpdate;
-						// Avoid camera modification
-						this._appRenderer.instance.xr.enabled = false;
-						// Avoid re-computing shadows
-						this._appRenderer.instance.shadowMap.autoUpdate = false;
+							this._appRendererInstance.shadowMap.autoUpdate;
+						this._appRendererInstance.xr.enabled = false;
+						this._appRendererInstance.shadowMap.autoUpdate = false;
 						this.renderPortal(
-							this._renderPortalAssets[key].mesh,
-							this._renderPortalAssets[key].texture,
-							this._renderPortalAssets[key].camera
+							this._renderPortalAssets[key].assets.mesh,
+							this._renderPortalAssets[key].assets.meshWebGLTexture,
+							this._renderPortalAssets[key].assets.meshCamera,
+							this._renderPortalAssets[key].corners
 						);
 						// restore the original rendering properties
-						this._appRenderer.instance.xr.enabled = this._currentXrEnabled;
-						this._appRenderer.instance.shadowMap.autoUpdate =
+						this._appRendererInstance.xr.enabled = this._currentXrEnabled;
+						this._appRendererInstance.shadowMap.autoUpdate =
 							this._currentShadowAutoUpdate;
-						this._appRenderer.instance.setRenderTarget(
+						this._appRendererInstance.setRenderTarget(
 							this._currentRenderTarget
 						);
 					}
@@ -92,49 +109,78 @@ export default class Renderer implements ExperienceBase {
 	}
 
 	public renderPortal(
-		mesh: THREE.Mesh,
-		texture: THREE.WebGLRenderTarget,
-		portalCamera: THREE.PerspectiveCamera
+		mesh: Mesh,
+		meshWebGLTexture: WebGLRenderTarget,
+		portalCamera: PerspectiveCamera,
+		corners: PortalMeshCorners
 	) {
-		// set the portal camera position to be reflected about the portal plane
-		mesh.worldToLocal(
-			this._portalReflectedPosition.copy(
-				this._experience.app.camera.instance?.position ?? new Vector3()
+		mesh.localToWorld(
+			this._portalBottomLeftCorner.set(
+				corners.bottomLeft.x,
+				corners.bottomLeft.y,
+				corners.bottomLeft.z
 			)
 		);
-		this._portalReflectedPosition.x *= -1.0;
-		this._portalReflectedPosition.z *= -1.0;
-
-		mesh.localToWorld(this._portalReflectedPosition);
-		portalCamera.position.copy(this._portalReflectedPosition);
-
-		mesh.localToWorld(this._portalBottomLeftCorner.set(50.05, -50.05, 0.0));
-		mesh.localToWorld(this._portalBottomRightCorner.set(-50.05, -50.05, 0.0));
-		mesh.localToWorld(this._portalTopLeftCorner.set(50.05, 50.05, 0.0));
-
-		// set the projection matrix to encompass the portal's frame
-		CameraUtils.frameCorners(
-			portalCamera,
-			this._portalBottomLeftCorner,
-			this._portalBottomRightCorner,
-			this._portalTopLeftCorner,
-			false
+		mesh.localToWorld(
+			this._portalBottomRightCorner.set(
+				corners.bottomRight.x,
+				corners.bottomRight.y,
+				corners.bottomRight.z
+			)
+		);
+		mesh.localToWorld(
+			this._portalTopLeftCorner.set(
+				corners.topLeft.x,
+				corners.topLeft.y,
+				corners.topLeft.z
+			)
 		);
 
-		// render the portal
-		texture.texture.colorSpace = this._appRenderer.instance.outputColorSpace;
-
-		this._appRenderer.instance.setRenderTarget(texture);
-		this._appRenderer.instance.state.buffers.depth.setMask(true); // making sure the depth buffer is writable so it can be properly cleared, see #18897
-		if (this._appRenderer.instance.autoClear === false)
-			this._appRenderer.instance.clear();
-		mesh.visible = false; // hide this portal from its own rendering
-		this._appRenderer.instance.render(this._experience.app.scene, portalCamera);
-		mesh.visible = true; // re-enable this portal's visibility for general rendering
+		this._appRendererInstance.setRenderTarget(meshWebGLTexture);
+		this._appRendererInstance.state.buffers.depth.setMask(true);
+		if (this._appRendererInstance.autoClear === false)
+			this._appRendererInstance.clear();
+		mesh.visible = false;
+		this._appRendererInstance.render(this._experience.app.scene, portalCamera);
+		mesh.visible = true;
 	}
 
 	public addPortalMeshAssets(portalName: string, assets: PortalAssets): void {
-		this._renderPortalAssets[portalName] = assets;
+		// Calculate width, height
+		const boundingBox = new Box3().setFromObject(assets.mesh);
+		const width = boundingBox.max.x - boundingBox.min.x;
+		const height = boundingBox.max.y - boundingBox.min.y;
+		const halfWidth = width / 2;
+		const halfHeight = height / 2;
+
+		// Define the corners of the plane in local coordinates
+		const corners = [
+			new Vector3(-halfWidth, -halfHeight, 0),
+			new Vector3(halfWidth, -halfHeight, 0),
+			new Vector3(-halfWidth, halfHeight, 0),
+			new Vector3(halfWidth, halfHeight, 0),
+		];
+
+		// Apply the mesh's position and rotation to the corners
+		const matrix = new Matrix4();
+		matrix.makeRotationFromQuaternion(assets.mesh.quaternion);
+		matrix.setPosition(assets.mesh.position);
+		matrix.compose(
+			assets.mesh.position,
+			assets.mesh.quaternion,
+			assets.mesh.scale
+		);
+		corners.map((corner) => corner.applyMatrix4(matrix));
+
+		this._renderPortalAssets[portalName] = {
+			assets,
+			corners: {
+				bottomLeft: corners[0],
+				bottomRight: corners[1],
+				topLeft: corners[2],
+				topRight: corners[3],
+			},
+		};
 	}
 
 	public removeBeforeUpdateCallback(portalName: string): void {
