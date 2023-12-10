@@ -59,14 +59,16 @@ export class HomeExperience extends ExperienceFactory {
 
 		this.renderer?.construct();
 		this.ui?.construct();
-		this.loader?.construct();
 		this.camera?.construct();
-		this.world?.construct();
-		this.debug?.construct();
+		this.loader?.construct();
 
-		this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
-
-		this._onConstruct && this._onConstruct();
+		this.loader?.on("load", () => {
+			this.world?.construct();
+			this.world?.on("constructed", () => console.log("Launched here ==>"));
+			this.debug?.construct();
+			this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
+			this._onConstruct && this._onConstruct();
+		});
 	}
 
 	public update() {

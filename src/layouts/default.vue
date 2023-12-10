@@ -1,11 +1,11 @@
 <template>
 	<div class="flex flex-col min-h-screen">
-		<LayoutHeader />
+		<!-- <LayoutHeader /> -->
 
 		<Menu />
 
 		<slot />
 
-		<LayoutFooter />
+		<!-- <LayoutFooter /> -->
 	</div>
 </template>

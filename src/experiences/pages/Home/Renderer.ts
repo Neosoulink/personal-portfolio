@@ -9,7 +9,6 @@ import {
 	Vector3,
 	WebGLRenderTarget,
 } from "three";
-import * as CameraUtils from "three/examples/jsm/utils/CameraUtils";
 
 // EXPERIENCE
 import HomeExperience from ".";
@@ -21,7 +20,6 @@ export interface PortalAssets {
 	mesh: THREE.Mesh;
 	meshWebGLTexture: THREE.WebGLRenderTarget;
 	meshCamera: THREE.PerspectiveCamera;
-	projectedCamera: THREE.PerspectiveCamera;
 }
 
 export interface PortalMeshCorners {
@@ -90,7 +88,6 @@ export default class Renderer implements ExperienceBase {
 							this._renderPortalAssets[key].assets.mesh,
 							this._renderPortalAssets[key].assets.meshWebGLTexture,
 							this._renderPortalAssets[key].assets.meshCamera,
-							this._renderPortalAssets[key].assets.projectedCamera,
 							this._renderPortalAssets[key].corners
 						);
 						// restore the original rendering properties
@@ -115,21 +112,8 @@ export default class Renderer implements ExperienceBase {
 		mesh: Mesh,
 		meshWebGLTexture: WebGLRenderTarget,
 		portalCamera: PerspectiveCamera,
-		projectedCamera: PerspectiveCamera,
 		corners: PortalMeshCorners
 	) {
-		projectedCamera.updateProjectionMatrix();
-		// Set the portal camera position to be reflected about the portal plane
-		mesh.worldToLocal(
-			this._portalReflectedPosition.copy(
-				projectedCamera?.position ?? new Vector3()
-			)
-		);
-		projectedCamera.lookAt(new Vector3());
-
-		mesh.localToWorld(this._portalReflectedPosition);
-		portalCamera.position.copy(this._portalReflectedPosition);
-
 		mesh.localToWorld(
 			this._portalBottomLeftCorner.set(
 				corners.bottomLeft.x,
@@ -150,15 +134,6 @@ export default class Renderer implements ExperienceBase {
 				corners.topLeft.y,
 				corners.topLeft.z
 			)
-		);
-
-		// Set the projection matrix to encompass the portal's frame
-		CameraUtils.frameCorners(
-			projectedCamera,
-			this._portalBottomLeftCorner,
-			this._portalBottomRightCorner,
-			this._portalTopLeftCorner,
-			false
 		);
 
 		this._appRendererInstance.setRenderTarget(meshWebGLTexture);

@@ -1,11 +1,13 @@
 import {
 	CatmullRomCurve3,
 	Color,
+	Group,
 	Material,
 	Mesh,
 	MeshBasicMaterial,
 	NoColorSpace,
 	PerspectiveCamera,
+	PlaneGeometry,
 	RawShaderMaterial,
 	Vector3,
 	WebGLRenderTarget,
@@ -25,6 +27,11 @@ import vertex from "./shaders/scene1/vertex.vert";
 export default class Scene_1 extends SceneFactory {
 	protected _renderer = this._experience.renderer;
 
+	public pcScreenWebglTexture?: WebGLRenderTarget;
+	public pcScreen?: Mesh;
+
+	modelScene2?: Group;
+
 	constructor() {
 		try {
 			super({
@@ -42,7 +49,7 @@ export default class Scene_1 extends SceneFactory {
 						linkedTextureName: "scene_1_room_baked_texture",
 					},
 					{
-						childName: "scene_1_room_woods",
+						childName: "scene_1_woods",
 						linkedTextureName: "scene_1_room_woods_baked_texture",
 					},
 				],
@@ -55,34 +62,33 @@ export default class Scene_1 extends SceneFactory {
 		this.modelScene = this._model?.scene.clone();
 		if (!this.modelScene) return;
 
-		this.cameraPath.getPointAt(0, this._appCamera.instance.position);
-		this._appCamera.instance.position.y += 8;
-		this._appCamera.instance.position.x -= 2;
-		this._appCamera.instance.position.z += 10;
-
 		try {
 			this.modelScene.children.forEach((child) => {
-				if (child.name === "scene_1_room_pc_screen")
+				if (child.name === "scene_1_pc_screen")
 					throw new Error("CHILD_FOUND", { cause: child });
 			});
 		} catch (_err) {
 			if (_err instanceof Error && _err.cause instanceof Mesh) {
-				const mesh = _err.cause;
-				const camera = new PerspectiveCamera(75, 1.0, 0.1, 500.0);
-				const texture = new WebGLRenderTarget(256, 256);
-				mesh.material = new MeshBasicMaterial({ map: texture.texture });
-
-				this._renderer?.addPortalMeshAssets(Scene_1.name + "_screen_pc", {
-					mesh,
-					camera,
-					texture,
+				const planeGeo = new PlaneGeometry(1.25, 0.6728);
+				this.pcScreenWebglTexture = new WebGLRenderTarget(4096, 4096);
+				this.pcScreen = new Mesh(planeGeo);
+				this.pcScreen.material = new MeshBasicMaterial({
+					map: this.pcScreenWebglTexture.texture,
 				});
+
+				// TODO:: Correctly setup the portal by passing the texture to the screen it self
+				this.pcScreen.rotateY(Math.PI * 0.271);
+				this.pcScreen.rotateX(Math.PI * -0.03);
+				this.pcScreen.position.z += 0.048;
+				this.pcScreen.position.x -= 0.01;
+				_err.cause.localToWorld(this.pcScreen.position);
+				_err.cause.removeFromParent();
+
+				this.modelScene.add(this.pcScreen);
 			}
 		}
 
 		this._setModelMaterials();
-		this._experience.world?.group?.add(this.modelScene);
-
 		this.emit("constructed");
 	}
 
