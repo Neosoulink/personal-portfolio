@@ -33,19 +33,17 @@ export function disableChromePassive() {
 	} catch (e) {}
 }
 
-// call this to Disable
 export function disableScroll() {
 	window.addEventListener("DOMMouseScroll", preventDefault, false); // older FF
 	window.addEventListener(
 		Config.wheelEvent,
 		preventDefault,
 		Config.wheelOption
-	); // modern desktop
-	window.addEventListener("touchmove", preventDefault, Config.wheelOption); // mobile
+	);
+	window.addEventListener("touchmove", preventDefault, Config.wheelOption);
 	window.addEventListener("keydown", preventDefaultForScrollKeys, false);
 }
 
-// call this to Enable
 export function enableScroll() {
 	window.removeEventListener("DOMMouseScroll", preventDefault, false);
 	window.removeEventListener(Config.wheelEvent, preventDefault);
