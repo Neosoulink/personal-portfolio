@@ -4,8 +4,8 @@ import GSAP from "gsap";
 // EXPERIENCES
 import { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
 
-// CONSTANTS
-import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
+// CONFIGS
+import { Config } from "@/experiences/config/Config";
 
 export default class SceneBackground extends SceneBlueprint {
 	constructor() {
@@ -55,11 +55,12 @@ export default class SceneBackground extends SceneBlueprint {
 
 		GSAP.to(this._appCamera.instance.position, {
 			...this._experience.world?.controls?.getGsapDefaultProps(),
-			...GSAP_DEFAULT_INTRO_PROPS,
+			duration: Config.GSAP_ANIMATION_DURATION,
+			ease: Config.GSAP_ANIMATION_EASE,
 			x,
 			y,
 			z,
-			delay: GSAP_DEFAULT_INTRO_PROPS.duration * 0.8,
+			delay: Config.GSAP_ANIMATION_DURATION * 0.8,
 			onUpdate: () => {
 				WORLD_CONTROLS?.setCameraLookAt(WORLD_CONTROLS.initialLookAtPosition);
 			},

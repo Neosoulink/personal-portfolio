@@ -5,18 +5,25 @@ import GSAP from "gsap";
 import HomeExperience from ".";
 import Debug from "./Debug";
 
-// INTERFACES
-import { type ExperienceBase } from "@/interfaces/experienceBase";
+// BLUEPRINTS
+import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+import {
+	CONSTRUCTED,
+	DESTRUCTED,
+	UPDATED,
+} from "@/experiences/common/Event.model";
 
-export class Camera implements ExperienceBase {
-	private readonly _experience = new HomeExperience();
-	private readonly _appCamera = this._experience.app.camera;
-	private readonly _appDebug = this._experience.app.debug;
+export class Camera extends ExperienceBasedBlueprint {
+	protected readonly _experience = new HomeExperience();
+	protected readonly _appCamera = this._experience.app.camera;
+	protected readonly _appDebug = this._experience.app.debug;
+
+	public readonly initialCameraFov = 35;
 	public lookAtPosition = new Vector3();
 
-	initialCameraFov = 35;
-
-	constructor() {}
+	constructor() {
+		super();
+	}
 
 	construct() {
 		if (!Debug.enable && this._appDebug?.cameraHelper) {
@@ -38,11 +45,17 @@ export class Camera implements ExperienceBase {
 					new Vector3();
 			}
 		});
+
+		this.emit(CONSTRUCTED);
 	}
 
-	destruct() {}
+	destruct() {
+		this.emit(DESTRUCTED);
+	}
 
-	update() {}
+	update() {
+		this.emit(UPDATED);
+	}
 
 	cameraZoomIn() {
 		if (this._experience.app?.camera.instance instanceof PerspectiveCamera)

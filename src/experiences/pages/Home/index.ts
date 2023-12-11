@@ -6,11 +6,15 @@ import World from "./World";
 import UI from "./UI";
 import Debug from "./Debug";
 
-// FACTORIES
+// BLUEPRINT
 import {
 	ExperienceBlueprint,
 	type ExperienceProps,
 } from "@/experiences/blueprints/Experience.blueprint";
+
+// MODELS
+import { LOADED } from "@/experiences/common/Event.model";
+import { ErrorFactory } from "@/experiences/errors/Error.factory";
 
 export class HomeExperience extends ExperienceBlueprint {
 	renderer?: Renderer;
@@ -21,58 +25,74 @@ export class HomeExperience extends ExperienceBlueprint {
 	debug?: Debug;
 
 	constructor(_?: Omit<ExperienceProps, "debug">) {
-		super(
-			HomeExperience._self ?? {
-				..._,
-				debug: Debug.enable,
-			}
-		);
-		if (HomeExperience._self) return HomeExperience._self;
-		HomeExperience._self = this;
+		try {
+			super(
+				HomeExperience._self ?? {
+					..._,
+					debug: Debug.enable,
+				}
+			);
+			if (HomeExperience._self) return HomeExperience._self;
+			HomeExperience._self = this;
 
-		this.renderer = new Renderer();
-		this.ui = new UI();
-		this.loader = new Loader();
-		this.camera = new Camera();
-		this.world = new World();
-		this.debug = new Debug();
+			this.renderer = new Renderer();
+			this.ui = new UI();
+			this.loader = new Loader();
+			this.camera = new Camera();
+			this.world = new World();
+			this.debug = new Debug();
+		} catch (_) {
+			throw new ErrorFactory(_);
+		}
 	}
 
 	public destruct() {
-		this.app.updateCallbacks[HomeExperience.name] &&
-			delete this.app.updateCallbacks[HomeExperience.name];
+		try {
+			this.app.updateCallbacks[HomeExperience.name] &&
+				delete this.app.updateCallbacks[HomeExperience.name];
 
-		this.renderer?.destruct();
-		this.ui?.destruct();
-		this.loader?.destruct();
-		this.camera?.destruct();
-		this.world?.destruct();
-		this.debug?.destruct();
-		this.app.destroy();
+			this.renderer?.destruct();
+			this.ui?.destruct();
+			this.loader?.destruct();
+			this.camera?.destruct();
+			this.world?.destruct();
+			this.debug?.destruct();
+			this.app.destroy();
 
-		HomeExperience._self = undefined;
-		this._onDestruct && this._onDestruct();
+			HomeExperience._self = undefined;
+			this._onDestruct && this._onDestruct();
+		} catch (_) {
+			throw new ErrorFactory(_);
+		}
 	}
 
 	public construct() {
-		if (this.world?.currentSceneIndex !== undefined) this.destruct();
+		try {
+			if (this.world?.currentSceneIndex !== undefined) this.destruct();
 
-		this.renderer?.construct();
-		this.ui?.construct();
-		this.camera?.construct();
-		this.loader?.on("load", () => {
-			this.world?.construct();
-			this.debug?.construct();
-			this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
-			this._onConstruct && this._onConstruct();
-		});
-		this.loader?.construct();
+			this.renderer?.construct();
+			this.ui?.construct();
+			this.camera?.construct();
+			this.loader?.on(LOADED, () => {
+				this.world?.construct();
+				this.debug?.construct();
+				this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
+				this._onConstruct && this._onConstruct();
+			});
+			this.loader?.construct();
+		} catch (_) {
+			throw new ErrorFactory(_);
+		}
 	}
 
 	public update() {
-		this.world?.update();
-		this.camera?.update();
-		this.debug?.update();
+		try {
+			this.world?.update();
+			this.camera?.update();
+			this.debug?.update();
+		} catch (_) {
+			throw new ErrorFactory(_);
+		}
 	}
 }
 

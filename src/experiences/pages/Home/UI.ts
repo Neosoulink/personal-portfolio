@@ -4,17 +4,17 @@ import { EventEmitter } from "events";
 // EXPERIENCE
 import HomeExperience from ".";
 
-// INTERFACES
-import { type ExperienceBase } from "@/interfaces/experienceBase";
+// CONFIG
+import { Config } from "@/experiences/config/Config";
 
-// CONSTANTS
-import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
+// MODELS
+import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
 
 /**
  * Class in charge of all DOM HTML interactions (HTML user interface)
  */
-export default class UI extends EventEmitter implements ExperienceBase {
-	private readonly experience = new HomeExperience();
+export default class UI extends ExperienceBasedBlueprint {
+	protected readonly _experience = new HomeExperience();
 
 	loadedResourcesProgressLineElements?: HTMLElement | null;
 	loadedResourcesProgressElements?: HTMLElement | null;
@@ -47,7 +47,7 @@ export default class UI extends EventEmitter implements ExperienceBase {
 
 	construct() {
 		// EVENTS
-		this.experience.loader?.on("start", () => {
+		this._experience.loader?.on("start", () => {
 			this.lastLoadedResourceElement?.classList.remove("animate-pulse");
 			if (this.loadedResourcesProgressLineElements)
 				this.loadedResourcesProgressLineElements.style.width = "0%";
@@ -55,7 +55,7 @@ export default class UI extends EventEmitter implements ExperienceBase {
 				this.loadedResourcesProgressElements.innerHTML = "0%";
 		});
 
-		this.experience.loader?.on("progress", (progress: number, url: string) => {
+		this._experience.loader?.on("progress", (progress: number, url: string) => {
 			if (this.loadedResourcesProgressLineElements)
 				this.loadedResourcesProgressLineElements.style.width = progress + "%";
 			if (this.loadedResourcesProgressElements)
@@ -65,7 +65,7 @@ export default class UI extends EventEmitter implements ExperienceBase {
 				this.lastLoadedResourceElement.innerHTML = url.replace(/^.*\//, "");
 		});
 
-		this.experience.loader?.on("load", () => {
+		this._experience.loader?.on("load", () => {
 			if (this.loadedResourcesProgressElements)
 				this.loadedResourcesProgressElements.innerHTML = "100%";
 			if (this.loadedResourcesProgressLineElements)
@@ -81,7 +81,7 @@ export default class UI extends EventEmitter implements ExperienceBase {
 			}, 1000);
 		});
 
-		this.experience.app.resources.startLoading();
+		this._experience.app.resources.startLoading();
 	}
 
 	destruct() {
@@ -93,7 +93,8 @@ export default class UI extends EventEmitter implements ExperienceBase {
 	intro() {
 		const _TIMELINE = GSAP.timeline();
 		_TIMELINE.to("#landing-view-wrapper", {
-			...GSAP_DEFAULT_INTRO_PROPS,
+			duration: Config.GSAP_ANIMATION_DURATION,
+			ease: Config.GSAP_ANIMATION_EASE,
 			opacity: 0,
 			delay: 2,
 			onComplete: () => {

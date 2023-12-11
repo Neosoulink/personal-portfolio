@@ -7,6 +7,7 @@ import HomeExperience from "@/experiences/pages/Home";
 
 // INTERFACES
 import { type ExperienceBase } from "@interfaces/experienceBase";
+import { LOADED } from "../common/Event.model";
 
 // TODO: Link with the names of assets in the `app.loader` assets names
 export interface ModelChildrenTextures {
@@ -42,7 +43,7 @@ export abstract class SceneBlueprint
 		this.cameraPath = _.cameraPath;
 		this._modelChildrenTextures = _.modelChildrenTextures;
 
-		this._experience.loader?.on("load", () => {
+		this._experience.loader?.on(LOADED, () => {
 			const _MODEL = this._experience.app.resources.items[_.modelName] as
 				| GLTF
 				| undefined;

@@ -14,10 +14,11 @@ import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 // EXPERIENCE
 import Experience from ".";
 
-// INTERFACES
-import { type ExperienceBase } from "@/interfaces/experienceBase";
+// BLUEPRINTS
+import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+import { DESTRUCTED } from "@/experiences/common/Event.model";
 
-export default class Debug implements ExperienceBase {
+export default class Debug extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
 	protected readonly _appDebug = this._experience.app.debug;
 	protected readonly _appCamera = this._experience.app.camera;
@@ -37,8 +38,6 @@ export default class Debug implements ExperienceBase {
 	})();
 
 	protected _cameraCurvePathLine?: Line;
-
-	constructor() {}
 
 	construct() {
 		if (!Debug.enable) {
@@ -158,6 +157,7 @@ export default class Debug implements ExperienceBase {
 		// 		"construct_experience"
 		// 	);
 		// }
+		this.emit(DESTRUCTED);
 	}
 
 	update() {

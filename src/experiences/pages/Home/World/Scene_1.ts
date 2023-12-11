@@ -1,7 +1,6 @@
 import {
 	CatmullRomCurve3,
 	Color,
-	Group,
 	Material,
 	Mesh,
 	MeshBasicMaterial,
@@ -14,15 +13,17 @@ import {
 } from "three";
 import GSAP from "gsap";
 
-// EXPERIENCES
+// BLUEPRINTS
 import { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
 
-// CONSTANTS
-import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
+// CONFIG
 
 // SHADERS
 import fragment from "./shaders/scene1/fragment.frag";
 import vertex from "./shaders/scene1/vertex.vert";
+
+// CONFIGS
+import { Config } from "@/experiences/config/Config";
 
 export default class Scene_1 extends SceneBlueprint {
 	protected _renderer = this._experience.renderer;
@@ -99,7 +100,8 @@ export default class Scene_1 extends SceneBlueprint {
 		if (!this.modelScene) return;
 
 		GSAP.to((this.modelScene.children[0] as Mesh).material as Material, {
-			...GSAP_DEFAULT_INTRO_PROPS,
+			duration: Config.GSAP_ANIMATION_DURATION,
+			ease: Config.GSAP_ANIMATION_EASE,
 			opacity: 0,
 			onUpdate: () => {},
 			onComplete: () => {
@@ -123,11 +125,12 @@ export default class Scene_1 extends SceneBlueprint {
 
 		GSAP.to(this._appCamera.instance.position, {
 			...this._experience.world?.controls?.getGsapDefaultProps(),
-			...GSAP_DEFAULT_INTRO_PROPS,
+			duration: Config.GSAP_ANIMATION_DURATION,
+			ease: Config.GSAP_ANIMATION_EASE,
 			x,
 			y,
 			z,
-			delay: GSAP_DEFAULT_INTRO_PROPS.duration * 0.8,
+			delay: Config.GSAP_ANIMATION_DURATION * 0.8,
 			onUpdate: () => {
 				WORLD_CONTROLS?.setCameraLookAt(WORLD_CONTROLS.initialLookAtPosition);
 			},

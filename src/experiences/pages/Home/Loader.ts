@@ -1,14 +1,22 @@
 import { MeshBasicMaterial, Texture, SRGBColorSpace } from "three";
-import EventEmitter from "events";
 
-// ---
-import Experience from ".";
+// EXPERIENCE
+import HomeExperience from ".";
 
-// INTERFACES
-import { type ExperienceBase } from "@/interfaces/experienceBase";
+// MODELS
+import {
+	CONSTRUCTED,
+	DESTRUCTED,
+	LOADED,
+	PROGRESSED,
+	STARTED,
+} from "@/experiences/common/Event.model";
 
-export default class Loader extends EventEmitter implements ExperienceBase {
-	protected readonly _experience = new Experience();
+// BLUEPRINTS
+import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+
+export default class Loader extends ExperienceBasedBlueprint {
+	protected readonly _experience = new HomeExperience();
 	protected readonly _appResources = this._experience.app.resources;
 
 	texturesMeshBasicMaterials: {
@@ -52,7 +60,7 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 
 	construct() {
 		~(this._appResources.loadingManager.onStart = () => {
-			this.emit("start", (this.progress = 0));
+			this.emit(STARTED, (this.progress = 0));
 		});
 
 		~(this._appResources.loadingManager.onProgress = (
@@ -61,7 +69,7 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 			itemsToLoad
 		) => {
 			this.emit(
-				"progress",
+				PROGRESSED,
 				(this.progress = (itemsLoaded / itemsToLoad) * 100),
 				itemUrl
 			);
@@ -71,9 +79,10 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 			this.correctTextures();
 			this._initMeshTextures();
 
-			this.emit("load", this.progress);
+			this.emit(LOADED, this.progress);
 		});
 
+		this.emit(CONSTRUCTED, this.progress);
 		this._appResources.startLoading();
 	}
 
@@ -87,6 +96,8 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 			/onStart|onError|onProgress|onLoad/
 		);
 		this._appResources.setSources([]);
+
+		this.emit(DESTRUCTED);
 	}
 
 	/** Correct resources texture color and flip faces. */
