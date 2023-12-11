@@ -30,8 +30,6 @@ export default class Scene_1 extends SceneFactory {
 	public pcScreenWebglTexture?: WebGLRenderTarget;
 	public pcScreen?: Mesh;
 
-	modelScene2?: Group;
-
 	constructor() {
 		try {
 			super({
@@ -50,7 +48,11 @@ export default class Scene_1 extends SceneFactory {
 					},
 					{
 						childName: "scene_1_woods",
-						linkedTextureName: "scene_1_room_woods_baked_texture",
+						linkedTextureName: "scene_1_woods_baked_texture",
+					},
+					{
+						childName: "scene_1_floor",
+						linkedTextureName: "scene_background_baked_texture",
 					},
 				],
 			});
@@ -60,6 +62,7 @@ export default class Scene_1 extends SceneFactory {
 	construct() {
 		if (!this._appCamera.instance) return;
 		this.modelScene = this._model?.scene.clone();
+		console.log(this.construct.name, this._model);
 		if (!this.modelScene) return;
 
 		try {
@@ -79,7 +82,7 @@ export default class Scene_1 extends SceneFactory {
 				// TODO:: Correctly setup the portal by passing the texture to the screen it self
 				this.pcScreen.rotateY(Math.PI * 0.271);
 				this.pcScreen.rotateX(Math.PI * -0.03);
-				this.pcScreen.position.z += 0.048;
+				this.pcScreen.position.y -= 0.05;
 				this.pcScreen.position.x -= 0.01;
 				_err.cause.localToWorld(this.pcScreen.position);
 				_err.cause.removeFromParent();
@@ -154,14 +157,15 @@ export default class Scene_1 extends SceneFactory {
 
 		this.modelScene?.children.forEach((child) => {
 			this._modelChildrenTextures.forEach((item) => {
-				const CHILD_TEXTURE =
-					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName].clone();
-
 				if (
 					child instanceof Mesh &&
 					child.name === item.childName &&
-					CHILD_TEXTURE.map
+					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName]
 				) {
+					const CHILD_TEXTURE =
+						TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName].clone();
+					if (!CHILD_TEXTURE.map) return;
+
 					const MAP_TEXTURE = CHILD_TEXTURE.map.clone();
 					MAP_TEXTURE.colorSpace = NoColorSpace;
 

@@ -39,12 +39,15 @@ export abstract class SceneFactory
 
 	constructor(_: SceneFactoryProps) {
 		super();
-		const _MODEL = this._experience.app.resources.items[_.modelName] as
-			| GLTF
-			| undefined;
-		if (_MODEL?.scene) this._model = _MODEL;
 		this.cameraPath = _.cameraPath;
 		this._modelChildrenTextures = _.modelChildrenTextures;
+
+		this._experience.loader?.on("load", () => {
+			const _MODEL = this._experience.app.resources.items[_.modelName] as
+				| GLTF
+				| undefined;
+			if (_MODEL?.scene) this._model = _MODEL;
+		});
 	}
 
 	public abstract construct(): unknown;
@@ -59,8 +62,8 @@ export abstract class SceneFactory
 
 		if (!TEXTURES_MESH_BASIC_MATERIALS) return;
 
-		this.modelScene?.children.forEach((child) => {
-			this._modelChildrenTextures.forEach((item) => {
+		this.modelScene?.children?.forEach((child) => {
+			this._modelChildrenTextures?.forEach((item) => {
 				const CHILD_TEXTURE =
 					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName];
 				if (

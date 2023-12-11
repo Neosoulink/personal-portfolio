@@ -28,14 +28,24 @@ export default class Loader extends EventEmitter implements ExperienceBase {
 				path: "/3d_models/isometric_room/scene_1_room.glb",
 			},
 			{
+				name: "scene_background",
+				type: "gltfModel",
+				path: "/3d_models/isometric_room/scene_background.glb",
+			},
+			{
 				name: "scene_1_room_baked_texture",
 				type: "texture",
 				path: "/3d_models/isometric_room/scene_1_room_baked_texture.jpg",
 			},
 			{
-				name: "scene_1_room_woods_baked_texture",
+				name: "scene_1_woods_baked_texture",
 				type: "texture",
-				path: "/3d_models/isometric_room/scene_1_room_woods_baked_texture.jpg",
+				path: "/3d_models/isometric_room/scene_1_woods_baked_texture.jpg",
+			},
+			{
+				name: "scene_background_baked_texture",
+				type: "texture",
+				path: "/3d_models/isometric_room/scene_background_baked_texture.jpg",
 			},
 		]);
 	}
