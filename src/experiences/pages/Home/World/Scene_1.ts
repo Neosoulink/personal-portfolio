@@ -15,7 +15,7 @@ import {
 import GSAP from "gsap";
 
 // EXPERIENCES
-import { SceneFactory } from "@/experiences/factories/SceneFactory";
+import { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
 
 // CONSTANTS
 import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
@@ -24,7 +24,7 @@ import { GSAP_DEFAULT_INTRO_PROPS } from "@/constants/ANIMATION";
 import fragment from "./shaders/scene1/fragment.frag";
 import vertex from "./shaders/scene1/vertex.vert";
 
-export default class Scene_1 extends SceneFactory {
+export default class Scene_1 extends SceneBlueprint {
 	protected _renderer = this._experience.renderer;
 
 	public pcScreenWebglTexture?: WebGLRenderTarget;
@@ -62,7 +62,7 @@ export default class Scene_1 extends SceneFactory {
 	construct() {
 		if (!this._appCamera.instance) return;
 		this.modelScene = this._model?.scene.clone();
-		console.log(this.construct.name, this._model);
+
 		if (!this.modelScene) return;
 
 		try {

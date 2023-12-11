@@ -8,11 +8,11 @@ import Debug from "./Debug";
 
 // FACTORIES
 import {
-	ExperienceFactory,
+	ExperienceBlueprint,
 	type ExperienceProps,
-} from "@/experiences/factories/Experience.factory";
+} from "@/experiences/blueprints/Experience.blueprint";
 
-export class HomeExperience extends ExperienceFactory {
+export class HomeExperience extends ExperienceBlueprint {
 	renderer?: Renderer;
 	ui?: UI;
 	loader?: Loader;

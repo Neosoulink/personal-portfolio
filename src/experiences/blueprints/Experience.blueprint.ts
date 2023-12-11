@@ -14,20 +14,20 @@ export interface ExperienceProps {
 	onDestruct?: () => unknown;
 }
 
-export abstract class ExperienceFactory implements ExperienceBase {
+export abstract class ExperienceBlueprint implements ExperienceBase {
 	/**
 	 * Self class reference. Used for *singleton* pattern.
 	 *
 	 * @inheritdoc Logic should be implemented in the child constructor, passing the `this` to the `_self`
 	 * */
-	protected static _self?: ExperienceFactory;
+	protected static _self?: ExperienceBlueprint;
 	protected _onConstruct?: () => unknown;
 	protected _onDestruct?: () => unknown;
 	/** [`quick-threejs`](https://www.npmjs.com/package/quick-threejs) instance. */
 	readonly app!: QuickThree;
-	/** To make the singleton logic, refer to the {@link ExperienceFactory._self `#_self`} declaration */
-	constructor(_?: ExperienceProps | ExperienceFactory) {
-		if (!(_ instanceof ExperienceFactory) && _) {
+	/** To make the singleton logic, refer to the {@link ExperienceBlueprint._self `#_self`} declaration */
+	constructor(_?: ExperienceProps | ExperienceBlueprint) {
+		if (!(_ instanceof ExperienceBlueprint) && _) {
 			this.app = new QuickThree(
 				{
 					enableDebug: true,

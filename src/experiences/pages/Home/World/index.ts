@@ -9,9 +9,9 @@ import Scene_3 from "./Scene_3";
 import SceneBackground from "./SceneBackground";
 
 // BLUEPRINTS
-import { ExperienceBasedFactory } from "@/experiences/factories/ExperienceBased.factory";
+import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
 
-export default class World extends ExperienceBasedFactory {
+export default class World extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
 	protected readonly _appCamera = this._experience.app.camera;
 	protected readonly _renderer = this._experience.renderer;
@@ -80,8 +80,6 @@ export default class World extends ExperienceBasedFactory {
 		this.scene2?.construct();
 		// this.scene3.construct();
 		this.sceneBackground?.construct();
-
-		console.log("Scene 1 ==>", this.scene1);
 
 		if (
 			this.scene1?.modelScene &&

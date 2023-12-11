@@ -14,13 +14,13 @@ export interface ModelChildrenTextures {
 	linkedTextureName: string;
 }
 
-export interface SceneFactoryProps {
+export interface SceneBlueprintProps {
 	cameraPath: CatmullRomCurve3;
 	modelName: string;
 	modelChildrenTextures: ModelChildrenTextures[];
 }
 
-export abstract class SceneFactory
+export abstract class SceneBlueprint
 	extends EventEmitter
 	implements ExperienceBase
 {
@@ -37,7 +37,7 @@ export abstract class SceneFactory
 		destructed: "destructed",
 	};
 
-	constructor(_: SceneFactoryProps) {
+	constructor(_: SceneBlueprintProps) {
 		super();
 		this.cameraPath = _.cameraPath;
 		this._modelChildrenTextures = _.modelChildrenTextures;
