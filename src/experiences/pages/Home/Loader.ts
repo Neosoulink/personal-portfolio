@@ -31,9 +31,14 @@ export default class Loader extends ExperienceBasedBlueprint {
 		this._appResources.setDracoLoader("/decoders/draco/");
 		this._appResources.setSources([
 			{
-				name: "scene_1_room",
+				name: "scene_1",
 				type: "gltfModel",
-				path: "/3d_models/isometric_room/scene_1_room.glb",
+				path: "/3d_models/isometric_room/scene_1.glb",
+			},
+			{
+				name: "scene_2",
+				type: "gltfModel",
+				path: "/3d_models/isometric_room/scene_2.glb",
 			},
 			{
 				name: "scene_background",
@@ -51,9 +56,14 @@ export default class Loader extends ExperienceBasedBlueprint {
 				path: "/3d_models/isometric_room/scene_1_woods_baked_texture.jpg",
 			},
 			{
-				name: "scene_background_baked_texture",
+				name: "scene_2_logos_baked_texture",
 				type: "texture",
-				path: "/3d_models/isometric_room/scene_background_baked_texture.jpg",
+				path: "/3d_models/isometric_room/scene_2_logos_baked_texture.jpg",
+			},
+			{
+				name: "scene_container_baked_texture",
+				type: "texture",
+				path: "/3d_models/isometric_room/scene_container_baked_texture.jpg",
 			},
 		]);
 	}

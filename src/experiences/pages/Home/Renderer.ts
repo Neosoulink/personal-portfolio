@@ -3,6 +3,7 @@ import {
 	Box3,
 	Matrix4,
 	Mesh,
+	NoToneMapping,
 	PCFShadowMap,
 	PerspectiveCamera,
 	SRGBColorSpace,
@@ -55,7 +56,7 @@ export default class Renderer extends ExperienceBasedBlueprint {
 		// Configure renderer behaviors
 		~(() => {
 			this._appRendererInstance.outputColorSpace = SRGBColorSpace;
-			this._appRendererInstance.toneMapping = ACESFilmicToneMapping;
+			this._appRendererInstance.toneMapping = NoToneMapping;
 			this._appRendererInstance.toneMappingExposure = 1;
 			this._appRendererInstance.shadowMap.enabled = false;
 			this._appRendererInstance.shadowMap.type = PCFShadowMap;

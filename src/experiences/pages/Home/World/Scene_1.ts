@@ -41,7 +41,7 @@ export default class Scene_1 extends SceneBlueprint {
 					new Vector3(12, 3.7, 12),
 					new Vector3(0, 5.5, 21),
 				]),
-				modelName: "scene_1_room",
+				modelName: "scene_1",
 				modelChildrenTextures: [
 					{
 						childName: "scene_1_room",
@@ -53,7 +53,7 @@ export default class Scene_1 extends SceneBlueprint {
 					},
 					{
 						childName: "scene_1_floor",
-						linkedTextureName: "scene_background_baked_texture",
+						linkedTextureName: "scene_container_baked_texture",
 					},
 				],
 			});
@@ -152,38 +152,38 @@ export default class Scene_1 extends SceneBlueprint {
 
 	public update(): void {}
 
-	protected _setModelMaterials() {
-		const TEXTURES_MESH_BASIC_MATERIALS =
-			this._Loader?.texturesMeshBasicMaterials;
+	// protected _setModelMaterials() {
+	// 	const TEXTURES_MESH_BASIC_MATERIALS =
+	// 		this._Loader?.texturesMeshBasicMaterials;
 
-		if (!TEXTURES_MESH_BASIC_MATERIALS) return;
+	// 	if (!TEXTURES_MESH_BASIC_MATERIALS) return;
 
-		this.modelScene?.children.forEach((child) => {
-			this._modelChildrenTextures.forEach((item) => {
-				if (
-					child instanceof Mesh &&
-					child.name === item.childName &&
-					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName]
-				) {
-					const CHILD_TEXTURE =
-						TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName].clone();
-					if (!CHILD_TEXTURE.map) return;
+	// 	this.modelScene?.children.forEach((child) => {
+	// 		this._modelChildrenTextures.forEach((item) => {
+	// 			if (
+	// 				child instanceof Mesh &&
+	// 				child.name === item.childName &&
+	// 				TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName]
+	// 			) {
+	// 				const CHILD_TEXTURE =
+	// 					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName].clone();
+	// 				if (!CHILD_TEXTURE.map) return;
 
-					const MAP_TEXTURE = CHILD_TEXTURE.map.clone();
-					MAP_TEXTURE.colorSpace = NoColorSpace;
+	// 				const MAP_TEXTURE = CHILD_TEXTURE.map.clone();
+	// 				MAP_TEXTURE.colorSpace = NoColorSpace;
 
-					~(child.material = new RawShaderMaterial({
-						uniforms: {
-							uBakedTexture: { value: MAP_TEXTURE },
-							uTime: { value: 0 },
-							uColor: { value: new Color(0x00ff00) },
-						},
-						fragmentShader: fragment,
-						vertexShader: vertex,
-						transparent: true,
-					}));
-				}
-			});
-		});
-	}
+	// 				~(child.material = new RawShaderMaterial({
+	// 					uniforms: {
+	// 						uBakedTexture: { value: MAP_TEXTURE },
+	// 						uTime: { value: 0 },
+	// 						uColor: { value: new Color(0x00ff00) },
+	// 					},
+	// 					fragmentShader: fragment,
+	// 					vertexShader: vertex,
+	// 					transparent: true,
+	// 				}));
+	// 			}
+	// 		});
+	// 	});
+	// }
 }

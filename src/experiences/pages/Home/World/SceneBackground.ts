@@ -22,7 +22,7 @@ export default class SceneBackground extends SceneBlueprint {
 				modelChildrenTextures: [
 					{
 						childName: "scene_background",
-						linkedTextureName: "scene_background_baked_texture",
+						linkedTextureName: "scene_container_baked_texture",
 					},
 				],
 			});

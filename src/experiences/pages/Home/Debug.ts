@@ -17,6 +17,7 @@ import Experience from ".";
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
 import { DESTRUCTED } from "@/experiences/common/Event.model";
+import { Config } from "@/experiences/config/Config";
 
 export default class Debug extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
@@ -29,13 +30,7 @@ export default class Debug extends ExperienceBasedBlueprint {
 	/** Indicate where the camera is looking at. */
 	protected cameraLookAtPointIndicator?: Mesh;
 	/** Running experience in debug mode */
-	static readonly enable = (() => {
-		try {
-			return useRuntimeConfig().public.env === "development";
-		} catch (_) {
-			return false;
-		}
-	})();
+	static readonly enable = !Config.DEBUG;
 
 	protected _cameraCurvePathLine?: Line;
 

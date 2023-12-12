@@ -11,6 +11,9 @@ import SceneBackground from "./SceneBackground";
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
 
+// MODELS
+import { CONSTRUCTED, DESTRUCTED } from "@/experiences/common/Event.model";
+
 export default class World extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
 	protected readonly _appCamera = this._experience.app.camera;
@@ -60,20 +63,20 @@ export default class World extends ExperienceBasedBlueprint {
 
 			this.group?.clear();
 			this.group = undefined;
+			this.emit(DESTRUCTED, this);
 		}
 	}
 
 	public construct() {
-		if (!(this._experience.app.camera.instance instanceof PerspectiveCamera))
-			return;
+		if (!(this._appCamera.instance instanceof PerspectiveCamera)) return;
 
 		this.group = new Group();
 		this.controls = new Controls();
 		this.secondaryCamera = new PerspectiveCamera(
-			(this._appCamera.instance as PerspectiveCamera).fov,
-			(this._appCamera.instance as PerspectiveCamera).aspect,
-			(this._appCamera.instance as PerspectiveCamera).near,
-			(this._appCamera.instance as PerspectiveCamera).far
+			this._appCamera.instance.fov,
+			this._appCamera.instance.aspect,
+			this._appCamera.instance.near,
+			this._appCamera.instance.far
 		);
 
 		this.scene1?.construct();
@@ -102,8 +105,12 @@ export default class World extends ExperienceBasedBlueprint {
 		}
 
 		if (this.sceneBackground?.modelScene) {
-			this.sceneBackground.modelScene &&
-				this.group.add(this.sceneBackground.modelScene);
+			const scene_2_background = this.sceneBackground.modelScene.clone();
+
+			scene_2_background.position.copy(
+				this.scene2?.modelScene?.position ?? new Vector3()
+			);
+			this.group.add(this.sceneBackground.modelScene, scene_2_background);
 		}
 
 		this.secondaryCamera.position.copy(
@@ -112,14 +119,14 @@ export default class World extends ExperienceBasedBlueprint {
 		this.secondaryCamera.position.set(
 			this.scene2?.modelScene?.position.x ?? 0,
 			8,
-			30
+			20
 		);
 		this.secondaryCamera.lookAt(
 			this.scene2?.modelScene?.position ?? new Vector3()
 		);
 
 		this._experience.app.scene.add(this.group);
-		this.emit("constructed", this);
+		this.emit(CONSTRUCTED, this);
 	}
 
 	public nextScene() {}
