@@ -1,4 +1,4 @@
-import { MeshBasicMaterial, Texture, SRGBColorSpace } from "three";
+import { MeshBasicMaterial, Texture, LinearSRGBColorSpace } from "three";
 
 // EXPERIENCE
 import HomeExperience from ".";
@@ -116,7 +116,7 @@ export default class Loader extends ExperienceBasedBlueprint {
 			const ITEM = this._appResources.items[key];
 			if (ITEM instanceof Texture) {
 				ITEM.flipY = false;
-				ITEM.colorSpace = SRGBColorSpace;
+				ITEM.colorSpace = LinearSRGBColorSpace;
 			}
 		});
 	}

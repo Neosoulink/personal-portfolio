@@ -1,11 +1,11 @@
 import {
 	Box3,
+	LinearSRGBColorSpace,
 	Matrix4,
 	Mesh,
 	NoToneMapping,
 	PCFShadowMap,
 	PerspectiveCamera,
-	SRGBColorSpace,
 	Vector3,
 	WebGLRenderTarget,
 } from "three";
@@ -53,7 +53,7 @@ export default class Renderer extends ExperienceBasedBlueprint {
 	public construct() {
 		// Configure renderer behaviors
 		~(() => {
-			this._appRendererInstance.outputColorSpace = SRGBColorSpace;
+			this._appRendererInstance.outputColorSpace = LinearSRGBColorSpace;
 			this._appRendererInstance.toneMapping = NoToneMapping;
 			this._appRendererInstance.toneMappingExposure = 1;
 			this._appRendererInstance.shadowMap.enabled = false;
