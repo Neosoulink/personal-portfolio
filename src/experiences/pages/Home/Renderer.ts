@@ -1,5 +1,4 @@
 import {
-	ACESFilmicToneMapping,
 	Box3,
 	Matrix4,
 	Mesh,
@@ -15,7 +14,6 @@ import {
 import HomeExperience from ".";
 
 // INTERFACES
-import { type ExperienceBase } from "@/interfaces/experienceBase";
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
 
 export interface PortalAssets {
@@ -145,7 +143,7 @@ export default class Renderer extends ExperienceBasedBlueprint {
 		mesh.visible = true;
 	}
 
-	public addPortalMeshAssets(portalName: string, assets: PortalAssets): void {
+	public addPortalAssets(portalName: string, assets: PortalAssets): void {
 		// Calculate width, height
 		const boundingBox = new Box3().setFromObject(assets.mesh);
 		const width = boundingBox.max.x - boundingBox.min.x;
@@ -183,7 +181,7 @@ export default class Renderer extends ExperienceBasedBlueprint {
 		};
 	}
 
-	public removeBeforeUpdateCallback(portalName: string): void {
+	public removePortalAssets(portalName: string): void {
 		if (this._renderPortalAssets[portalName])
 			delete this._renderPortalAssets[portalName];
 	}

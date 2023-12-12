@@ -11,4 +11,18 @@ export abstract class CommonConfig {
 			return false;
 		}
 	})();
+	static readonly FIXED_WINDOW_HEIGHT = (() => {
+		try {
+			return window.outerHeight
+		} catch (_) {
+			return 0;
+		}
+	})();
+	static readonly FIXED_WINDOW_WIDTH = (() => {
+		try {
+			return window.outerWidth
+		} catch (_) {
+			return 0;
+		}
+	})();
 }

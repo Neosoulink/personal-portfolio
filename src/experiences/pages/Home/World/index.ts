@@ -1,5 +1,4 @@
 import { Group, Mesh, PerspectiveCamera, Vector3 } from "three";
-
 // EXPERIENCE
 import Experience from "..";
 import Controls from "./Controls";
@@ -13,6 +12,7 @@ import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBas
 
 // MODELS
 import { CONSTRUCTED, DESTRUCTED } from "@/experiences/common/Event.model";
+import { Config } from "@/experiences/config/Config";
 
 export default class World extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
@@ -74,7 +74,7 @@ export default class World extends ExperienceBasedBlueprint {
 		this.controls = new Controls();
 		this.secondaryCamera = new PerspectiveCamera(
 			this._appCamera.instance.fov,
-			this._appCamera.instance.aspect,
+			Config.FIXED_WINDOW_WIDTH / Config.FIXED_WINDOW_HEIGHT,
 			this._appCamera.instance.near,
 			this._appCamera.instance.far
 		);
@@ -89,7 +89,7 @@ export default class World extends ExperienceBasedBlueprint {
 			this.scene1.pcScreen &&
 			this.scene1.pcScreenWebglTexture
 		) {
-			this._renderer?.addPortalMeshAssets(Scene_1.name + "_pc_screen", {
+			this._renderer?.addPortalAssets(Scene_1.name + "_pc_screen", {
 				mesh: this.scene1.pcScreen,
 				meshCamera: this.secondaryCamera,
 				meshWebGLTexture: this.scene1.pcScreenWebglTexture,
@@ -113,6 +113,26 @@ export default class World extends ExperienceBasedBlueprint {
 			this.group.add(this.sceneBackground.modelScene, scene_2_background);
 		}
 
+		// ==============
+		this._appCamera.instance.position.set(0, 3, 0.5);
+		this._appCamera.instance.position.copy(
+			this._appCamera.instance.position.lerpVectors(
+				this._appCamera.instance.position.clone(),
+				(this.scene1?.pcScreen?.position ?? new Vector3()).clone(),
+				0.85
+			)
+		);
+
+		this._appCamera.instance.lookAt(
+			this.scene1?.pcScreen?.position ?? new Vector3()
+		);
+		if (this._experience.app?.debug?.cameraControls)
+			this._experience.app.debug.cameraControls.target = (
+				this.scene1?.pcScreen?.position ?? new Vector3()
+			).clone();
+
+		// ==============
+
 		this.secondaryCamera.position.copy(
 			this.scene2?.modelScene?.position ?? new Vector3()
 		);
@@ -134,6 +154,6 @@ export default class World extends ExperienceBasedBlueprint {
 	public prevScene() {}
 
 	public update() {
-		this.controls?.update();
+		// this.controls?.update();
 	}
 }

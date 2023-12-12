@@ -74,10 +74,14 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.ui?.construct();
 			this.camera?.construct();
 			this.loader?.on(LOADED, () => {
-				this.world?.construct();
-				this.debug?.construct();
-				this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
-				this._onConstruct && this._onConstruct();
+				try {
+					this.world?.construct();
+					this.debug?.construct();
+					this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
+					this._onConstruct && this._onConstruct();
+				} catch (_) {
+					throw new ErrorFactory(_);
+				}
 			});
 			this.loader?.construct();
 		} catch (_) {
