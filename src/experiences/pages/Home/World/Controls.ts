@@ -5,10 +5,10 @@ import GSAP from "gsap";
 import Experience from "..";
 import { Camera } from "../Camera";
 
-// INTERFACES
-import { type ExperienceBase } from "@/interfaces/experienceBase";
+// BLUEPRINTS
+import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
 
-export default class Controls implements ExperienceBase {
+export default class Controls extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
 
 	rayCaster = new THREE.Raycaster();
@@ -68,6 +68,8 @@ export default class Controls implements ExperienceBase {
 	}[] = [];
 
 	constructor() {
+		super();
+
 		if (
 			this._experience.app?.camera.instance instanceof THREE.PerspectiveCamera
 		) {
