@@ -23,7 +23,8 @@ export default class Debug extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
 	protected readonly _appDebug = this._experience.app.debug;
 	protected readonly _appCamera = this._experience.app.camera;
-	protected _worldSecondaryCameraHelper?: CameraHelper;
+	protected readonly _camera = this._experience.camera;
+	protected readonly _worldCameraHelpers?: CameraHelper[] = [];
 
 	/** Graphic user interface of the experience instance */
 	protected _gui?: GUI;
@@ -51,13 +52,11 @@ export default class Debug extends ExperienceBasedBlueprint {
 			new MeshBasicMaterial({ color: "#ff0040" })
 		);
 		this.cameraLookAtPointIndicator.visible = false;
-
-		if (!this._experience.camera?.secondaryCamera) return;
-
-		this._worldSecondaryCameraHelper = new CameraHelper(
-			this._experience.camera.secondaryCamera
-		);
-		this._experience.app.scene.add(this._worldSecondaryCameraHelper);
+		this._camera?.cameras.forEach((item, id) => {
+			const cameraHelper = new CameraHelper(item);
+			this._worldCameraHelpers?.push(cameraHelper);
+			this._experience.app.scene.add(cameraHelper);
+		});
 
 		this._gui
 			.add(
@@ -118,6 +117,18 @@ export default class Debug extends ExperienceBasedBlueprint {
 				"fn"
 			)
 			.name("Toggle auto camera animation");
+
+		this._gui
+			.add(
+				{
+					fn: () => {
+						const WorldManager = this._experience.world?.manager;
+						if (WorldManager) WorldManager.nextScene();
+					},
+				},
+				"fn"
+			)
+			.name("Next Scene");
 
 		this._experience.app.scene.add(
 			this._cameraCurvePathLine,

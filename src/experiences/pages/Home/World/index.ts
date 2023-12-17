@@ -13,6 +13,9 @@ import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBas
 // MODELS
 import { CONSTRUCTED, DESTRUCTED } from "@/experiences/common/Event.model";
 
+// MODELS
+import { CAMERA_UNAVAILABLE } from "@/experiences/common/error.model";
+
 export default class World extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
 	protected readonly _appCamera = this._experience.app.camera;
@@ -67,7 +70,8 @@ export default class World extends ExperienceBasedBlueprint {
 	}
 
 	public construct() {
-		if (!(this._appCamera.instance instanceof PerspectiveCamera)) return;
+		if (!(this._appCamera.instance instanceof PerspectiveCamera))
+			throw new Error(undefined, { cause: CAMERA_UNAVAILABLE });
 
 		this.group = new Group();
 		this.manager = new WorldManager();
@@ -82,11 +86,7 @@ export default class World extends ExperienceBasedBlueprint {
 		this.emit(CONSTRUCTED, this);
 	}
 
-	public nextScene() {}
-
-	public prevScene() {}
-
 	public update() {
-		// this.manager?.update();
+		this.manager?.update();
 	}
 }

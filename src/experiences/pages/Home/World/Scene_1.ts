@@ -16,8 +16,6 @@ import GSAP from "gsap";
 // BLUEPRINTS
 import { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
 
-// CONFIG
-
 // SHADERS
 import fragment from "./shaders/scene1/fragment.frag";
 import vertex from "./shaders/scene1/vertex.vert";
@@ -132,7 +130,7 @@ export default class Scene_1 extends SceneBlueprint {
 			z,
 			delay: Config.GSAP_ANIMATION_DURATION * 0.8,
 			onUpdate: () => {
-				WorldManager?.setCameraLookAt(WorldManager.initialLookAtPosition);
+				// this._camera?.setCameraLookAt(WorldManager.initialLookAtPosition);
 			},
 			onComplete: () => {
 				setTimeout(() => {
