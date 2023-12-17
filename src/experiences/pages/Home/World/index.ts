@@ -24,9 +24,7 @@ export default class World extends ExperienceBasedBlueprint {
 	public scene2?: Scene_2;
 	public scene3?: Scene_3;
 	public sceneBackground?: SceneBackground;
-
 	public manager?: WorldManager;
-	public currentSceneIndex?: number;
 	/** Represent the ThreeJs `Group` containing the experience. */
 	public group?: Group;
 

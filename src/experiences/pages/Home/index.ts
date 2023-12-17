@@ -68,8 +68,6 @@ export class HomeExperience extends ExperienceBlueprint {
 
 	public construct() {
 		try {
-			if (this.world?.currentSceneIndex !== undefined) this.destruct();
-
 			this.renderer?.construct();
 			this.ui?.construct();
 			this.loader?.on(LOADED, () => {

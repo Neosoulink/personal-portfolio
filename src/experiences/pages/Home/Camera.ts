@@ -24,12 +24,19 @@ export class Camera extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 	protected readonly _appCamera = this._experience.app.camera;
 	protected readonly _appDebug = this._experience.app.debug;
-	protected _currentCameraIndex: number = 0;
+	protected _currentCameraIndex = 0;
+	protected _prevCameraProps = {
+		fov: 0,
+		aspect: 0,
+		near: 0,
+		far: 0,
+	};
+	public readonly initialCameraFov = 35;
 
 	public readonly cameras: PerspectiveCamera[] = [
 		(() =>
 			this._appCamera.instance instanceof PerspectiveCamera
-				? this._appCamera.instance.clone()
+				? new PerspectiveCamera().copy(this._appCamera.instance)
 				: new PerspectiveCamera())(),
 		(() =>
 			this._appCamera.instance instanceof PerspectiveCamera
@@ -42,7 +49,6 @@ export class Camera extends ExperienceBasedBlueprint {
 				: new PerspectiveCamera())(),
 	];
 
-	public readonly initialCameraFov = 35;
 	public lookAtPosition = new Vector3();
 
 	constructor() {
@@ -62,9 +68,14 @@ export class Camera extends ExperienceBasedBlueprint {
 
 		if (!(this._appCamera?.instance instanceof PerspectiveCamera)) return;
 
-		this._appCamera.instance.fov = this.initialCameraFov;
-		this._appCamera.instance.far = 500;
+		this.correctAspect();
 		this._appCamera.miniCamera?.position.set(10, 8, 30);
+		this._prevCameraProps = {
+			fov: this._appCamera.instance.fov,
+			aspect: this._appCamera.instance.aspect,
+			near: this._appCamera.instance.near,
+			far: this._appCamera.instance.far,
+		};
 
 		if (this._appDebug?.cameraControls) {
 			this._appDebug.cameraControls.target =
@@ -115,12 +126,27 @@ export class Camera extends ExperienceBasedBlueprint {
 		const nextCamera = this.cameras[cameraIndex];
 
 		currentCamera.copy(this._appCamera.instance);
-		this._appCamera.instance.copy(nextCamera);
-		this._appCamera.instance.fov = currentCamera.fov;
-		this._appCamera.instance.aspect = currentCamera.aspect;
-		this._appCamera.instance.near = currentCamera.near;
-		this._appCamera.instance.far = currentCamera.far;
+		currentCamera.fov = nextCamera.fov;
+		currentCamera.aspect = nextCamera.aspect;
+		currentCamera.near = nextCamera.near;
+		currentCamera.far = nextCamera.far;
 
+		this._appCamera.instance.copy(nextCamera);
+
+		this._appCamera.instance.fov = this._prevCameraProps.fov;
+		this._appCamera.instance.aspect = this._prevCameraProps.aspect;
+		this._appCamera.instance.near = this._prevCameraProps.near;
+		this._appCamera.instance.far = this._prevCameraProps.far;
+
+		this.correctAspect();
+		currentCamera.updateProjectionMatrix();
+
+		this._prevCameraProps = {
+			fov: nextCamera.fov,
+			aspect: nextCamera.aspect,
+			near: nextCamera.near,
+			far: nextCamera.far,
+		};
 		this._currentCameraIndex = cameraIndex;
 	}
 
@@ -138,4 +164,12 @@ export class Camera extends ExperienceBasedBlueprint {
 	}
 
 	update() {}
+
+	public correctAspect() {
+		if (!(this._appCamera.instance instanceof PerspectiveCamera)) return;
+
+		this._appCamera.instance.fov = this.initialCameraFov;
+		this._appCamera.instance.far = 500;
+		this._appCamera.resize();
+	}
 }

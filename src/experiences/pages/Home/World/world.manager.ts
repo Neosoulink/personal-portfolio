@@ -1,11 +1,12 @@
-import { CatmullRomCurve3, PerspectiveCamera, Raycaster, Vector3 } from "three";
 import GSAP from "gsap";
+import { CatmullRomCurve3, PerspectiveCamera, Raycaster, Vector3 } from "three";
 
 // EXPERIENCE
 import Experience from "..";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+import type { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
 import { CONSTRUCTED } from "@/experiences/common/Event.model";
 
 export default class WorldManager extends ExperienceBasedBlueprint {
@@ -15,14 +16,17 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 	protected readonly _world = this._experience.world;
 	protected readonly _renderer = this._experience.renderer;
 
-	rayCaster = new Raycaster();
-	normalizedCursorPosition = { x: 0, y: 0 };
-	initialLookAtPosition = new Vector3(0, 2, 0);
+	public currentSceneIndex = 0;
+	public availableScenes: SceneBlueprint[] = [];
 
+	// TODO: Reorder properties
+	public rayCaster = new Raycaster();
+	public normalizedCursorPosition = { x: 0, y: 0 };
+	public initialLookAtPosition = new Vector3(0, 2, 0);
 	/**
 	 * The curve path of the camera
 	 */
-	cameraCurvePath = new CatmullRomCurve3([
+	public cameraCurvePath = new CatmullRomCurve3([
 		new Vector3(0, 5.5, 21),
 		new Vector3(12, 10, 12),
 		new Vector3(21, 5.5, 0),
@@ -32,47 +36,48 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 	/**
 	 * Current curve path position of the camera.
 	 */
-	cameraCurvePosition = new Vector3();
-	cameraCurvePathProgress = {
+	public cameraCurvePosition = new Vector3();
+	public cameraCurvePathProgress = {
 		current: 0,
 		target: 0,
 		ease: 0.1,
 	};
-
 	/**
 	 * Where the camera will look at.
 	 */
-	cameraLookAtPosition = new Vector3(0, 2, 0);
+	public cameraLookAtPosition = new Vector3(0, 2, 0);
 	/**
 	 * Enable auto curve path animation
 	 */
-	autoCameraAnimation = false;
+	public autoCameraAnimation = false;
 	/**
 	 * GSAP animation watcher. If GSAP is currently animating
 	 */
-	isGsapAnimating = false;
+	public isGsapAnimating = false;
 	/**
 	 * Curve path backward animation
 	 */
-	backwardCurveAnimation = false;
+	public backwardCurveAnimation = false;
+	public focusPointPositionIndex: number = 0;
+	public focusedPosition?: Vector3;
+	public focusedRadius = 2;
+	public focusedAngleX = 0;
+	public focusedAngleY = 0;
+	public mouseDowned = false;
+	public mouseOverBubble = false;
+	public lastMouseCoordinate = { x: 0, y: 0 };
 
-	focusPointPositionIndex: number = 0;
-	focusedPosition?: Vector3;
-	focusedRadius = 2;
-	focusedAngleX = 0;
-	focusedAngleY = 0;
-
-	mouseDowned = false;
-	mouseOverBubble = false;
-	lastMouseCoordinate = { x: 0, y: 0 };
-
-	modelBubbles: {
+	public modelBubbles: {
 		coordinates: Vector3;
 		DOMelement: HTMLElement;
 	}[] = [];
 
 	constructor() {
 		super();
+
+		this._world?.scene1 && this.availableScenes.push(this._world?.scene1);
+		this._world?.scene2 && this.availableScenes.push(this._world?.scene2);
+		// this._world?.scene3 && this.availableScenes.push(this._world?.scene3);
 
 		// No more camera movements triggered by the mouse | Using Orbit control
 		// this.setWheelEventListener();
@@ -82,12 +87,7 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 	}
 
 	construct() {
-		if (this._experience.app?.camera.instance instanceof PerspectiveCamera)
-			this.cameraCurvePath.getPointAt(
-				0,
-				this._experience.app?.camera.instance.position
-			);
-
+		const currentCamera = this._camera?.cameras[0];
 		const secondaryCamera = this._camera?.cameras[1];
 
 		if (
@@ -96,6 +96,9 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 			this._world?.scene1.pcScreenWebglTexture &&
 			secondaryCamera
 		) {
+			if (currentCamera instanceof PerspectiveCamera)
+				this.cameraCurvePath.getPointAt(0, currentCamera.position);
+
 			this._renderer?.addPortalAssets(this._world?.scene1 + "_pc_screen", {
 				mesh: this._world?.scene1.pcScreen,
 				meshCamera: secondaryCamera,
@@ -138,9 +141,7 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 				0.85
 			)
 		);
-
 		this._camera?.setCameraLookAt(PC_SCREEN_POSITION);
-
 		// ==============
 
 		secondaryCamera?.position.copy(
@@ -328,14 +329,24 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 	}
 
 	public nextScene() {
+		const nextSceneIndex =
+			this.currentSceneIndex + 1 > this.availableScenes.length - 1
+				? 0
+				: this.currentSceneIndex + 1;
+
+		this._camera?.switchCamera(nextSceneIndex > 0 ? 1 : 0);
 		this._camera?.setCameraLookAt(
-			this._world?.scene2?.modelScene?.position.clone() ?? new Vector3()
+			nextSceneIndex > 0
+				? this.availableScenes[nextSceneIndex]?.modelScene?.position.clone() ??
+						new Vector3()
+				: (this._world?.scene1?.pcScreen?.position ?? new Vector3()).clone()
 		);
-		this._camera?.switchCamera(1);
-		this._renderer?.removePortalAssets(this._world?.scene1 + "_pc_screen");
+		this.currentSceneIndex = nextSceneIndex;
 	}
 
 	public prevScene() {}
+
+	public setScene(sceneIndex: number) {}
 
 	update() {
 		if (this.autoCameraAnimation && !this.isGsapAnimating) {
