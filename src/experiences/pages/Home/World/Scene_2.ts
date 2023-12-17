@@ -47,40 +47,7 @@ export default class Scene_2 extends SceneBlueprint {
 		this.emit(this.eventListNames.destructed);
 	}
 
-	public intro(): void {
-		const WORLD_CONTROLS = this._experience.world?.controls;
-
-		if (
-			!(WORLD_CONTROLS && this._appCamera.instance instanceof PerspectiveCamera)
-		)
-			return;
-
-		const { x, y, z } = this.cameraPath.getPointAt(0);
-
-		GSAP.to(this._appCamera.instance.position, {
-			...this._experience.world?.controls?.getGsapDefaultProps(),
-			duration: Config.GSAP_ANIMATION_DURATION,
-			ease: Config.GSAP_ANIMATION_EASE,
-			x,
-			y,
-			z,
-			delay: Config.GSAP_ANIMATION_DURATION * 0.8,
-			onUpdate: () => {
-				WORLD_CONTROLS?.setCameraLookAt(WORLD_CONTROLS.initialLookAtPosition);
-			},
-			onComplete: () => {
-				setTimeout(() => {
-					if (this._experience.world?.controls) {
-						WORLD_CONTROLS?.getGsapDefaultProps().onComplete();
-
-						this._experience.world.controls.autoCameraAnimation = true;
-
-						console.log(this._appCamera.instance?.position);
-					}
-				}, 1000);
-			},
-		});
-	}
+	public intro(): void {}
 
 	public outro(): void {}
 

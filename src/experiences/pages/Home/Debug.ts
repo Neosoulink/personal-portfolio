@@ -30,7 +30,7 @@ export default class Debug extends ExperienceBasedBlueprint {
 	/** Indicate where the camera is looking at. */
 	protected cameraLookAtPointIndicator?: Mesh;
 	/** Running experience in debug mode */
-	static readonly enable = !Config.DEBUG;
+	static readonly enable = Config.DEBUG;
 
 	protected _cameraCurvePathLine?: Line;
 
@@ -52,10 +52,10 @@ export default class Debug extends ExperienceBasedBlueprint {
 		);
 		this.cameraLookAtPointIndicator.visible = false;
 
-		if (!this._experience.world?.secondaryCamera) return;
+		if (!this._experience.camera?.secondaryCamera) return;
 
 		this._worldSecondaryCameraHelper = new CameraHelper(
-			this._experience.world.secondaryCamera
+			this._experience.camera.secondaryCamera
 		);
 		this._experience.app.scene.add(this._worldSecondaryCameraHelper);
 
@@ -85,10 +85,10 @@ export default class Debug extends ExperienceBasedBlueprint {
 			.add(
 				{
 					fn: () => {
-						const WORLD_CONTROLS = this._experience.world?.controls;
+						const WorldManager = this._experience.world?.manager;
 						if (
 							!(
-								WORLD_CONTROLS &&
+								WorldManager &&
 								this._experience.app.camera.instance instanceof
 									PerspectiveCamera
 							)
@@ -109,10 +109,10 @@ export default class Debug extends ExperienceBasedBlueprint {
 			.add(
 				{
 					fn: () => {
-						const WORLD_CONTROLS = this._experience.world?.controls;
-						if (WORLD_CONTROLS)
-							WORLD_CONTROLS.autoCameraAnimation =
-								!WORLD_CONTROLS.autoCameraAnimation;
+						const WorldManager = this._experience.world?.manager;
+						if (WorldManager)
+							WorldManager.autoCameraAnimation =
+								!WorldManager.autoCameraAnimation;
 					},
 				},
 				"fn"

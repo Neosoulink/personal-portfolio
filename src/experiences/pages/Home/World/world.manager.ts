@@ -7,9 +7,14 @@ import { Camera } from "../Camera";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+import { CONSTRUCTED } from "@/experiences/common/Event.model";
 
 export default class WorldManager extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
+	protected readonly _appCamera = this._experience.app.camera;
+	protected readonly _camera = this._experience.camera;
+	protected readonly _world = this._experience.world;
+	protected readonly _renderer = this._experience.renderer;
 
 	rayCaster = new THREE.Raycaster();
 	normalizedCursorPosition = { x: 0, y: 0 };
@@ -70,15 +75,6 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 	constructor() {
 		super();
 
-		if (
-			this._experience.app?.camera.instance instanceof THREE.PerspectiveCamera
-		) {
-			this.cameraCurvePath.getPointAt(
-				0,
-				this._experience.app?.camera.instance.position
-			);
-		}
-
 		// No more camera movements triggered by the mouse | Using Orbit control
 		// this.setWheelEventListener();
 		// this.setMouseMoveEventListener();
@@ -86,7 +82,89 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		// this.setMouseUpEventListener();
 	}
 
-	construct() {}
+	construct() {
+		if (
+			this._experience.app?.camera.instance instanceof THREE.PerspectiveCamera
+		)
+			this.cameraCurvePath.getPointAt(
+				0,
+				this._experience.app?.camera.instance.position
+			);
+
+		if (
+			this._world?.scene1?.modelScene &&
+			this._world?.scene1.pcScreen &&
+			this._world?.scene1.pcScreenWebglTexture &&
+			this._camera?.secondaryCamera
+		) {
+			this._renderer?.addPortalAssets(this._world?.scene1 + "_pc_screen", {
+				mesh: this._world?.scene1.pcScreen,
+				meshCamera: this._camera?.secondaryCamera,
+				meshWebGLTexture: this._world?.scene1.pcScreenWebglTexture,
+			});
+
+			this._world.group?.add(this._world?.scene1.modelScene);
+		}
+
+		if (this._world?.scene2?.modelScene) {
+			this._world?.scene2.modelScene.position.setX(40);
+
+			this._world.group?.add(this._world?.scene2.modelScene);
+		}
+
+		if (this._world?.sceneBackground?.modelScene) {
+			const scene_2_background =
+				this._world?.sceneBackground.modelScene.clone();
+
+			scene_2_background.position.copy(
+				this._world?.scene2?.modelScene?.position ?? new THREE.Vector3()
+			);
+			this._world.group?.add(
+				this._world?.sceneBackground.modelScene,
+				scene_2_background
+			);
+		}
+
+		console.log("PC screen", 	this._experience.app?.debug?.cameraControls)
+
+		// ==============
+		// Main camera position
+		this._appCamera.instance?.position.set(0, 3, 0.5);
+		this._appCamera.instance?.position.copy(
+			this._appCamera.instance?.position.lerpVectors(
+				this._appCamera.instance?.position.clone(),
+				(
+					this._world?.scene1?.pcScreen?.position ?? new THREE.Vector3()
+				).clone(),
+				0.85
+			)
+		);
+
+		this._appCamera.instance?.lookAt(
+			this._world?.scene1?.pcScreen?.position ?? new THREE.Vector3()
+		);
+		if (this._experience.app?.debug?.cameraControls)
+			this._experience.app.debug.cameraControls.target = (
+				this._world?.scene1?.pcScreen?.position ?? new THREE.Vector3()
+			).clone();
+
+		// ==============
+
+		this._camera?.secondaryCamera?.position.copy(
+			this._world?.scene2?.modelScene?.position ?? new THREE.Vector3()
+		);
+		this._camera?.secondaryCamera?.position.set(
+			this._world?.scene2?.modelScene?.position.x ?? 0,
+			8,
+			20
+		);
+		this._camera?.secondaryCamera?.lookAt(
+			this._world?.scene2?.modelScene?.position ?? new THREE.Vector3()
+		);
+
+		this.emit(CONSTRUCTED, this);
+	}
+
 	destruct() {}
 
 	update() {

@@ -7,18 +7,34 @@ import Debug from "./Debug";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+
+// EVENTS
 import {
 	CONSTRUCTED,
 	DESTRUCTED,
+	LOADED,
 	UPDATED,
 } from "@/experiences/common/Event.model";
+
+// CONFIG
+import { Config } from "@/experiences/config/Config";
 
 export class Camera extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 	protected readonly _appCamera = this._experience.app.camera;
 	protected readonly _appDebug = this._experience.app.debug;
 
+	public readonly secondaryCamera = (() =>
+		this._appCamera.instance instanceof PerspectiveCamera
+			? new PerspectiveCamera(
+					this._appCamera.instance.fov,
+					Config.FIXED_WINDOW_WIDTH / Config.FIXED_WINDOW_HEIGHT,
+					this._appCamera.instance.near,
+					this._appCamera.instance.far
+			  )
+			: new PerspectiveCamera())();
 	public readonly initialCameraFov = 35;
+
 	public lookAtPosition = new Vector3();
 
 	constructor() {
@@ -32,19 +48,16 @@ export class Camera extends ExperienceBasedBlueprint {
 			this._appDebug?.cameraHelper?.dispose();
 		}
 
-		this._experience.loader?.on("load", () => {
-			if (!(this._appCamera?.instance instanceof PerspectiveCamera)) return;
+		if (!(this._appCamera?.instance instanceof PerspectiveCamera)) return;
 
-			this._appCamera.instance.fov = this.initialCameraFov;
-			this._appCamera.instance.far = 500;
-			this._appCamera.miniCamera?.position.set(10, 8, 30);
+		this._appCamera.instance.fov = this.initialCameraFov;
+		this._appCamera.instance.far = 500;
+		this._appCamera.miniCamera?.position.set(10, 8, 30);
 
-			if (this._appDebug?.cameraControls) {
-				this._appDebug.cameraControls.target =
-					this._experience.world?.controls?.initialLookAtPosition ??
-					new Vector3();
-			}
-		});
+		if (this._appDebug?.cameraControls) {
+			this._appDebug.cameraControls.target =
+				this._experience.world?.manager?.initialLookAtPosition ?? new Vector3();
+		}
 
 		this.emit(CONSTRUCTED);
 	}

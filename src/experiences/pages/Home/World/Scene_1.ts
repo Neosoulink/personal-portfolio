@@ -114,17 +114,17 @@ export default class Scene_1 extends SceneBlueprint {
 	}
 
 	public intro(): void {
-		const WORLD_CONTROLS = this._experience.world?.controls;
+		const WorldManager = this._experience.world?.manager;
 
 		if (
-			!(WORLD_CONTROLS && this._appCamera.instance instanceof PerspectiveCamera)
+			!(WorldManager && this._appCamera.instance instanceof PerspectiveCamera)
 		)
 			return;
 
 		const { x, y, z } = this.cameraPath.getPointAt(0);
 
 		GSAP.to(this._appCamera.instance.position, {
-			...this._experience.world?.controls?.getGsapDefaultProps(),
+			...this._experience.world?.manager?.getGsapDefaultProps(),
 			duration: Config.GSAP_ANIMATION_DURATION,
 			ease: Config.GSAP_ANIMATION_EASE,
 			x,
@@ -132,14 +132,14 @@ export default class Scene_1 extends SceneBlueprint {
 			z,
 			delay: Config.GSAP_ANIMATION_DURATION * 0.8,
 			onUpdate: () => {
-				WORLD_CONTROLS?.setCameraLookAt(WORLD_CONTROLS.initialLookAtPosition);
+				WorldManager?.setCameraLookAt(WorldManager.initialLookAtPosition);
 			},
 			onComplete: () => {
 				setTimeout(() => {
-					if (this._experience.world?.controls) {
-						WORLD_CONTROLS?.getGsapDefaultProps().onComplete();
+					if (this._experience.world?.manager) {
+						WorldManager?.getGsapDefaultProps().onComplete();
 
-						this._experience.world.controls.autoCameraAnimation = true;
+						this._experience.world.manager.autoCameraAnimation = true;
 
 						console.log(this._appCamera.instance?.position);
 					}
