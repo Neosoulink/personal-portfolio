@@ -8,7 +8,7 @@ import { Camera } from "../Camera";
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
 
-export default class Controls extends ExperienceBasedBlueprint {
+export default class WorldManager extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
 
 	rayCaster = new THREE.Raycaster();

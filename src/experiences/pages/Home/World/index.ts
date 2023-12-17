@@ -1,7 +1,7 @@
 import { Group, Mesh, PerspectiveCamera, Vector3 } from "three";
 // EXPERIENCE
 import Experience from "..";
-import Controls from "./Controls";
+import WorldManager from "./world.manager";
 import Scene_1 from "./Scene_1";
 import Scene_2 from "./Scene_2";
 import Scene_3 from "./Scene_3";
@@ -24,7 +24,7 @@ export default class World extends ExperienceBasedBlueprint {
 	private sceneBackground?: SceneBackground;
 
 	public secondaryCamera?: PerspectiveCamera;
-	public controls?: Controls;
+	public manager?: WorldManager;
 	public currentSceneIndex?: number;
 	/** Represent the ThreeJs `Group` containing the experience. */
 	public group?: Group;
@@ -71,7 +71,7 @@ export default class World extends ExperienceBasedBlueprint {
 		if (!(this._appCamera.instance instanceof PerspectiveCamera)) return;
 
 		this.group = new Group();
-		this.controls = new Controls();
+		this.manager = new Manager();
 		this.secondaryCamera = new PerspectiveCamera(
 			this._appCamera.instance.fov,
 			Config.FIXED_WINDOW_WIDTH / Config.FIXED_WINDOW_HEIGHT,
