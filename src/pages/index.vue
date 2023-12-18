@@ -2,11 +2,14 @@
 // EXPERIENCES
 import HomeExperience from "@/experiences/pages/Home";
 
+// MODELS
+import { CHANGED } from "@/experiences/common/Event.model";
+
 // CONSTANTS
 import { HOME_DOM_REF } from "@/constants/UI";
 
 // DATA
-const STATES = reactive<{
+const states = reactive<{
 	experience?: HomeExperience;
 }>({});
 
@@ -14,26 +17,31 @@ const STATES = reactive<{
 const initExperience = () => {
 	if (!process.client) return;
 
-	const EXPERIENCE = new HomeExperience({
+	const Experience = new HomeExperience({
 		domElementRef: "#" + HOME_DOM_REF,
 	});
 
-	EXPERIENCE.construct();
-	STATES.experience = EXPERIENCE;
+	Experience.construct();
+	states.experience = Experience;
 };
 
 const endExperience = () => {
-	if (!STATES.experience) return;
+	if (!states.experience) return;
 
-	STATES.experience.destruct();
-	STATES.experience = undefined;
+	states.experience.destruct();
+	states.experience = undefined;
 };
 
 // HOOKS
 onMounted(() => {
-	!STATES.experience && setTimeout(() => initExperience(), 500);
+	!states.experience && setTimeout(initExperience, 500);
 });
-onBeforeUnmount(() => setTimeout(() => endExperience(), 500));
+
+onBeforeUnmount(() => setTimeout(endExperience, 500));
+
+onBeforeRouteUpdate((route) => {
+	states.experience?.navigation?.emit(CHANGED, route);
+});
 </script>
 
 <template>

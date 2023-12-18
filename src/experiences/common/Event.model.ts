@@ -4,3 +4,4 @@ export const UPDATED = Symbol("2");
 export const STARTED = Symbol("3");
 export const PROGRESSED = Symbol("4");
 export const LOADED = Symbol("5");
+export const CHANGED = Symbol("6");

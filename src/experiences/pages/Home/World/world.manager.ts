@@ -9,7 +9,7 @@ import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBas
 import type { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
 
 // EVENTS
-import { CONSTRUCTED } from "@/experiences/common/Event.model";
+import { CHANGED, CONSTRUCTED } from "@/experiences/common/Event.model";
 
 export default class WorldManager extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
@@ -127,6 +127,10 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 				this._world?.sceneBackground.modelScene,
 				scene_2_background
 			);
+
+			this._experience.navigation?.on(CHANGED, () => {
+				this.nextScene();
+			});
 		}
 
 		secondaryCamera?.position.copy(
