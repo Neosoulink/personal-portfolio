@@ -42,6 +42,8 @@ onBeforeUnmount(() => setTimeout(() => endExperience(), 500));
 
 		<canvas :id="HOME_DOM_REF" class="fixed top-0 left-0 w-full h-full" />
 
+		<NuxtPage />
+
 		<!-- <div id="mode-bubbles-container" /> -->
 	</main>
 </template>

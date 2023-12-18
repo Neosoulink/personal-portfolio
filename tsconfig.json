@@ -3,14 +3,5 @@
 	"extends": "./.nuxt/tsconfig.json",
 	"compilerOptions": {
 		"types": ["node", "vite-plugin-glsl/ext"],
-		"baseUrl": "./src",
-		"paths": {
-			"@/*": ["./*"],
-			"@exp_factories/*": ["./experiences/factories/*"],
-			"@exp_errors/*": ["./experiences/errors/*"],
-			"@exp_pages/*": ["./experiences/pages/*"],
-			"@interfaces/*": ["./interfaces/*"],
-			"@constants/*": ["./constants/*"]
-		}
 	}
 }

@@ -1,9 +1,10 @@
 // EXPERIENCES
-import Renderer from "./Renderer";
+import UI from "./UI";
+import { Navigation } from "./Navigation";
 import Loader from "./Loader";
+import Renderer from "./Renderer";
 import { Camera } from "./Camera";
 import World from "./World";
-import UI from "./UI";
 import Debug from "./Debug";
 
 // BLUEPRINT
@@ -17,9 +18,10 @@ import { LOADED } from "@/experiences/common/Event.model";
 import { ErrorFactory } from "@/experiences/errors/Error.factory";
 
 export class HomeExperience extends ExperienceBlueprint {
-	renderer?: Renderer;
 	ui?: UI;
+	navigation?: Navigation;
 	loader?: Loader;
+	renderer?: Renderer;
 	camera?: Camera;
 	world?: World;
 	debug?: Debug;
@@ -35,9 +37,10 @@ export class HomeExperience extends ExperienceBlueprint {
 			if (HomeExperience._self) return HomeExperience._self;
 			HomeExperience._self = this;
 
-			this.renderer = new Renderer();
 			this.ui = new UI();
+			this.navigation = new Navigation();
 			this.loader = new Loader();
+			this.renderer = new Renderer();
 			this.camera = new Camera();
 			this.world = new World();
 			this.debug = new Debug();
@@ -51,9 +54,10 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.app.updateCallbacks[HomeExperience.name] &&
 				delete this.app.updateCallbacks[HomeExperience.name];
 
-			this.renderer?.destruct();
 			this.ui?.destruct();
+			this.navigation?.destruct();
 			this.loader?.destruct();
+			this.renderer?.destruct();
 			this.camera?.destruct();
 			this.world?.destruct();
 			this.debug?.destruct();
@@ -68,8 +72,9 @@ export class HomeExperience extends ExperienceBlueprint {
 
 	public construct() {
 		try {
-			this.renderer?.construct();
 			this.ui?.construct();
+			this.navigation?.destruct();
+			this.renderer?.construct();
 			this.loader?.on(LOADED, () => {
 				try {
 					this.camera?.construct();

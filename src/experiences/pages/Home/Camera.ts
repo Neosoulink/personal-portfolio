@@ -111,6 +111,7 @@ export class Camera extends ExperienceBasedBlueprint {
 	public switchCamera(cameraIndex: number) {
 		if (this.currentCameraIndex === cameraIndex) return;
 
+		// TODO: 🚧 Improvement required. Correctly get the previous camera properties.
 		if (
 			!(
 				typeof cameraIndex === "number" &&

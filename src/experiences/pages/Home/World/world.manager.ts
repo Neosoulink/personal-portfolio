@@ -7,6 +7,8 @@ import Experience from "..";
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
 import type { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
+
+// EVENTS
 import { CONSTRUCTED } from "@/experiences/common/Event.model";
 
 export default class WorldManager extends ExperienceBasedBlueprint {
@@ -126,23 +128,6 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 				scene_2_background
 			);
 		}
-
-		const PC_SCREEN_POSITION = (
-			this._world?.scene1?.pcScreen?.position ?? new Vector3()
-		).clone();
-
-		// ==============
-		// Main camera position
-		this._appCamera.instance?.position.set(0, 3, 0.5);
-		this._appCamera.instance?.position.copy(
-			this._appCamera.instance?.position.lerpVectors(
-				this._appCamera.instance?.position.clone(),
-				PC_SCREEN_POSITION,
-				0.85
-			)
-		);
-		this._camera?.setCameraLookAt(PC_SCREEN_POSITION);
-		// ==============
 
 		secondaryCamera?.position.copy(
 			this._world?.scene2?.modelScene?.position ?? new Vector3()

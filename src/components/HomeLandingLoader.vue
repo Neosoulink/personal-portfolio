@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import packageJson from "../package.json";
+import packageJson from "../../package.json";
 </script>
 
 <template>
