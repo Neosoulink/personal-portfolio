@@ -1,30 +1,43 @@
-import GSAP from "gsap";
-import { CatmullRomCurve3, PerspectiveCamera, Raycaster, Vector3 } from "three";
+import {
+	CatmullRomCurve3,
+	Clock,
+	PerspectiveCamera,
+	Raycaster,
+	Vector3,
+} from "three";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import GSAP, { Power0 } from "gsap";
 
-// EXPERIENCE
+// EXPERIENCES
 import Experience from "..";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
-import type { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
 
 // EVENTS
 import { CHANGED, CONSTRUCTED } from "@/experiences/common/Event.model";
 
+// UTILS
+import { lerpPosition } from "~/utils/three-utils";
+
+// SHADERS
+import fragCameraTransition from "./shaders/world/fragmentCameraTransition.glsl";
+import vertCameraTransition from "./shaders/world/vertexCameraTransition.glsl";
+
 export default class WorldManager extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
 	protected readonly _appCamera = this._experience.app.camera;
+	protected readonly _appResources = this._experience.app.resources;
 	protected readonly _camera = this._experience.camera;
 	protected readonly _world = this._experience.world;
+	protected readonly _composer = this._experience.composer;
 	protected readonly _renderer = this._experience.renderer;
-
-	public currentSceneIndex = 0;
-	public availableScenes: SceneBlueprint[] = [];
+	protected readonly _timeline = GSAP.timeline();
+	public cameraTransitionShaderPass?: ShaderPass;
 
 	// TODO: Reorder properties
 	public rayCaster = new Raycaster();
 	public normalizedCursorPosition = { x: 0, y: 0 };
-	public initialLookAtPosition = new Vector3(0, 2, 0);
 	/**
 	 * The curve path of the camera
 	 */
@@ -44,10 +57,7 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		target: 0,
 		ease: 0.1,
 	};
-	/**
-	 * Where the camera will look at.
-	 */
-	public cameraLookAtPosition = new Vector3(0, 2, 0);
+
 	/**
 	 * Enable auto curve path animation
 	 */
@@ -68,27 +78,17 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 	public mouseDowned = false;
 	public mouseOverBubble = false;
 	public lastMouseCoordinate = { x: 0, y: 0 };
-
 	public modelBubbles: {
 		coordinates: Vector3;
 		DOMelement: HTMLElement;
 	}[] = [];
+	// === ^
 
 	constructor() {
 		super();
-
-		this._world?.scene1 && this.availableScenes.push(this._world?.scene1);
-		this._world?.scene2 && this.availableScenes.push(this._world?.scene2);
-		// this._world?.scene3 && this.availableScenes.push(this._world?.scene3);
-
-		// No more camera movements triggered by the mouse | Using Orbit control
-		// this.setWheelEventListener();
-		// this.setMouseMoveEventListener();
-		// this.setMouseDownEventListener();
-		// this.setMouseUpEventListener();
 	}
 
-	construct() {
+	public construct() {
 		const currentCamera = this._camera?.cameras[0];
 		const secondaryCamera = this._camera?.cameras[1];
 
@@ -128,8 +128,9 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 				scene_2_background
 			);
 
+			this.setScene();
 			this._experience.navigation?.on(CHANGED, () => {
-				this.nextScene();
+				this.setScene();
 			});
 		}
 
@@ -148,9 +149,9 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		this.emit(CONSTRUCTED, this);
 	}
 
-	destruct() {}
+	public destruct() {}
 
-	updateModelBubblesDomElements() {
+	public updateModelBubblesDomElements() {
 		const _CAMERA = this._experience.app?.camera.instance;
 		if (!(_CAMERA instanceof PerspectiveCamera)) return;
 
@@ -171,7 +172,7 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		}
 	}
 
-	setWheelEventListener() {
+	public setWheelEventListener() {
 		window.addEventListener("wheel", (e) => {
 			if (this.autoCameraAnimation === false) return;
 
@@ -187,7 +188,7 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		});
 	}
 
-	setMouseMoveEventListener() {
+	public setMouseMoveEventListener() {
 		window.addEventListener("mousemove", (e) => {
 			if (this.autoCameraAnimation === true && this.mouseDowned) {
 				if (e.clientX < this.lastMouseCoordinate.x) {
@@ -210,7 +211,7 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		});
 	}
 
-	setMouseDownEventListener() {
+	public setMouseDownEventListener() {
 		window.addEventListener("mousedown", () => {
 			this.mouseDowned = true;
 			if (this.focusedPosition && !this.mouseOverBubble)
@@ -218,7 +219,7 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		});
 	}
 
-	setMouseUpEventListener() {
+	public setMouseUpEventListener() {
 		window.addEventListener("mouseup", () => {
 			this.mouseDowned = false;
 			if (this.focusedPosition && !this.mouseOverBubble)
@@ -226,7 +227,7 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		});
 	}
 
-	getFocusedLookAtPosition(position = this.focusedPosition) {
+	public getFocusedLookAtPosition(position = this.focusedPosition) {
 		if (!(position && this._experience.app?.camera.instance))
 			return new Vector3();
 
@@ -249,18 +250,7 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		);
 	}
 
-	getLerpPosition(vec3_start: Vector3, vec3_end: Vector3, progress = 0) {
-		const _VEC3_START = vec3_start.clone();
-		const _VEC3_END = vec3_end.clone();
-
-		return _VEC3_START.lerpVectors(
-			_VEC3_START,
-			_VEC3_END,
-			GSAP.utils.clamp(0, 1, progress)
-		);
-	}
-
-	getGsapDefaultProps() {
+	public getGsapDefaultProps() {
 		return {
 			onStart: () => {
 				this.isGsapAnimating = true;
@@ -271,73 +261,89 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		};
 	}
 
-	/**
-	 * Move the camera position with transition from
-	 * the origin position to the passed position and enable the camera movement
-	 *
-	 * @param cameraToPosition The camera position
-	 * @param whereToLookAt The camera position where to look at
-	 * @param fromWhereToLooAt From where the camera will start looking at
-	 */
-	focusPoint(
-		cameraToPosition = new Vector3(),
-		whereToLookAt = new Vector3(),
-		fromWhereToLooAt = this.initialLookAtPosition
-	) {
-		if (this._experience.app?.camera.instance) {
-			let _lerpProgress = 0;
+	public setScene() {
+		if (this._camera?.timeline.isActive()) this._camera.timeline.progress(1);
+		if (this._timeline.isActive()) this._timeline.progress(1);
 
-			this.focusedPosition = new Vector3().copy(whereToLookAt);
+		if (
+			this._experience.navigation?.currentRoute === "index" &&
+			this._camera?.currentCameraIndex !== 0
+		) {
+			this._camera?.switchCamera(0);
 
-			// GSAP.to(this._experience.app?.camera.instance.position, {
-			// 	...this.getGsapDefaultProps(),
-			// 	x: cameraToPosition.x,
-			// 	y: cameraToPosition.y,
-			// 	z: cameraToPosition.z,
-			// 	duration: 1.5,
-			// 	onStart: () => {
-			// 		this.getGsapDefaultProps().onStart();
-			// 		this.autoCameraAnimation = false;
-			// 	},
-			// 	onUpdate: () => {
-			// 		const _LERP_POSITION = this.getLerpPosition(
-			// 			fromWhereToLooAt,
-			// 			this.getFocusedLookAtPosition(),
-			// 			_lerpProgress
-			// 		);
-			// 		_lerpProgress += 0.015;
+			this._camera?.setCameraLookAt(
+				(this._world?.scene1?.pcScreen?.position ?? new Vector3()).clone()
+			);
+		}
 
-			// 		this.cameraLookAtPosition.copy(_LERP_POSITION);
-			// 		this.setCameraLookAt(_LERP_POSITION);
-			// 	},
-			// 	onComplete: () => {
-			// 		this.getGsapDefaultProps().onComplete();
-			// 	},
-			// });
+		if (this._experience.navigation?.currentRoute !== "index") {
+			if (this._camera?.currentCameraIndex !== 1) {
+				const SCREEN_POSITION = (
+					this._world?.scene1?.pcScreen?.position ?? new Vector3()
+				).clone();
+				this.cameraTransitionShaderPass = new ShaderPass({
+					uniforms: {
+						tDiffuse: { value: null },
+						uStrength: { value: 0 },
+						uDisplacementMap: {
+							value: this._appResources.items["noises_texture"],
+						},
+					},
+					vertexShader: vertCameraTransition,
+					fragmentShader: fragCameraTransition,
+				});
+
+				this._composer?.addPass(
+					"cameraTransitionShaderPass",
+					this.cameraTransitionShaderPass
+				);
+
+				this._camera
+					?.updateCameraPosition(
+						lerpPosition(new Vector3(0, 3.5, 0), SCREEN_POSITION, 0.84),
+						SCREEN_POSITION,
+						() => {}
+					)
+					.add(() => {
+						if (!this.cameraTransitionShaderPass?.material.uniforms.uStrength)
+							return;
+						this._timeline.to(
+							this.cameraTransitionShaderPass.material.uniforms.uStrength,
+							{
+								value: 0.175,
+								duration: 0.3,
+								ease: Power0.easeIn,
+							}
+						);
+					}, "<87%")
+					.then(() => {
+						this._camera?.switchCamera(1);
+
+						this._camera?.setCameraLookAt(
+							(
+								this._world?.scene2?.modelScene?.position ?? new Vector3()
+							).clone()
+						);
+
+						if (!this.cameraTransitionShaderPass?.material.uniforms.uStrength)
+							return;
+
+						this._timeline
+							.to(this.cameraTransitionShaderPass.material.uniforms.uStrength, {
+								value: 0,
+								duration: 0.3,
+								ease: Power0.easeOut,
+							})
+							.then(() => {
+								this.cameraTransitionShaderPass &&
+									this._composer?.removePass("cameraTransitionShaderPass");
+							});
+					});
+			}
 		}
 	}
 
-	public nextScene() {
-		const nextSceneIndex =
-			this.currentSceneIndex + 1 > this.availableScenes.length - 1
-				? 0
-				: this.currentSceneIndex + 1;
-
-		this._camera?.switchCamera(nextSceneIndex > 0 ? 1 : 0);
-		this._camera?.setCameraLookAt(
-			nextSceneIndex > 0
-				? this.availableScenes[nextSceneIndex]?.modelScene?.position.clone() ??
-						new Vector3()
-				: (this._world?.scene1?.pcScreen?.position ?? new Vector3()).clone()
-		);
-		this.currentSceneIndex = nextSceneIndex;
-	}
-
-	public prevScene() {}
-
-	public setScene(sceneIndex: number) {}
-
-	update() {
+	public update() {
 		if (this.autoCameraAnimation && !this.isGsapAnimating) {
 			this.cameraCurvePathProgress.current = GSAP.utils.interpolate(
 				this.cameraCurvePathProgress.current,
@@ -383,18 +389,19 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 			!this.autoCameraAnimation &&
 			this.focusedPosition &&
 			!this.isGsapAnimating
-		) {
-			this.cameraLookAtPosition.copy(this.getFocusedLookAtPosition());
-		}
+		)
+			this._camera?.setCameraLookAt(this.getFocusedLookAtPosition());
 
 		this.updateModelBubblesDomElements();
+
+		if (this.autoCameraAnimation || !this.isGsapAnimating)
+			this._experience.camera?.setCameraLookAt(
+				this._camera?.lookAtPosition ?? new Vector3()
+			);
 
 		this.focusedAngleX +=
 			(this.normalizedCursorPosition.x * Math.PI - this.focusedAngleX) * 0.1;
 		this.focusedAngleY +=
 			(this.normalizedCursorPosition.y * Math.PI - this.focusedAngleY) * 0.1;
-
-		// if (this.autoCameraAnimation || !this.isGsapAnimating)
-		// 	this._experience.camera?.setCameraLookAt(this.cameraLookAtPosition);
 	}
 }

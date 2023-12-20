@@ -41,6 +41,9 @@ export default class Renderer extends ExperienceBasedBlueprint {
 			corners: PortalMeshCorners;
 		};
 	} = {};
+	protected readonly beforeRenderUpdateCallbacks: {
+		[key: string]: () => unknown;
+	} = {};
 	protected _currentRenderTarget = this._appRendererInstance.getRenderTarget();
 	protected _currentXrEnabled = this._appRendererInstance.xr.enabled;
 	protected _currentShadowAutoUpdate =
@@ -70,7 +73,7 @@ export default class Renderer extends ExperienceBasedBlueprint {
 		})();
 
 		~(() => {
-			this._appRenderer.beforeRenderUpdate = () => {
+			this.addBeforeRenderUpdateCallBack(Renderer.name, () => {
 				if (!Object.keys(this._renderPortalAssets).length) return;
 
 				Object.keys(this._renderPortalAssets).forEach((key: string) => {
@@ -97,6 +100,16 @@ export default class Renderer extends ExperienceBasedBlueprint {
 						);
 					}
 				});
+			});
+		})();
+
+		~(() => {
+			this._appRenderer.beforeRenderUpdate = () => {
+				Object.keys(this.beforeRenderUpdateCallbacks).forEach(
+					(key) =>
+						this.beforeRenderUpdateCallbacks[key] &&
+						this.beforeRenderUpdateCallbacks[key]()
+				);
 			};
 		})();
 	}
@@ -184,5 +197,14 @@ export default class Renderer extends ExperienceBasedBlueprint {
 	public removePortalAssets(portalName: string): void {
 		if (this._renderPortalAssets[portalName])
 			delete this._renderPortalAssets[portalName];
+	}
+
+	public addBeforeRenderUpdateCallBack(key: string, callback: () => unknown) {
+		this.beforeRenderUpdateCallbacks[key] = callback;
+	}
+
+	public removeBeforeRenderUpdateCallBack(key: string) {
+		if (this.beforeRenderUpdateCallbacks[key])
+			delete this.beforeRenderUpdateCallbacks[key];
 	}
 }

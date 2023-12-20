@@ -4,8 +4,8 @@ import GSAP from "gsap";
 // BLUEPRINTS
 import { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
 
-// CONFIGS
-import { Config } from "@/experiences/config/Config";
+// MODELS
+import { CONSTRUCTED, DESTRUCTED } from "~/experiences/common/Event.model";
 
 export default class Scene_2 extends SceneBlueprint {
 	constructor() {
@@ -38,13 +38,13 @@ export default class Scene_2 extends SceneBlueprint {
 		if (!this.modelScene) return;
 
 		this._setModelMaterials();
-		this.emit("constructed");
+		this.emit(CONSTRUCTED);
 	}
 
 	destruct() {
 		this.modelScene?.clear();
 		this.modelScene?.removeFromParent();
-		this.emit(this.eventListNames.destructed);
+		this.emit(DESTRUCTED);
 	}
 
 	public intro(): void {}

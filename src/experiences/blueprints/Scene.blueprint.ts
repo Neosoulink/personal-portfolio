@@ -29,14 +29,12 @@ export abstract class SceneBlueprint
 	protected readonly _appCamera = this._experience.app.camera;
 	protected readonly _Loader = this._experience.loader;
 	protected readonly _modelMeshes: { [name: string]: Mesh | undefined } = {};
+
 	protected _modelChildrenTextures: ModelChildrenTextures[];
 	protected _model?: GLTF;
+
 	public modelScene?: Group;
 	public cameraPath: CatmullRomCurve3;
-	public readonly eventListNames = {
-		constructed: "constructed",
-		destructed: "destructed",
-	};
 
 	constructor(_: SceneBlueprintProps) {
 		super();

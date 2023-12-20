@@ -1,5 +1,5 @@
 import { PerspectiveCamera, Vector3 } from "three";
-import GSAP from "gsap";
+import gsap from "gsap";
 
 // EXPERIENCES
 import HomeExperience from ".";
@@ -24,6 +24,8 @@ export class Camera extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 	protected readonly _appCamera = this._experience.app.camera;
 	protected readonly _appDebug = this._experience.app.debug;
+	protected readonly _timeline = gsap.timeline();
+	protected _lookAtPosition = new Vector3();
 	protected _currentCameraIndex = 0;
 	protected _prevCameraProps = {
 		fov: 0,
@@ -49,8 +51,6 @@ export class Camera extends ExperienceBasedBlueprint {
 				: new PerspectiveCamera())(),
 	];
 
-	public lookAtPosition = new Vector3();
-
 	constructor() {
 		super();
 	}
@@ -59,7 +59,15 @@ export class Camera extends ExperienceBasedBlueprint {
 		return this._currentCameraIndex;
 	}
 
-	construct() {
+	public get lookAtPosition() {
+		return this._lookAtPosition.clone();
+	}
+
+	public get timeline() {
+		return this._timeline;
+	}
+
+	public construct() {
 		if (!Debug.enable && this._appDebug?.cameraHelper) {
 			this._experience.app.scene.remove(this._appDebug?.cameraHelper);
 			this._appDebug?.cameraHelper?.remove();
@@ -77,28 +85,23 @@ export class Camera extends ExperienceBasedBlueprint {
 			far: this._appCamera.instance.far,
 		};
 
-		if (this._appDebug?.cameraControls) {
-			this._appDebug.cameraControls.target =
-				this._experience.world?.manager?.initialLookAtPosition ?? new Vector3();
-		}
-
 		this.emit(CONSTRUCTED);
 	}
 
-	destruct() {
+	public destruct() {
 		this.emit(DESTRUCTED);
 	}
 
-	cameraZoomIn() {
+	public cameraZoomIn() {
 		if (this._experience.app?.camera.instance instanceof PerspectiveCamera)
-			GSAP.to(this._experience.app?.camera.instance, {
+			this._timeline.to(this._experience.app?.camera.instance, {
 				fov: 25,
 			});
 	}
 
-	cameraZoomOut() {
+	public cameraZoomOut() {
 		if (this._experience.app?.camera.instance instanceof PerspectiveCamera)
-			GSAP.to(this._experience.app?.camera.instance, {
+			this._timeline.to(this._experience.app?.camera.instance, {
 				fov: this._experience.camera?.initialCameraFov ?? 0,
 			});
 	}
@@ -152,8 +155,8 @@ export class Camera extends ExperienceBasedBlueprint {
 	}
 
 	/**
-	 * Set the camera look at position
-	 * @param v3 Vector 3 position where the the camera should look at
+	 * Set the camera look at position.
+	 * @param v3 The {@link Vector3} position where the the camera will look at.
 	 */
 	setCameraLookAt(v3: THREE.Vector3) {
 		this._appCamera?.instance?.lookAt(v3);
@@ -161,11 +164,10 @@ export class Camera extends ExperienceBasedBlueprint {
 		if (this._appDebug?.cameraControls)
 			this._appDebug.cameraControls.target = v3;
 
-		this.lookAtPosition = v3;
+		this._lookAtPosition = v3;
 	}
 
-	update() {}
-
+	/** Correct the aspect ration of the camera. */
 	public correctAspect() {
 		if (!(this._appCamera.instance instanceof PerspectiveCamera)) return;
 
@@ -173,4 +175,50 @@ export class Camera extends ExperienceBasedBlueprint {
 		this._appCamera.instance.far = 500;
 		this._appCamera.resize();
 	}
+
+	/**
+	 * Move the camera position with transition from
+	 * the origin position to the passed position and,
+	 * update the lookAt position with the passed lookAt position.
+	 *
+	 * @param toPosition The new camera position.
+	 * @param lookAt Where the camera will look at.
+	 */
+	public updateCameraPosition(
+		toPosition = new Vector3(),
+		lookAt = new Vector3(),
+		onStart: gsap.Callback = () => {},
+		onUpdate: gsap.Callback = () => {},
+		onComplete: gsap.Callback = () => {}
+	) {
+		if (!this._experience.app?.camera.instance) return this._timeline;
+
+		const lookAtA = this._lookAtPosition.clone();
+		const lookAtB = lookAt.clone();
+
+		return this._timeline.to(this._experience.app.camera.instance.position, {
+			x: toPosition.x,
+			y: toPosition.y,
+			z: toPosition.z,
+			duration: Config.GSAP_ANIMATION_DURATION,
+			ease: Config.GSAP_ANIMATION_EASE,
+			onStart: () => {
+				gsap.to(lookAtA, {
+					x: lookAtB.x,
+					y: lookAtB.y,
+					z: lookAtB.z,
+					duration: Config.GSAP_ANIMATION_DURATION * 0.55,
+					ease: Config.GSAP_ANIMATION_EASE,
+					onUpdate: () => {
+						this?.setCameraLookAt(lookAtA);
+					},
+				});
+				onStart();
+			},
+			onUpdate,
+			onComplete,
+		});
+	}
+
+	public update() {}
 }

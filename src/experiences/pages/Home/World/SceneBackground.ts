@@ -1,11 +1,10 @@
-import { CatmullRomCurve3, PerspectiveCamera, Vector3 } from "three";
-import GSAP from "gsap";
+import { CatmullRomCurve3, Vector3 } from "three";
 
 // EXPERIENCES
 import { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
 
-// CONFIGS
-import { Config } from "@/experiences/config/Config";
+// MODELS
+import { CONSTRUCTED, DESTRUCTED } from "~/experiences/common/Event.model";
 
 export default class SceneBackground extends SceneBlueprint {
 	constructor() {
@@ -34,13 +33,13 @@ export default class SceneBackground extends SceneBlueprint {
 		if (!this.modelScene) return;
 
 		this._setModelMaterials();
-		this.emit("constructed");
+		this.emit(CONSTRUCTED);
 	}
 
 	destruct() {
 		this.modelScene?.clear();
 		this.modelScene?.removeFromParent();
-		this.emit(this.eventListNames.destructed);
+		this.emit(DESTRUCTED);
 	}
 
 	public intro(): void {}

@@ -118,18 +118,6 @@ export default class Debug extends ExperienceBasedBlueprint {
 			)
 			.name("Toggle auto camera animation");
 
-		this._gui
-			.add(
-				{
-					fn: () => {
-						const WorldManager = this._experience.world?.manager;
-						if (WorldManager) WorldManager.nextScene();
-					},
-				},
-				"fn"
-			)
-			.name("Next Scene");
-
 		this._experience.app.scene.add(
 			this._cameraCurvePathLine,
 			this.cameraLookAtPointIndicator

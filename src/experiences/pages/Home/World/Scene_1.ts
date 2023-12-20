@@ -23,9 +23,11 @@ import vertex from "./shaders/scene1/vertex.vert";
 // CONFIGS
 import { Config } from "@/experiences/config/Config";
 
+// MODELS
+import { CONSTRUCTED, DESTRUCTED } from "~/experiences/common/Event.model";
+
 export default class Scene_1 extends SceneBlueprint {
 	protected _renderer = this._experience.renderer;
-
 	public pcScreenWebglTexture?: WebGLRenderTarget;
 	public pcScreen?: Mesh;
 
@@ -91,7 +93,7 @@ export default class Scene_1 extends SceneBlueprint {
 		}
 
 		this._setModelMaterials();
-		this.emit("constructed");
+		this.emit(CONSTRUCTED);
 	}
 
 	destruct() {
@@ -106,7 +108,8 @@ export default class Scene_1 extends SceneBlueprint {
 				this.modelScene?.clear();
 				this.modelScene?.removeFromParent();
 				this._renderer?.removePortalAssets(Scene_1.name + "_screen_pc");
-				this.emit(this.eventListNames.destructed);
+
+				this.emit(DESTRUCTED);
 			},
 		});
 	}

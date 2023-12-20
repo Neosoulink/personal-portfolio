@@ -3,6 +3,7 @@ import UI from "./UI";
 import { Navigation } from "./Navigation";
 import Loader from "./Loader";
 import Renderer from "./Renderer";
+import { Composer } from "./Composer";
 import { Camera } from "./Camera";
 import World from "./World";
 import Debug from "./Debug";
@@ -22,6 +23,7 @@ export class HomeExperience extends ExperienceBlueprint {
 	navigation?: Navigation;
 	loader?: Loader;
 	renderer?: Renderer;
+	composer?: Composer;
 	camera?: Camera;
 	world?: World;
 	debug?: Debug;
@@ -41,6 +43,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.navigation = new Navigation();
 			this.loader = new Loader();
 			this.renderer = new Renderer();
+			this.composer = new Composer();
 			this.camera = new Camera();
 			this.world = new World();
 			this.debug = new Debug();
@@ -58,6 +61,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.navigation?.destruct();
 			this.loader?.destruct();
 			this.renderer?.destruct();
+			this.composer?.destruct();
 			this.camera?.destruct();
 			this.world?.destruct();
 			this.debug?.destruct();
@@ -75,6 +79,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.ui?.construct();
 			this.navigation?.destruct();
 			this.renderer?.construct();
+			this.composer?.construct();
 			this.loader?.on(LOADED, () => {
 				try {
 					this.camera?.construct();
@@ -96,6 +101,7 @@ export class HomeExperience extends ExperienceBlueprint {
 		try {
 			this.world?.update();
 			this.camera?.update();
+			this.composer?.update();
 			this.debug?.update();
 		} catch (_) {
 			throw new ErrorFactory(_);

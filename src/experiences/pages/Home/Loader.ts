@@ -65,6 +65,11 @@ export default class Loader extends ExperienceBasedBlueprint {
 				type: "texture",
 				path: "/3d_models/isometric_room/scene_container_baked_texture.jpg",
 			},
+			{
+				name: "noises_texture",
+				type: "texture",
+				path: "/textures/noises.png",
+			},
 		]);
 	}
 
