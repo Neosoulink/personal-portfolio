@@ -61,7 +61,7 @@ export abstract class SceneBlueprint
 
 		if (!TEXTURES_MESH_BASIC_MATERIALS) return;
 
-		this.modelScene?.children?.forEach((child) => {
+		this.modelScene?.traverse((child) => {
 			this._modelChildrenTextures?.forEach((item) => {
 				const CHILD_TEXTURE =
 					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName];
