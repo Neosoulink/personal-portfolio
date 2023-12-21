@@ -1,4 +1,3 @@
-// vite.config.js
 import glsl from "vite-plugin-glsl";
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
