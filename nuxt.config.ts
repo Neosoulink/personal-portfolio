@@ -1,4 +1,4 @@
-import glsl from "vite-plugin-glsl";
+import glslify from "vite-plugin-glslify";
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
@@ -37,7 +37,7 @@ export default defineNuxtConfig({
 		},
 	},
 	vite: {
-		plugins: [glsl()],
+		plugins: [glslify()],
 	},
 	typescript: {
 		typeCheck: true,
