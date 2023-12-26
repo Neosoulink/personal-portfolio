@@ -12,11 +12,13 @@ import Debug from "./Debug";
 import {
 	ExperienceBlueprint,
 	type ExperienceProps,
-} from "@/experiences/blueprints/Experience.blueprint";
+} from "~/experiences/blueprints/Experience.blueprint";
 
 // MODELS
-import { LOADED } from "@/experiences/common/Event.model";
-import { ErrorFactory } from "@/experiences/errors/Error.factory";
+import { LOADED } from "~/common/event.model";
+
+// ERRORS
+import { ErrorFactory } from "~/experiences/errors/Error.factory";
 
 export class HomeExperience extends ExperienceBlueprint {
 	ui?: UI;
@@ -108,5 +110,3 @@ export class HomeExperience extends ExperienceBlueprint {
 		}
 	}
 }
-
-export default HomeExperience;

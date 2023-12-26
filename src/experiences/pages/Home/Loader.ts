@@ -1,7 +1,7 @@
 import { Texture, LinearSRGBColorSpace, CubeTexture } from "three";
 
 // EXPERIENCE
-import HomeExperience from ".";
+import { HomeExperience } from ".";
 
 // MODELS
 import {
@@ -10,10 +10,10 @@ import {
 	LOADED,
 	PROGRESSED,
 	STARTED,
-} from "@/experiences/common/Event.model";
+} from "~/common/event.model";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBased.blueprint";
 
 export default class Loader extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();

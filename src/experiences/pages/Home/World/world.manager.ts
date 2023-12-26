@@ -3,13 +3,13 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import GSAP, { Power0 } from "gsap";
 
 // EXPERIENCES
-import Experience from "..";
+import { HomeExperience } from "..";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
 
 // EVENTS
-import { CHANGED, CONSTRUCTED } from "@/experiences/common/Event.model";
+import { CHANGED, CONSTRUCTED } from "~/common/event.model";
 
 // UTILS
 import { lerpPosition } from "~/utils/three-utils";
@@ -19,7 +19,7 @@ import camTransitionFrag from "./shaders/cameraTransition/fragment.glsl";
 import camTransitionVert from "./shaders/cameraTransition/vertex.glsl";
 
 export default class WorldManager extends ExperienceBasedBlueprint {
-	protected readonly _experience = new Experience();
+	protected readonly _experience = new HomeExperience();
 	protected readonly _appCamera = this._experience.app.camera;
 	protected readonly _appResources = this._experience.app.resources;
 	protected readonly _camera = this._experience.camera;
@@ -27,8 +27,8 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 	protected readonly _composer = this._experience.composer;
 	protected readonly _renderer = this._experience.renderer;
 	protected readonly _timeline = GSAP.timeline();
-	public cameraTransitionShaderPass?: ShaderPass;
 
+	public cameraTransitionShaderPass?: ShaderPass;
 	// TODO: Reorder properties
 	public rayCaster = new Raycaster();
 	public normalizedCursorPosition = { x: 0, y: 0 };

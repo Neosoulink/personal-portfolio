@@ -1,12 +1,24 @@
+<template>
+	<main class="flex flex-1">
+		<!--	<HomeLandingLoader /> -->
+
+		<canvas :id="HOME_DOM_REF" class="fixed top-0 left-0 w-full h-full" />
+
+		<NuxtPage />
+
+		<div id="mode-bubbles-container" />
+	</main>
+</template>
+
 <script lang="ts" setup>
 // EXPERIENCES
-import HomeExperience from "@/experiences/pages/Home";
+import { HomeExperience } from "~/experiences/pages/Home";
 
 // MODELS
-import { CHANGED } from "@/experiences/common/Event.model";
+import { CHANGED } from "~/common/event.model";
 
 // CONSTANTS
-import { HOME_DOM_REF } from "@/constants/UI";
+import { HOME_DOM_REF } from "~/constants/UI";
 
 // DATA
 const states = reactive<{
@@ -43,15 +55,3 @@ onBeforeRouteUpdate((route) => {
 	states.experience?.navigation?.emit(CHANGED, route);
 });
 </script>
-
-<template>
-	<main class="flex flex-1">
-		<!--	<HomeLandingLoader /> -->
-
-		<canvas :id="HOME_DOM_REF" class="fixed top-0 left-0 w-full h-full" />
-
-		<NuxtPage />
-
-		<!-- <div id="mode-bubbles-container" /> -->
-	</main>
-</template>

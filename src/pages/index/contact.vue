@@ -5,7 +5,9 @@
 </template>
 
 <script setup lang="ts">
+import { CONTACT_PAGE } from "~/common/page.model";
+
 definePageMeta({
-	key: (route) => route.fullPath,
+	key: CONTACT_PAGE,
 });
 </script>

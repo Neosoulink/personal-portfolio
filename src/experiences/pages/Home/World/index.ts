@@ -1,4 +1,5 @@
 import {
+	Box3,
 	Color,
 	Group,
 	Mesh,
@@ -9,7 +10,7 @@ import {
 } from "three";
 
 // EXPERIENCE
-import Experience from "..";
+import { HomeExperience } from "..";
 import WorldManager from "./world.manager";
 import { SceneContainer } from "./SceneContainer";
 import { Scene_1 } from "./Scene_1";
@@ -20,28 +21,29 @@ import { Scene_3 } from "./Scene_3";
 import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBased.blueprint";
 
 // MODELS
-import { CONSTRUCTED, DESTRUCTED } from "~/experiences/common/Event.model";
-
-// MODELS
-import { CAMERA_UNAVAILABLE } from "~/experiences/common/error.model";
+import { CONSTRUCTED, DESTRUCTED } from "~/common/event.model";
+import { CAMERA_UNAVAILABLE } from "~/common/error.model";
 
 // INTERFACES
 import type { Materials } from "~/interfaces/experienceWorld";
+import type { SceneBlueprint } from "~/experiences/blueprints/Scene.blueprint";
 
 export default class World extends ExperienceBasedBlueprint {
-	protected readonly _experience = new Experience();
-	protected readonly _appCamera = this._experience.app.camera;
-	protected readonly _renderer = this._experience.renderer;
-	protected readonly _loader = this._experience.loader;
+	protected readonly _experience = new HomeExperience();
 
-	public readonly commonMaterials: Materials = {};
+	private readonly _appCamera = this._experience.app.camera;
+	private readonly _loader = this._experience.loader;
 
+	private _commonMaterials: Materials = {};
+	private _projectedModelsPosition = new Vector3();
+	private _projectedScenes: SceneBlueprint[] = [];
+
+	public sceneContainer?: SceneContainer;
 	public scene1?: Scene_1;
 	public scene2?: Scene_2;
 	public scene3?: Scene_3;
-	public sceneContainer?: SceneContainer;
 	public manager?: WorldManager;
-	/** Represent the ThreeJs `Group` containing the experience. */
+	/** Represent the {@link Group `Group`} containing the experience. */
 	public group?: Group;
 
 	constructor() {
@@ -59,15 +61,27 @@ export default class World extends ExperienceBasedBlueprint {
 		if (!AVAILABLE_TEXTURES) return;
 
 		if (AVAILABLE_TEXTURES["scene_container_baked_texture"] instanceof Texture)
-			this.commonMaterials["scene_container"] = new MeshBasicMaterial({
+			this._commonMaterials["scene_container"] = new MeshBasicMaterial({
 				map: AVAILABLE_TEXTURES["scene_container_baked_texture"],
 			});
 
-		this.commonMaterials["glass"] = new MeshBasicMaterial({
+		this._commonMaterials["glass"] = new MeshBasicMaterial({
 			opacity: 0.5,
 			color: new Color(0x000000),
 			transparent: true,
 		});
+	}
+
+	public get commonMaterials() {
+		return this._commonMaterials;
+	}
+
+	public get projectedModelsPosition() {
+		return this._projectedModelsPosition;
+	}
+
+	public get projectedScenes() {
+		return this._projectedScenes;
 	}
 
 	public destruct() {
@@ -115,43 +129,38 @@ export default class World extends ExperienceBasedBlueprint {
 		this.scene3?.construct();
 		this.manager?.construct();
 
-		if (
-			this.scene1?.modelScene &&
-			this.scene1.pcScreen &&
-			this.scene1.pcScreenWebglTexture
-		) {
-			this.group?.add(this.scene1.modelScene);
+		if (this.sceneContainer?.modelScene instanceof Group) {
+			const BOUNDING_BOX = new Box3().setFromObject(
+				this.sceneContainer.modelScene
+			);
+			const WIDTH = BOUNDING_BOX.max.x - BOUNDING_BOX.min.x;
+			// const HEIGHT = BOUNDING_BOX.max.y - BOUNDING_BOX.min.y;
+
+			this._projectedModelsPosition.set(WIDTH * 1.2, 0, 0);
+
+			const PROJECTED_SCENE_CONTAINER = this.sceneContainer.modelScene.clone();
+			PROJECTED_SCENE_CONTAINER.position.copy(this._projectedModelsPosition);
+
+			this.group?.add(
+				this.sceneContainer.modelScene,
+				PROJECTED_SCENE_CONTAINER
+			);
 		}
 
-		if (this.scene2?.modelScene) {
-			this.scene2.modelScene.position.setX(40);
+		if (this.scene1?.modelScene) this.group?.add(this.scene1.modelScene);
 
+		if (this.scene2?.modelScene) {
+			this.scene2.modelScene.position.copy(this.projectedModelsPosition);
+
+			this._projectedScenes.push(this.scene2);
 			this.group?.add(this.scene2.modelScene);
 		}
 
 		if (this.scene3?.modelScene) {
-			this.scene3.modelScene.position.setZ(40);
+			this.scene3.modelScene.position.copy(this.projectedModelsPosition);
 
+			this._projectedScenes.push(this.scene3);
 			this.group?.add(this.scene3.modelScene);
-		}
-
-		if (this.sceneContainer?.modelScene) {
-			const scene_2_container = this.sceneContainer.modelScene.clone();
-			const scene_3_container = this.sceneContainer.modelScene.clone();
-
-			scene_2_container.position.copy(
-				this.scene2?.modelScene?.position ?? new Vector3()
-			);
-
-			scene_3_container.position.copy(
-				this.scene3?.modelScene?.position ?? new Vector3()
-			);
-
-			this.group?.add(
-				this.sceneContainer.modelScene,
-				scene_2_container,
-				scene_3_container
-			);
 		}
 
 		this._experience.app.scene.add(this.group);

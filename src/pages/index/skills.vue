@@ -5,8 +5,9 @@
 </template>
 
 <script setup lang="ts">
+import { SKILL_PAGE } from "~/common/page.model";
+
 definePageMeta({
-	key: (route) => route.fullPath,
+	key: SKILL_PAGE,
 });
 </script>
-

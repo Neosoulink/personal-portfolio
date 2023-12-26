@@ -1,14 +1,13 @@
 import type { RouteRecordNormalized, RouteRecordRaw } from "#vue-router";
+// EXPERIENCES
+import { HomeExperience } from ".";
 
 // MODELS
-import { CHANGED } from "~/experiences/common/Event.model";
-
-// EXPERIENCES
-import HomeExperience from ".";
+import { CHANGED } from "~/common/event.model";
+import { WRONG_PARAM } from "~/common/error.model";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
-import { WRONG_PARAM } from "~/experiences/common/error.model";
+import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBased.blueprint";
 
 export class Navigation extends ExperienceBasedBlueprint {
 	protected _experience = new HomeExperience();

@@ -18,7 +18,7 @@ import {
 import gsap from "gsap";
 
 // BLUEPRINTS
-import { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
+import { SceneBlueprint } from "~/experiences/blueprints/Scene.blueprint";
 
 // SHADERS
 import bakedTextureFragment from "./shaders/scene1/bakedTexture/fragment.glsl";
@@ -28,10 +28,10 @@ import coffeeSteamFragment from "./shaders/scene1/coffeeSteam/fragment.glsl";
 import coffeeSteamVertex from "./shaders/scene1/coffeeSteam/vertex.glsl";
 
 // CONFIGS
-import { Config } from "@/experiences/config/Config";
+import { Config } from "~/experiences/config/Config";
 
 // MODELS
-import { DESTRUCTED } from "~/experiences/common/Event.model";
+import { DESTRUCTED } from "~/common/event.model";
 
 // ERROR
 import { ErrorFactory } from "~/experiences/errors/Error.factory";

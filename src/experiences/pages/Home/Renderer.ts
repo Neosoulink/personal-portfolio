@@ -11,10 +11,10 @@ import {
 } from "three";
 
 // EXPERIENCE
-import HomeExperience from ".";
+import { HomeExperience } from ".";
 
 // INTERFACES
-import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBased.blueprint";
 
 export interface PortalAssets {
 	mesh: THREE.Mesh;

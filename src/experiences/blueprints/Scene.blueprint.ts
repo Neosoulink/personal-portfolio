@@ -7,20 +7,21 @@ import {
 	Material,
 } from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
-import EventEmitter from "events";
+
+// BLUEPRINTS
+import { ExperienceBasedBlueprint } from "./ExperienceBased.blueprint";
 
 // EXPERIENCES
-import HomeExperience from "@/experiences/pages/Home";
+import { HomeExperience } from "~/experiences/pages/Home";
 
-// EVENTS
-import { CONSTRUCTED, DESTRUCTED, LOADED } from "../common/Event.model";
+// MODELS
+import { CONSTRUCTED, DESTRUCTED, LOADED } from "~/common/event.model";
+import { WRONG_PARAM } from "~/common/error.model";
 
 // ERRORS
 import { ErrorFactory } from "../errors/Error.factory";
-import { WRONG_PARAM } from "../common/error.model";
 
 // INTERFACES
-import { type ExperienceBase } from "@interfaces/experienceBase";
 import type {
 	Materials,
 	ModelChildrenMaterials,
@@ -34,10 +35,7 @@ export interface SceneBlueprintProps {
 	onTraverseModelScene?: (child: Object3D<Object3DEventMap>) => unknown;
 }
 
-export abstract class SceneBlueprint
-	extends EventEmitter
-	implements ExperienceBase
-{
+export abstract class SceneBlueprint extends ExperienceBasedBlueprint {
 	/**
 	 * Called each time the model scene is traversed.
 	 *

@@ -6,12 +6,10 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
 // EXPERIENCES
-import HomeExperience from ".";
+import { HomeExperience } from ".";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBased.blueprint";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import { Vector3 } from "three";
 
 export class Composer extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();

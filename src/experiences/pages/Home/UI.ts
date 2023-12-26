@@ -1,13 +1,12 @@
 import GSAP from "gsap";
-import { EventEmitter } from "events";
 
 // EXPERIENCE
-import HomeExperience from ".";
+import { HomeExperience } from ".";
 
 // CONFIG
 import { Config } from "@/experiences/config/Config";
 
-// MODELS
+// BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
 
 /**

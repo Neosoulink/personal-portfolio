@@ -2,20 +2,15 @@ import { PerspectiveCamera, Vector3 } from "three";
 import gsap from "gsap";
 
 // EXPERIENCES
-import HomeExperience from ".";
+import { HomeExperience } from ".";
 import Debug from "./Debug";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
-
-// EVENTS
-import { CONSTRUCTED, DESTRUCTED } from "@/experiences/common/Event.model";
+import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBased.blueprint";
 
 // MODELS
-import {
-	CAMERA_UNAVAILABLE,
-	WRONG_PARAM,
-} from "@/experiences/common/error.model";
+import { CONSTRUCTED, DESTRUCTED } from "~/common/event.model";
+import { CAMERA_UNAVAILABLE, WRONG_PARAM } from "~/common/error.model";
 
 // CONFIG
 import { Config } from "@/experiences/config/Config";

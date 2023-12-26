@@ -5,7 +5,9 @@
 </template>
 
 <script setup lang="ts">
+import { HOME_PAGE } from "~/common/page.model";
+
 definePageMeta({
-	key: (route) => route.fullPath,
+	key: HOME_PAGE,
 });
 </script>

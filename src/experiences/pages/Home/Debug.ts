@@ -12,15 +12,17 @@ import {
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 // EXPERIENCE
-import Experience from ".";
+import { HomeExperience } from ".";
+import { Config } from "@/experiences/config/Config";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
-import { DESTRUCTED } from "@/experiences/common/Event.model";
-import { Config } from "@/experiences/config/Config";
+
+// MODELS
+import { DESTRUCTED } from "~/common/event.model";
 
 export default class Debug extends ExperienceBasedBlueprint {
-	protected readonly _experience = new Experience();
+	protected readonly _experience = new HomeExperience();
 	protected readonly _appDebug = this._experience.app.debug;
 	protected readonly _appCamera = this._experience.app.camera;
 	protected readonly _camera = this._experience.camera;
@@ -43,7 +45,7 @@ export default class Debug extends ExperienceBasedBlueprint {
 
 		if (this._gui) this.destruct();
 
-		this._gui = this._experience.app.debug?.ui?.addFolder(Experience.name);
+		this._gui = this._experience.app.debug?.ui?.addFolder(HomeExperience.name);
 
 		if (!this._gui || !this._experience.world) return;
 
