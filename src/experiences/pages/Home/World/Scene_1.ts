@@ -1,35 +1,72 @@
 import {
+	AnimationMixer,
+	BackSide,
 	CatmullRomCurve3,
 	Color,
 	Material,
 	Mesh,
 	MeshBasicMaterial,
-	NoColorSpace,
+	Object3D,
 	PerspectiveCamera,
-	PlaneGeometry,
-	RawShaderMaterial,
+	ShaderMaterial,
+	Vector2,
 	Vector3,
 	WebGLRenderTarget,
+	type Object3DEventMap,
+	VideoTexture,
 } from "three";
-import GSAP from "gsap";
+import gsap from "gsap";
 
 // BLUEPRINTS
 import { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
 
 // SHADERS
-import fragment from "./shaders/scene1/fragment.frag";
-import vertex from "./shaders/scene1/vertex.vert";
+import bakedTextureFragment from "./shaders/scene1/bakedTexture/fragment.glsl";
+import bakedTextureVertex from "./shaders/scene1/bakedTexture/vertex.glsl";
+
+import coffeeSteamFragment from "./shaders/scene1/coffeeSteam/fragment.glsl";
+import coffeeSteamVertex from "./shaders/scene1/coffeeSteam/vertex.glsl";
 
 // CONFIGS
 import { Config } from "@/experiences/config/Config";
 
 // MODELS
-import { CONSTRUCTED, DESTRUCTED } from "~/experiences/common/Event.model";
+import { DESTRUCTED } from "~/experiences/common/Event.model";
 
-export default class Scene_1 extends SceneBlueprint {
-	protected _renderer = this._experience.renderer;
-	public pcScreenWebglTexture?: WebGLRenderTarget;
+// ERROR
+import { ErrorFactory } from "~/experiences/errors/Error.factory";
+
+// INTERFACES
+import type {
+	Materials,
+	ModelChildrenMaterials,
+} from "~/interfaces/experienceWorld";
+
+export class Scene_1 extends SceneBlueprint {
+	private _renderer = this._experience.renderer;
+	private _appTime = this._experience.app.time;
+	private _mixer?: AnimationMixer;
+	private _initialPcTopBone?: Object3D;
+
+	public readonly timeline = gsap.timeline();
+	public readonly colors = {
+		monitor_a_screen: "#ffffff",
+		monitor_b_screen: "#888888",
+		pocketComputerScreen: "#b2e0ff",
+		phoneScreen: "#50cdff",
+		fixedComputerLed: "#50cdff",
+		coffeeSteam: "#b7a08e",
+	};
+
+	public pcScreenWebglTexture = new WebGLRenderTarget(4096, 4096);
+	public pcTopArticulation?: Object3D;
+	public treeOutside?: Object3D;
 	public pcScreen?: Mesh;
+	public phoneScreen?: Mesh;
+	public coffeeSteam?: Mesh;
+	public phoneScreenVideo?: HTMLVideoElement;
+	public monitorAScreenVideo?: HTMLVideoElement;
+	public monitorBScreenVideo?: HTMLVideoElement;
 
 	constructor() {
 		try {
@@ -42,64 +79,249 @@ export default class Scene_1 extends SceneBlueprint {
 					new Vector3(0, 5.5, 21),
 				]),
 				modelName: "scene_1",
-				modelChildrenTextures: [
-					{
-						childName: "scene_1_room",
-						linkedTextureName: "scene_1_room_baked_texture",
-					},
-					{
-						childName: "scene_1_woods",
-						linkedTextureName: "scene_1_woods_baked_texture",
-					},
-					{
-						childName: "scene_1_floor",
-						linkedTextureName: "scene_container_baked_texture",
-					},
-				],
+				childrenMaterials: {
+					scene_1_room: "room",
+					chair_top: "room",
+					pc_top: "room",
+					scene_1_woods: "wood",
+					coffee_steam: "coffee_steam",
+					window_glasses: "glass",
+					scene_1_floor: "scene_container",
+					monitor_a_screen: "monitor_a",
+					monitor_b_screen: "monitor_b",
+					scene_1_phone_screen: "phone_screen",
+					pc_top_screen: "pc_screen",
+					tree: "tree",
+					...(() => {
+						const result: ModelChildrenMaterials = {};
+						["top", "front", "back", "left", "right"].forEach((direction) => {
+							result["tree_cube_" + direction] = "tree";
+							result["tree_cube_" + direction + "_clone"] = "tree_outside";
+						});
+						return result;
+					})(),
+				},
+				onTraverseModelScene: (child: Object3D<Object3DEventMap>) => {
+					this._setPcTopBone(child);
+					this._setPcScreen(child);
+					this._setCoffeeSteam(child);
+					this._setPhoneScreen(child);
+					this._setTreeOutSide(child);
+				},
 			});
-		} catch (error) {}
-	}
 
-	construct() {
-		if (!this._appCamera.instance) return;
-		this.modelScene = this._model?.scene.clone();
-
-		if (!this.modelScene) return;
-
-		try {
-			this.modelScene.children.forEach((child) => {
-				if (child.name === "scene_1_pc_screen")
-					throw new Error("CHILD_FOUND", { cause: child });
-			});
+			this;
 		} catch (_err) {
-			if (_err instanceof Error && _err.cause instanceof Mesh) {
-				const planeGeo = new PlaneGeometry(1.25, 0.6728);
-				this.pcScreenWebglTexture = new WebGLRenderTarget(4096, 4096);
-				this.pcScreen = new Mesh(planeGeo);
-				this.pcScreen.material = new MeshBasicMaterial({
-					map: this.pcScreenWebglTexture.texture,
-				});
-
-				// TODO:: Correctly setup the portal by passing the texture to the screen it self
-				this.pcScreen.rotateY(Math.PI * 0.271);
-				this.pcScreen.rotateX(Math.PI * -0.03);
-				this.pcScreen.position.y -= 0.05;
-				this.pcScreen.position.x -= 0.01;
-				_err.cause.localToWorld(this.pcScreen.position);
-				_err.cause.removeFromParent();
-
-				this.modelScene.add(this.pcScreen);
-			}
+			throw new ErrorFactory(_err);
 		}
-
-		this._setModelMaterials();
-		this.emit(CONSTRUCTED);
 	}
 
-	destruct() {
+	private _setPcTopBone(item: Object3D<Object3DEventMap>) {
+		if (
+			!this.modelScene ||
+			!this._model ||
+			!(item instanceof Object3D) ||
+			item.name !== "pc_top_articulation"
+		)
+			return;
+
+		this._initialPcTopBone = item.clone();
+		this.pcTopArticulation = item;
+	}
+
+	private _setPcScreen(item: Object3D<Object3DEventMap>) {
+		if (
+			!this.modelScene ||
+			!this._model ||
+			!(item instanceof Mesh) ||
+			item.name !== "pc_top_screen"
+		)
+			return;
+
+		this.pcScreen = item;
+	}
+
+	private _setCoffeeSteam(item: Object3D<Object3DEventMap>) {
+		if (
+			!this.modelScene ||
+			!this._model ||
+			!(item instanceof Mesh) ||
+			item.name !== "coffee_steam"
+		)
+			return;
+
+		this.coffeeSteam = item;
+	}
+
+	private _setPhoneScreen(item: Object3D<Object3DEventMap>) {
+		if (
+			!this.modelScene ||
+			!this._model ||
+			!(item instanceof Mesh) ||
+			item.name !== "scene_1_phone_screen"
+		)
+			return;
+
+		this.phoneScreen = item;
+	}
+
+	private _setTreeOutSide(child: Object3D<Object3DEventMap>) {
+		if (
+			child instanceof Mesh &&
+			new RegExp(/^tree_cube_/, "ig").test(child.name) &&
+			!new RegExp(/_clone$/, "ig").test(child.name)
+		) {
+			const clone = child.clone();
+			clone.name = clone.name + "_clone";
+
+			this.treeOutside?.add(clone);
+		}
+	}
+
+	private _initScreesVideos() {
+		this.phoneScreenVideo = this._createVideoElement(
+			"/videos/phone_screen_recording.webm"
+		);
+
+		this.monitorAScreenVideo = this._createVideoElement(
+			"/videos/monitor_a_screen_recording.webm"
+		);
+		this.monitorBScreenVideo = this._createVideoElement(
+			"/videos/monitor_b_screen_recording.webm"
+		);
+	}
+
+	private _createVideoElement(source: string) {
+		const ELEMENT = document.createElement("video");
+
+		ELEMENT.muted = true;
+		ELEMENT.loop = true;
+		ELEMENT.controls = true;
+		ELEMENT.playsInline = true;
+		ELEMENT.autoplay = true;
+		ELEMENT.src = source;
+		ELEMENT.play();
+
+		return ELEMENT;
+	}
+
+	protected _getAvailableMaterials(): Materials {
+		const AVAILABLE_TEXTURE = this._loader?.availableTextures;
+		const AVAILABLE_MATERIALS: Materials = {};
+
+		if (!AVAILABLE_TEXTURE) return AVAILABLE_MATERIALS;
+
+		// TEXTURES
+		const PHONE_VIDEO_TEXTURE = new VideoTexture(
+			this.phoneScreenVideo ?? document.createElement("video")
+		);
+
+		const MONITOR_A_VIDEO_TEXTURE = new VideoTexture(
+			this.monitorAScreenVideo ?? document.createElement("video")
+		);
+
+		const MONITOR_B_VIDEO_TEXTURE = new VideoTexture(
+			this.monitorBScreenVideo ?? document.createElement("video")
+		);
+
+		AVAILABLE_MATERIALS["pc_screen"] = new MeshBasicMaterial({
+			map: this.pcScreenWebglTexture?.texture,
+		});
+
+		AVAILABLE_MATERIALS["phone_screen"] = new MeshBasicMaterial({
+			map: PHONE_VIDEO_TEXTURE,
+		});
+
+		AVAILABLE_MATERIALS["monitor_a"] = new MeshBasicMaterial({
+			map: MONITOR_A_VIDEO_TEXTURE,
+		});
+
+		AVAILABLE_MATERIALS["monitor_b"] = new MeshBasicMaterial({
+			map: MONITOR_B_VIDEO_TEXTURE,
+		});
+
+		AVAILABLE_MATERIALS["tree"] = new MeshBasicMaterial({
+			map: AVAILABLE_TEXTURE["scene_1_tree_baked_texture"],
+			transparent: true,
+		});
+
+		AVAILABLE_MATERIALS["room"] = new ShaderMaterial({
+			uniforms: {
+				uBakedTexture: {
+					value: AVAILABLE_TEXTURE["scene_1_no_lights_baked_texture"],
+				},
+				uBakedLightTexture: {
+					value: AVAILABLE_TEXTURE["scene_1_lights_baked_texture"],
+				},
+
+				uRedAccent: { value: new Color(this.colors.pocketComputerScreen) },
+				uRedAccentStrength: { value: 0.5 },
+
+				uGreenAccent: { value: new Color(this.colors.monitor_b_screen) },
+				uGreenAccentStrength: { value: 1 },
+
+				uBlueAccent: { value: new Color(this.colors.fixedComputerLed) },
+				uBlueAccentStrength: { value: 2 },
+			},
+			fragmentShader: bakedTextureFragment,
+			vertexShader: bakedTextureVertex,
+		});
+
+		AVAILABLE_MATERIALS["wood"] = new ShaderMaterial({
+			uniforms: {
+				uBakedTexture: {
+					value: AVAILABLE_TEXTURE["scene_1_woods_no_lights_baked_texture"],
+				},
+				uBakedLightTexture: {
+					value: AVAILABLE_TEXTURE["scene_1_woods_lights_baked_texture"],
+				},
+
+				uRedAccent: { value: new Color(this.colors.pocketComputerScreen) },
+				uRedAccentStrength: { value: 2 },
+
+				uGreenAccent: { value: new Color(this.colors.monitor_b_screen) },
+				uGreenAccentStrength: { value: 2 },
+
+				uBlueAccent: { value: new Color(this.colors.phoneScreen) },
+				uBlueAccentStrength: { value: 3 },
+			},
+			fragmentShader: bakedTextureFragment,
+			vertexShader: bakedTextureVertex,
+		});
+
+		AVAILABLE_MATERIALS["coffee_steam"] = new ShaderMaterial({
+			uniforms: {
+				uTime: { value: 0 },
+				uTimeFrequency: { value: 0.0005 },
+				uUvFrequency: { value: new Vector2(4, 5) },
+				uColor: { value: new Color(this.colors.coffeeSteam) },
+			},
+			fragmentShader: coffeeSteamFragment,
+			vertexShader: coffeeSteamVertex,
+			transparent: true,
+			depthWrite: false,
+		});
+
+		AVAILABLE_MATERIALS["tree_outside"] = new MeshBasicMaterial({
+			colorWrite: false,
+			side: BackSide,
+		});
+
+		return AVAILABLE_MATERIALS;
+	}
+
+	public construct() {
+		super.construct(() => {
+			this.treeOutside = new Object3D();
+			this.modelScene?.add(this.treeOutside);
+			this._initScreesVideos();
+		});
+	}
+
+	public destruct() {
 		if (!this.modelScene) return;
 
-		GSAP.to((this.modelScene.children[0] as Mesh).material as Material, {
+		gsap.to((this.modelScene.children[0] as Mesh).material as Material, {
 			duration: Config.GSAP_ANIMATION_DURATION,
 			ease: Config.GSAP_ANIMATION_EASE,
 			opacity: 0,
@@ -108,6 +330,8 @@ export default class Scene_1 extends SceneBlueprint {
 				this.modelScene?.clear();
 				this.modelScene?.removeFromParent();
 				this._renderer?.removePortalAssets(Scene_1.name + "_screen_pc");
+				this._mixer?.stopAllAction();
+				this._mixer = undefined;
 
 				this.emit(DESTRUCTED);
 			},
@@ -115,7 +339,7 @@ export default class Scene_1 extends SceneBlueprint {
 	}
 
 	public intro(): void {
-		const WorldManager = this._experience.world?.manager;
+		const WorldManager = this._world?.manager;
 
 		if (
 			!(WorldManager && this._appCamera.instance instanceof PerspectiveCamera)
@@ -124,8 +348,8 @@ export default class Scene_1 extends SceneBlueprint {
 
 		const { x, y, z } = this.cameraPath.getPointAt(0);
 
-		GSAP.to(this._appCamera.instance.position, {
-			...this._experience.world?.manager?.getGsapDefaultProps(),
+		gsap.to(this._appCamera.instance.position, {
+			...this._world?.manager?.getGsapDefaultProps(),
 			duration: Config.GSAP_ANIMATION_DURATION,
 			ease: Config.GSAP_ANIMATION_EASE,
 			x,
@@ -137,54 +361,44 @@ export default class Scene_1 extends SceneBlueprint {
 			},
 			onComplete: () => {
 				setTimeout(() => {
-					if (this._experience.world?.manager) {
+					if (this._world?.manager) {
 						WorldManager?.getGsapDefaultProps().onComplete();
 
-						this._experience.world.manager.autoCameraAnimation = true;
-
-						console.log(this._appCamera.instance?.position);
+						this._world.manager.autoCameraAnimation = true;
 					}
 				}, 1000);
 			},
 		});
 	}
 
-	public outro(): void {}
+	/**
+	 * Toggle the state of the pc between open and close
+	 *
+	 * @param state Force the state of the pc (0 = "close" & 1 = "open")
+	 * @returns
+	 */
+	public togglePcOpening(state?: 0 | 1) {
+		if (!this._model || !this.modelScene || !this.pcTopArticulation) return;
+		const isOpening =
+			this.pcTopArticulation.rotation.z ===
+				this._initialPcTopBone?.rotation.z || state === 1;
 
-	public update(): void {}
-
-	protected _setModelMaterials() {
-		const TEXTURES_MESH_BASIC_MATERIALS =
-			this._Loader?.texturesMeshBasicMaterials;
-
-		if (!TEXTURES_MESH_BASIC_MATERIALS) return;
-
-		this.modelScene?.children.forEach((child) => {
-			this._modelChildrenTextures.forEach((item) => {
-				if (
-					child instanceof Mesh &&
-					child.name === item.childName &&
-					TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName]
-				) {
-					const CHILD_TEXTURE =
-						TEXTURES_MESH_BASIC_MATERIALS[item.linkedTextureName].clone();
-					if (!CHILD_TEXTURE.map) return;
-
-					const MAP_TEXTURE = CHILD_TEXTURE.map.clone();
-					MAP_TEXTURE.colorSpace = NoColorSpace;
-
-					~(child.material = new RawShaderMaterial({
-						uniforms: {
-							uBakedTexture: { value: MAP_TEXTURE },
-							uTime: { value: 0 },
-							uColor: { value: new Color(0x00ff00) },
-						},
-						fragmentShader: fragment,
-						vertexShader: vertex,
-						transparent: true,
-					}));
-				}
-			});
+		return this.timeline.to(this.pcTopArticulation.rotation, {
+			z: isOpening
+				? this.pcTopArticulation.rotation.z + 2.1
+				: this._initialPcTopBone?.rotation.z ?? 0,
+			duration: Config.GSAP_ANIMATION_DURATION,
+			onUpdate: () => {},
+			onComplete: () => {},
 		});
+	}
+
+	public update(): void {
+		if (
+			this.coffeeSteam?.material instanceof ShaderMaterial &&
+			typeof this.coffeeSteam?.material.uniforms?.uTime.value === "number"
+		) {
+			this.coffeeSteam.material.uniforms.uTime.value = this._appTime.elapsed;
+		}
 	}
 }

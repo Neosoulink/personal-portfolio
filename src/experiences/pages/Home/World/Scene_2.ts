@@ -1,13 +1,13 @@
-import { CatmullRomCurve3, PerspectiveCamera, Vector3 } from "three";
-import GSAP from "gsap";
+import { CatmullRomCurve3, Mesh, MeshBasicMaterial, Vector3 } from "three";
 
 // BLUEPRINTS
-import { SceneBlueprint } from "@/experiences/blueprints/Scene.blueprint";
+import { SceneBlueprint } from "~/experiences/blueprints/Scene.blueprint";
 
-// MODELS
-import { CONSTRUCTED, DESTRUCTED } from "~/experiences/common/Event.model";
+// INTERFACES
+import type { Materials } from "~/interfaces/experienceWorld";
 
-export default class Scene_2 extends SceneBlueprint {
+export class Scene_2 extends SceneBlueprint {
+	main?: Mesh;
 	constructor() {
 		try {
 			super({
@@ -19,37 +19,24 @@ export default class Scene_2 extends SceneBlueprint {
 					new Vector3(0, 5.5, 21),
 				]),
 				modelName: "scene_2",
-				modelChildrenTextures: [
-					{
-						childName: "scene_2_logos",
-						linkedTextureName: "scene_2_logos_baked_texture",
-					},
-					{
-						childName: "scene_2_floor",
-						linkedTextureName: "scene_container_baked_texture",
-					},
-				],
+				childrenMaterials: {
+					scene_2_logos: "scene_2",
+					scene_2_floor: "scene_container",
+				},
 			});
 		} catch (error) {}
 	}
 
-	construct() {
-		this.modelScene = this._model?.scene.clone();
-		if (!this.modelScene) return;
+	protected _getAvailableMaterials() {
+		const AVAILABLE_TEXTURE = this._loader?.availableTextures;
+		const AVAILABLE_MATERIALS: Materials = {};
 
-		this._setModelMaterials();
-		this.emit(CONSTRUCTED);
+		if (!AVAILABLE_TEXTURE) return AVAILABLE_MATERIALS;
+		AVAILABLE_MATERIALS["scene_2"] = new MeshBasicMaterial({
+			map: AVAILABLE_TEXTURE["scene_2_baked_texture"],
+			transparent: true,
+		});
+
+		return AVAILABLE_MATERIALS;
 	}
-
-	destruct() {
-		this.modelScene?.clear();
-		this.modelScene?.removeFromParent();
-		this.emit(DESTRUCTED);
-	}
-
-	public intro(): void {}
-
-	public outro(): void {}
-
-	public update(): void {}
 }

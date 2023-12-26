@@ -1,10 +1,4 @@
-import {
-	CatmullRomCurve3,
-	Clock,
-	PerspectiveCamera,
-	Raycaster,
-	Vector3,
-} from "three";
+import { CatmullRomCurve3, PerspectiveCamera, Raycaster, Vector3 } from "three";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import GSAP, { Power0 } from "gsap";
 
@@ -21,8 +15,8 @@ import { CHANGED, CONSTRUCTED } from "@/experiences/common/Event.model";
 import { lerpPosition } from "~/utils/three-utils";
 
 // SHADERS
-import fragCameraTransition from "./shaders/world/fragmentCameraTransition.glsl";
-import vertCameraTransition from "./shaders/world/vertexCameraTransition.glsl";
+import camTransitionFrag from "./shaders/cameraTransition/fragment.glsl";
+import camTransitionVert from "./shaders/cameraTransition/vertex.glsl";
 
 export default class WorldManager extends ExperienceBasedBlueprint {
 	protected readonly _experience = new Experience();
@@ -84,55 +78,36 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 	}[] = [];
 	// === ^
 
-	constructor() {
-		super();
-	}
-
 	public construct() {
 		const currentCamera = this._camera?.cameras[0];
 		const secondaryCamera = this._camera?.cameras[1];
 
-		if (
-			this._world?.scene1?.modelScene &&
-			this._world?.scene1.pcScreen &&
-			this._world?.scene1.pcScreenWebglTexture &&
-			secondaryCamera
-		) {
-			if (currentCamera instanceof PerspectiveCamera)
-				this.cameraCurvePath.getPointAt(0, currentCamera.position);
+		if (currentCamera instanceof PerspectiveCamera)
+			this.cameraCurvePath.getPointAt(0, currentCamera.position);
 
-			this._renderer?.addPortalAssets(this._world?.scene1 + "_pc_screen", {
-				mesh: this._world?.scene1.pcScreen,
-				meshCamera: secondaryCamera,
-				meshWebGLTexture: this._world?.scene1.pcScreenWebglTexture,
-			});
+		this._world?.scene1?.togglePcOpening()?.then(() => {
+			if (
+				this._world?.scene1?.modelScene &&
+				this._world.scene1.pcScreen &&
+				this._world.scene1.pcScreenWebglTexture &&
+				secondaryCamera
+			)
+				this._renderer?.addPortalAssets(this._world.scene1 + "_pc_screen", {
+					mesh: this._world.scene1.pcScreen,
+					meshCamera: secondaryCamera,
+					meshWebGLTexture: this._world.scene1.pcScreenWebglTexture,
+				});
+		});
 
-			this._world.group?.add(this._world?.scene1.modelScene);
-		}
+		this._appCamera.instance?.position.copy(
+			this._world?.scene1?.cameraPath.getPoint(0) ?? new Vector3()
+		);
 
-		if (this._world?.scene2?.modelScene) {
-			this._world?.scene2.modelScene.position.setX(40);
-
-			this._world.group?.add(this._world?.scene2.modelScene);
-		}
-
-		if (this._world?.sceneBackground?.modelScene) {
-			const scene_2_background =
-				this._world?.sceneBackground.modelScene.clone();
-
-			scene_2_background.position.copy(
-				this._world?.scene2?.modelScene?.position ?? new Vector3()
-			);
-			this._world.group?.add(
-				this._world?.sceneBackground.modelScene,
-				scene_2_background
-			);
-
-			this.setScene();
-			this._experience.navigation?.on(CHANGED, () => {
-				this.setScene();
-			});
-		}
+		this._camera?.setCameraLookAt(
+			(this._world?.scene1?.modelScene?.position ?? new Vector3())
+				.clone()
+				.setY(2)
+		);
 
 		secondaryCamera?.position.copy(
 			this._world?.scene2?.modelScene?.position ?? new Vector3()
@@ -145,6 +120,11 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		secondaryCamera?.lookAt(
 			this._world?.scene2?.modelScene?.position ?? new Vector3()
 		);
+
+		this.setScene();
+		this._experience.navigation?.on(CHANGED, () => {
+			this.setScene();
+		});
 
 		this.emit(CONSTRUCTED, this);
 	}
@@ -265,32 +245,32 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		if (this._camera?.timeline.isActive()) this._camera.timeline.progress(1);
 		if (this._timeline.isActive()) this._timeline.progress(1);
 
+		const SCREEN_POSITION = (
+			this._world?.scene1?.pcScreen?.localToWorld(new Vector3()) ??
+			new Vector3()
+		).clone();
+
 		if (
 			this._experience.navigation?.currentRoute === "index" &&
 			this._camera?.currentCameraIndex !== 0
 		) {
 			this._camera?.switchCamera(0);
 
-			this._camera?.setCameraLookAt(
-				(this._world?.scene1?.pcScreen?.position ?? new Vector3()).clone()
-			);
+			this._camera?.setCameraLookAt(SCREEN_POSITION);
 		}
 
 		if (this._experience.navigation?.currentRoute !== "index") {
 			if (this._camera?.currentCameraIndex !== 1) {
-				const SCREEN_POSITION = (
-					this._world?.scene1?.pcScreen?.position ?? new Vector3()
-				).clone();
 				this.cameraTransitionShaderPass = new ShaderPass({
 					uniforms: {
 						tDiffuse: { value: null },
 						uStrength: { value: 0 },
 						uDisplacementMap: {
-							value: this._appResources.items["noises_texture"],
+							value: this._appResources.items["rocksAlphaMap"],
 						},
 					},
-					vertexShader: vertCameraTransition,
-					fragmentShader: fragCameraTransition,
+					vertexShader: camTransitionVert,
+					fragmentShader: camTransitionFrag,
 				});
 
 				this._composer?.addPass(
@@ -300,7 +280,11 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 
 				this._camera
 					?.updateCameraPosition(
-						lerpPosition(new Vector3(0, 3.5, 0), SCREEN_POSITION, 0.84),
+						lerpPosition(
+							new Vector3(0, SCREEN_POSITION.y, 0),
+							SCREEN_POSITION,
+							0.84
+						),
 						SCREEN_POSITION,
 						() => {}
 					)

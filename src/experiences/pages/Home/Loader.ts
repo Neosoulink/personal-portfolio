@@ -1,4 +1,4 @@
-import { MeshBasicMaterial, Texture, LinearSRGBColorSpace } from "three";
+import { Texture, LinearSRGBColorSpace, CubeTexture } from "three";
 
 // EXPERIENCE
 import HomeExperience from ".";
@@ -17,12 +17,10 @@ import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBas
 
 export default class Loader extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
-	protected readonly _appResources = this._experience.app.resources;
+	private readonly _appResources = this._experience.app.resources;
 
-	texturesMeshBasicMaterials: {
-		[name: string]: MeshBasicMaterial;
-	} = {};
-	progress = 0;
+	private _progress = 0;
+	private _availableTextures: { [name: string]: Texture } = {};
 
 	constructor() {
 		super();
@@ -30,93 +28,90 @@ export default class Loader extends ExperienceBasedBlueprint {
 		// RESOURCES
 		this._appResources.setDracoLoader("/decoders/draco/");
 		this._appResources.setSources([
+			// SCENE 1
 			{
 				name: "scene_1",
 				type: "gltfModel",
-				path: "/3d_models/isometric_room/scene_1.glb",
+				path: "/models/scene_1/model.glb",
 			},
+			{
+				name: "scene_1_lights_baked_texture",
+				type: "texture",
+				path: "/models/scene_1/lights_baked_texture.jpg",
+			},
+			{
+				name: "scene_1_no_lights_baked_texture",
+				type: "texture",
+				path: "/models/scene_1/no_lights_baked_texture.jpg",
+			},
+			{
+				name: "scene_1_woods_lights_baked_texture",
+				type: "texture",
+				path: "/models/scene_1/woods_lights_baked_texture.jpg",
+			},
+			{
+				name: "scene_1_woods_no_lights_baked_texture",
+				type: "texture",
+				path: "/models/scene_1/woods_no_lights_baked_texture.jpg",
+			},
+			{
+				name: "scene_1_tree_baked_texture",
+				type: "texture",
+				path: "/models/scene_1/tree_baked_texture.jpg",
+			},
+
+			// SCENE 2
 			{
 				name: "scene_2",
 				type: "gltfModel",
-				path: "/3d_models/isometric_room/scene_2.glb",
+				path: "/models/scene_2/model.glb",
 			},
 			{
-				name: "scene_background",
+				name: "scene_2_baked_texture",
+				type: "texture",
+				path: "/models/scene_2/baked_texture.jpg",
+			},
+
+			// SCENE 3
+			{
+				name: "scene_3",
 				type: "gltfModel",
-				path: "/3d_models/isometric_room/scene_background.glb",
+				path: "/models/scene_3/model.glb",
 			},
 			{
-				name: "scene_1_room_baked_texture",
+				name: "scene_3_baked_texture",
 				type: "texture",
-				path: "/3d_models/isometric_room/scene_1_room_baked_texture.jpg",
+				path: "/models/scene_3/baked_texture.jpg",
 			},
+
+			// SCENE CONTAINER
 			{
-				name: "scene_1_woods_baked_texture",
-				type: "texture",
-				path: "/3d_models/isometric_room/scene_1_woods_baked_texture.jpg",
-			},
-			{
-				name: "scene_2_logos_baked_texture",
-				type: "texture",
-				path: "/3d_models/isometric_room/scene_2_logos_baked_texture.jpg",
+				name: "scene_container",
+				type: "gltfModel",
+				path: "/models/scene_container/model.glb",
 			},
 			{
 				name: "scene_container_baked_texture",
 				type: "texture",
-				path: "/3d_models/isometric_room/scene_container_baked_texture.jpg",
+				path: "/models/scene_container/baked_texture.jpg",
+			},
+
+			// OTHER TEXTURES
+			{
+				name: "cloudAlphaMap",
+				type: "texture",
+				path: "/textures/cloudAlphaMap.jpg",
 			},
 			{
-				name: "noises_texture",
+				name: "rocksAlphaMap",
 				type: "texture",
-				path: "/textures/noises.png",
+				path: "/textures/rocksAlphaMap.png",
 			},
 		]);
 	}
 
-	construct() {
-		~(this._appResources.loadingManager.onStart = () => {
-			this.emit(STARTED, (this.progress = 0));
-		});
-
-		~(this._appResources.loadingManager.onProgress = (
-			itemUrl,
-			itemsLoaded,
-			itemsToLoad
-		) => {
-			this.emit(
-				PROGRESSED,
-				(this.progress = (itemsLoaded / itemsToLoad) * 100),
-				itemUrl
-			);
-		});
-
-		~(this._appResources.loadingManager.onLoad = () => {
-			this.correctTextures();
-			this._initMeshTextures();
-
-			this.emit(LOADED, this.progress);
-		});
-
-		this.emit(CONSTRUCTED, this.progress);
-		this._appResources.startLoading();
-	}
-
-	destruct() {
-		Object.keys(this.texturesMeshBasicMaterials).forEach((key) =>
-			this.texturesMeshBasicMaterials[key].dispose()
-		);
-		this.texturesMeshBasicMaterials = {};
-
-		this._appResources.loadingManager.removeHandler(
-			/onStart|onError|onProgress|onLoad/
-		);
-		this._appResources.setSources([]);
-
-		this.emit(DESTRUCTED);
-	}
-
-	/** Correct resources texture color and flip faces. */
-	correctTextures() {
+	/** Correct resource textures color and flip faces. */
+	private _correctTextures() {
 		Object.keys(this._appResources.items).forEach((key) => {
 			const ITEM = this._appResources.items[key];
 			if (ITEM instanceof Texture) {
@@ -126,22 +121,71 @@ export default class Loader extends ExperienceBasedBlueprint {
 		});
 	}
 
-	/** Initialize Mesh textures. */
-	protected _initMeshTextures() {
-		if (this._appResources.items) {
-			const _ITEMS = this._appResources.items;
-			const _ITEMS_KEYS = Object.keys(_ITEMS);
+	private _setAvailableTexture(): typeof this._availableTextures {
+		const ITEMS = this._appResources.items;
+		if (!(ITEMS && Object.keys(ITEMS).length)) return {};
 
-			_ITEMS_KEYS.forEach((key) => {
-				const _ITEM = _ITEMS[key];
+		const AVAILABLE_TEXTURES: typeof this._availableTextures = {};
 
-				if (_ITEM instanceof Texture) {
-					this.texturesMeshBasicMaterials[key] = new MeshBasicMaterial({
-						map: _ITEM,
-						transparent: true,
-					});
-				}
-			});
-		}
+		Object.keys(ITEMS).forEach((key) => {
+			const ITEM = ITEMS[key];
+
+			ITEM instanceof Texture && (AVAILABLE_TEXTURES[key] = ITEM);
+		});
+
+		return (this._availableTextures = AVAILABLE_TEXTURES);
+	}
+
+	public get progress() {
+		return this._progress;
+	}
+
+	public get availableTextures() {
+		return this._availableTextures;
+	}
+
+	public construct() {
+		~(this._appResources.loadingManager.onStart = () => {
+			this.emit(STARTED, (this._progress = 0));
+		});
+
+		~(this._appResources.loadingManager.onProgress = (
+			itemUrl,
+			itemsLoaded,
+			itemsToLoad
+		) => {
+			this.emit(
+				PROGRESSED,
+				(this._progress = (itemsLoaded / itemsToLoad) * 100),
+				itemUrl
+			);
+		});
+
+		~(this._appResources.loadingManager.onLoad = () => {
+			this._correctTextures();
+			this._setAvailableTexture();
+
+			this.emit(LOADED, this._progress);
+		});
+
+		this._appResources.startLoading();
+		this.emit(CONSTRUCTED, this._progress);
+	}
+
+	public destruct() {
+		this._appResources.loadingManager.removeHandler(
+			/onStart|onError|onProgress|onLoad/
+		);
+
+		Object.keys(this._appResources.items).forEach((key) => {
+			const ITEM = this._appResources.items[key];
+			if (ITEM instanceof Texture || ITEM instanceof CubeTexture)
+				ITEM.dispose();
+			if (ITEM instanceof CubeTexture) ITEM.dispose();
+		});
+
+		this._appResources.setSources([]);
+
+		this.emit(DESTRUCTED);
 	}
 }
