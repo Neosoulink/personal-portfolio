@@ -1,12 +1,28 @@
-import { CatmullRomCurve3, PerspectiveCamera, Raycaster, Vector3 } from "three";
+import {
+	CatmullRomCurve3,
+	Material,
+	Mesh,
+	PerspectiveCamera,
+	Raycaster,
+	Vector3,
+} from "three";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import GSAP, { Power0 } from "gsap";
+import gsap, { Power0 } from "gsap";
 
 // EXPERIENCES
 import { HomeExperience } from "..";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+
+// CONFIG
+import { Config } from "~/experiences/config/Config";
+
+// COMMONS
+import { WRONG_PARAM } from "~/common/error.model";
+
+// ERROR
+import { ErrorFactory } from "~/experiences/errors/Error.factory";
 
 // EVENTS
 import { CHANGED, CONSTRUCTED } from "~/common/event.model";
@@ -17,18 +33,37 @@ import { lerpPosition } from "~/utils/three-utils";
 // SHADERS
 import camTransitionFrag from "./shaders/cameraTransition/fragment.glsl";
 import camTransitionVert from "./shaders/cameraTransition/vertex.glsl";
+import { SKILL_PAGE } from "~/common/page.model";
 
 export default class WorldManager extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
-	protected readonly _appCamera = this._experience.app.camera;
-	protected readonly _appResources = this._experience.app.resources;
-	protected readonly _camera = this._experience.camera;
-	protected readonly _world = this._experience.world;
-	protected readonly _composer = this._experience.composer;
-	protected readonly _renderer = this._experience.renderer;
-	protected readonly _timeline = GSAP.timeline();
 
-	public cameraTransitionShaderPass?: ShaderPass;
+	private readonly _appCamera = this._experience.app.camera;
+	private readonly _appResources = this._experience.app.resources;
+	private readonly _navigation = this._experience.navigation;
+	private readonly _camera = this._experience.camera;
+	private readonly _composer = this._experience.composer;
+	private readonly _renderer = this._experience.renderer;
+	private readonly _timeline = gsap.timeline();
+	private readonly _cameraTransitionShaderPass = new ShaderPass({
+		uniforms: {
+			tDiffuse: { value: null },
+			uStrength: { value: 0 },
+			uDisplacementMap: {
+				value: this._appResources.items["rocksAlphaMap"],
+			},
+		},
+		vertexShader: camTransitionVert,
+		fragmentShader: camTransitionFrag,
+	});
+	private _glassEffectOptions: gsap.TweenVars = {
+		duration: 0.3,
+		ease: Power0.easeIn,
+	};
+
+	private _world: typeof this._experience.world;
+	private _prevSceneKey?: string;
+
 	// TODO: Reorder properties
 	public rayCaster = new Raycaster();
 	public normalizedCursorPosition = { x: 0, y: 0 };
@@ -57,7 +92,7 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 	 */
 	public autoCameraAnimation = false;
 	/**
-	 * GSAP animation watcher. If GSAP is currently animating
+	 * gsap animation watcher. If gsap is currently animating
 	 */
 	public isGsapAnimating = false;
 	/**
@@ -78,26 +113,28 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 	}[] = [];
 	// === ^
 
-	public construct() {
+	private get _supportedPageKeys() {
+		if (!this._world?.availablePageScenes) return [];
+
+		return Object.keys(this._world.availablePageScenes);
+	}
+
+	/** Initialize the the default scenes states. */
+	private async _initScenes() {
+		if (this._supportedPageKeys.length < 2)
+			throw new ErrorFactory(
+				new Error("Unable to display the projected scene ", {
+					cause: WRONG_PARAM,
+				})
+			);
+
 		const currentCamera = this._camera?.cameras[0];
 		const secondaryCamera = this._camera?.cameras[1];
+		let projectedScene =
+			this._world?.availablePageScenes[this._supportedPageKeys[1]];
 
 		if (currentCamera instanceof PerspectiveCamera)
 			this.cameraCurvePath.getPointAt(0, currentCamera.position);
-
-		this._world?.scene1?.togglePcOpening()?.then(() => {
-			if (
-				this._world?.scene1?.modelScene &&
-				this._world.scene1.pcScreen &&
-				this._world.scene1.pcScreenWebglTexture &&
-				secondaryCamera
-			)
-				this._renderer?.addPortalAssets(this._world.scene1 + "_pc_screen", {
-					mesh: this._world.scene1.pcScreen,
-					meshCamera: secondaryCamera,
-					meshWebGLTexture: this._world.scene1.pcScreenWebglTexture,
-				});
-		});
 
 		this._appCamera.instance?.position.copy(
 			this._world?.scene1?.cameraPath.getPoint(0) ?? new Vector3()
@@ -109,21 +146,207 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 				.setY(2)
 		);
 
-		secondaryCamera?.position.copy(
-			this._world?.scene2?.modelScene?.position ?? new Vector3()
-		);
-		secondaryCamera?.position.set(
-			this._world?.scene2?.modelScene?.position.x ?? 0,
-			8,
-			20
-		);
-		secondaryCamera?.lookAt(
-			this._world?.scene2?.modelScene?.position ?? new Vector3()
+		await this._world?.scene1?.togglePcOpening();
+		if (
+			this._world?.scene1?.modelScene &&
+			this._world.scene1.pcScreen &&
+			this._world.scene1.pcScreenWebglTexture &&
+			secondaryCamera
+		) {
+			this._renderer?.addPortalAssets(this._world.scene1 + "_pc_screen", {
+				mesh: this._world.scene1.pcScreen,
+				meshCamera: secondaryCamera,
+				meshWebGLTexture: this._world.scene1.pcScreenWebglTexture,
+			});
+
+			secondaryCamera.position.copy(
+				new Vector3(
+					this._world.projectedModelsPosition.x,
+					this._world.projectedModelsPosition.y + 5,
+					this._world.projectedModelsPosition.x + -20
+				)
+			);
+			secondaryCamera.lookAt(this._world.projectedModelsPosition);
+		}
+
+		if (
+			typeof this._navigation?.currentRouteKey === "string" &&
+			this._navigation.currentRouteKey !== this._world?.mainSceneKey &&
+			this._navigation.currentRouteKey !== this._supportedPageKeys[1]
+		)
+			projectedScene =
+				this._world?.availablePageScenes[this._navigation.currentRouteKey];
+
+		projectedScene?.modelScene?.children.forEach(
+			(child) => child instanceof Mesh && (child.material.alphaTest = 0)
 		);
 
-		this.setScene();
+		this._setScene();
+	}
+
+	private _triggerGlassTransitionEffect() {
+		if (!this._cameraTransitionShaderPass.uniforms.uStrength || !this._composer)
+			return this._timeline;
+		if (this._timeline.isActive()) this._timeline.progress(1);
+
+		this._cameraTransitionShaderPass.clear = true;
+		this._cameraTransitionShaderPass.uniforms.uStrength.value = 0;
+
+		this._composer.addPass(
+			"_cameraTransitionShaderPass",
+			this._cameraTransitionShaderPass
+		);
+
+		return this._timeline
+			.to(this._cameraTransitionShaderPass.material.uniforms.uStrength, {
+				...this._glassEffectOptions,
+				value: 0.175,
+			})
+			.to(this._cameraTransitionShaderPass.material.uniforms.uStrength, {
+				...this._glassEffectOptions,
+				value: 0,
+				ease: Power0.easeOut,
+			})
+			.add(
+				() =>
+					this._cameraTransitionShaderPass &&
+					this._composer?.removePass("_cameraTransitionShaderPass"),
+				">"
+			);
+	}
+
+	/**
+	 * Transition between projected scenes.
+	 *
+	 * @param nextSceneKey The incoming scene key.
+	 */
+	private _changeProjectedScenesTransition(nextSceneKey?: string) {
+		const CURRENT_SCENE = this._world?.availablePageScenes[nextSceneKey ?? ""];
+
+		if (
+			CURRENT_SCENE?.modelScene &&
+			nextSceneKey !== this._world?.mainSceneKey &&
+			nextSceneKey !== this._prevSceneKey
+		) {
+			const PARAMS = { alphaTest: 0 };
+			CURRENT_SCENE.modelScene.renderOrder = 1;
+
+			this._timeline.to(PARAMS, {
+				alphaTest: 1,
+				duration: Config.GSAP_ANIMATION_DURATION,
+				onUpdate: () => {
+					this._supportedPageKeys.slice(1).forEach((supportedPageKey) => {
+						const SCENE = this._world?.availablePageScenes[supportedPageKey];
+						if (
+							supportedPageKey === this._world?.mainSceneKey ||
+							!SCENE?.modelScene
+						)
+							return;
+
+						SCENE?.modelScene?.traverse((child) => {
+							if (
+								!(child instanceof Mesh) ||
+								!(child.material instanceof Material) ||
+								(nextSceneKey === supportedPageKey &&
+									child.material.alphaTest === 0) ||
+								(nextSceneKey !== supportedPageKey &&
+									child.material.alphaTest === 1)
+							)
+								return;
+
+							child.material.alphaTest =
+								nextSceneKey === supportedPageKey
+									? 1 - PARAMS.alphaTest
+									: PARAMS.alphaTest;
+						});
+					});
+				},
+			});
+		}
+	}
+
+	/** Set the current scene depending to the current `Navigation` state */
+	private _setScene() {
+		if (
+			typeof this._experience.navigation?.currentRouteKey !== "string" ||
+			this._supportedPageKeys.indexOf(
+				this._experience.navigation.currentRouteKey
+			) === -1
+		)
+			throw new ErrorFactory(
+				new Error("Page not supported", { cause: WRONG_PARAM })
+			);
+		if (this._camera?.timeline.isActive()) this._camera.timeline.progress(1);
+		if (this._timeline.isActive()) this._timeline.progress(1);
+
+		const CURRENT_SCENE =
+			this._world?.availablePageScenes[
+				this._experience.navigation.currentRouteKey
+			];
+
+		const MAIN_SCENE =
+			this._world?.availablePageScenes[this._world.mainSceneKey];
+
+		const SCREEN_POSITION = (
+			this._world?.scene1?.pcScreen?.localToWorld(new Vector3()) ??
+			new Vector3()
+		).clone();
+
+		if (
+			this._prevSceneKey &&
+			(this._experience.navigation?.currentRouteKey ===
+				this._world?.mainSceneKey ||
+				CURRENT_SCENE === undefined)
+		) {
+			this._triggerGlassTransitionEffect().add(() => {
+				this._camera?.switchCamera(0);
+				this._camera?.setCameraLookAt(SCREEN_POSITION);
+				this._camera?.updateCameraPosition(
+					MAIN_SCENE?.cameraPath.getPoint(0),
+					MAIN_SCENE?.modelScene?.position
+				);
+			}, "-=" + this._glassEffectOptions.duration);
+		}
+
+		if (
+			this._experience.navigation.currentRouteKey !==
+				this._world?.mainSceneKey &&
+			this._camera?.currentCameraIndex !== 1
+		) {
+			this._camera
+				?.updateCameraPosition(
+					lerpPosition(
+						new Vector3(0, SCREEN_POSITION.y, 0),
+						SCREEN_POSITION,
+						0.84
+					),
+					SCREEN_POSITION,
+					() => {}
+				)
+				.add(() => {
+					this._triggerGlassTransitionEffect().add(() => {
+						this._camera?.switchCamera(1);
+						this._camera?.setCameraLookAt(
+							(CURRENT_SCENE?.modelScene?.position ?? new Vector3()).clone()
+						);
+					}, "-=" + this._glassEffectOptions.duration);
+				}, "<87%");
+		}
+
+		this._changeProjectedScenesTransition(
+			this._experience.navigation.currentRouteKey
+		);
+
+		this._prevSceneKey = this._experience.navigation?.currentRouteKey;
+	}
+
+	public construct() {
+		this._world = this._experience.world;
+
+		this._initScenes();
+
 		this._experience.navigation?.on(CHANGED, () => {
-			this.setScene();
+			this._setScene();
 		});
 
 		this.emit(CONSTRUCTED, this);
@@ -241,95 +464,9 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 		};
 	}
 
-	public setScene() {
-		if (this._camera?.timeline.isActive()) this._camera.timeline.progress(1);
-		if (this._timeline.isActive()) this._timeline.progress(1);
-
-		const SCREEN_POSITION = (
-			this._world?.scene1?.pcScreen?.localToWorld(new Vector3()) ??
-			new Vector3()
-		).clone();
-
-		if (
-			this._experience.navigation?.currentRoute === "index" &&
-			this._camera?.currentCameraIndex !== 0
-		) {
-			this._camera?.switchCamera(0);
-
-			this._camera?.setCameraLookAt(SCREEN_POSITION);
-		}
-
-		if (this._experience.navigation?.currentRoute !== "index") {
-			if (this._camera?.currentCameraIndex !== 1) {
-				this.cameraTransitionShaderPass = new ShaderPass({
-					uniforms: {
-						tDiffuse: { value: null },
-						uStrength: { value: 0 },
-						uDisplacementMap: {
-							value: this._appResources.items["rocksAlphaMap"],
-						},
-					},
-					vertexShader: camTransitionVert,
-					fragmentShader: camTransitionFrag,
-				});
-
-				this._composer?.addPass(
-					"cameraTransitionShaderPass",
-					this.cameraTransitionShaderPass
-				);
-
-				this._camera
-					?.updateCameraPosition(
-						lerpPosition(
-							new Vector3(0, SCREEN_POSITION.y, 0),
-							SCREEN_POSITION,
-							0.84
-						),
-						SCREEN_POSITION,
-						() => {}
-					)
-					.add(() => {
-						if (!this.cameraTransitionShaderPass?.material.uniforms.uStrength)
-							return;
-						this._timeline.to(
-							this.cameraTransitionShaderPass.material.uniforms.uStrength,
-							{
-								value: 0.175,
-								duration: 0.3,
-								ease: Power0.easeIn,
-							}
-						);
-					}, "<87%")
-					.then(() => {
-						this._camera?.switchCamera(1);
-
-						this._camera?.setCameraLookAt(
-							(
-								this._world?.scene2?.modelScene?.position ?? new Vector3()
-							).clone()
-						);
-
-						if (!this.cameraTransitionShaderPass?.material.uniforms.uStrength)
-							return;
-
-						this._timeline
-							.to(this.cameraTransitionShaderPass.material.uniforms.uStrength, {
-								value: 0,
-								duration: 0.3,
-								ease: Power0.easeOut,
-							})
-							.then(() => {
-								this.cameraTransitionShaderPass &&
-									this._composer?.removePass("cameraTransitionShaderPass");
-							});
-					});
-			}
-		}
-	}
-
 	public update() {
 		if (this.autoCameraAnimation && !this.isGsapAnimating) {
-			this.cameraCurvePathProgress.current = GSAP.utils.interpolate(
+			this.cameraCurvePathProgress.current = gsap.utils.interpolate(
 				this.cameraCurvePathProgress.current,
 				this.cameraCurvePathProgress.target,
 				this.cameraCurvePathProgress.ease
@@ -349,12 +486,12 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 					this.backwardCurveAnimation = false;
 				}, 1000);
 			}
-			this.cameraCurvePathProgress.target = GSAP.utils.clamp(
+			this.cameraCurvePathProgress.target = gsap.utils.clamp(
 				0,
 				1,
 				this.cameraCurvePathProgress.target
 			);
-			this.cameraCurvePathProgress.current = GSAP.utils.clamp(
+			this.cameraCurvePathProgress.current = gsap.utils.clamp(
 				0,
 				1,
 				this.cameraCurvePathProgress.current

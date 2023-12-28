@@ -4,9 +4,17 @@
 
 		<canvas :id="HOME_DOM_REF" class="fixed top-0 left-0 w-full h-full" />
 
-		<NuxtPage />
-
 		<div id="mode-bubbles-container" />
+
+		<div class="fixed font-bold top-1/2 text-red-50">
+			<NuxtLink to="/" class="mr-3">Page child 1</NuxtLink>
+			<NuxtLink to="/skills" class="mr-3">Page child 2</NuxtLink>
+			<NuxtLink to="/contact">Page child 3</NuxtLink>
+
+			<div class="block mb-4" />
+
+			<NuxtPage />
+		</div>
 	</main>
 </template>
 

@@ -14,6 +14,7 @@ import {
 	WebGLRenderTarget,
 	type Object3DEventMap,
 	VideoTexture,
+	LinearSRGBColorSpace,
 } from "three";
 import gsap from "gsap";
 
@@ -58,7 +59,10 @@ export class Scene_1 extends SceneBlueprint {
 		coffeeSteam: "#b7a08e",
 	};
 
-	public pcScreenWebglTexture = new WebGLRenderTarget(4096, 4096);
+	public pcScreenWebglTexture = new WebGLRenderTarget(
+		Config.FIXED_WINDOW_WIDTH,
+		Config.FIXED_WINDOW_HEIGHT
+	);
 	public pcTopArticulation?: Object3D;
 	public treeOutside?: Object3D;
 	public pcScreen?: Mesh;
@@ -215,14 +219,17 @@ export class Scene_1 extends SceneBlueprint {
 		const PHONE_VIDEO_TEXTURE = new VideoTexture(
 			this.phoneScreenVideo ?? document.createElement("video")
 		);
+		PHONE_VIDEO_TEXTURE.colorSpace = LinearSRGBColorSpace;
 
 		const MONITOR_A_VIDEO_TEXTURE = new VideoTexture(
 			this.monitorAScreenVideo ?? document.createElement("video")
 		);
+		MONITOR_A_VIDEO_TEXTURE.colorSpace = LinearSRGBColorSpace;
 
 		const MONITOR_B_VIDEO_TEXTURE = new VideoTexture(
 			this.monitorBScreenVideo ?? document.createElement("video")
 		);
+		MONITOR_B_VIDEO_TEXTURE.colorSpace = LinearSRGBColorSpace;
 
 		AVAILABLE_MATERIALS["pc_screen"] = new MeshBasicMaterial({
 			map: this.pcScreenWebglTexture?.texture,

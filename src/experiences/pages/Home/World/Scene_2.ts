@@ -32,9 +32,15 @@ export class Scene_2 extends SceneBlueprint {
 		const AVAILABLE_MATERIALS: Materials = {};
 
 		if (!AVAILABLE_TEXTURE) return AVAILABLE_MATERIALS;
+		if (this._world?.commonMaterials["scene_container"])
+			AVAILABLE_MATERIALS["scene_container"] =
+				this._world?.commonMaterials["scene_container"].clone();
+		AVAILABLE_MATERIALS["scene_container"].alphaTest = 1;
+		AVAILABLE_MATERIALS["scene_container"].depthWrite = false;
 		AVAILABLE_MATERIALS["scene_2"] = new MeshBasicMaterial({
+			alphaMap: AVAILABLE_TEXTURE["cloudAlphaMap"],
+			alphaTest: 1,
 			map: AVAILABLE_TEXTURE["scene_2_baked_texture"],
-			transparent: true,
 		});
 
 		return AVAILABLE_MATERIALS;

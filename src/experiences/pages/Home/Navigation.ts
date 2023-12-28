@@ -13,8 +13,8 @@ export class Navigation extends ExperienceBasedBlueprint {
 	protected _experience = new HomeExperience();
 	protected _router = useRouter();
 	protected _route = useRoute();
-	protected _availableRoutes: string[] = [];
-	protected _currentRouteIndex: number = 0;
+	protected _availableRoutes: { [routeName: string]: RouteRecordRaw } = {};
+	protected _currentRouteName?: string;
 
 	constructor() {
 		super();
@@ -28,9 +28,9 @@ export class Navigation extends ExperienceBasedBlueprint {
 			const CAUSE = _.cause as RouteRecordNormalized | undefined;
 			if (!CAUSE?.children.length) return;
 
-			this._availableRoutes = CAUSE.children.map(
-				(route) => route.name?.toString() || ""
-			);
+			CAUSE.children.forEach((route) => {
+				this._availableRoutes[route.name?.toString() ?? ""] = route;
+			});
 		}
 
 		this._setCurrentRouteIndexFromName(this._route.name?.toString());
@@ -41,23 +41,31 @@ export class Navigation extends ExperienceBasedBlueprint {
 		});
 	}
 
+	private _setCurrentRouteIndexFromName(routeName?: string) {
+		if (!routeName || !this._availableRoutes[routeName])
+			throw new Error("Route name not available", { cause: WRONG_PARAM });
+
+		this._currentRouteName = routeName;
+	}
+
 	public get availableRoutes() {
 		return this._availableRoutes;
 	}
 
 	public get currentRoute() {
-		return this.availableRoutes[this._currentRouteIndex];
+		if (!this._currentRouteName) return undefined;
+
+		return this.availableRoutes[this._currentRouteName];
 	}
 
-	public get currentRouteIndex() {
-		return this._currentRouteIndex;
+	public get currentRouteName() {
+		return this._currentRouteName;
 	}
 
-	protected _setCurrentRouteIndexFromName(routeName?: string) {
-		if (!routeName || this._availableRoutes.indexOf(routeName) === -1)
-			throw new Error("Route name not available", { cause: WRONG_PARAM });
+	public get currentRouteKey() {
+		if (!this._currentRouteName) return undefined;
 
-		this._currentRouteIndex = this._availableRoutes.indexOf(routeName);
+		return this.availableRoutes[this._currentRouteName].meta?.key;
 	}
 
 	public construct(): void {}

@@ -23,6 +23,7 @@ import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBas
 // MODELS
 import { CONSTRUCTED, DESTRUCTED } from "~/common/event.model";
 import { CAMERA_UNAVAILABLE } from "~/common/error.model";
+import { CONTACT_PAGE, HOME_PAGE, SKILL_PAGE } from "~/common/page.model";
 
 // INTERFACES
 import type { Materials } from "~/interfaces/experienceWorld";
@@ -35,8 +36,11 @@ export default class World extends ExperienceBasedBlueprint {
 	private readonly _loader = this._experience.loader;
 
 	private _commonMaterials: Materials = {};
+	private _availablePageScenes: { [sceneKey: string]: SceneBlueprint } = {};
 	private _projectedModelsPosition = new Vector3();
-	private _projectedScenes: SceneBlueprint[] = [];
+	private _projectedSceneContainer?: Group;
+
+	public readonly mainSceneKey = HOME_PAGE;
 
 	public sceneContainer?: SceneContainer;
 	public scene1?: Scene_1;
@@ -62,6 +66,7 @@ export default class World extends ExperienceBasedBlueprint {
 
 		if (AVAILABLE_TEXTURES["scene_container_baked_texture"] instanceof Texture)
 			this._commonMaterials["scene_container"] = new MeshBasicMaterial({
+				alphaMap: AVAILABLE_TEXTURES["cloudAlphaMap"],
 				map: AVAILABLE_TEXTURES["scene_container_baked_texture"],
 			});
 
@@ -76,12 +81,16 @@ export default class World extends ExperienceBasedBlueprint {
 		return this._commonMaterials;
 	}
 
+	public get availablePageScenes() {
+		return this._availablePageScenes;
+	}
+
 	public get projectedModelsPosition() {
 		return this._projectedModelsPosition;
 	}
 
-	public get projectedScenes() {
-		return this._projectedScenes;
+	public get projectedSceneContainer() {
+		return this._projectedSceneContainer;
 	}
 
 	public destruct() {
@@ -127,43 +136,49 @@ export default class World extends ExperienceBasedBlueprint {
 		this.scene1?.construct();
 		this.scene2?.construct();
 		this.scene3?.construct();
-		this.manager?.construct();
 
 		if (this.sceneContainer?.modelScene instanceof Group) {
 			const BOUNDING_BOX = new Box3().setFromObject(
 				this.sceneContainer.modelScene
 			);
-			const WIDTH = BOUNDING_BOX.max.x - BOUNDING_BOX.min.x;
-			// const HEIGHT = BOUNDING_BOX.max.y - BOUNDING_BOX.min.y;
+			// const WIDTH = BOUNDING_BOX.max.x - BOUNDING_BOX.min.x;
+			const HEIGHT = BOUNDING_BOX.max.y - BOUNDING_BOX.min.y;
 
-			this._projectedModelsPosition.set(WIDTH * 1.2, 0, 0);
+			this._projectedModelsPosition.set(0, HEIGHT * -2, 0);
 
-			const PROJECTED_SCENE_CONTAINER = this.sceneContainer.modelScene.clone();
-			PROJECTED_SCENE_CONTAINER.position.copy(this._projectedModelsPosition);
+			this._projectedSceneContainer = this.sceneContainer.modelScene.clone();
+			this._projectedSceneContainer.position.copy(
+				this._projectedModelsPosition
+			);
 
 			this.group?.add(
 				this.sceneContainer.modelScene,
-				PROJECTED_SCENE_CONTAINER
+				this._projectedSceneContainer
 			);
 		}
 
-		if (this.scene1?.modelScene) this.group?.add(this.scene1.modelScene);
+		if (this.scene1?.modelScene) {
+			this.group?.add(this.scene1.modelScene);
+			this._availablePageScenes[HOME_PAGE] = this.scene1;
+		}
 
 		if (this.scene2?.modelScene) {
 			this.scene2.modelScene.position.copy(this.projectedModelsPosition);
 
-			this._projectedScenes.push(this.scene2);
+			this._availablePageScenes[SKILL_PAGE] = this.scene2;
 			this.group?.add(this.scene2.modelScene);
 		}
 
 		if (this.scene3?.modelScene) {
 			this.scene3.modelScene.position.copy(this.projectedModelsPosition);
 
-			this._projectedScenes.push(this.scene3);
+			this._availablePageScenes[CONTACT_PAGE] = this.scene3;
 			this.group?.add(this.scene3.modelScene);
 		}
 
 		this._experience.app.scene.add(this.group);
+
+		this.manager?.construct();
 		this.emit(CONSTRUCTED, this);
 	}
 

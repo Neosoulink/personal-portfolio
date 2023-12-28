@@ -1,5 +1,6 @@
 import {
 	Box3,
+	Color,
 	LinearSRGBColorSpace,
 	Matrix4,
 	Mesh,
@@ -61,7 +62,7 @@ export default class Renderer extends ExperienceBasedBlueprint {
 			this._appRendererInstance.toneMappingExposure = 1;
 			this._appRendererInstance.shadowMap.enabled = false;
 			this._appRendererInstance.shadowMap.type = PCFShadowMap;
-			this._appRendererInstance.setClearColor("#211d20");
+			this._appRendererInstance.setClearColor("#5f5f5f", 1);
 			this._appRendererInstance.setSize(
 				this._experience.app.sizes.width,
 				this._experience.app.sizes.height
