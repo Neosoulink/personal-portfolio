@@ -59,10 +59,7 @@ export class Scene_1 extends SceneBlueprint {
 		coffeeSteam: "#b7a08e",
 	};
 
-	public pcScreenWebglTexture = new WebGLRenderTarget(
-		Config.FIXED_WINDOW_WIDTH,
-		Config.FIXED_WINDOW_HEIGHT
-	);
+	public pcScreenWebglTexture = new WebGLRenderTarget(1024, 1024);
 	public pcTopArticulation?: Object3D;
 	public treeOutside?: Object3D;
 	public pcScreen?: Mesh;

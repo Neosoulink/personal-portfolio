@@ -5,6 +5,7 @@ import {
 	Object3D,
 	type Object3DEventMap,
 	Material,
+	Vector3,
 } from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 
@@ -49,15 +50,14 @@ export abstract class SceneBlueprint extends ExperienceBasedBlueprint {
 	protected readonly _childrenMaterials: ModelChildrenMaterials;
 
 	protected _world = this._experience.world;
-	protected _availableMaterials: Materials = {};
 	protected _model?: GLTF;
-
-	public modelScene?: Group;
-	public cameraPath: CatmullRomCurve3;
+	protected _modelScene?: Group;
+	protected _availableMaterials: Materials = {};
+	protected _cameraPath: CatmullRomCurve3;
 
 	constructor(_: SceneBlueprintProps) {
 		super();
-		this.cameraPath = _.cameraPath;
+		this._cameraPath = _.cameraPath;
 
 		this._childrenMaterials = _.childrenMaterials;
 
@@ -71,6 +71,14 @@ export abstract class SceneBlueprint extends ExperienceBasedBlueprint {
 		this._onTraverseModelScene = _.onTraverseModelScene;
 	}
 
+	public get modelScene() {
+		return this._modelScene;
+	}
+
+	public get cameraPath() {
+		return this._cameraPath;
+	}
+
 	protected abstract _getAvailableMaterials(): Materials;
 
 	/**
@@ -79,7 +87,7 @@ export abstract class SceneBlueprint extends ExperienceBasedBlueprint {
 	 * > 🚧 Must be called before other initializers.
 	 */
 	protected _initModelScene() {
-		this.modelScene = this._model?.scene.clone();
+		this._modelScene = this._model?.scene.clone();
 	}
 
 	/**

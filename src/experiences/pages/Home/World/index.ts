@@ -37,7 +37,11 @@ export default class World extends ExperienceBasedBlueprint {
 
 	private _commonMaterials: Materials = {};
 	private _availablePageScenes: { [sceneKey: string]: SceneBlueprint } = {};
-	private _projectedModelsPosition = new Vector3();
+	private _mainScenePosition = new Vector3();
+	private _projectedScenePosition = new Vector3();
+	private _mainSceneCenter = new Vector3();
+	private _projectedSceneCenter = new Vector3();
+
 	private _projectedSceneContainer?: Group;
 
 	public readonly mainSceneKey = HOME_PAGE;
@@ -77,6 +81,14 @@ export default class World extends ExperienceBasedBlueprint {
 		});
 	}
 
+	private _updateScenePosition(scene: SceneBlueprint, newPosition: Vector3) {
+		scene.modelScene?.position.copy(newPosition);
+		scene.cameraPath.points.forEach((v3) => {
+			v3.set(newPosition.x + v3.x, newPosition.y + v3.y, newPosition.z + v3.z);
+		});
+		scene.cameraPath.updateArcLengths();
+	}
+
 	public get commonMaterials() {
 		return this._commonMaterials;
 	}
@@ -85,8 +97,20 @@ export default class World extends ExperienceBasedBlueprint {
 		return this._availablePageScenes;
 	}
 
-	public get projectedModelsPosition() {
-		return this._projectedModelsPosition;
+	public get mainScenePosition() {
+		return this._mainScenePosition;
+	}
+
+	public get mainSceneCenter() {
+		return this._mainSceneCenter;
+	}
+
+	public get projectedScenePosition() {
+		return this._projectedScenePosition;
+	}
+
+	public get projectedSceneCenter() {
+		return this._projectedSceneCenter;
 	}
 
 	public get projectedSceneContainer() {
@@ -144,12 +168,22 @@ export default class World extends ExperienceBasedBlueprint {
 			// const WIDTH = BOUNDING_BOX.max.x - BOUNDING_BOX.min.x;
 			const HEIGHT = BOUNDING_BOX.max.y - BOUNDING_BOX.min.y;
 
-			this._projectedModelsPosition.set(0, HEIGHT * -2, 0);
+			this._mainScenePosition.set(0, 0, 0);
+			this._mainSceneCenter.set(
+				this._mainScenePosition.x,
+				this._mainScenePosition.y + 2.5,
+				this._mainScenePosition.z
+			);
+
+			this._projectedScenePosition.set(0, HEIGHT * -2, 0);
+			this._projectedSceneCenter.set(
+				this._projectedScenePosition.x,
+				this._projectedScenePosition.y + 2,
+				this._projectedScenePosition.z
+			);
 
 			this._projectedSceneContainer = this.sceneContainer.modelScene.clone();
-			this._projectedSceneContainer.position.copy(
-				this._projectedModelsPosition
-			);
+			this._projectedSceneContainer.position.copy(this._projectedScenePosition);
 
 			this.group?.add(
 				this.sceneContainer.modelScene,
@@ -163,15 +197,13 @@ export default class World extends ExperienceBasedBlueprint {
 		}
 
 		if (this.scene2?.modelScene) {
-			this.scene2.modelScene.position.copy(this.projectedModelsPosition);
-
+			this._updateScenePosition(this.scene2, this._projectedScenePosition);
 			this._availablePageScenes[SKILL_PAGE] = this.scene2;
 			this.group?.add(this.scene2.modelScene);
 		}
 
 		if (this.scene3?.modelScene) {
-			this.scene3.modelScene.position.copy(this.projectedModelsPosition);
-
+			this._updateScenePosition(this.scene3, this._projectedScenePosition);
 			this._availablePageScenes[CONTACT_PAGE] = this.scene3;
 			this.group?.add(this.scene3.modelScene);
 		}

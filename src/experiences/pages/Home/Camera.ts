@@ -18,6 +18,7 @@ import { Config } from "@/experiences/config/Config";
 export class Camera extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 	protected readonly _appCamera = this._experience.app.camera;
+	protected readonly _appCameraInstance = this._experience.app.camera.instance;
 	protected readonly _appDebug = this._experience.app.debug;
 	protected readonly _timeline = gsap.timeline();
 	protected _lookAtPosition = new Vector3();
@@ -32,16 +33,16 @@ export class Camera extends ExperienceBasedBlueprint {
 
 	public readonly cameras: PerspectiveCamera[] = [
 		(() =>
-			this._appCamera.instance instanceof PerspectiveCamera
-				? new PerspectiveCamera().copy(this._appCamera.instance)
+			this._appCameraInstance instanceof PerspectiveCamera
+				? new PerspectiveCamera().copy(this._appCameraInstance)
 				: new PerspectiveCamera())(),
 		(() =>
-			this._appCamera.instance instanceof PerspectiveCamera
+			this._appCameraInstance instanceof PerspectiveCamera
 				? new PerspectiveCamera(
-						this._appCamera.instance.fov,
+						this._appCameraInstance.fov,
 						Config.FIXED_WINDOW_WIDTH / Config.FIXED_WINDOW_HEIGHT,
-						this._appCamera.instance.near,
-						this._appCamera.instance.far
+						this._appCameraInstance.near,
+						this._appCameraInstance.far
 				  )
 				: new PerspectiveCamera())(),
 	];
@@ -69,15 +70,15 @@ export class Camera extends ExperienceBasedBlueprint {
 			this._appDebug?.cameraHelper?.dispose();
 		}
 
-		if (!(this._appCamera?.instance instanceof PerspectiveCamera)) return;
+		if (!(this._appCameraInstance instanceof PerspectiveCamera)) return;
 
 		this.correctAspect();
 		this._appCamera.miniCamera?.position.set(10, 8, 30);
 		this._prevCameraProps = {
-			fov: this._appCamera.instance.fov,
-			aspect: this._appCamera.instance.aspect,
-			near: this._appCamera.instance.near,
-			far: this._appCamera.instance.far,
+			fov: this._appCameraInstance.fov,
+			aspect: this._appCameraInstance.aspect,
+			near: this._appCameraInstance.near,
+			far: this._appCameraInstance.far,
 		};
 
 		this.emit(CONSTRUCTED);
@@ -118,24 +119,24 @@ export class Camera extends ExperienceBasedBlueprint {
 			)
 		)
 			throw new Error("Camera index not available", { cause: WRONG_PARAM });
-		if (!(this._appCamera.instance instanceof PerspectiveCamera))
+		if (!(this._appCameraInstance instanceof PerspectiveCamera))
 			throw new Error(undefined, { cause: CAMERA_UNAVAILABLE });
 
 		const currentCamera = this.cameras[this.currentCameraIndex];
 		const nextCamera = this.cameras[cameraIndex];
 
-		currentCamera.copy(this._appCamera.instance);
+		currentCamera.copy(this._appCameraInstance);
 		currentCamera.fov = nextCamera.fov;
 		currentCamera.aspect = nextCamera.aspect;
 		currentCamera.near = nextCamera.near;
 		currentCamera.far = nextCamera.far;
 
-		this._appCamera.instance.copy(nextCamera);
+		this._appCameraInstance.copy(nextCamera);
 
-		this._appCamera.instance.fov = this._prevCameraProps.fov;
-		this._appCamera.instance.aspect = this._prevCameraProps.aspect;
-		this._appCamera.instance.near = this._prevCameraProps.near;
-		this._appCamera.instance.far = this._prevCameraProps.far;
+		this._appCameraInstance.fov = this._prevCameraProps.fov;
+		this._appCameraInstance.aspect = this._prevCameraProps.aspect;
+		this._appCameraInstance.near = this._prevCameraProps.near;
+		this._appCameraInstance.far = this._prevCameraProps.far;
 
 		this.correctAspect();
 		currentCamera.updateProjectionMatrix();
@@ -153,28 +154,39 @@ export class Camera extends ExperienceBasedBlueprint {
 	 * Set the camera look at position.
 	 * @param v3 The {@link Vector3} position where the the camera will look at.
 	 */
-	setCameraLookAt(v3: THREE.Vector3) {
-		this._appCamera?.instance?.lookAt(v3);
+	public setCameraPosition(v3 = new Vector3()) {
+		return this._appCameraInstance?.position.copy(v3);
+	}
+
+	/**
+	 * Set the camera look at position.
+	 * @param v3 The {@link Vector3} position where the the camera will look at.
+	 */
+	public setCameraLookAt(v3 = new Vector3()) {
+		const V3 = v3.clone();
+		this._appCameraInstance?.lookAt(V3);
 
 		if (this._appDebug?.cameraControls)
-			this._appDebug.cameraControls.target = v3;
+			this._appDebug.cameraControls.target = V3;
 
-		this._lookAtPosition = v3;
+		return (this._lookAtPosition = V3);
 	}
 
 	/** Correct the aspect ration of the camera. */
 	public correctAspect() {
-		if (!(this._appCamera.instance instanceof PerspectiveCamera)) return;
+		if (!(this._appCameraInstance instanceof PerspectiveCamera)) return;
 
-		this._appCamera.instance.fov = this.initialCameraFov;
-		this._appCamera.instance.far = 500;
+		this._appCameraInstance.fov = this.initialCameraFov;
+		this._appCameraInstance.far = 500;
 		this._appCamera.resize();
+
+		return this._appCamera;
 	}
 
 	/**
 	 * Move the camera position with transition from
 	 * the origin position to the passed position and,
-	 * update the lookAt position with the passed lookAt position.
+	 * update the lookAt position using the passed lookAt position.
 	 *
 	 * @param toPosition The new camera position.
 	 * @param lookAt Where the camera will look at.

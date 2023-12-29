@@ -7,7 +7,6 @@ import { SceneBlueprint } from "~/experiences/blueprints/Scene.blueprint";
 import type { Materials } from "~/interfaces/experienceWorld";
 
 export class Scene_2 extends SceneBlueprint {
-	main?: Mesh;
 	constructor() {
 		try {
 			super({
