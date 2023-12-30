@@ -1,4 +1,4 @@
-import { UnknownError } from "./Unknown.error";
+import { UnknownError } from "./unknown-error";
 
 export class ErrorFactory {
 	constructor(_: any) {

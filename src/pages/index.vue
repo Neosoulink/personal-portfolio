@@ -20,7 +20,7 @@
 
 <script lang="ts" setup>
 // EXPERIENCES
-import { HomeExperience } from "~/experiences/pages/Home";
+import { HomeExperience } from "~/experiences/core/home";
 
 // MODELS
 import { CHANGED } from "~/common/event.model";

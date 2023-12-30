@@ -15,7 +15,7 @@ import {
 import { HomeExperience } from ".";
 
 // INTERFACES
-import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBased.blueprint";
+import { ExperienceBasedBlueprint } from "~/experiences/blueprints/experience-based.blueprint";
 
 export interface PortalAssets {
 	mesh: THREE.Mesh;
@@ -31,7 +31,7 @@ export interface PortalMeshCorners {
 }
 
 /** Renderer */
-export default class Renderer extends ExperienceBasedBlueprint {
+export class Renderer extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 	protected readonly _appRenderer = this._experience.app.renderer;
 	protected readonly _appRendererInstance =

@@ -4,15 +4,15 @@ import GSAP from "gsap";
 import { HomeExperience } from ".";
 
 // CONFIG
-import { Config } from "@/experiences/config/Config";
+import { Config } from "~/experiences/config";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+import { ExperienceBasedBlueprint } from "~/experiences/blueprints/experience-based.blueprint";
 
 /**
  * Class in charge of all DOM HTML interactions (HTML user interface)
  */
-export default class UI extends ExperienceBasedBlueprint {
+export class UI extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	loadedResourcesProgressLineElements?: HTMLElement | null;

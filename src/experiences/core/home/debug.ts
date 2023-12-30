@@ -13,15 +13,15 @@ import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 // EXPERIENCE
 import { HomeExperience } from ".";
-import { Config } from "@/experiences/config/Config";
+import { Config } from "~/experiences/config";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+import { ExperienceBasedBlueprint } from "~/experiences/blueprints/experience-based.blueprint";
 
 // MODELS
 import { DESTRUCTED } from "~/common/event.model";
 
-export default class Debug extends ExperienceBasedBlueprint {
+export class Debug extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 	protected readonly _appDebug = this._experience.app.debug;
 	protected readonly _appCamera = this._experience.app.camera;
@@ -32,13 +32,11 @@ export default class Debug extends ExperienceBasedBlueprint {
 	protected _gui?: GUI;
 	/** Indicate where the camera is looking at. */
 	protected cameraLookAtPointIndicator?: Mesh;
-	/** Running experience in debug mode */
-	static readonly enable = Config.DEBUG;
 
 	protected _cameraCurvePathLine?: Line;
 
 	construct() {
-		if (!Debug.enable) {
+		if (!Config.DEBUG) {
 			this._appDebug?.ui?.destroy();
 			return;
 		}
@@ -86,12 +84,10 @@ export default class Debug extends ExperienceBasedBlueprint {
 			.add(
 				{
 					fn: () => {
-						const WorldManager = this._experience.world?.manager;
 						if (
 							!(
-								WorldManager &&
 								this._experience.app.camera.instance instanceof
-									PerspectiveCamera
+								PerspectiveCamera
 							)
 						)
 							return;
@@ -127,7 +123,7 @@ export default class Debug extends ExperienceBasedBlueprint {
 	}
 
 	destruct() {
-		if (!Debug.enable) return;
+		if (!Config.DEBUG) return;
 
 		~(() => {
 			if (!this?._gui) return;

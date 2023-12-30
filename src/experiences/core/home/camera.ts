@@ -3,17 +3,16 @@ import gsap from "gsap";
 
 // EXPERIENCES
 import { HomeExperience } from ".";
-import Debug from "./Debug";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBased.blueprint";
+import { ExperienceBasedBlueprint } from "~/experiences/blueprints/experience-based.blueprint";
 
 // MODELS
 import { CONSTRUCTED, DESTRUCTED } from "~/common/event.model";
 import { CAMERA_UNAVAILABLE, WRONG_PARAM } from "~/common/error.model";
 
 // CONFIG
-import { Config } from "@/experiences/config/Config";
+import { Config } from "~/experiences/config";
 
 export class Camera extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
@@ -64,7 +63,7 @@ export class Camera extends ExperienceBasedBlueprint {
 	}
 
 	public construct() {
-		if (!Debug.enable && this._appDebug?.cameraHelper) {
+		if (!Config.DEBUG && this._appDebug?.cameraHelper) {
 			this._experience.app.scene.remove(this._appDebug?.cameraHelper);
 			this._appDebug?.cameraHelper?.remove();
 			this._appDebug?.cameraHelper?.dispose();

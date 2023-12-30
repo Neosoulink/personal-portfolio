@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 
 // BLUEPRINTS
-import type { ExperienceBlueprint } from "./Experience.blueprint";
+import type { ExperienceBlueprint } from "./experience.blueprint";
 
 // INTERFACES
 import type { ExperienceBase } from "~/interfaces/experienceBase";

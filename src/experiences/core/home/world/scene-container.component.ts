@@ -1,13 +1,10 @@
-import { CatmullRomCurve3, Vector3 } from "three";
-
 // EXPERIENCES
-import { SceneBlueprint } from "~/experiences/blueprints/Scene.blueprint";
+import { SceneComponentBlueprint } from "~/experiences/blueprints/scene-component.blueprint";
 
-export class SceneContainer extends SceneBlueprint {
+export class SceneContainerComponent extends SceneComponentBlueprint {
 	constructor() {
 		try {
 			super({
-				cameraPath: new CatmullRomCurve3([]),
 				modelName: "scene_container",
 				childrenMaterials: {
 					scene_container: "scene_container",

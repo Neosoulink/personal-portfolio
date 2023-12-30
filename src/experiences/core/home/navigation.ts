@@ -7,7 +7,7 @@ import { CHANGED } from "~/common/event.model";
 import { WRONG_PARAM } from "~/common/error.model";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBased.blueprint";
+import { ExperienceBasedBlueprint } from "~/experiences/blueprints/experience-based.blueprint";
 
 export class Navigation extends ExperienceBasedBlueprint {
 	protected _experience = new HomeExperience();

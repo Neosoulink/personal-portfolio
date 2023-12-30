@@ -1,26 +1,18 @@
-import {
-	Group,
-	type CatmullRomCurve3,
-	Mesh,
-	Object3D,
-	type Object3DEventMap,
-	Material,
-	Vector3,
-} from "three";
+import { Group, Mesh, Object3D, type Object3DEventMap, Material } from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "./ExperienceBased.blueprint";
+import { ExperienceBasedBlueprint } from "./experience-based.blueprint";
 
 // EXPERIENCES
-import { HomeExperience } from "~/experiences/pages/Home";
+import { HomeExperience } from "~/experiences/core/home";
 
 // MODELS
 import { CONSTRUCTED, DESTRUCTED, LOADED } from "~/common/event.model";
 import { WRONG_PARAM } from "~/common/error.model";
 
 // ERRORS
-import { ErrorFactory } from "../errors/Error.factory";
+import { ErrorFactory } from "../errors/error.factory";
 
 // INTERFACES
 import type {
@@ -30,13 +22,12 @@ import type {
 
 // TODO: Link with the names of assets in the `app.loader` assets names
 export interface SceneBlueprintProps {
-	cameraPath: CatmullRomCurve3;
 	modelName: string;
 	childrenMaterials: ModelChildrenMaterials;
 	onTraverseModelScene?: (child: Object3D<Object3DEventMap>) => unknown;
 }
 
-export abstract class SceneBlueprint extends ExperienceBasedBlueprint {
+export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 	/**
 	 * Called each time the model scene is traversed.
 	 *
@@ -53,11 +44,9 @@ export abstract class SceneBlueprint extends ExperienceBasedBlueprint {
 	protected _model?: GLTF;
 	protected _modelScene?: Group;
 	protected _availableMaterials: Materials = {};
-	protected _cameraPath: CatmullRomCurve3;
 
 	constructor(_: SceneBlueprintProps) {
 		super();
-		this._cameraPath = _.cameraPath;
 
 		this._childrenMaterials = _.childrenMaterials;
 
@@ -73,10 +62,6 @@ export abstract class SceneBlueprint extends ExperienceBasedBlueprint {
 
 	public get modelScene() {
 		return this._modelScene;
-	}
-
-	public get cameraPath() {
-		return this._cameraPath;
 	}
 
 	protected abstract _getAvailableMaterials(): Materials;

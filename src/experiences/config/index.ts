@@ -1,4 +1,4 @@
-import { CommonConfig } from "./Common.config";
+import { CommonConfig } from "./common.config";
 
 export class Config extends CommonConfig {
 	protected static _supportsPassive = false;

@@ -13,16 +13,16 @@ import gsap, { Power0 } from "gsap";
 import { HomeExperience } from "..";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "@/experiences/blueprints/ExperienceBased.blueprint";
+import { ExperienceBasedBlueprint } from "@/experiences/blueprints/experience-based.blueprint";
 
 // CONFIG
-import { Config } from "~/experiences/config/Config";
+import { Config } from "~/experiences/config";
 
 // COMMONS
 import { WRONG_PARAM } from "~/common/error.model";
 
 // ERROR
-import { ErrorFactory } from "~/experiences/errors/Error.factory";
+import { ErrorFactory } from "~/experiences/errors/error.factory";
 
 // EVENTS
 import { CHANGED, CONSTRUCTED } from "~/common/event.model";
@@ -31,15 +31,14 @@ import { CHANGED, CONSTRUCTED } from "~/common/event.model";
 import { lerpPosition } from "~/utils/three-utils";
 
 // SHADERS
-import camTransitionFrag from "./shaders/cameraTransition/fragment.glsl";
-import camTransitionVert from "./shaders/cameraTransition/vertex.glsl";
-import { SKILL_PAGE } from "~/common/page.model";
+import camTransitionFrag from "./shaders/glass-effect/fragment.glsl";
+import camTransitionVert from "./shaders/glass-effect/vertex.glsl";
 
-export default class WorldManager extends ExperienceBasedBlueprint {
+export class WorldManager extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appCamera = this._experience.app.camera;
-	private readonly _appCameraInstance = this._experience.app.camera?.instance;
+	private readonly _appCameraInstance = this._appCamera.instance;
 	private readonly _appResources = this._experience.app.resources;
 	private readonly _navigation = this._experience.navigation;
 	private readonly _camera = this._experience.camera;
@@ -149,14 +148,18 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 
 		const CURRENT_CAMERA = this._camera.cameras[0];
 		const SECONDARY_CAMERA = this._camera.cameras[1];
-		const MAIN_SCENE =
-			this._world.availablePageScenes[this._world.mainSceneKey];
 
 		let projectedScene =
 			this._world.availablePageScenes[this._supportedPageKeys[1]];
 
-		MAIN_SCENE.cameraPath.getPointAt(0, CURRENT_CAMERA.position);
-		MAIN_SCENE.cameraPath.getPointAt(0, this._appCameraInstance.position);
+		this._world.mainSceneConfig.cameraPath.getPointAt(
+			0,
+			CURRENT_CAMERA.position
+		);
+		this._world.mainSceneConfig.cameraPath.getPointAt(
+			0,
+			this._appCameraInstance.position
+		);
 
 		this._camera.setCameraLookAt(
 			(this._world?.scene1?.modelScene?.position ?? new Vector3())
@@ -191,8 +194,11 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 				meshWebGLTexture: this._world.scene1.pcScreenWebglTexture,
 			});
 
-			projectedScene.cameraPath.getPoint(0, SECONDARY_CAMERA.position);
-			SECONDARY_CAMERA.lookAt(this._world.projectedSceneCenter);
+			this._world.projectedSceneConfig.cameraPath.getPoint(
+				0,
+				SECONDARY_CAMERA.position
+			);
+			SECONDARY_CAMERA.lookAt(this._world.projectedSceneConfig.center);
 		}
 
 		this._setScene();
@@ -331,8 +337,8 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 				this._camera?.switchCamera(0);
 				this._camera?.setCameraLookAt(SCREEN_POSITION);
 				this._camera?.updateCameraPosition(
-					MAIN_SCENE?.cameraPath.getPoint(0),
-					this._world?.mainSceneCenter
+					this._world?.mainSceneConfig.cameraPath.getPoint(0),
+					this._world?.mainSceneConfig.center
 				);
 			}, "-=" + this._glassEffectOptions.duration);
 
@@ -354,9 +360,11 @@ export default class WorldManager extends ExperienceBasedBlueprint {
 				.add(() => {
 					this._triggerGlassTransitionEffect().add(() => {
 						this._camera?.switchCamera(1);
-						this._camera?.setCameraLookAt(this._world?.projectedSceneCenter);
+						this._camera?.setCameraLookAt(
+							this._world?.projectedSceneConfig.center
+						);
 						this._camera?.setCameraPosition(
-							CURRENT_SCENE.cameraPath.getPoint(0)
+							this._world?.projectedSceneConfig.cameraPath.getPoint(0)
 						);
 						console.log(this._camera?.currentCameraIndex);
 					}, "-=" + this._glassEffectOptions.duration);

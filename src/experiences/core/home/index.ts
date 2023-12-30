@@ -1,24 +1,25 @@
 // EXPERIENCES
-import UI from "./UI";
-import { Navigation } from "./Navigation";
-import Loader from "./Loader";
-import Renderer from "./Renderer";
-import { Composer } from "./Composer";
-import { Camera } from "./Camera";
-import World from "./World";
-import Debug from "./Debug";
+import { UI } from "./ui";
+import { Navigation } from "./navigation";
+import { Loader } from "./loader";
+import { Renderer } from "./renderer";
+import { Composer } from "./composer";
+import { Camera } from "./camera";
+import { World } from "./world";
+import { Debug } from "./debug";
 
 // BLUEPRINT
 import {
 	ExperienceBlueprint,
 	type ExperienceProps,
-} from "~/experiences/blueprints/Experience.blueprint";
+} from "~/experiences/blueprints/experience.blueprint";
 
 // MODELS
 import { LOADED } from "~/common/event.model";
 
 // ERRORS
-import { ErrorFactory } from "~/experiences/errors/Error.factory";
+import { ErrorFactory } from "~/experiences/errors/error.factory";
+import { Config } from "~/experiences/config";
 
 export class HomeExperience extends ExperienceBlueprint {
 	ui?: UI;
@@ -35,7 +36,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			super(
 				HomeExperience._self ?? {
 					..._,
-					debug: Debug.enable,
+					debug: Config.DEBUG,
 				}
 			);
 			if (HomeExperience._self) return HomeExperience._self;

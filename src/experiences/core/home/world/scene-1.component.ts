@@ -1,16 +1,13 @@
 import {
 	AnimationMixer,
 	BackSide,
-	CatmullRomCurve3,
 	Color,
 	Material,
 	Mesh,
 	MeshBasicMaterial,
 	Object3D,
-	PerspectiveCamera,
 	ShaderMaterial,
 	Vector2,
-	Vector3,
 	WebGLRenderTarget,
 	type Object3DEventMap,
 	VideoTexture,
@@ -19,23 +16,23 @@ import {
 import gsap from "gsap";
 
 // BLUEPRINTS
-import { SceneBlueprint } from "~/experiences/blueprints/Scene.blueprint";
+import { SceneComponentBlueprint } from "~/experiences/blueprints/scene-component.blueprint";
 
 // SHADERS
-import bakedTextureFragment from "./shaders/scene1/bakedTexture/fragment.glsl";
-import bakedTextureVertex from "./shaders/scene1/bakedTexture/vertex.glsl";
+import bakedTextureFragment from "./shaders/scene-1/lights/fragment.glsl";
+import bakedTextureVertex from "./shaders/scene-1/lights/vertex.glsl";
 
-import coffeeSteamFragment from "./shaders/scene1/coffeeSteam/fragment.glsl";
-import coffeeSteamVertex from "./shaders/scene1/coffeeSteam/vertex.glsl";
+import coffeeSteamFragment from "./shaders/scene-1/coffeeSteam/fragment.glsl";
+import coffeeSteamVertex from "./shaders/scene-1/coffeeSteam/vertex.glsl";
 
 // CONFIGS
-import { Config } from "~/experiences/config/Config";
+import { Config } from "~/experiences/config";
 
 // MODELS
 import { DESTRUCTED } from "~/common/event.model";
 
 // ERROR
-import { ErrorFactory } from "~/experiences/errors/Error.factory";
+import { ErrorFactory } from "~/experiences/errors/error.factory";
 
 // INTERFACES
 import type {
@@ -43,7 +40,7 @@ import type {
 	ModelChildrenMaterials,
 } from "~/interfaces/experienceWorld";
 
-export class Scene_1 extends SceneBlueprint {
+export class Scene1Component extends SceneComponentBlueprint {
 	private _renderer = this._experience.renderer;
 	private _appTime = this._experience.app.time;
 	private _mixer?: AnimationMixer;
@@ -72,13 +69,6 @@ export class Scene_1 extends SceneBlueprint {
 	constructor() {
 		try {
 			super({
-				cameraPath: new CatmullRomCurve3([
-					new Vector3(0, 5.5, 21),
-					new Vector3(12, 10, 12),
-					new Vector3(21, 5.5, 0),
-					new Vector3(12, 3.7, 12),
-					new Vector3(0, 5.5, 21),
-				]),
 				modelName: "scene_1",
 				childrenMaterials: {
 					scene_1_room: "room",
@@ -333,7 +323,7 @@ export class Scene_1 extends SceneBlueprint {
 			onComplete: () => {
 				this.modelScene?.clear();
 				this.modelScene?.removeFromParent();
-				this._renderer?.removePortalAssets(Scene_1.name + "_screen_pc");
+				this._renderer?.removePortalAssets(Scene1Component.name + "_screen_pc");
 				this._mixer?.stopAllAction();
 				this._mixer = undefined;
 
@@ -342,38 +332,38 @@ export class Scene_1 extends SceneBlueprint {
 		});
 	}
 
-	public intro(): void {
-		const WorldManager = this._world?.manager;
+	// public intro(): void {
+	// 	const WorldManager = this._world?.manager;
 
-		if (
-			!(WorldManager && this._appCamera.instance instanceof PerspectiveCamera)
-		)
-			return;
+	// 	if (
+	// 		!(WorldManager && this._appCamera.instance instanceof PerspectiveCamera)
+	// 	)
+	// 		return;
 
-		const { x, y, z } = this.cameraPath.getPointAt(0);
+	// 	const { x, y, z } = this.cameraPath.getPointAt(0);
 
-		gsap.to(this._appCamera.instance.position, {
-			...this._world?.manager?.getGsapDefaultProps(),
-			duration: Config.GSAP_ANIMATION_DURATION,
-			ease: Config.GSAP_ANIMATION_EASE,
-			x,
-			y,
-			z,
-			delay: Config.GSAP_ANIMATION_DURATION * 0.8,
-			onUpdate: () => {
-				// this._camera?.setCameraLookAt(WorldManager.initialLookAtPosition);
-			},
-			onComplete: () => {
-				setTimeout(() => {
-					if (this._world?.manager) {
-						WorldManager?.getGsapDefaultProps().onComplete();
+	// 	gsap.to(this._appCamera.instance.position, {
+	// 		...this._world?.manager?.getGsapDefaultProps(),
+	// 		duration: Config.GSAP_ANIMATION_DURATION,
+	// 		ease: Config.GSAP_ANIMATION_EASE,
+	// 		x,
+	// 		y,
+	// 		z,
+	// 		delay: Config.GSAP_ANIMATION_DURATION * 0.8,
+	// 		onUpdate: () => {
+	// 			// this._camera?.setCameraLookAt(WorldManager.initialLookAtPosition);
+	// 		},
+	// 		onComplete: () => {
+	// 			setTimeout(() => {
+	// 				if (this._world?.manager) {
+	// 					WorldManager?.getGsapDefaultProps().onComplete();
 
-						this._world.manager.autoCameraAnimation = true;
-					}
-				}, 1000);
-			},
-		});
-	}
+	// 					this._world.manager.autoCameraAnimation = true;
+	// 				}
+	// 			}, 1000);
+	// 		},
+	// 	});
+	// }
 
 	/**
 	 * Toggle the state of the pc between open and close

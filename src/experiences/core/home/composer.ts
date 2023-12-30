@@ -9,7 +9,7 @@ import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { HomeExperience } from ".";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBased.blueprint";
+import { ExperienceBasedBlueprint } from "~/experiences/blueprints/experience-based.blueprint";
 
 export class Composer extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();

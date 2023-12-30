@@ -7,25 +7,18 @@ import {
 } from "three";
 
 // BLUEPRINTS
-import { SceneBlueprint } from "~/experiences/blueprints/Scene.blueprint";
+import { SceneComponentBlueprint } from "~/experiences/blueprints/scene-component.blueprint";
 
 // INTERFACES
 import type { Materials } from "~/interfaces/experienceWorld";
 
-export class Scene_3 extends SceneBlueprint {
+export class Scene3Component extends SceneComponentBlueprint {
 	private _initialPcTopBone?: Object3D<Object3DEventMap>;
 	public pcTopBone?: Object3D<Object3DEventMap>;
 
 	constructor() {
 		try {
 			super({
-				cameraPath: new CatmullRomCurve3([
-					new Vector3(0, 5.5, 21),
-					new Vector3(12, 10, 12),
-					new Vector3(21, 5.5, 0),
-					new Vector3(12, 3.7, 12),
-					new Vector3(0, 5.5, 21),
-				]),
 				modelName: "scene_3",
 				childrenMaterials: {
 					scene_3_objects: "scene_3",

@@ -1,5 +1,6 @@
 import {
 	Box3,
+	CatmullRomCurve3,
 	Color,
 	Group,
 	Mesh,
@@ -11,14 +12,14 @@ import {
 
 // EXPERIENCE
 import { HomeExperience } from "..";
-import WorldManager from "./world.manager";
-import { SceneContainer } from "./SceneContainer";
-import { Scene_1 } from "./Scene_1";
-import { Scene_2 } from "./Scene_2";
-import { Scene_3 } from "./Scene_3";
+import { WorldManager } from "./manager";
+import { SceneContainerComponent } from "./scene-container.component";
+import { Scene1Component } from "./scene-1.component";
+import { Scene2Component } from "./scene-2.component";
+import { Scene3Component } from "./scene-3.component";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/experiences/blueprints/ExperienceBased.blueprint";
+import { ExperienceBasedBlueprint } from "~/experiences/blueprints/experience-based.blueprint";
 
 // MODELS
 import { CONSTRUCTED, DESTRUCTED } from "~/common/event.model";
@@ -26,41 +27,48 @@ import { CAMERA_UNAVAILABLE } from "~/common/error.model";
 import { CONTACT_PAGE, HOME_PAGE, SKILL_PAGE } from "~/common/page.model";
 
 // INTERFACES
-import type { Materials } from "~/interfaces/experienceWorld";
-import type { SceneBlueprint } from "~/experiences/blueprints/Scene.blueprint";
+import type { Materials, SceneConfig } from "~/interfaces/experienceWorld";
+import type { SceneComponentBlueprint } from "~/experiences/blueprints/scene-component.blueprint";
 
-export default class World extends ExperienceBasedBlueprint {
+export class World extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appCamera = this._experience.app.camera;
 	private readonly _loader = this._experience.loader;
 
+	private _manager?: WorldManager;
 	private _commonMaterials: Materials = {};
-	private _availablePageScenes: { [sceneKey: string]: SceneBlueprint } = {};
-	private _mainScenePosition = new Vector3();
-	private _projectedScenePosition = new Vector3();
-	private _mainSceneCenter = new Vector3();
-	private _projectedSceneCenter = new Vector3();
-
+	private _availablePageScenes: {
+		[sceneKey: string]: SceneComponentBlueprint;
+	} = {};
+	private _mainSceneConfig: SceneConfig = {
+		center: new Vector3(),
+		position: new Vector3(),
+		cameraPath: new CatmullRomCurve3([]),
+	};
+	private _projectedSceneConfig: SceneConfig = {
+		center: new Vector3(),
+		position: new Vector3(),
+		cameraPath: new CatmullRomCurve3([]),
+	};
 	private _projectedSceneContainer?: Group;
 
 	public readonly mainSceneKey = HOME_PAGE;
 
-	public sceneContainer?: SceneContainer;
-	public scene1?: Scene_1;
-	public scene2?: Scene_2;
-	public scene3?: Scene_3;
-	public manager?: WorldManager;
+	public sceneContainer?: SceneContainerComponent;
+	public scene1?: Scene1Component;
+	public scene2?: Scene2Component;
+	public scene3?: Scene3Component;
 	/** Represent the {@link Group `Group`} containing the experience. */
 	public group?: Group;
 
 	constructor() {
 		super();
 
-		this.sceneContainer = new SceneContainer();
-		this.scene1 = new Scene_1();
-		this.scene2 = new Scene_2();
-		this.scene3 = new Scene_3();
+		this.sceneContainer = new SceneContainerComponent();
+		this.scene1 = new Scene1Component();
+		this.scene2 = new Scene2Component();
+		this.scene3 = new Scene3Component();
 	}
 
 	private _setCommonMaterials() {
@@ -81,12 +89,8 @@ export default class World extends ExperienceBasedBlueprint {
 		});
 	}
 
-	private _updateScenePosition(scene: SceneBlueprint, newPosition: Vector3) {
-		scene.modelScene?.position.copy(newPosition);
-		scene.cameraPath.points.forEach((v3) => {
-			v3.set(newPosition.x + v3.x, newPosition.y + v3.y, newPosition.z + v3.z);
-		});
-		scene.cameraPath.updateArcLengths();
+	public get manager() {
+		return this._manager;
 	}
 
 	public get commonMaterials() {
@@ -97,24 +101,16 @@ export default class World extends ExperienceBasedBlueprint {
 		return this._availablePageScenes;
 	}
 
-	public get mainScenePosition() {
-		return this._mainScenePosition;
-	}
-
-	public get mainSceneCenter() {
-		return this._mainSceneCenter;
-	}
-
-	public get projectedScenePosition() {
-		return this._projectedScenePosition;
-	}
-
-	public get projectedSceneCenter() {
-		return this._projectedSceneCenter;
-	}
-
 	public get projectedSceneContainer() {
 		return this._projectedSceneContainer;
+	}
+
+	public get mainSceneConfig() {
+		return this._mainSceneConfig;
+	}
+
+	public get projectedSceneConfig() {
+		return this._projectedSceneConfig;
 	}
 
 	public destruct() {
@@ -137,7 +133,7 @@ export default class World extends ExperienceBasedBlueprint {
 			this.scene2?.destruct();
 			this.scene3?.destruct();
 			this.sceneContainer?.destruct();
-			this.manager?.destruct();
+			this._manager?.destruct();
 
 			this._experience.app.scene.remove(this.group);
 
@@ -151,10 +147,10 @@ export default class World extends ExperienceBasedBlueprint {
 		if (!(this._appCamera.instance instanceof PerspectiveCamera))
 			throw new Error(undefined, { cause: CAMERA_UNAVAILABLE });
 
-		this._setCommonMaterials();
-
 		this.group = new Group();
-		this.manager = new WorldManager();
+		this._manager = new WorldManager();
+
+		this._setCommonMaterials();
 
 		this.sceneContainer?.construct();
 		this.scene1?.construct();
@@ -168,22 +164,38 @@ export default class World extends ExperienceBasedBlueprint {
 			// const WIDTH = BOUNDING_BOX.max.x - BOUNDING_BOX.min.x;
 			const HEIGHT = BOUNDING_BOX.max.y - BOUNDING_BOX.min.y;
 
-			this._mainScenePosition.set(0, 0, 0);
-			this._mainSceneCenter.set(
-				this._mainScenePosition.x,
-				this._mainScenePosition.y + 2.5,
-				this._mainScenePosition.z
+			this._mainSceneConfig.position.set(0, 0, 0);
+			this._mainSceneConfig.center.set(
+				this._mainSceneConfig.position.x,
+				this._mainSceneConfig.position.y + 2.5,
+				this._mainSceneConfig.position.z
 			);
+			this._mainSceneConfig.cameraPath.points = [
+				new Vector3(0, 5.5, 21),
+				new Vector3(12, 10, 12),
+				new Vector3(21, 5.5, 0),
+				new Vector3(12, 3.7, 12),
+				new Vector3(0, 5.5, 21),
+			];
 
-			this._projectedScenePosition.set(0, HEIGHT * -2, 0);
-			this._projectedSceneCenter.set(
-				this._projectedScenePosition.x,
-				this._projectedScenePosition.y + 2,
-				this._projectedScenePosition.z
+			this._projectedSceneConfig.position.set(0, HEIGHT * -2, 0);
+			this._projectedSceneConfig.center.set(
+				this._projectedSceneConfig.position.x,
+				this._projectedSceneConfig.position.y + 2,
+				this._projectedSceneConfig.position.z
 			);
+			this._projectedSceneConfig.cameraPath.points = [
+				new Vector3(0, 5.5, 21).add(this._projectedSceneConfig.position),
+				new Vector3(12, 10, 12).add(this._projectedSceneConfig.position),
+				new Vector3(21, 5.5, 0).add(this._projectedSceneConfig.position),
+				new Vector3(12, 3.7, 12).add(this._projectedSceneConfig.position),
+				new Vector3(0, 5.5, 21).add(this._projectedSceneConfig.position),
+			];
 
-			this._projectedSceneContainer = this.sceneContainer.modelScene.clone();
-			this._projectedSceneContainer.position.copy(this._projectedScenePosition);
+			(this._projectedSceneContainer =
+				this.sceneContainer.modelScene.clone()).position.copy(
+				this._projectedSceneConfig.position
+			);
 
 			this.group?.add(
 				this.sceneContainer.modelScene,
@@ -192,25 +204,25 @@ export default class World extends ExperienceBasedBlueprint {
 		}
 
 		if (this.scene1?.modelScene) {
-			this.group?.add(this.scene1.modelScene);
 			this._availablePageScenes[HOME_PAGE] = this.scene1;
+			this.group?.add(this.scene1.modelScene);
 		}
 
 		if (this.scene2?.modelScene) {
-			this._updateScenePosition(this.scene2, this._projectedScenePosition);
+			this.scene2.modelScene.position.copy(this.projectedSceneConfig.position);
 			this._availablePageScenes[SKILL_PAGE] = this.scene2;
 			this.group?.add(this.scene2.modelScene);
 		}
 
 		if (this.scene3?.modelScene) {
-			this._updateScenePosition(this.scene3, this._projectedScenePosition);
+			this.scene3.modelScene.position.copy(this.projectedSceneConfig.position);
 			this._availablePageScenes[CONTACT_PAGE] = this.scene3;
 			this.group?.add(this.scene3.modelScene);
 		}
 
 		this._experience.app.scene.add(this.group);
 
-		this.manager?.construct();
+		this._manager?.construct();
 		this.emit(CONSTRUCTED, this);
 	}
 
@@ -219,6 +231,6 @@ export default class World extends ExperienceBasedBlueprint {
 		this.scene2?.update();
 		this.scene3?.update();
 		this.sceneContainer?.update();
-		this.manager?.update();
+		this._manager?.update();
 	}
 }
