@@ -30,7 +30,7 @@ export abstract class ExperienceBlueprint implements ExperienceBase {
 		if (!(_ instanceof ExperienceBlueprint) && _) {
 			this.app = new QuickThree(
 				{
-					enableDebug: true,
+					enableDebug: _?.debug,
 					axesSizes: _?.debug ? 5 : undefined,
 					gridSizes: _?.debug ? 30 : undefined,
 					withMiniCamera: _?.debug,

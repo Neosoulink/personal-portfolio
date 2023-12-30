@@ -40,7 +40,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 	private readonly _appCamera = this._experience.app.camera;
 	private readonly _appCameraInstance = this._appCamera.instance;
 	private readonly _appResources = this._experience.app.resources;
-	private readonly _navigation = this._experience.navigation;
+	private readonly _router = this._experience.router;
 	private readonly _camera = this._experience.camera;
 	private readonly _composer = this._experience.composer;
 	private readonly _renderer = this._experience.renderer;
@@ -168,12 +168,12 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		);
 
 		if (
-			typeof this._navigation?.currentRouteKey === "string" &&
-			this._navigation.currentRouteKey !== this._world?.mainSceneKey &&
-			this._navigation.currentRouteKey !== this._supportedPageKeys[1]
+			typeof this._router?.currentRouteKey === "string" &&
+			this._router.currentRouteKey !== this._world?.mainSceneKey &&
+			this._router.currentRouteKey !== this._supportedPageKeys[1]
 		)
 			projectedScene =
-				this._world?.availablePageScenes[this._navigation.currentRouteKey];
+				this._world?.availablePageScenes[this._router.currentRouteKey];
 
 		projectedScene.modelScene?.children.forEach(
 			(child) => child instanceof Mesh && (child.material.alphaTest = 0)
@@ -289,20 +289,22 @@ export class WorldManager extends ExperienceBasedBlueprint {
 	/** Set the current scene depending to the current `Navigation` state */
 	private _setScene() {
 		if (
-			typeof this._experience.navigation?.currentRouteKey !== "string" ||
+			typeof this._experience.router?.currentRouteKey !== "string" ||
 			this._supportedPageKeys.indexOf(
-				this._experience.navigation.currentRouteKey
+				this._experience.router.currentRouteKey
 			) === -1
 		)
 			throw new ErrorFactory(
 				new Error("Page not supported", { cause: WRONG_PARAM })
 			);
+
 		if (!this._world)
 			throw new ErrorFactory(
 				new Error("World not initialized", {
 					cause: WRONG_PARAM,
 				})
 			);
+
 		if (
 			!this._appCameraInstance ||
 			!this._camera?.cameras ||
@@ -318,9 +320,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		if (this._timeline.isActive()) this._timeline.progress(1);
 
 		const CURRENT_SCENE =
-			this._world.availablePageScenes[
-				this._experience.navigation.currentRouteKey
-			];
+			this._world.availablePageScenes[this._experience.router.currentRouteKey];
 		const MAIN_SCENE =
 			this._world.availablePageScenes[this._world.mainSceneKey];
 		const SCREEN_POSITION =
@@ -329,8 +329,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 		if (
 			this._prevSceneKey &&
-			(this._experience.navigation?.currentRouteKey ===
-				this._world.mainSceneKey ||
+			(this._experience.router?.currentRouteKey === this._world.mainSceneKey ||
 				CURRENT_SCENE === undefined)
 		)
 			this._triggerGlassTransitionEffect().add(() => {
@@ -343,8 +342,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			}, "-=" + this._glassEffectOptions.duration);
 
 		if (
-			this._experience.navigation.currentRouteKey !==
-				this._world?.mainSceneKey &&
+			this._experience.router.currentRouteKey !== this._world?.mainSceneKey &&
 			this._camera?.currentCameraIndex !== 1
 		)
 			this._camera
@@ -366,13 +364,12 @@ export class WorldManager extends ExperienceBasedBlueprint {
 						this._camera?.setCameraPosition(
 							this._world?.projectedSceneConfig.cameraPath.getPoint(0)
 						);
-						console.log(this._camera?.currentCameraIndex);
 					}, "-=" + this._glassEffectOptions.duration);
 				}, "<87%");
 
-		this._changeProjectedScene(this._experience.navigation.currentRouteKey);
+		this._changeProjectedScene(this._experience.router.currentRouteKey);
 
-		this._prevSceneKey = this._experience.navigation?.currentRouteKey;
+		this._prevSceneKey = this._experience.router?.currentRouteKey;
 	}
 
 	public construct() {
@@ -380,9 +377,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 		this._initScenes();
 
-		this._experience.navigation?.on(CHANGED, () => {
-			this._setScene();
-		});
+		this._experience.router?.on(CHANGED, () => this._setScene());
 
 		this.emit(CONSTRUCTED, this);
 	}

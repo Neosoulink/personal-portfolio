@@ -1,4 +1,5 @@
 import { PerspectiveCamera, Vector3 } from "three";
+import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
 import gsap from "gsap";
 
 // EXPERIENCES
@@ -16,21 +17,23 @@ import { Config } from "~/experiences/config";
 
 export class Camera extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
-	protected readonly _appCamera = this._experience.app.camera;
-	protected readonly _appCameraInstance = this._experience.app.camera.instance;
-	protected readonly _appDebug = this._experience.app.debug;
-	protected readonly _timeline = gsap.timeline();
-	protected _lookAtPosition = new Vector3();
-	protected _currentCameraIndex = 0;
-	protected _prevCameraProps = {
+
+	private readonly _appCamera = this._experience.app.camera;
+	private readonly _appCameraInstance = this._experience.app.camera.instance;
+	private readonly _appDebug = this._experience.app.debug;
+	private readonly _timeline = gsap.timeline();
+
+	private _lookAtPosition = new Vector3();
+	private _currentCameraIndex = 0;
+	private _prevCameraProps = {
 		fov: 0,
 		aspect: 0,
 		near: 0,
 		far: 0,
 	};
-	public readonly initialCameraFov = 35;
 
-	public readonly cameras: PerspectiveCamera[] = [
+	public readonly initialCameraFov = 35;
+	public readonly cameras = [
 		(() =>
 			this._appCameraInstance instanceof PerspectiveCamera
 				? new PerspectiveCamera().copy(this._appCameraInstance)
@@ -44,7 +47,7 @@ export class Camera extends ExperienceBasedBlueprint {
 						this._appCameraInstance.far
 				  )
 				: new PerspectiveCamera())(),
-	];
+	] as const;
 
 	constructor() {
 		super();
@@ -68,6 +71,9 @@ export class Camera extends ExperienceBasedBlueprint {
 			this._appDebug?.cameraHelper?.remove();
 			this._appDebug?.cameraHelper?.dispose();
 		}
+
+		if (this._experience.app.debug?.cameraControls)
+			this._experience.app.debug.cameraControls.enabled = false;
 
 		if (!(this._appCameraInstance instanceof PerspectiveCamera)) return;
 
@@ -164,9 +170,6 @@ export class Camera extends ExperienceBasedBlueprint {
 	public setCameraLookAt(v3 = new Vector3()) {
 		const V3 = v3.clone();
 		this._appCameraInstance?.lookAt(V3);
-
-		if (this._appDebug?.cameraControls)
-			this._appDebug.cameraControls.target = V3;
 
 		return (this._lookAtPosition = V3);
 	}

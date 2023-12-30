@@ -60,6 +60,6 @@ onMounted(() => {
 onBeforeUnmount(() => setTimeout(endExperience, 500));
 
 onBeforeRouteUpdate((route) => {
-	states.experience?.navigation?.emit(CHANGED, route);
+	states.experience?.router?.emit(CHANGED, route);
 });
 </script>
