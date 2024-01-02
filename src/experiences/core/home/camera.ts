@@ -1,15 +1,20 @@
 import { PerspectiveCamera, Vector3 } from "three";
-import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
 import gsap from "gsap";
 
 // EXPERIENCES
 import { HomeExperience } from ".";
+import { Navigation } from "./navigation";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/experiences/blueprints/experience-based.blueprint";
 
 // MODELS
-import { CONSTRUCTED, DESTRUCTED } from "~/common/event.model";
+import {
+	ANIMATION_ENDED,
+	ANIMATION_STARTED,
+	CONSTRUCTED,
+	DESTRUCTED,
+} from "~/common/event.model";
 import { CAMERA_UNAVAILABLE, WRONG_PARAM } from "~/common/error.model";
 
 // CONFIG
@@ -21,7 +26,14 @@ export class Camera extends ExperienceBasedBlueprint {
 	private readonly _appCamera = this._experience.app.camera;
 	private readonly _appCameraInstance = this._experience.app.camera.instance;
 	private readonly _appDebug = this._experience.app.debug;
-	private readonly _timeline = gsap.timeline();
+	private readonly _timeline = gsap.timeline({
+		onStart: () => {
+			this.emit(ANIMATION_STARTED);
+		},
+		onComplete: () => {
+			this.emit(ANIMATION_ENDED);
+		},
+	});
 
 	private _lookAtPosition = new Vector3();
 	private _currentCameraIndex = 0;
@@ -32,7 +44,7 @@ export class Camera extends ExperienceBasedBlueprint {
 		far: 0,
 	};
 
-	public readonly initialCameraFov = 35;
+	public readonly initialCameraFov = 45;
 	public readonly cameras = [
 		(() =>
 			this._appCameraInstance instanceof PerspectiveCamera
@@ -192,6 +204,8 @@ export class Camera extends ExperienceBasedBlueprint {
 	 *
 	 * @param toPosition The new camera position.
 	 * @param lookAt Where the camera will look at.
+	 *
+	 * @deprecated use {@link Navigation}'s `updateCameraPosition`
 	 */
 	public updateCameraPosition(
 		toPosition = new Vector3(),

@@ -42,6 +42,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 	private readonly _appResources = this._experience.app.resources;
 	private readonly _router = this._experience.router;
 	private readonly _camera = this._experience.camera;
+	private readonly _navigation = this._experience.navigation;
 	private readonly _composer = this._experience.composer;
 	private readonly _renderer = this._experience.renderer;
 	private readonly _timeline = gsap.timeline();
@@ -117,6 +118,10 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		if (!this._world?.availablePageScenes) return [];
 
 		return Object.keys(this._world.availablePageScenes);
+	}
+
+	public get timeline() {
+		return this._timeline;
 	}
 
 	/** Initialize the the default scenes states. */
@@ -321,8 +326,6 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 		const CURRENT_SCENE =
 			this._world.availablePageScenes[this._experience.router.currentRouteKey];
-		const MAIN_SCENE =
-			this._world.availablePageScenes[this._world.mainSceneKey];
 		const SCREEN_POSITION =
 			this._world.scene1?.pcScreen?.localToWorld(new Vector3()) ??
 			new Vector3();
@@ -331,21 +334,29 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			this._prevSceneKey &&
 			(this._experience.router?.currentRouteKey === this._world.mainSceneKey ||
 				CURRENT_SCENE === undefined)
-		)
+		) {
 			this._triggerGlassTransitionEffect().add(() => {
+				if (!this._world?.mainSceneConfig) return;
+
 				this._camera?.switchCamera(0);
-				this._camera?.setCameraLookAt(SCREEN_POSITION);
-				this._camera?.updateCameraPosition(
-					this._world?.mainSceneConfig.cameraPath.getPoint(0),
-					this._world?.mainSceneConfig.center
-				);
+				this._navigation?.setViewCenter(new Vector3());
+				this._navigation?.setTargetPosition(SCREEN_POSITION);
+				this._navigation
+					?.updateCameraPosition(
+						this._world.mainSceneConfig.cameraPath.getPoint(0),
+						this._world.mainSceneConfig.center
+					)
+					.then(() => {
+						this._navigation?.disableFreeAzimuthRotation();
+					});
 			}, "-=" + this._glassEffectOptions.duration);
+		}
 
 		if (
 			this._experience.router.currentRouteKey !== this._world?.mainSceneKey &&
 			this._camera?.currentCameraIndex !== 1
-		)
-			this._camera
+		) {
+			this._navigation
 				?.updateCameraPosition(
 					lerpPosition(
 						new Vector3(0, SCREEN_POSITION.y, 0),
@@ -357,15 +368,24 @@ export class WorldManager extends ExperienceBasedBlueprint {
 				)
 				.add(() => {
 					this._triggerGlassTransitionEffect().add(() => {
+						if (!this._world?.projectedSceneConfig.center) return;
+
 						this._camera?.switchCamera(1);
-						this._camera?.setCameraLookAt(
+						this._navigation?.setViewCenter(
 							this._world?.projectedSceneConfig.center
 						);
-						this._camera?.setCameraPosition(
+						this._navigation?.setTargetPosition(
+							this._world?.projectedSceneConfig.center
+						);
+						this._navigation?.setPositionInSphere(
 							this._world?.projectedSceneConfig.cameraPath.getPoint(0)
 						);
 					}, "-=" + this._glassEffectOptions.duration);
-				}, "<87%");
+				}, "<87%")
+				.then(() => {
+					this._navigation?.enableFreeAzimuthRotation();
+				});
+		}
 
 		this._changeProjectedScene(this._experience.router.currentRouteKey);
 
@@ -374,11 +394,8 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 	public construct() {
 		this._world = this._experience.world;
-
 		this._initScenes();
-
 		this._experience.router?.on(CHANGED, () => this._setScene());
-
 		this.emit(CONSTRUCTED, this);
 	}
 
