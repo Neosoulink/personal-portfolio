@@ -1,4 +1,4 @@
-import { Config } from "~/experiences/config";
+import { Config } from "~/config";
 import { preventDefault } from "./common-utils";
 
 export function preventDefaultForScrollKeys(e: KeyboardEvent) {

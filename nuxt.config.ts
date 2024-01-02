@@ -4,11 +4,15 @@ import glslify from "vite-plugin-glslify";
 export default defineNuxtConfig({
 	devtools: { enabled: true },
 	alias: {
-		"@exp-factories/*": "../src/experiences/factories/*",
-		"@exp-errors/*": "../src/experiences/errors/*",
-		"@exp-pages/*": "../src/experiences/pages/*",
-		"@interfaces/*": "../src/interfaces/*",
-		"@constants/*": "../src/constants/*",
+		"~blueprints/*": "../src/blueprints/*",
+		"~config": "../src/config",
+		"~config/*": "../src/config/*",
+		"~experiences/*": "../src/experiences/*",
+		"~errors": "../src/errors",
+		"~errors/*": "../src/errors/*",
+		"~common/*": "../src/common/*",
+		"~static": "../src/static",
+		"~static/*": "../src/static/*",
 	},
 	app: {
 		head: {

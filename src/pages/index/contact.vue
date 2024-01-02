@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { CONTACT_PAGE } from "~/common/page.model";
+import { CONTACT_PAGE } from "~/static/page.static";
 
 definePageMeta({
 	key: CONTACT_PAGE,

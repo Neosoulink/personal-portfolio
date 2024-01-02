@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { SKILL_PAGE } from "~/common/page.model";
+import { SKILL_PAGE } from "~/static/page.static";
 
 definePageMeta({
 	key: SKILL_PAGE,

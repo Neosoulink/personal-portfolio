@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { HOME_PAGE } from "~/common/page.model";
+import { HOME_PAGE } from "~/static/page.static";
 
 definePageMeta({
 	key: HOME_PAGE,

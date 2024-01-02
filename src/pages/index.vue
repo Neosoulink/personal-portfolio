@@ -2,7 +2,7 @@
 	<main class="flex flex-1">
 		<!--	<HomeLandingLoader /> -->
 
-		<canvas :id="HOME_DOM_REF" class="fixed top-0 left-0 w-full h-full" />
+		<canvas :id="Config.HOME_DOM_REF" class="fixed top-0 left-0 w-full h-full" />
 
 		<div id="mode-bubbles-container" />
 
@@ -20,13 +20,13 @@
 
 <script lang="ts" setup>
 // EXPERIENCES
-import { HomeExperience } from "~/experiences/core/home";
+import { HomeExperience } from "~/experiences/home";
 
-// MODELS
-import { CHANGED } from "~/common/event.model";
+// STATIC
+import { events } from "~/static";
 
-// CONSTANTS
-import { HOME_DOM_REF } from "~/constants/UI";
+// CONFIG
+import { Config } from "~/config";
 
 // DATA
 const states = reactive<{
@@ -38,7 +38,7 @@ const initExperience = () => {
 	if (!process.client) return;
 
 	const Experience = new HomeExperience({
-		domElementRef: "#" + HOME_DOM_REF,
+		domElementRef: "#" + Config.HOME_DOM_REF,
 	});
 
 	Experience.construct();
@@ -60,6 +60,6 @@ onMounted(() => {
 onBeforeUnmount(() => setTimeout(endExperience, 500));
 
 onBeforeRouteUpdate((route) => {
-	states.experience?.router?.emit(CHANGED, route);
+	states.experience?.router?.emit(events.CHANGED, route);
 });
 </script>
