@@ -60,6 +60,22 @@ export class Scene1Component extends SceneComponentBlueprint {
 		fixedComputerLed: "#50cdff",
 		coffeeSteam: "#b7a08e",
 	};
+	public readonly navigationLimits = {
+		spherical: {
+			radius: { min: 5, max: 20 },
+			phi: { min: 0.01, max: Math.PI * 0.5 },
+			theta: { min: 0, max: Math.PI * 0.5 },
+			enabled: true,
+			enabledPhi: true,
+			enabledTheta: true,
+		},
+		target: {
+			x: { min: -3, max: 3 },
+			y: { min: 2, max: 6 },
+			z: { min: -2.5, max: 4 },
+			enabled: true,
+		},
+	};
 
 	public pcScreenWebglTexture = new WebGLRenderTarget(1024, 1024);
 	public pcTopArticulation?: Object3D;

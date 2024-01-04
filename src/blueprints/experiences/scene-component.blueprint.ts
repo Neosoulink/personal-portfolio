@@ -18,6 +18,7 @@ import type {
 	Materials,
 	ModelChildrenMaterials,
 } from "~/common/experiences/experience-world.model";
+import type { NavigationView } from "~/common/experiences/navigation.model";
 
 // TODO: Link with the names of assets in the `app.loader` assets names
 export interface SceneBlueprintProps {
@@ -43,6 +44,11 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 	protected _model?: GLTF;
 	protected _modelScene?: Group;
 	protected _availableMaterials: Materials = {};
+
+	public abstract readonly navigationLimits?: {
+		spherical: Exclude<NavigationView["spherical"], undefined>["limits"];
+		target: Exclude<NavigationView["target"], undefined>["limits"];
+	};
 
 	constructor(_: SceneBlueprintProps) {
 		super();

@@ -43,24 +43,26 @@ export class WorldManager extends ExperienceBasedBlueprint {
 	private readonly _composer = this._experience.composer;
 	private readonly _renderer = this._experience.renderer;
 	private readonly _timeline = gsap.timeline();
-	private readonly _cameraTransitionShaderPass = new ShaderPass({
-		uniforms: {
-			tDiffuse: { value: null },
-			uStrength: { value: 0 },
-			uDisplacementMap: {
-				value: this._appResources.items["rocksAlphaMap"],
-			},
-		},
-		vertexShader: camTransitionVert,
-		fragmentShader: camTransitionFrag,
-	});
 
-	private _glassEffectOptions: gsap.TweenVars = {
-		duration: 0.3,
-		ease: Power0.easeIn,
-	};
 	private _world: typeof this._experience.world;
-	private _prevSceneKey?: string;
+	private _config: {
+		prevSceneKey?: string;
+		cameraTransitionPass: ShaderPass;
+		glassEffectDefault: { duration: number; ease: gsap.EaseFunction };
+	} = {
+		cameraTransitionPass: new ShaderPass({
+			uniforms: {
+				tDiffuse: { value: null },
+				uStrength: { value: 0 },
+				uDisplacementMap: {
+					value: this._appResources.items["rocksAlphaMap"],
+				},
+			},
+			vertexShader: camTransitionVert,
+			fragmentShader: camTransitionFrag,
+		}),
+		glassEffectDefault: { duration: 0.3, ease: Power0.easeIn },
+	};
 
 	// TODO: Reorder properties
 	public rayCaster = new Raycaster();
@@ -200,6 +202,8 @@ export class WorldManager extends ExperienceBasedBlueprint {
 				SECONDARY_CAMERA.position
 			);
 			SECONDARY_CAMERA.lookAt(this._world.projectedSceneConfig.center);
+			SECONDARY_CAMERA.userData.lookAt =
+				this._world.projectedSceneConfig.center;
 		}
 
 		this._setScene();
@@ -207,32 +211,35 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 	/** Launch a screen glass effect. */
 	private _triggerGlassTransitionEffect() {
-		if (!this._cameraTransitionShaderPass.uniforms.uStrength || !this._composer)
+		if (
+			!this._config.cameraTransitionPass.uniforms.uStrength ||
+			!this._composer
+		)
 			return this._timeline;
 		if (this._timeline.isActive()) this._timeline.progress(1);
 
-		this._cameraTransitionShaderPass.clear = true;
-		this._cameraTransitionShaderPass.uniforms.uStrength.value = 0;
+		this._config.cameraTransitionPass.clear = true;
+		this._config.cameraTransitionPass.uniforms.uStrength.value = 0;
 
 		this._composer.addPass(
-			"_cameraTransitionShaderPass",
-			this._cameraTransitionShaderPass
+			"cameraTransitionPass",
+			this._config.cameraTransitionPass
 		);
 
 		return this._timeline
-			.to(this._cameraTransitionShaderPass.material.uniforms.uStrength, {
-				...this._glassEffectOptions,
+			.to(this._config.cameraTransitionPass.material.uniforms.uStrength, {
+				...this._config.glassEffectDefault,
 				value: 0.175,
 			})
-			.to(this._cameraTransitionShaderPass.material.uniforms.uStrength, {
-				...this._glassEffectOptions,
+			.to(this._config.cameraTransitionPass.material.uniforms.uStrength, {
+				...this._config.glassEffectDefault,
 				value: 0,
 				ease: Power0.easeOut,
 			})
 			.add(
 				() =>
-					this._cameraTransitionShaderPass &&
-					this._composer?.removePass("_cameraTransitionShaderPass"),
+					this._config.cameraTransitionPass &&
+					this._composer?.removePass("cameraTransitionPass"),
 				">"
 			);
 	}
@@ -248,7 +255,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		if (
 			CURRENT_SCENE?.modelScene &&
 			nextSceneKey !== this._world?.mainSceneKey &&
-			nextSceneKey !== this._prevSceneKey
+			nextSceneKey !== this._config.prevSceneKey
 		) {
 			const PARAMS = { alphaTest: 0 };
 			CURRENT_SCENE.modelScene.renderOrder = 1;
@@ -256,6 +263,10 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			this._timeline.to(PARAMS, {
 				alphaTest: 1,
 				duration: Config.GSAP_ANIMATION_DURATION,
+				onStart: () => {
+					if (!this._navigation?.timeline.isActive())
+						this._navigation?.setLimits(CURRENT_SCENE.navigationLimits);
+				},
 				onUpdate: () => {
 					this._supportedPageKeys.slice(1).forEach((supportedPageKey) => {
 						const SCENE = this._world?.availablePageScenes[supportedPageKey];
@@ -317,7 +328,9 @@ export class WorldManager extends ExperienceBasedBlueprint {
 				})
 			);
 
-		if (this._camera.timeline.isActive()) this._camera.timeline.progress(1);
+		if (this._camera?.timeline.isActive()) this._camera.timeline.progress(1);
+		if (this._navigation?.timeline.isActive())
+			this._navigation.timeline.progress(1);
 		if (this._timeline.isActive()) this._timeline.progress(1);
 
 		const CURRENT_SCENE =
@@ -327,7 +340,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			new Vector3();
 
 		if (
-			this._prevSceneKey &&
+			this._config.prevSceneKey &&
 			(this._experience.router?.currentRouteKey === this._world.mainSceneKey ||
 				CURRENT_SCENE === undefined)
 		) {
@@ -335,17 +348,14 @@ export class WorldManager extends ExperienceBasedBlueprint {
 				if (!this._world?.mainSceneConfig) return;
 
 				this._camera?.switchCamera(0);
+				this._navigation?.setLimits(CURRENT_SCENE.navigationLimits);
 				this._navigation?.setViewCenter(new Vector3());
 				this._navigation?.setTargetPosition(SCREEN_POSITION);
-				this._navigation
-					?.updateCameraPosition(
-						this._world.mainSceneConfig.cameraPath.getPoint(0),
-						this._world.mainSceneConfig.center
-					)
-					.then(() => {
-						this._navigation?.disableFreeAzimuthRotation();
-					});
-			}, "-=" + this._glassEffectOptions.duration);
+				this._navigation?.updateCameraPosition(
+					this._world.mainSceneConfig.cameraPath.getPoint(0),
+					this._world.mainSceneConfig.center
+				);
+			}, "-=" + this._config.glassEffectDefault.duration);
 		}
 
 		if (
@@ -367,25 +377,22 @@ export class WorldManager extends ExperienceBasedBlueprint {
 						if (!this._world?.projectedSceneConfig.center) return;
 
 						this._camera?.switchCamera(1);
+						this._navigation?.setLimits(CURRENT_SCENE.navigationLimits);
 						this._navigation?.setViewCenter(
 							this._world?.projectedSceneConfig.center
 						);
 						this._navigation?.setTargetPosition(
-							this._world?.projectedSceneConfig.center
+							this._camera?.currentCamera.userData.lookAt
 						);
 						this._navigation?.setPositionInSphere(
-							this._world?.projectedSceneConfig.cameraPath.getPoint(0)
+							this._camera?.currentCamera.position
 						);
-					}, "-=" + this._glassEffectOptions.duration);
-				}, "<87%")
-				.then(() => {
-					this._navigation?.enableFreeAzimuthRotation();
-				});
+					}, "-=" + this._config.glassEffectDefault.duration);
+				}, "<87%");
 		}
 
 		this._changeProjectedScene(this._experience.router.currentRouteKey);
-
-		this._prevSceneKey = this._experience.router?.currentRouteKey;
+		this._config.prevSceneKey = this._experience.router?.currentRouteKey;
 	}
 
 	public construct() {

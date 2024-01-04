@@ -71,6 +71,10 @@ export class Camera extends ExperienceBasedBlueprint {
 		return this._timeline;
 	}
 
+	public get currentCamera() {
+		return this.cameras[this.currentCameraIndex];
+	}
+
 	public construct() {
 		if (!Config.DEBUG && this._appDebug?.cameraHelper) {
 			this._experience.app.scene.remove(this._appDebug?.cameraHelper);
@@ -144,6 +148,8 @@ export class Camera extends ExperienceBasedBlueprint {
 		currentCamera.near = nextCamera.near;
 		currentCamera.far = nextCamera.far;
 
+		this.currentCamera.userData.lookAt = this._lookAtPosition;
+
 		this._appCameraInstance.copy(nextCamera);
 
 		this._appCameraInstance.fov = this._prevCameraProps.fov;
@@ -178,7 +184,13 @@ export class Camera extends ExperienceBasedBlueprint {
 	 */
 	public setCameraLookAt(v3 = new Vector3()) {
 		const V3 = v3.clone();
-		this._appCameraInstance?.lookAt(V3);
+
+		if (this._appCameraInstance) {
+			this._appCameraInstance.lookAt(V3);
+			this._appCameraInstance.userData.lookAt = V3;
+		}
+
+		this.currentCamera.userData.lookAt = V3;
 
 		return (this._lookAtPosition = V3);
 	}

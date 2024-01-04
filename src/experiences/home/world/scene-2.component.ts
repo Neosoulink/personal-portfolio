@@ -7,6 +7,23 @@ import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-componen
 import type { Materials } from "~/common/experiences/experience-world.model";
 
 export class Scene2Component extends SceneComponentBlueprint {
+	public readonly navigationLimits = {
+		spherical: {
+			radius: { min: 8, max: 15 },
+			phi: { min: 0.01, max: Math.PI * 0.5 },
+			theta: { min: 0, max: Math.PI * 0.5 },
+			enabled: true,
+			enabledPhi: true,
+			enabledTheta: false,
+		},
+		target: {
+			x: { min: -3, max: 3 },
+			y: { min: 0, max: 3 },
+			z: { min: -3, max: 3 },
+			enabled: true,
+		},
+	};
+
 	constructor() {
 		try {
 			super({

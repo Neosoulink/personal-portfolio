@@ -2,6 +2,8 @@
 import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-component.blueprint";
 
 export class SceneContainerComponent extends SceneComponentBlueprint {
+	public readonly navigationLimits = undefined;
+
 	constructor() {
 		try {
 			super({

@@ -25,15 +25,15 @@ import { ErrorFactory } from "~/errors";
 import type { ExperienceConstructorProps } from "~/common/experiences/experience.model";
 
 export class HomeExperience extends ExperienceBlueprint {
-	ui?: UI;
-	router?: Router;
-	loader?: Loader;
-	renderer?: Renderer;
-	composer?: Composer;
-	camera?: Camera;
-	world?: World;
-	navigation?: Navigation;
-	debug?: Debug;
+	public ui?: UI;
+	public router?: Router;
+	public loader?: Loader;
+	public renderer?: Renderer;
+	public composer?: Composer;
+	public camera?: Camera;
+	public world?: World;
+	public navigation?: Navigation;
+	public debug?: Debug;
 
 	constructor(_?: Omit<ExperienceConstructorProps, "debug">) {
 		try {

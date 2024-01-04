@@ -182,7 +182,7 @@ export class World extends ExperienceBasedBlueprint {
 			this._projectedSceneConfig.position.set(0, HEIGHT * -2, 0);
 			this._projectedSceneConfig.center.set(
 				this._projectedSceneConfig.position.x,
-				this._projectedSceneConfig.position.y + 2,
+				this._projectedSceneConfig.position.y + 1.5,
 				this._projectedSceneConfig.position.z
 			);
 			this._projectedSceneConfig.cameraPath.points = [
