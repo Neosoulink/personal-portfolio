@@ -1,4 +1,15 @@
-import { Object3D, type Object3DEventMap, MeshBasicMaterial } from "three";
+import {
+	Object3D,
+	type Object3DEventMap,
+	MeshBasicMaterial,
+	PerspectiveCamera,
+} from "three";
+import gsap from "gsap";
+import THREEx from "~/lib/threex";
+
+import type { HtmlMixerContext, HtmlMixerPlane } from "~/lib/threex/html-mixer";
+// CONFIG
+import { Config } from "~/config";
 
 // BLUEPRINTS
 import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-component.blueprint";
@@ -7,8 +18,12 @@ import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-componen
 import type { Materials } from "~/common/experiences/experience-world.model";
 
 export class Scene3Component extends SceneComponentBlueprint {
-	private _initialPcTopBone?: Object3D<Object3DEventMap>;
+	private _appRenderer = this._experience.app.renderer;
+	private _initialPcTopArticulation?: Object3D<Object3DEventMap>;
+	private _mixerContext?: HtmlMixerContext;
+	private _mixerPlane?: HtmlMixerPlane;
 
+	public readonly timeline = gsap.timeline();
 	public readonly navigationLimits = {
 		spherical: {
 			radius: { min: 4, max: 8 },
@@ -26,7 +41,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 		},
 	};
 
-	public pcTopBone?: Object3D<Object3DEventMap>;
+	public pcTopArticulation?: Object3D<Object3DEventMap>;
 
 	constructor() {
 		try {
@@ -52,11 +67,11 @@ export class Scene3Component extends SceneComponentBlueprint {
 	}
 
 	private _setPcTopBone(item: Object3D<Object3DEventMap>) {
-		if (!(item instanceof Object3D) || item.name !== "pc_top_articulation")
+		if (!(item instanceof Object3D) || item.name !== "pc_top_articulation_2")
 			return;
 
-		this._initialPcTopBone = item.clone();
-		this.pcTopBone = item;
+		this._initialPcTopArticulation = item.clone();
+		this.pcTopArticulation = item;
 	}
 
 	protected _getAvailableMaterials() {
@@ -84,4 +99,67 @@ export class Scene3Component extends SceneComponentBlueprint {
 
 		return AVAILABLE_MATERIALS;
 	}
+
+	/**
+	 * Toggle the state of the pc between open and close
+	 *
+	 * @param state Force the state of the pc (0 = "close" & 1 = "open")
+	 * @returns
+	 */
+	public togglePcOpening(state?: 0 | 1) {
+		if (!this._model || !this.modelScene || !this.pcTopArticulation) return;
+		const isOpen =
+			this.pcTopArticulation.rotation.z ===
+				this._initialPcTopArticulation?.rotation.z || state === 1;
+
+		return this.timeline.to(this.pcTopArticulation.rotation, {
+			z: isOpen
+				? this.pcTopArticulation.rotation.z + 1.7
+				: this._initialPcTopArticulation?.rotation.z ?? 0,
+			duration: Config.GSAP_ANIMATION_DURATION,
+			onUpdate: () => {},
+			onComplete: () => {},
+		});
+	}
+
+	public construct(): void {
+		super.construct();
+
+		//
+		this._mixerContext = new THREEx.htmlMixer.HtmlMixerContext(
+			this._appRenderer.instance,
+			this._appCamera.instance as PerspectiveCamera
+		);
+		const rendererCss = this._mixerContext.rendererCss;
+		rendererCss.setSize(window.innerWidth, window.innerHeight);
+
+		//
+		const domElement = document.createElement("iframe");
+		domElement.src = "http://threejs.org/";
+		domElement.style.border = "none";
+		this._mixerPlane = new THREEx.htmlMixer.HtmlMixerPlane(
+			this._mixerContext,
+			domElement
+		);
+		this._mixerPlane.object3d.position.y += 3;
+		this._mixerPlane.object3d.scale.multiplyScalar(2);
+
+		//
+		const css3dElement = rendererCss.domElement;
+		css3dElement.style.position = "absolute";
+		css3dElement.style.top = "0px";
+
+		document.querySelector("#css")?.appendChild(css3dElement);
+		this._experience.app.scene?.add(this._mixerPlane.object3d);
+
+		this._experience.renderer?.addBeforeRenderUpdateCallBack("TT", () => {
+			this._mixerContext?.update();
+		});
+	}
+
+	public intro(): void {
+		this.togglePcOpening();
+	}
+
+	public update() {}
 }

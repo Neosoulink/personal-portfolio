@@ -463,7 +463,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 				this._config.smallestSide;
 		}
 
-		if (!this.timeline.isActive()) {
+		if (this.timeline.isActive()) {
 			// Apply limits
 			if (this._view.spherical.limits.enabled)
 				this._view.spherical.value.radius = Math.min(

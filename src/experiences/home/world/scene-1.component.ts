@@ -392,12 +392,12 @@ export class Scene1Component extends SceneComponentBlueprint {
 	 */
 	public togglePcOpening(state?: 0 | 1) {
 		if (!this._model || !this.modelScene || !this.pcTopArticulation) return;
-		const isOpening =
+		const isOpen =
 			this.pcTopArticulation.rotation.z ===
 				this._initialPcTopBone?.rotation.z || state === 1;
 
 		return this.timeline.to(this.pcTopArticulation.rotation, {
-			z: isOpening
+			z: isOpen
 				? this.pcTopArticulation.rotation.z + 2.1
 				: this._initialPcTopBone?.rotation.z ?? 0,
 			duration: Config.GSAP_ANIMATION_DURATION,

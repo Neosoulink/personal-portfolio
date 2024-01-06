@@ -294,6 +294,9 @@ export class WorldManager extends ExperienceBasedBlueprint {
 						});
 					});
 				},
+				onComplete: () => {
+					CURRENT_SCENE.intro();
+				},
 			});
 		}
 	}
