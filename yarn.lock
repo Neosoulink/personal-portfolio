@@ -7736,6 +7736,13 @@ three@^0.159.0:
   resolved "https://registry.yarnpkg.com/three/-/three-0.159.0.tgz#6576b1210805b14f0765bac41fd0e4ec18e43b2e"
   integrity sha512-eCmhlLGbBgucuo4VEA9IO3Qpc7dh8Bd4VKzr7WfW4+8hMcIfoAVi1ev0pJYN9PTTsCslbcKgBwr2wNZ1EvLInA==
 
+threex.htmlmixer-continued@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/threex.htmlmixer-continued/-/threex.htmlmixer-continued-0.0.1.tgz#a8801c73c394730e1b0c74fcf7eb671bf43ef6f5"
+  integrity sha512-2D32tcAdkDwrnsGotatvkPEvExAwbvsGmjSa/JFciIxkJoRjcfkMwfcBVO03zp91WakV5Bnb4En1bAcM6SmGOQ==
+  dependencies:
+    three "^0.159.0"
+
 through2@^0.6.3:
   version "0.6.5"
   resolved "https://registry.yarnpkg.com/through2/-/through2-0.6.5.tgz#41ab9c67b29d57209071410e1d7a7a968cd3ad48"

@@ -5,9 +5,12 @@ import {
 	PerspectiveCamera,
 } from "three";
 import gsap from "gsap";
-import THREEx from "~/lib/threex";
+import THREEx from "threex.htmlmixer-continued";
+import type {
+	HtmlMixerContext,
+	HtmlMixerPlane,
+} from "threex.htmlmixer-continued/lib/html-mixer";
 
-import type { HtmlMixerContext, HtmlMixerPlane } from "~/lib/threex/html-mixer";
 // CONFIG
 import { Config } from "~/config";
 
@@ -44,26 +47,24 @@ export class Scene3Component extends SceneComponentBlueprint {
 	public pcTopArticulation?: Object3D<Object3DEventMap>;
 
 	constructor() {
-		try {
-			super({
-				modelName: "scene_3",
-				childrenMaterials: {
-					scene_3_objects: "scene_3",
-					github_logo_2: "scene_3",
-					twitter_x_logo: "scene_3",
-					discord_logo: "scene_3",
-					telegram_logo: "scene_3",
-					stackoverflow_logo: "scene_3",
-					linkedin_logo: "scene_3",
-					pc_top_2: "scene_3",
-					"eye-glass_glass": "glass",
-					scene_3_floor: "scene_container",
-				},
-				onTraverseModelScene: (child: Object3D<Object3DEventMap>) => {
-					this._setPcTopBone(child);
-				},
-			});
-		} catch (error) {}
+		super({
+			modelName: "scene_3",
+			childrenMaterials: {
+				scene_3_objects: "scene_3",
+				github_logo_2: "scene_3",
+				twitter_x_logo: "scene_3",
+				discord_logo: "scene_3",
+				telegram_logo: "scene_3",
+				stackoverflow_logo: "scene_3",
+				linkedin_logo: "scene_3",
+				pc_top_2: "scene_3",
+				"eye-glass_glass": "glass",
+				scene_3_floor: "scene_container",
+			},
+			onTraverseModelScene: (child: Object3D<Object3DEventMap>) => {
+				this._setPcTopBone(child);
+			},
+		});
 	}
 
 	private _setPcTopBone(item: Object3D<Object3DEventMap>) {
@@ -80,21 +81,20 @@ export class Scene3Component extends SceneComponentBlueprint {
 
 		if (!AVAILABLE_TEXTURE) return AVAILABLE_MATERIALS;
 
-		if (this._world?.commonMaterials["scene_container"]) {
-			AVAILABLE_MATERIALS["scene_container"] =
-				this._world?.commonMaterials["scene_container"].clone();
-			AVAILABLE_MATERIALS["scene_container"].alphaTest = 1;
-			AVAILABLE_MATERIALS["scene_container"].depthWrite = false;
+		if (this._world?.commonMaterials.scene_container) {
+			AVAILABLE_MATERIALS.scene_container =
+				this._world?.commonMaterials.scene_container.clone();
+			AVAILABLE_MATERIALS.scene_container.alphaTest = 1;
+			AVAILABLE_MATERIALS.scene_container.depthWrite = false;
 		}
 
-		if (this._world?.commonMaterials["glass"])
-			AVAILABLE_MATERIALS["glass"] =
-				this._world?.commonMaterials["glass"].clone();
+		if (this._world?.commonMaterials.glass)
+			AVAILABLE_MATERIALS.glass = this._world?.commonMaterials.glass.clone();
 
-		AVAILABLE_MATERIALS["scene_3"] = new MeshBasicMaterial({
-			alphaMap: AVAILABLE_TEXTURE["cloudAlphaMap"],
+		AVAILABLE_MATERIALS.scene_3 = new MeshBasicMaterial({
+			alphaMap: AVAILABLE_TEXTURE.cloudAlphaMap,
 			alphaTest: 1,
-			map: AVAILABLE_TEXTURE["scene_3_baked_texture"],
+			map: AVAILABLE_TEXTURE.scene_3_baked_texture,
 		});
 
 		return AVAILABLE_MATERIALS;
