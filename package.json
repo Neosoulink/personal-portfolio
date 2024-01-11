@@ -50,5 +50,6 @@
 		"quick-threejs": "^0.1.25",
 		"three": "^0.159.0",
 		"threex.htmlmixer-continued": "^0.0.1"
-	}
+	},
+	"packageManager": "yarn@4.0.2"
 }
