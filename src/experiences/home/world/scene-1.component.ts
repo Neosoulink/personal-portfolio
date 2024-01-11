@@ -105,12 +105,15 @@ export class Scene1Component extends SceneComponentBlueprint {
 					pc_top_screen: "pc_screen",
 					tree: "tree",
 					...(() => {
-						const result: ModelChildrenMaterials = {};
-						["top", "front", "back", "left", "right"].forEach((direction) => {
-							result["tree_cube_" + direction] = "tree";
-							result["tree_cube_" + direction + "_clone"] = "tree_outside";
-						});
-						return result;
+						const _RESULTS: ModelChildrenMaterials = {};
+						const _KEYS = ["top", "front", "back", "left", "right"];
+						for (let i = 0; i < _KEYS.length; i++) {
+							_KEYS[i];
+							_RESULTS[`tree_cube_${_KEYS[i]}`] = "tree";
+							_RESULTS[`tree_cube_${_KEYS[i]}_clone`] = "tree_outside";
+						}
+
+						return _RESULTS;
 					})(),
 				},
 				onTraverseModelScene: (child: Object3D<Object3DEventMap>) => {
@@ -184,7 +187,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 			!new RegExp(/_clone$/, "ig").test(child.name)
 		) {
 			const clone = child.clone();
-			clone.name = clone.name + "_clone";
+			clone.name = `${clone.name}_clone`;
 
 			this.treeOutside?.add(clone);
 		}
@@ -237,34 +240,34 @@ export class Scene1Component extends SceneComponentBlueprint {
 		);
 		MONITOR_B_VIDEO_TEXTURE.colorSpace = LinearSRGBColorSpace;
 
-		AVAILABLE_MATERIALS["pc_screen"] = new MeshBasicMaterial({
+		AVAILABLE_MATERIALS.pc_screen = new MeshBasicMaterial({
 			map: this.pcScreenWebglTexture?.texture,
 		});
 
-		AVAILABLE_MATERIALS["phone_screen"] = new MeshBasicMaterial({
+		AVAILABLE_MATERIALS.phone_screen = new MeshBasicMaterial({
 			map: PHONE_VIDEO_TEXTURE,
 		});
 
-		AVAILABLE_MATERIALS["monitor_a"] = new MeshBasicMaterial({
+		AVAILABLE_MATERIALS.monitor_a = new MeshBasicMaterial({
 			map: MONITOR_A_VIDEO_TEXTURE,
 		});
 
-		AVAILABLE_MATERIALS["monitor_b"] = new MeshBasicMaterial({
+		AVAILABLE_MATERIALS.monitor_b = new MeshBasicMaterial({
 			map: MONITOR_B_VIDEO_TEXTURE,
 		});
 
-		AVAILABLE_MATERIALS["tree"] = new MeshBasicMaterial({
-			map: AVAILABLE_TEXTURE["scene_1_tree_baked_texture"],
+		AVAILABLE_MATERIALS.tree = new MeshBasicMaterial({
+			map: AVAILABLE_TEXTURE.scene_1_tree_baked_texture,
 			transparent: true,
 		});
 
-		AVAILABLE_MATERIALS["room"] = new ShaderMaterial({
+		AVAILABLE_MATERIALS.room = new ShaderMaterial({
 			uniforms: {
 				uBakedTexture: {
-					value: AVAILABLE_TEXTURE["scene_1_no_lights_baked_texture"],
+					value: AVAILABLE_TEXTURE.scene_1_no_lights_baked_texture,
 				},
 				uBakedLightTexture: {
-					value: AVAILABLE_TEXTURE["scene_1_lights_baked_texture"],
+					value: AVAILABLE_TEXTURE.scene_1_lights_baked_texture,
 				},
 
 				uRedAccent: { value: new Color(this.colors.pocketComputerScreen) },
@@ -280,13 +283,13 @@ export class Scene1Component extends SceneComponentBlueprint {
 			vertexShader: bakedTextureVertex,
 		});
 
-		AVAILABLE_MATERIALS["wood"] = new ShaderMaterial({
+		AVAILABLE_MATERIALS.wood = new ShaderMaterial({
 			uniforms: {
 				uBakedTexture: {
-					value: AVAILABLE_TEXTURE["scene_1_woods_no_lights_baked_texture"],
+					value: AVAILABLE_TEXTURE.scene_1_woods_no_lights_baked_texture,
 				},
 				uBakedLightTexture: {
-					value: AVAILABLE_TEXTURE["scene_1_woods_lights_baked_texture"],
+					value: AVAILABLE_TEXTURE.scene_1_woods_lights_baked_texture,
 				},
 
 				uRedAccent: { value: new Color(this.colors.pocketComputerScreen) },
@@ -302,7 +305,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 			vertexShader: bakedTextureVertex,
 		});
 
-		AVAILABLE_MATERIALS["coffee_steam"] = new ShaderMaterial({
+		AVAILABLE_MATERIALS.coffee_steam = new ShaderMaterial({
 			uniforms: {
 				uTime: { value: 0 },
 				uTimeFrequency: { value: 0.0005 },
@@ -315,7 +318,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 			depthWrite: false,
 		});
 
-		AVAILABLE_MATERIALS["tree_outside"] = new MeshBasicMaterial({
+		AVAILABLE_MATERIALS.tree_outside = new MeshBasicMaterial({
 			colorWrite: false,
 			side: BackSide,
 		});
@@ -342,7 +345,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 			onComplete: () => {
 				this.modelScene?.clear();
 				this.modelScene?.removeFromParent();
-				this._renderer?.removePortalAssets(Scene1Component.name + "_screen_pc");
+				this._renderer?.removePortalAssets(`${Scene1Component.name}_screen_pc`);
 				this._mixer?.stopAllAction();
 				this._mixer = undefined;
 

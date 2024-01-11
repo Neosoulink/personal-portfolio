@@ -58,28 +58,28 @@ export class Renderer extends ExperienceBasedBlueprint {
 		mesh: Mesh,
 		meshWebGLTexture: WebGLRenderTarget,
 		portalCamera: PerspectiveCamera,
-		corners: PortalMeshCorners
+		corners: PortalMeshCorners,
 	) {
 		mesh.localToWorld(
 			this._portalBottomLeftCorner.set(
 				corners.bottomLeft.x,
 				corners.bottomLeft.y,
-				corners.bottomLeft.z
-			)
+				corners.bottomLeft.z,
+			),
 		);
 		mesh.localToWorld(
 			this._portalBottomRightCorner.set(
 				corners.bottomRight.x,
 				corners.bottomRight.y,
-				corners.bottomRight.z
-			)
+				corners.bottomRight.z,
+			),
 		);
 		mesh.localToWorld(
 			this._portalTopLeftCorner.set(
 				corners.topLeft.x,
 				corners.topLeft.y,
-				corners.topLeft.z
-			)
+				corners.topLeft.z,
+			),
 		);
 
 		this._appRendererInstance.setRenderTarget(meshWebGLTexture);
@@ -102,10 +102,10 @@ export class Renderer extends ExperienceBasedBlueprint {
 			this._appRendererInstance.setClearColor("#5f5f5f", 1);
 			this._appRendererInstance.setSize(
 				this._experience.app.sizes.width,
-				this._experience.app.sizes.height
+				this._experience.app.sizes.height,
 			);
 			this._appRendererInstance.setPixelRatio(
-				this._experience.app.sizes.pixelRatio
+				this._experience.app.sizes.pixelRatio,
 			);
 			this._appRendererInstance.localClippingEnabled = true;
 		})();
@@ -127,14 +127,14 @@ export class Renderer extends ExperienceBasedBlueprint {
 							this._renderPortalAssets[key].assets.mesh,
 							this._renderPortalAssets[key].assets.meshWebGLTexture,
 							this._renderPortalAssets[key].assets.meshCamera,
-							this._renderPortalAssets[key].corners
+							this._renderPortalAssets[key].corners,
 						);
 						// restore the original rendering properties
 						this._appRendererInstance.xr.enabled = this._currentXrEnabled;
 						this._appRendererInstance.shadowMap.autoUpdate =
 							this._currentShadowAutoUpdate;
 						this._appRendererInstance.setRenderTarget(
-							this._currentRenderTarget
+							this._currentRenderTarget,
 						);
 					}
 				});
@@ -143,10 +143,8 @@ export class Renderer extends ExperienceBasedBlueprint {
 
 		~(() => {
 			this._appRenderer.beforeRenderUpdate = () => {
-				Object.keys(this.beforeRenderUpdateCallbacks).forEach(
-					(key) =>
-						this.beforeRenderUpdateCallbacks[key] &&
-						this.beforeRenderUpdateCallbacks[key]()
+				Object.keys(this.beforeRenderUpdateCallbacks).forEach((key) =>
+					this.beforeRenderUpdateCallbacks[key]?.(),
 				);
 			};
 		})();
@@ -180,7 +178,7 @@ export class Renderer extends ExperienceBasedBlueprint {
 		matrix.compose(
 			assets.mesh.position,
 			assets.mesh.quaternion,
-			assets.mesh.scale
+			assets.mesh.scale,
 		);
 		corners.map((corner) => corner.applyMatrix4(matrix));
 

@@ -170,12 +170,12 @@ export class Loader extends ExperienceBasedBlueprint {
 		~(this._appResources.loadingManager.onProgress = (
 			itemUrl,
 			itemsLoaded,
-			itemsToLoad
+			itemsToLoad,
 		) => {
 			this.emit(
 				PROGRESSED,
 				(this._progress = (itemsLoaded / itemsToLoad) * 100),
-				itemUrl
+				itemUrl,
 			);
 		});
 
@@ -192,7 +192,7 @@ export class Loader extends ExperienceBasedBlueprint {
 
 	public destruct() {
 		this._appResources.loadingManager.removeHandler(
-			/onStart|onError|onProgress|onLoad/
+			/onStart|onError|onProgress|onLoad/,
 		);
 
 		Object.keys(this._appResources.items).forEach((key) => {

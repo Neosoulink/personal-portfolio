@@ -41,15 +41,15 @@ export class Scene2Component extends SceneComponentBlueprint {
 		const availableMaterials: Materials = {};
 
 		if (!availableTexture) return availableMaterials;
-		if (this._world?.commonMaterials["scene_container"])
-			availableMaterials["scene_container"] =
-				this._world?.commonMaterials["scene_container"].clone();
-		availableMaterials["scene_container"].alphaTest = 1;
-		availableMaterials["scene_container"].depthWrite = false;
-		availableMaterials["scene_2"] = new MeshBasicMaterial({
-			alphaMap: availableTexture["cloudAlphaMap"],
+		if (this._world?.commonMaterials.scene_container)
+			availableMaterials.scene_container =
+				this._world?.commonMaterials.scene_container.clone();
+		availableMaterials.scene_container.alphaTest = 1;
+		availableMaterials.scene_container.depthWrite = false;
+		availableMaterials.scene_2 = new MeshBasicMaterial({
+			alphaMap: availableTexture.cloudAlphaMap,
 			alphaTest: 1,
-			map: availableTexture["scene_2_baked_texture"],
+			map: availableTexture.scene_2_baked_texture,
 		});
 
 		return availableMaterials;

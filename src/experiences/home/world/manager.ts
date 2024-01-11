@@ -55,7 +55,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 				tDiffuse: { value: null },
 				uStrength: { value: 0 },
 				uDisplacementMap: {
-					value: this._appResources.items["rocksAlphaMap"],
+					value: this._appResources.items.rocksAlphaMap,
 				},
 			},
 			vertexShader: camTransitionVert,
@@ -98,7 +98,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 	 * Curve path backward animation
 	 */
 	public backwardCurveAnimation = false;
-	public focusPointPositionIndex: number = 0;
+	public focusPointPositionIndex = 0;
 	public focusedPosition?: Vector3;
 	public focusedRadius = 2;
 	public focusedAngleX = 0;
@@ -128,7 +128,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			throw new ErrorFactory(
 				new Error("Unable to display the projected scene ", {
 					cause: errors.WRONG_PARAM,
-				})
+				}),
 			);
 
 		if (
@@ -139,14 +139,14 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			throw new ErrorFactory(
 				new Error("No enough camera found", {
 					cause: errors.WRONG_PARAM,
-				})
+				}),
 			);
 
 		if (!this._world)
 			throw new ErrorFactory(
 				new Error("World not initialized", {
 					cause: errors.WRONG_PARAM,
-				})
+				}),
 			);
 
 		const CURRENT_CAMERA = this._camera.cameras[0];
@@ -157,17 +157,17 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 		this._world.mainSceneConfig.cameraPath.getPointAt(
 			0,
-			CURRENT_CAMERA.position
+			CURRENT_CAMERA.position,
 		);
 		this._world.mainSceneConfig.cameraPath.getPointAt(
 			0,
-			this._appCameraInstance.position
+			this._appCameraInstance.position,
 		);
 
 		this._camera.setCameraLookAt(
 			(this._world?.scene1?.modelScene?.position ?? new Vector3())
 				.clone()
-				.setY(2)
+				.setY(2),
 		);
 
 		if (
@@ -179,19 +179,18 @@ export class WorldManager extends ExperienceBasedBlueprint {
 				this._world?.availablePageScenes[this._router.currentRouteKey];
 
 		projectedScene.modelScene?.children.forEach(
-			(child) => child instanceof Mesh && (child.material.alphaTest = 0)
+			(child) => child instanceof Mesh && (child.material.alphaTest = 0),
 		);
 
 		if (
-			this._world.scene1 &&
-			this._world.scene1.modelScene &&
+			this._world.scene1?.modelScene &&
 			this._world.scene1.pcScreen &&
 			this._world.scene1.pcScreenWebglTexture &&
 			SECONDARY_CAMERA
 		) {
 			await this._world.scene1.togglePcOpening();
 
-			this._renderer?.addPortalAssets(this._world.scene1 + "_pc_screen", {
+			this._renderer?.addPortalAssets(`${this._world.scene1}_pc_screen`, {
 				mesh: this._world.scene1.pcScreen,
 				meshCamera: SECONDARY_CAMERA,
 				meshWebGLTexture: this._world.scene1.pcScreenWebglTexture,
@@ -199,7 +198,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 			this._world.projectedSceneConfig.cameraPath.getPoint(
 				0,
-				SECONDARY_CAMERA.position
+				SECONDARY_CAMERA.position,
 			);
 			SECONDARY_CAMERA.lookAt(this._world.projectedSceneConfig.center);
 			SECONDARY_CAMERA.userData.lookAt =
@@ -223,7 +222,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 		this._composer.addPass(
 			"cameraTransitionPass",
-			this._config.cameraTransitionPass
+			this._config.cameraTransitionPass,
 		);
 
 		return this._timeline
@@ -240,7 +239,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 				() =>
 					this._config.cameraTransitionPass &&
 					this._composer?.removePass("cameraTransitionPass"),
-				">"
+				">",
 			);
 	}
 
@@ -306,18 +305,18 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		if (
 			typeof this._experience.router?.currentRouteKey !== "string" ||
 			this._supportedPageKeys.indexOf(
-				this._experience.router.currentRouteKey
+				this._experience.router.currentRouteKey,
 			) === -1
 		)
 			throw new ErrorFactory(
-				new Error("Page not supported", { cause: errors.WRONG_PARAM })
+				new Error("Page not supported", { cause: errors.WRONG_PARAM }),
 			);
 
 		if (!this._world)
 			throw new ErrorFactory(
 				new Error("World not initialized", {
 					cause: errors.WRONG_PARAM,
-				})
+				}),
 			);
 
 		if (
@@ -328,7 +327,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			throw new ErrorFactory(
 				new Error("No enough camera found", {
 					cause: errors.WRONG_PARAM,
-				})
+				}),
 			);
 
 		if (this._camera?.timeline.isActive()) this._camera.timeline.progress(1);
@@ -356,9 +355,9 @@ export class WorldManager extends ExperienceBasedBlueprint {
 				this._navigation?.setTargetPosition(SCREEN_POSITION);
 				this._navigation?.updateCameraPosition(
 					this._world.mainSceneConfig.cameraPath.getPoint(0),
-					this._world.mainSceneConfig.center
+					this._world.mainSceneConfig.center,
 				);
-			}, "-=" + this._config.glassEffectDefault.duration);
+			}, `-=${this._config.glassEffectDefault.duration}`);
 		}
 
 		if (
@@ -370,10 +369,10 @@ export class WorldManager extends ExperienceBasedBlueprint {
 					lerpPosition(
 						new Vector3(0, SCREEN_POSITION.y, 0),
 						SCREEN_POSITION,
-						0.84
+						0.84,
 					),
 					SCREEN_POSITION,
-					() => {}
+					() => {},
 				)
 				.add(() => {
 					this._triggerGlassTransitionEffect().add(() => {
@@ -382,15 +381,15 @@ export class WorldManager extends ExperienceBasedBlueprint {
 						this._camera?.switchCamera(1);
 						this._navigation?.setLimits(CURRENT_SCENE.navigationLimits);
 						this._navigation?.setViewCenter(
-							this._world?.projectedSceneConfig.center
+							this._world?.projectedSceneConfig.center,
 						);
 						this._navigation?.setTargetPosition(
-							this._camera?.currentCamera.userData.lookAt
+							this._camera?.currentCamera.userData.lookAt,
 						);
 						this._navigation?.setPositionInSphere(
-							this._camera?.currentCamera.position
+							this._camera?.currentCamera.position,
 						);
-					}, "-=" + this._config.glassEffectDefault.duration);
+					}, `-=${this._config.glassEffectDefault.duration}`);
 				}, "<87%");
 		}
 
@@ -492,7 +491,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 					Math.cos(
 						this.focusedAngleX -
 							this._appCameraInstance.rotation.y +
-							Math.PI * 0.5
+							Math.PI * 0.5,
 					),
 			position.y - this.focusedRadius * Math.sin(this.focusedAngleY),
 			position.z -
@@ -500,8 +499,8 @@ export class WorldManager extends ExperienceBasedBlueprint {
 					Math.sin(
 						this.focusedAngleX -
 							this._appCameraInstance.rotation.y +
-							Math.PI * 0.5
-					)
+							Math.PI * 0.5,
+					),
 		);
 	}
 
@@ -521,7 +520,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			this.cameraCurvePathProgress.current = gsap.utils.interpolate(
 				this.cameraCurvePathProgress.current,
 				this.cameraCurvePathProgress.target,
-				this.cameraCurvePathProgress.ease
+				this.cameraCurvePathProgress.ease,
 			);
 			this.cameraCurvePathProgress.target =
 				this.cameraCurvePathProgress.target +
@@ -541,16 +540,16 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			this.cameraCurvePathProgress.target = gsap.utils.clamp(
 				0,
 				1,
-				this.cameraCurvePathProgress.target
+				this.cameraCurvePathProgress.target,
 			);
 			this.cameraCurvePathProgress.current = gsap.utils.clamp(
 				0,
 				1,
-				this.cameraCurvePathProgress.current
+				this.cameraCurvePathProgress.current,
 			);
 			this.cameraCurvePath.getPointAt(
 				this.cameraCurvePathProgress.current,
-				this.cameraCurvePosition
+				this.cameraCurvePosition,
 			);
 			this._appCameraInstance?.position.copy(this.cameraCurvePosition);
 		}
@@ -567,7 +566,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 		if (this.autoCameraAnimation || !this.isGsapAnimating)
 			this._experience.camera?.setCameraLookAt(
-				this._camera?.lookAtPosition ?? new Vector3()
+				this._camera?.lookAtPosition ?? new Vector3(),
 			);
 
 		this.focusedAngleX +=

@@ -50,14 +50,10 @@ export class Camera extends ExperienceBasedBlueprint {
 						this._appCameraInstance.fov,
 						Config.FIXED_WINDOW_WIDTH / Config.FIXED_WINDOW_HEIGHT,
 						this._appCameraInstance.near,
-						this._appCameraInstance.far
+						this._appCameraInstance.far,
 				  )
 				: new PerspectiveCamera())(),
 	] as const;
-
-	constructor() {
-		super();
-	}
 
 	public get currentCameraIndex() {
 		return this._currentCameraIndex;

@@ -23,13 +23,13 @@ export class UI extends ExperienceBasedBlueprint {
 		super();
 
 		const _LOADED_RESOURCES_PROGRESS_LINE_ELEMENT = document.getElementById(
-			"loaded-resources-progress-line"
+			"loaded-resources-progress-line",
 		);
 		const _LOADED_RESOURCES_PROGRESS_ELEMENT = document.getElementById(
-			"loaded-resources-progress"
+			"loaded-resources-progress",
 		);
 		const _LAST_LOADED_RESOURCE_ELEMENT = document.getElementById(
-			"last-loaded-resource"
+			"last-loaded-resource",
 		);
 
 		if (_LOADED_RESOURCES_PROGRESS_LINE_ELEMENT)
@@ -54,10 +54,11 @@ export class UI extends ExperienceBasedBlueprint {
 
 		this._experience.loader?.on("progress", (progress: number, url: string) => {
 			if (this._loadedResourcesProgressLineElements)
-				this._loadedResourcesProgressLineElements.style.width = progress + "%";
+				this._loadedResourcesProgressLineElements.style.width = `${progress}%`;
 			if (this._loadedResourcesProgressElements)
-				this._loadedResourcesProgressElements.innerHTML =
-					progress.toFixed(0) + "%";
+				this._loadedResourcesProgressElements.innerHTML = `${progress.toFixed(
+					0,
+				)}%`;
 			if (this._lastLoadedResourceElement)
 				this._lastLoadedResourceElement.innerHTML = url.replace(/^.*\//, "");
 		});
@@ -96,7 +97,7 @@ export class UI extends ExperienceBasedBlueprint {
 			delay: 2,
 			onComplete: () => {
 				const _LANDING_VIEW_WRAPPER = document.getElementById(
-					"landing-view-wrapper"
+					"landing-view-wrapper",
 				);
 
 				if (_LANDING_VIEW_WRAPPER?.style)

@@ -1,0 +1,23 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.4.0/schema.json",
+	"organizeImports": {
+		"enabled": false
+	},
+	"linter": {
+		"enabled": true,
+
+		"rules": {
+			"recommended": true,
+			"complexity": {
+				"noStaticOnlyClass": "off"
+			},
+			"correctness": {
+				"noConstructorReturn": "off"
+			},
+			"suspicious": {
+				"noExplicitAny": "off"
+			}
+		},
+		"ignore": ["./src/public"]
+	}
+}

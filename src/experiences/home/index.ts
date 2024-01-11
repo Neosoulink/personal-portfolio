@@ -41,7 +41,7 @@ export class HomeExperience extends ExperienceBlueprint {
 				HomeExperience._self ?? {
 					..._,
 					debug: Config.DEBUG,
-				}
+				},
 			);
 			if (HomeExperience._self) return HomeExperience._self;
 			HomeExperience._self = this;
@@ -77,7 +77,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.app.destroy();
 
 			HomeExperience._self = undefined;
-			this._onDestruct && this._onDestruct();
+			this._onDestruct?.();
 		} catch (_) {
 			throw new ErrorFactory(_);
 		}
@@ -96,7 +96,7 @@ export class HomeExperience extends ExperienceBlueprint {
 					this.navigation?.construct();
 					this.debug?.construct();
 					this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
-					this._onConstruct && this._onConstruct();
+					this._onConstruct?.();
 				} catch (_) {
 					throw new ErrorFactory(_);
 				}

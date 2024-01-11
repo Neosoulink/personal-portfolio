@@ -128,7 +128,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 		//
 		this._mixerContext = new THREEx.htmlMixer.HtmlMixerContext(
 			this._appRenderer.instance,
-			this._appCamera.instance as PerspectiveCamera
+			this._appCamera.instance as PerspectiveCamera,
 		);
 		const rendererCss = this._mixerContext.rendererCss;
 		rendererCss.setSize(window.innerWidth, window.innerHeight);
@@ -139,7 +139,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 		domElement.style.border = "none";
 		this._mixerPlane = new THREEx.htmlMixer.HtmlMixerPlane(
 			this._mixerContext,
-			domElement
+			domElement,
 		);
 		this._mixerPlane.object3d.position.y += 3;
 		this._mixerPlane.object3d.scale.multiplyScalar(2);

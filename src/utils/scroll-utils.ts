@@ -25,10 +25,10 @@ export function disableChromePassive() {
 			"test",
 			() => {},
 			Object.defineProperty({}, "passive", {
-				get: function () {
+				get: () => {
 					Config.supportsPassive = true;
 				},
-			})
+			}),
 		);
 	} catch (e) {}
 }
@@ -38,7 +38,7 @@ export function disableScroll() {
 	window.addEventListener(
 		Config.wheelEvent,
 		preventDefault,
-		Config.wheelOption
+		Config.wheelOption,
 	);
 	window.addEventListener("touchmove", preventDefault, Config.wheelOption);
 	window.addEventListener("keydown", preventDefaultForScrollKeys, false);

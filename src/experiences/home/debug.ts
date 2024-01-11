@@ -49,7 +49,7 @@ export class Debug extends ExperienceBasedBlueprint {
 
 		this.cameraLookAtPointIndicator = new Mesh(
 			new SphereGeometry(0.1, 12, 12),
-			new MeshBasicMaterial({ color: "#ff0040" })
+			new MeshBasicMaterial({ color: "#ff0040" }),
 		);
 		this.cameraLookAtPointIndicator.visible = false;
 		this._camera?.cameras.forEach((item, id) => {
@@ -67,17 +67,17 @@ export class Debug extends ExperienceBasedBlueprint {
 								!this.cameraLookAtPointIndicator.visible;
 					},
 				},
-				"fn"
+				"fn",
 			)
 			.name("Toggle LookAt indicator visibility");
 
 		this._cameraCurvePathLine = new Line(
 			new BufferGeometry().setFromPoints(
-				[...Array(3).keys()].map(() => new Vector3(0, 0, 0))
+				[...Array(3).keys()].map(() => new Vector3(0, 0, 0)),
 			),
 			new LineBasicMaterial({
 				color: 0xff0000,
-			})
+			}),
 		);
 
 		this._gui
@@ -98,7 +98,7 @@ export class Debug extends ExperienceBasedBlueprint {
 							: this._experience.camera?.cameraZoomOut();
 					},
 				},
-				"fn"
+				"fn",
 			)
 			.name("Toggle camera zoom");
 
@@ -112,13 +112,13 @@ export class Debug extends ExperienceBasedBlueprint {
 								!WorldManager.autoCameraAnimation;
 					},
 				},
-				"fn"
+				"fn",
 			)
 			.name("Toggle auto camera animation");
 
 		this._experience.app.scene.add(
 			this._cameraCurvePathLine,
-			this.cameraLookAtPointIndicator
+			this.cameraLookAtPointIndicator,
 		);
 	}
 
@@ -156,7 +156,7 @@ export class Debug extends ExperienceBasedBlueprint {
 		this._appCamera?.instance &&
 			this._experience.camera &&
 			this.cameraLookAtPointIndicator?.position.copy(
-				this._experience.camera.lookAtPosition
+				this._experience.camera.lookAtPosition,
 			);
 	}
 }

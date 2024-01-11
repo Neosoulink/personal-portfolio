@@ -89,7 +89,7 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 		if (!Object.keys(this._availableMaterials).length) return;
 
 		this.modelScene?.traverse((child) => {
-			this._onTraverseModelScene && this._onTraverseModelScene(child);
+			this._onTraverseModelScene?.(child);
 
 			if (
 				!this._childrenMaterials[child.name] ||
@@ -102,8 +102,8 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 			)
 				return;
 
-			~(child.material =
-				this._availableMaterials[this._childrenMaterials[child.name]]);
+			child.material =
+				this._availableMaterials[this._childrenMaterials[child.name]];
 		});
 	}
 

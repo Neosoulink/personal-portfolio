@@ -50,7 +50,7 @@ export class Composer extends ExperienceBasedBlueprint {
 			if (this._appCamera.instance) {
 				this._renderPass = new RenderPass(
 					this._experience.app.scene,
-					this._appCamera.instance
+					this._appCamera.instance,
 				);
 				this._effect?.addPass(this._renderPass);
 			}
@@ -86,7 +86,7 @@ export class Composer extends ExperienceBasedBlueprint {
 			0,
 			0,
 			this._appSizes.width,
-			this._appSizes.height
+			this._appSizes.height,
 		);
 		this._effect.render();
 	}

@@ -227,7 +227,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 		this._targetElement?.addEventListener(
 			"contextmenu",
-			this._view.onContextMenu
+			this._view.onContextMenu,
 		);
 
 		this._view.onWheel = (_event) => {
@@ -254,11 +254,11 @@ export class Navigation extends ExperienceBasedBlueprint {
 		this._config.height = boundingClient.height || window.innerHeight;
 		this._config.smallestSide = Math.min(
 			this._config.width,
-			this._config.height
+			this._config.height,
 		);
 		this._config.largestSide = Math.max(
 			this._config.width,
-			this._config.height
+			this._config.height,
 		);
 	}
 
@@ -336,8 +336,8 @@ export class Navigation extends ExperienceBasedBlueprint {
 				new Vector3(
 					-this._view.target.smoothed.x,
 					-this._view.target.smoothed.y,
-					-this._view.target.smoothed.z
-				)
+					-this._view.target.smoothed.z,
+				),
 			);
 
 		this._view.spherical?.smoothed?.setFromVector3(SAFE_V3);
@@ -359,7 +359,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 		lookAt = new Vector3(),
 		onStart: gsap.Callback = () => {},
 		onUpdate: gsap.Callback = () => {},
-		onComplete: gsap.Callback = () => {}
+		onComplete: gsap.Callback = () => {},
 	) {
 		if (!this._appCamera.instance) return this._timeline;
 
@@ -469,34 +469,34 @@ export class Navigation extends ExperienceBasedBlueprint {
 				this._view.spherical.value.radius = Math.min(
 					Math.max(
 						this._view.spherical.value.radius,
-						this._view.spherical.limits.radius.min
+						this._view.spherical.limits.radius.min,
 					),
-					this._view.spherical.limits.radius.max
+					this._view.spherical.limits.radius.max,
 				);
 
 			if (this._view.target.limits.enabled) {
 				this._view.target.value.x = Math.min(
 					Math.max(
 						this._view.target.value.x,
-						this._view.target.limits.x.min + this._view.center.x
+						this._view.target.limits.x.min + this._view.center.x,
 					),
-					this._view.target.limits.x.max + this._view.center.x
+					this._view.target.limits.x.max + this._view.center.x,
 				);
 
 				this._view.target.value.y = Math.min(
 					Math.max(
 						this._view.target.value.y,
-						this._view.target.limits.y.min + this._view.center.y
+						this._view.target.limits.y.min + this._view.center.y,
 					),
-					this._view.target.limits.y.max + this._view.center.y
+					this._view.target.limits.y.max + this._view.center.y,
 				);
 
 				this._view.target.value.z = Math.min(
 					Math.max(
 						this._view.target.value.z,
-						this._view.target.limits.z.min + this._view.center.z
+						this._view.target.limits.z.min + this._view.center.z,
 					),
-					this._view.target.limits.z.max + this._view.center.z
+					this._view.target.limits.z.max + this._view.center.z,
 				);
 			}
 
@@ -505,18 +505,18 @@ export class Navigation extends ExperienceBasedBlueprint {
 					this._view.spherical.value.phi = Math.min(
 						Math.max(
 							this._view.spherical.value.phi,
-							this._view.spherical.limits.phi.min
+							this._view.spherical.limits.phi.min,
 						),
-						this._view.spherical.limits.phi.max
+						this._view.spherical.limits.phi.max,
 					);
 
 				if (this._view.spherical.limits.enabledTheta)
 					this._view.spherical.value.theta = Math.min(
 						Math.max(
 							this._view.spherical.value.theta,
-							this._view.spherical.limits.theta.min
+							this._view.spherical.limits.theta.min,
 						),
-						this._view.spherical.limits.theta.max
+						this._view.spherical.limits.theta.max,
 					);
 			}
 		}
