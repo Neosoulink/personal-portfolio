@@ -5,11 +5,7 @@ import {
 	PerspectiveCamera,
 } from "three";
 import gsap from "gsap";
-import THREEx from "threex.htmlmixer-continued";
-import type {
-	HtmlMixerContext,
-	HtmlMixerPlane,
-} from "threex.htmlmixer-continued/lib/html-mixer";
+import { HtmlMixerPlane } from "threex.htmlmixer-continued/lib/html-mixer";
 
 // CONFIG
 import { Config } from "~/config";
@@ -21,10 +17,9 @@ import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-componen
 import type { Materials } from "~/common/experiences/experience-world.model";
 
 export class Scene3Component extends SceneComponentBlueprint {
-	private _appRenderer = this._experience.app.renderer;
+	private _renderer = this._experience.renderer;
 	private _initialPcTopArticulation?: Object3D<Object3DEventMap>;
-	private _mixerContext?: HtmlMixerContext;
-	private _mixerPlane?: HtmlMixerPlane;
+	private _pcScreenMixerPlane?: HtmlMixerPlane;
 
 	public readonly timeline = gsap.timeline();
 	public readonly navigationLimits = {
@@ -125,36 +120,23 @@ export class Scene3Component extends SceneComponentBlueprint {
 	public construct(): void {
 		super.construct();
 
-		//
-		this._mixerContext = new THREEx.htmlMixer.HtmlMixerContext(
-			this._appRenderer.instance,
-			this._appCamera.instance as PerspectiveCamera,
-		);
-		const rendererCss = this._mixerContext.rendererCss;
-		rendererCss.setSize(window.innerWidth, window.innerHeight);
+		~(() => {
+			if (!this._renderer?.mixerContext) return;
 
-		//
-		const domElement = document.createElement("iframe");
-		domElement.src = "http://threejs.org/";
-		domElement.style.border = "none";
-		this._mixerPlane = new THREEx.htmlMixer.HtmlMixerPlane(
-			this._mixerContext,
-			domElement,
-		);
-		this._mixerPlane.object3d.position.y += 3;
-		this._mixerPlane.object3d.scale.multiplyScalar(2);
+			const domElement = document.createElement("iframe");
+			domElement.src = "http://threejs.org/";
+			domElement.style.border = "none";
 
-		//
-		const css3dElement = rendererCss.domElement;
-		css3dElement.style.position = "absolute";
-		css3dElement.style.top = "0px";
+			this._pcScreenMixerPlane = new HtmlMixerPlane(
+				this._renderer.mixerContext,
+				domElement
+			);
+			this._pcScreenMixerPlane.object3d.position.y += 3;
+			this._pcScreenMixerPlane.object3d.scale.multiplyScalar(2);
 
-		document.querySelector("#css")?.appendChild(css3dElement);
-		this._experience.app.scene?.add(this._mixerPlane.object3d);
-
-		this._experience.renderer?.addBeforeRenderUpdateCallBack("TT", () => {
-			this._mixerContext?.update();
-		});
+			// document.querySelector("#css")?.appendChild(css3dElement);
+			this._experience.app.scene?.add(this._pcScreenMixerPlane.object3d);
+		})();
 	}
 
 	public intro(): void {

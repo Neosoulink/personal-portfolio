@@ -29,6 +29,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 		this._experience.app.renderer.instance.domElement;
 	private readonly _appCamera = this._experience.app.camera;
 	private readonly _appSizes = this._experience.app.sizes;
+	private readonly _ui = this._experience.ui;
 	private readonly _camera = this._experience.camera;
 	private readonly _time = this._experience.app.time;
 	private readonly _config = {
@@ -40,16 +41,16 @@ export class Navigation extends ExperienceBasedBlueprint {
 	};
 	private readonly _timeline = gsap.timeline({
 		onStart: () => {
-			this._view.spherical?.limits &&
-				(this._view.spherical.limits.enabled = false);
-			this._view.target?.limits && (this._view.target.limits.enabled = false);
+			if (this._view.spherical?.limits)
+				this._view.spherical.limits.enabled = false;
+			if (this._view.target?.limits) this._view.target.limits.enabled = false;
 			this.emit(ANIMATION_STARTED);
 		},
 		onComplete: () => {
 			setTimeout(() => {
-				this._view.spherical?.limits &&
-					(this._view.spherical.limits.enabled = true);
-				this._view.target?.limits && (this._view.target.limits.enabled = true);
+				if (this._view.spherical?.limits)
+					this._view.spherical.limits.enabled = true;
+				if (this._view.target?.limits) this._view.target.limits.enabled = true;
 				this._timeline.clear();
 				this.emit(ANIMATION_ENDED);
 			}, 100);
@@ -155,8 +156,14 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 			this._view?.down(_event.clientX, _event.clientY);
 
-			window.addEventListener("mouseup", this._view.onMouseUp);
-			window.addEventListener("mousemove", this._view.onMouseMove);
+			this._ui?.targetElementParent?.addEventListener<"mouseup">(
+				"mouseup",
+				this._view.onMouseUp
+			);
+			this._ui?.targetElementParent?.addEventListener(
+				"mousemove",
+				this._view.onMouseMove
+			);
 		};
 
 		this._view.onMouseMove = (_event) => {
@@ -174,11 +181,20 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 			this._view.up();
 
-			window.removeEventListener("mouseup", this._view.onMouseUp);
-			window.removeEventListener("mousemove", this._view.onMouseMove);
+			this._ui?.targetElementParent?.removeEventListener(
+				"mouseup",
+				this._view.onMouseUp
+			);
+			this._ui?.targetElementParent?.removeEventListener(
+				"mousemove",
+				this._view.onMouseMove
+			);
 		};
 
-		this._targetElement?.addEventListener("mousedown", this._view.onMouseDown);
+		this._ui?.targetElementParent?.addEventListener(
+			"mousedown",
+			this._view.onMouseDown
+		);
 
 		this._view.onTouchStart = (_event) => {
 			_event.preventDefault();
@@ -195,8 +211,14 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 			this._view.down(_event.touches[0].clientX, _event.touches[0].clientY);
 
-			window.addEventListener("touchend", this._view.onTouchEnd);
-			window.addEventListener("touchmove", this._view.onTouchMove);
+			this._ui?.targetElementParent?.addEventListener(
+				"touchend",
+				this._view.onTouchEnd
+			);
+			this._ui?.targetElementParent?.addEventListener(
+				"touchmove",
+				this._view.onTouchMove
+			);
 		};
 
 		this._view.onTouchMove = (_event) => {
@@ -215,19 +237,28 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 			this._view.up();
 
-			window.removeEventListener("touchend", this._view.onTouchEnd);
-			window.removeEventListener("touchmove", this._view.onTouchMove);
+			this._ui?.targetElementParent?.removeEventListener(
+				"touchend",
+				this._view.onTouchEnd
+			);
+			this._ui?.targetElementParent?.removeEventListener(
+				"touchmove",
+				this._view.onTouchMove
+			);
 		};
 
-		window.addEventListener("touchstart", this._view.onTouchStart);
+		this._ui?.targetElementParent?.addEventListener(
+			"touchstart",
+			this._view.onTouchStart
+		);
 
 		this._view.onContextMenu = (_event) => {
 			_event.preventDefault();
 		};
 
-		this._targetElement?.addEventListener(
+		this._ui?.targetElementParent?.addEventListener(
 			"contextmenu",
-			this._view.onContextMenu,
+			this._view.onContextMenu
 		);
 
 		this._view.onWheel = (_event) => {
@@ -240,10 +271,18 @@ export class Navigation extends ExperienceBasedBlueprint {
 			this._view.zooming(normalized.pixelY);
 		};
 
-		window.addEventListener("mousewheel", this._view.onWheel, {
-			passive: false,
-		});
-		window.addEventListener("wheel", this._view.onWheel, { passive: false });
+		this._ui?.targetElementParent?.addEventListener(
+			"mousewheel",
+			this._view.onWheel,
+			{
+				passive: false,
+			}
+		);
+		this._ui?.targetElementParent?.addEventListener(
+			"wheel",
+			this._view.onWheel,
+			{ passive: false }
+		);
 	}
 
 	private _setConfig() {
@@ -251,14 +290,14 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 		const boundingClient = this._targetElement.getBoundingClientRect();
 		this._config.width = boundingClient.width;
-		this._config.height = boundingClient.height || window.innerHeight;
+		this._config.height = Number(boundingClient.height || window?.innerHeight);
 		this._config.smallestSide = Math.min(
 			this._config.width,
-			this._config.height,
+			this._config.height
 		);
 		this._config.largestSide = Math.max(
 			this._config.width,
-			this._config.height,
+			this._config.height
 		);
 	}
 
@@ -282,25 +321,25 @@ export class Navigation extends ExperienceBasedBlueprint {
 	public disableFreeAzimuthRotation(limits?: { min: number; max: number }) {
 		if (this._view.spherical?.limits) {
 			this._view.spherical.limits.enabledTheta = true;
-			limits && (this._view.spherical.limits.theta = limits);
+			if (limits) this._view.spherical.limits.theta = limits;
 		}
 	}
 
 	public disableFreePolarRotation(limits?: { min: number; max: number }) {
 		if (this._view.spherical?.limits) {
 			this._view.spherical.limits.enabledPhi = true;
-			limits && (this._view.spherical.limits.phi = limits);
+			if (limits) this._view.spherical.limits.phi = limits;
 		}
 	}
 
 	public enableFreeAzimuthRotation() {
-		this._view.spherical?.limits &&
-			(this._view.spherical.limits.enabledTheta = false);
+		if (this._view.spherical?.limits)
+			this._view.spherical.limits.enabledTheta = false;
 	}
 
 	public enableFreePolarRotation() {
-		this._view.spherical?.limits &&
-			(this._view.spherical.limits.enabledPhi = false);
+		if (this._view.spherical?.limits)
+			this._view.spherical.limits.enabledPhi = false;
 	}
 
 	public setViewCenter(v3 = new Vector3()) {
@@ -336,8 +375,8 @@ export class Navigation extends ExperienceBasedBlueprint {
 				new Vector3(
 					-this._view.target.smoothed.x,
 					-this._view.target.smoothed.y,
-					-this._view.target.smoothed.z,
-				),
+					-this._view.target.smoothed.z
+				)
 			);
 
 		this._view.spherical?.smoothed?.setFromVector3(SAFE_V3);
@@ -359,7 +398,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 		lookAt = new Vector3(),
 		onStart: gsap.Callback = () => {},
 		onUpdate: gsap.Callback = () => {},
-		onComplete: gsap.Callback = () => {},
+		onComplete: gsap.Callback = () => {}
 	) {
 		if (!this._appCamera.instance) return this._timeline;
 
@@ -413,16 +452,16 @@ export class Navigation extends ExperienceBasedBlueprint {
 		target?: Exclude<NavigationView["target"], undefined>["limits"];
 	}) {
 		if (!_) {
-			this._view.spherical &&
-				(this._view.spherical.limits = this._viewLimits.spherical);
-			this._view.target && (this._view.target.limits = this._viewLimits.target);
+			if (this._view.spherical)
+				this._view.spherical.limits = this._viewLimits.spherical;
+			if (this._view.target) this._view.target.limits = this._viewLimits.target;
 
 			return;
 		}
 
 		if (_.spherical)
-			this._view.spherical && (this._view.spherical.limits = _.spherical);
-		if (_.target) this._view.target && (this._view.target.limits = _.target);
+			if (this._view.spherical) this._view.spherical.limits = _.spherical;
+		if (_.target && this._view.target) this._view.target.limits = _.target;
 	}
 
 	public update() {
@@ -463,40 +502,41 @@ export class Navigation extends ExperienceBasedBlueprint {
 				this._config.smallestSide;
 		}
 
-		if (this.timeline.isActive()) {
+		if (!this._timeline.isActive()) {
 			// Apply limits
-			if (this._view.spherical.limits.enabled)
+			if (this._view.spherical.limits.enabled) {
 				this._view.spherical.value.radius = Math.min(
 					Math.max(
 						this._view.spherical.value.radius,
-						this._view.spherical.limits.radius.min,
+						this._view.spherical.limits.radius.min
 					),
-					this._view.spherical.limits.radius.max,
+					this._view.spherical.limits.radius.max
 				);
+			}
 
 			if (this._view.target.limits.enabled) {
 				this._view.target.value.x = Math.min(
 					Math.max(
 						this._view.target.value.x,
-						this._view.target.limits.x.min + this._view.center.x,
+						this._view.target.limits.x.min + this._view.center.x
 					),
-					this._view.target.limits.x.max + this._view.center.x,
+					this._view.target.limits.x.max + this._view.center.x
 				);
 
 				this._view.target.value.y = Math.min(
 					Math.max(
 						this._view.target.value.y,
-						this._view.target.limits.y.min + this._view.center.y,
+						this._view.target.limits.y.min + this._view.center.y
 					),
-					this._view.target.limits.y.max + this._view.center.y,
+					this._view.target.limits.y.max + this._view.center.y
 				);
 
 				this._view.target.value.z = Math.min(
 					Math.max(
 						this._view.target.value.z,
-						this._view.target.limits.z.min + this._view.center.z,
+						this._view.target.limits.z.min + this._view.center.z
 					),
-					this._view.target.limits.z.max + this._view.center.z,
+					this._view.target.limits.z.max + this._view.center.z
 				);
 			}
 
@@ -505,18 +545,18 @@ export class Navigation extends ExperienceBasedBlueprint {
 					this._view.spherical.value.phi = Math.min(
 						Math.max(
 							this._view.spherical.value.phi,
-							this._view.spherical.limits.phi.min,
+							this._view.spherical.limits.phi.min
 						),
-						this._view.spherical.limits.phi.max,
+						this._view.spherical.limits.phi.max
 					);
 
 				if (this._view.spherical.limits.enabledTheta)
 					this._view.spherical.value.theta = Math.min(
 						Math.max(
 							this._view.spherical.value.theta,
-							this._view.spherical.limits.theta.min,
+							this._view.spherical.limits.theta.min
 						),
-						this._view.spherical.limits.theta.max,
+						this._view.spherical.limits.theta.max
 					);
 			}
 		}

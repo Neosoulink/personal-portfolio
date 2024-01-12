@@ -39,8 +39,8 @@ export interface NavigationView {
 	up?: () => unknown;
 	zooming?: (delta: number) => unknown;
 	onMouseDown?: (event: MouseEvent) => unknown;
-	onMouseUp?: (this: Window, ev: MouseEvent) => unknown;
-	onMouseMove?: (this: Window, ev: MouseEvent) => unknown;
+	onMouseUp?: (this: HTMLElement, ev: MouseEvent) => unknown;
+	onMouseMove?: (this: HTMLElement, ev: MouseEvent) => unknown;
 	onTouchStart?: (event: TouchEvent) => unknown;
 	onTouchEnd?: (event: TouchEvent) => unknown;
 	onTouchMove?: (event: TouchEvent) => unknown;

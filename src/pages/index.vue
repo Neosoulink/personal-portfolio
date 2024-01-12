@@ -1,9 +1,9 @@
 <template>
-	<main class="flex flex-1">
+	<main class="flex flex-1 w-screen h-screen bg-red-600">
 		<!--	<HomeLandingLoader /> -->
 
 		<div id="css" class="absolute top-0 left-0 w-full h-full" />
-		<canvas :id="Config.HOME_DOM_REF" class="fixed top-0 left-0 w-full h-full" />
+		<canvas :id="states.domRef" class="fixed top-0 left-0 w-full h-full" />
 
 		<div id="mode-bubbles-container" />
 
@@ -26,20 +26,18 @@ import { HomeExperience } from "~/experiences/home";
 // STATIC
 import { events } from "~/static";
 
-// CONFIG
-import { Config } from "~/config";
-
 // DATA
 const states = reactive<{
 	experience?: HomeExperience;
-}>({});
+	domRef: string;
+}>({ domRef: "home-experience" });
 
 // FUNCTIONS
 const initExperience = () => {
 	if (!process.client) return;
 
 	const Experience = new HomeExperience({
-		domElementRef: "#" + Config.HOME_DOM_REF,
+		domElementRef: `#${states.domRef}`,
 	});
 
 	Experience.construct();

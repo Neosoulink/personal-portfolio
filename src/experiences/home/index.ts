@@ -87,11 +87,11 @@ export class HomeExperience extends ExperienceBlueprint {
 		try {
 			this.ui?.construct();
 			this.router?.construct();
-			this.renderer?.construct();
-			this.composer?.construct();
 			this.loader?.on(events.LOADED, () => {
 				try {
 					this.camera?.construct();
+					this.composer?.construct();
+					this.renderer?.construct();
 					this.world?.construct();
 					this.navigation?.construct();
 					this.debug?.construct();

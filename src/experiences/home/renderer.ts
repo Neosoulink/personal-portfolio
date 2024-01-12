@@ -9,6 +9,7 @@ import {
 	Vector3,
 	WebGLRenderTarget,
 } from "three";
+import { HtmlMixerContext } from "threex.htmlmixer-continued/lib/html-mixer";
 
 // EXPERIENCE
 import { HomeExperience } from ".";
@@ -34,8 +35,7 @@ export class Renderer extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appRenderer = this._experience.app.renderer;
-	private readonly _appRendererInstance =
-		this._experience.app.renderer.instance;
+	private readonly _appCamera = this._experience.app.camera;
 	private readonly _renderPortalAssets: {
 		[callbackName: string]: {
 			assets: PortalAssets;
@@ -46,106 +46,135 @@ export class Renderer extends ExperienceBasedBlueprint {
 		[key: string]: () => unknown;
 	} = {};
 
-	private _currentRenderTarget = this._appRendererInstance.getRenderTarget();
-	private _currentXrEnabled = this._appRendererInstance.xr.enabled;
+	private _currentRenderTarget = this._appRenderer.instance.getRenderTarget();
+	private _currentXrEnabled = this._appRenderer.instance.xr.enabled;
 	private _currentShadowAutoUpdate =
-		this._appRendererInstance.shadowMap.autoUpdate;
+		this._appRenderer.instance.shadowMap.autoUpdate;
 	private _portalBottomLeftCorner = new Vector3();
 	private _portalBottomRightCorner = new Vector3();
 	private _portalTopLeftCorner = new Vector3();
+	private _mixerContext?: HtmlMixerContext;
+
+	public enableCssRender = false;
 
 	private _renderPortal(
 		mesh: Mesh,
 		meshWebGLTexture: WebGLRenderTarget,
 		portalCamera: PerspectiveCamera,
-		corners: PortalMeshCorners,
+		corners: PortalMeshCorners
 	) {
 		mesh.localToWorld(
 			this._portalBottomLeftCorner.set(
 				corners.bottomLeft.x,
 				corners.bottomLeft.y,
-				corners.bottomLeft.z,
-			),
+				corners.bottomLeft.z
+			)
 		);
 		mesh.localToWorld(
 			this._portalBottomRightCorner.set(
 				corners.bottomRight.x,
 				corners.bottomRight.y,
-				corners.bottomRight.z,
-			),
+				corners.bottomRight.z
+			)
 		);
 		mesh.localToWorld(
 			this._portalTopLeftCorner.set(
 				corners.topLeft.x,
 				corners.topLeft.y,
-				corners.topLeft.z,
-			),
+				corners.topLeft.z
+			)
 		);
 
-		this._appRendererInstance.setRenderTarget(meshWebGLTexture);
-		this._appRendererInstance.state.buffers.depth.setMask(true);
-		if (this._appRendererInstance.autoClear === false)
-			this._appRendererInstance.clear();
+		this._appRenderer.instance.setRenderTarget(meshWebGLTexture);
+		this._appRenderer.instance.state.buffers.depth.setMask(true);
+		if (this._appRenderer.instance.autoClear === false)
+			this._appRenderer.instance.clear();
 		mesh.visible = false;
-		this._appRendererInstance.render(this._experience.app.scene, portalCamera);
+		this._appRenderer.instance.render(this._experience.app.scene, portalCamera);
 		mesh.visible = true;
 	}
 
+	public get mixerContext() {
+		return this._mixerContext;
+	}
+
 	public construct() {
-		// Configure renderer behaviors
 		~(() => {
-			this._appRendererInstance.outputColorSpace = LinearSRGBColorSpace;
-			this._appRendererInstance.toneMapping = NoToneMapping;
-			this._appRendererInstance.toneMappingExposure = 1;
-			this._appRendererInstance.shadowMap.enabled = false;
-			this._appRendererInstance.shadowMap.type = PCFShadowMap;
-			this._appRendererInstance.setClearColor("#5f5f5f", 1);
-			this._appRendererInstance.setSize(
+			this._appRenderer.instance.outputColorSpace = LinearSRGBColorSpace;
+			this._appRenderer.instance.toneMapping = NoToneMapping;
+			this._appRenderer.instance.toneMappingExposure = 1;
+			this._appRenderer.instance.shadowMap.enabled = false;
+			this._appRenderer.instance.shadowMap.type = PCFShadowMap;
+			this._appRenderer.instance.setClearColor("#5f5f5f", 1);
+			this._appRenderer.instance.setSize(
 				this._experience.app.sizes.width,
-				this._experience.app.sizes.height,
+				this._experience.app.sizes.height
 			);
-			this._appRendererInstance.setPixelRatio(
-				this._experience.app.sizes.pixelRatio,
+			this._appRenderer.instance.setPixelRatio(
+				this._experience.app.sizes.pixelRatio
 			);
-			this._appRendererInstance.localClippingEnabled = true;
+			this._appRenderer.instance.localClippingEnabled = true;
+			this._appRenderer.instance.domElement.style.pointerEvents = "none";
+		})();
+
+		~(() => {
+			this._mixerContext = new HtmlMixerContext(
+				this._appRenderer.instance,
+				this._appCamera.instance as PerspectiveCamera
+			);
+			const rendererCss = this._mixerContext.rendererCss;
+			rendererCss.setSize(window.innerWidth, window.innerHeight);
+
+			const css3dElement = rendererCss.domElement;
+			css3dElement.style.pointerEvents = "none";
+
+			document.querySelector("#css")?.appendChild(css3dElement);
+
+			this.addBeforeRenderUpdateCallBack(
+				"_mixerContext",
+				() => this.enableCssRender && this._mixerContext?.update()
+			);
 		})();
 
 		~(() => {
 			this.addBeforeRenderUpdateCallBack(Renderer.name, () => {
 				if (!Object.keys(this._renderPortalAssets).length) return;
 
-				Object.keys(this._renderPortalAssets).forEach((key: string) => {
-					if (this._renderPortalAssets[key]) {
+				const _KEYS = Object.keys(this._renderPortalAssets);
+				for (let i = 0; i < _KEYS.length; i++) {
+					if (this._renderPortalAssets[_KEYS[i]]) {
 						this._currentRenderTarget =
-							this._appRendererInstance.getRenderTarget();
-						this._currentXrEnabled = this._appRendererInstance.xr.enabled;
+							this._appRenderer.instance.getRenderTarget();
+						this._currentXrEnabled = this._appRenderer.instance.xr.enabled;
 						this._currentShadowAutoUpdate =
-							this._appRendererInstance.shadowMap.autoUpdate;
-						this._appRendererInstance.xr.enabled = false;
-						this._appRendererInstance.shadowMap.autoUpdate = false;
+							this._appRenderer.instance.shadowMap.autoUpdate;
+						this._appRenderer.instance.xr.enabled = false;
+						this._appRenderer.instance.shadowMap.autoUpdate = false;
 						this._renderPortal(
-							this._renderPortalAssets[key].assets.mesh,
-							this._renderPortalAssets[key].assets.meshWebGLTexture,
-							this._renderPortalAssets[key].assets.meshCamera,
-							this._renderPortalAssets[key].corners,
+							this._renderPortalAssets[_KEYS[i]].assets.mesh,
+							this._renderPortalAssets[_KEYS[i]].assets.meshWebGLTexture,
+							this._renderPortalAssets[_KEYS[i]].assets.meshCamera,
+							this._renderPortalAssets[_KEYS[i]].corners
 						);
 						// restore the original rendering properties
-						this._appRendererInstance.xr.enabled = this._currentXrEnabled;
-						this._appRendererInstance.shadowMap.autoUpdate =
+						this._appRenderer.instance.xr.enabled = this._currentXrEnabled;
+						this._appRenderer.instance.shadowMap.autoUpdate =
 							this._currentShadowAutoUpdate;
-						this._appRendererInstance.setRenderTarget(
-							this._currentRenderTarget,
+						this._appRenderer.instance.setRenderTarget(
+							this._currentRenderTarget
 						);
 					}
-				});
+				}
 			});
 		})();
 
 		~(() => {
 			this._appRenderer.beforeRenderUpdate = () => {
-				Object.keys(this.beforeRenderUpdateCallbacks).forEach((key) =>
-					this.beforeRenderUpdateCallbacks[key]?.(),
-				);
+				const _KEYS = Object.keys(this.beforeRenderUpdateCallbacks);
+
+				for (let i = 0; i < _KEYS.length; i++) {
+					this.beforeRenderUpdateCallbacks[_KEYS[i]]?.();
+				}
 			};
 		})();
 	}
@@ -153,6 +182,15 @@ export class Renderer extends ExperienceBasedBlueprint {
 	public destruct() {
 		this._appRenderer.beforeRenderUpdate = undefined;
 		this._appRenderer.afterRenderUpdate = undefined;
+
+		const _KEYS_BEFORE_UPDATE = Object.keys(this.beforeRenderUpdateCallbacks);
+		const _KEYS_PORTAL_ASSETS = Object.keys(this._renderPortalAssets);
+
+		for (let i = 0; i < _KEYS_BEFORE_UPDATE.length; i++)
+			this.removeBeforeRenderUpdateCallBack(_KEYS_BEFORE_UPDATE[i]);
+
+		for (let i = 0; i < _KEYS_PORTAL_ASSETS.length; i++)
+			this.removePortalAssets(_KEYS_PORTAL_ASSETS[i]);
 	}
 
 	public addPortalAssets(portalName: string, assets: PortalAssets): void {
@@ -178,7 +216,7 @@ export class Renderer extends ExperienceBasedBlueprint {
 		matrix.compose(
 			assets.mesh.position,
 			assets.mesh.quaternion,
-			assets.mesh.scale,
+			assets.mesh.scale
 		);
 		corners.map((corner) => corner.applyMatrix4(matrix));
 

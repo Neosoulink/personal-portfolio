@@ -130,28 +130,30 @@ export class Loader extends ExperienceBasedBlueprint {
 
 	/** Correct resource textures color and flip faces. */
 	private _correctTextures() {
-		Object.keys(this._appResources.items).forEach((key) => {
-			const ITEM = this._appResources.items[key];
-			if (ITEM instanceof Texture) {
-				ITEM.flipY = false;
-				ITEM.colorSpace = LinearSRGBColorSpace;
+		const _KEYS = Object.keys(this._appResources.items);
+		for (let i = 0; i < _KEYS.length; i++) {
+			const _ITEM = this._appResources.items[_KEYS[i]];
+			if (_ITEM instanceof Texture) {
+				_ITEM.flipY = false;
+				_ITEM.colorSpace = LinearSRGBColorSpace;
 			}
-		});
+		}
 	}
 
 	private _setAvailableTexture(): typeof this._availableTextures {
 		const ITEMS = this._appResources.items;
 		if (!(ITEMS && Object.keys(ITEMS).length)) return {};
 
-		const AVAILABLE_TEXTURES: typeof this._availableTextures = {};
+		const _AVAILABLE_TEXTURES: typeof this._availableTextures = {};
+		const _KEYS = Object.keys(ITEMS);
+		for (let i = 0; i < _KEYS.length; i++) {
+			const ITEM = ITEMS[_KEYS[i]];
 
-		Object.keys(ITEMS).forEach((key) => {
-			const ITEM = ITEMS[key];
+			if (ITEM instanceof Texture) _AVAILABLE_TEXTURES[_KEYS[i]] = ITEM;
+		}
 
-			ITEM instanceof Texture && (AVAILABLE_TEXTURES[key] = ITEM);
-		});
-
-		return (this._availableTextures = AVAILABLE_TEXTURES);
+		this._availableTextures = _AVAILABLE_TEXTURES;
+		return this._availableTextures;
 	}
 
 	public get progress() {
@@ -163,28 +165,32 @@ export class Loader extends ExperienceBasedBlueprint {
 	}
 
 	public construct() {
-		~(this._appResources.loadingManager.onStart = () => {
-			this.emit(STARTED, (this._progress = 0));
-		});
+		~(() => {
+			this._progress = 0;
+			this._appResources.loadingManager.onStart = () => {
+				this.emit(STARTED, this._progress);
+			};
+		})();
 
-		~(this._appResources.loadingManager.onProgress = (
-			itemUrl,
-			itemsLoaded,
-			itemsToLoad,
-		) => {
-			this.emit(
-				PROGRESSED,
-				(this._progress = (itemsLoaded / itemsToLoad) * 100),
+		~(() => {
+			this._appResources.loadingManager.onProgress = (
 				itemUrl,
-			);
-		});
+				itemsLoaded,
+				itemsToLoad
+			) => {
+				this._progress = (itemsLoaded / itemsToLoad) * 100;
+				this.emit(PROGRESSED, this._progress, itemUrl);
+			};
+		})();
 
-		~(this._appResources.loadingManager.onLoad = () => {
-			this._correctTextures();
-			this._setAvailableTexture();
+		~(() => {
+			this._appResources.loadingManager.onLoad = () => {
+				this._correctTextures();
+				this._setAvailableTexture();
 
-			this.emit(LOADED, this._progress);
-		});
+				this.emit(LOADED, this._progress);
+			};
+		})();
 
 		this._appResources.startLoading();
 		this.emit(CONSTRUCTED, this._progress);
@@ -192,15 +198,16 @@ export class Loader extends ExperienceBasedBlueprint {
 
 	public destruct() {
 		this._appResources.loadingManager.removeHandler(
-			/onStart|onError|onProgress|onLoad/,
+			/onStart|onError|onProgress|onLoad/
 		);
 
-		Object.keys(this._appResources.items).forEach((key) => {
-			const ITEM = this._appResources.items[key];
+		const _KEYS = Object.keys(this._appResources.items);
+		for (let i = 0; i < _KEYS.length; i++) {
+			const ITEM = this._appResources.items[_KEYS[i]];
 			if (ITEM instanceof Texture || ITEM instanceof CubeTexture)
 				ITEM.dispose();
 			if (ITEM instanceof CubeTexture) ITEM.dispose();
-		});
+		}
 
 		this._appResources.setSources([]);
 

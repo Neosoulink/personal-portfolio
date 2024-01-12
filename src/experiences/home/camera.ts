@@ -50,7 +50,7 @@ export class Camera extends ExperienceBasedBlueprint {
 						this._appCameraInstance.fov,
 						Config.FIXED_WINDOW_WIDTH / Config.FIXED_WINDOW_HEIGHT,
 						this._appCameraInstance.near,
-						this._appCameraInstance.far,
+						this._appCameraInstance.far
 				  )
 				: new PerspectiveCamera())(),
 	] as const;
@@ -188,7 +188,9 @@ export class Camera extends ExperienceBasedBlueprint {
 
 		this.currentCamera.userData.lookAt = V3;
 
-		return (this._lookAtPosition = V3);
+		this._lookAtPosition = V3;
+
+		return this._lookAtPosition;
 	}
 
 	/** Correct the aspect ration of the camera. */
