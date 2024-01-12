@@ -1,5 +1,5 @@
 <template>
-	<main class="flex flex-1 w-screen h-screen bg-red-600">
+	<main class="flex flex-1 w-screen h-screen bg-dark">
 		<!--	<HomeLandingLoader /> -->
 
 		<div id="css" class="absolute top-0 left-0 w-full h-full" />
