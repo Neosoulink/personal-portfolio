@@ -1,6 +1,10 @@
 /**
+ * Mystic blob x Clock Shader
+ *
+ * @original-author laserdog / https://www.shadertoy.com/user/laserdog
  * @original-author Andre VanKammen / https://github.com/AndreVanKammen
  *
+ * @source https://www.shadertoy.com/view/XsKfDm
  * @source https://www.shadertoy.com/view/3dtSRj
  */
 
@@ -10,67 +14,13 @@ uniform float uTime;
 uniform float uSec;
 uniform float uTimestamp;
 
+#pragma glslify: clockNumber = require(../../partials/clockNumber.glsl)
+#pragma glslify: clockDots = require(../../partials/clockDots.glsl)
+
 bool showMatrix = false;
-bool showOff = true;
-
-float segment(vec2 uv, bool On) {
-	if(!On && !showOff)
-		return .0;
-
-	float seg = (1. - smoothstep(0.08, .09 + float(On) * .02, abs(uv.x))) *
-		(1. - smoothstep(0.46, .47 + float(On) * .02, abs(uv.y) + abs(uv.x)));
-
-	// Led like brightness
-	if(On)
-		seg *= (1. - length(uv * vec2(3.8, .9)));
-	else
-		seg *= -(0.05 + length(uv * vec2(0.2, .1)));
-
-	return seg;
-}
-
-float sevenSegment(vec2 uv, int num, bool on) {
-	float seg = .0;
-	seg += segment(uv.yx + vec2(-1., .0), num != -1 && num != 1 && num != 4 && on);
-	seg += segment(uv.xy + vec2(-0.5, -0.5), num != -1 && num != 1 && num != 2 && num != 3 && num != 7 && on);
-	seg += segment(uv.xy + vec2(0.5, -0.5), num != -1 && num != 5 && num != 6 && on);
-	seg += segment(uv.yx + vec2(.0, .0), num != -1 && num != 0 && num != 1 && num != 7 && on);
-	seg += segment(uv.xy + vec2(-0.5, .5), (num == 0 || num == 2 || num == 6 || num == 8) && on);
-	seg += segment(uv.xy + vec2(0.5, .5), num != -1 && num != 2 && on);
-	seg += segment(uv.yx + vec2(1., .0), num != -1 && num != 1 && num != 4 && num != 7 && on);
-
-	return seg;
-}
-
-float showNum(vec2 uv, int nr, bool zeroTrim, bool on) {
-	// Speed optimization, leave if pixel is not in segment/
-	if(abs(uv.x) > 1.5 || abs(uv.y) > 1.2)
-		return .0;
-
-	float seg = .0;
-	if(uv.x > .0) {
-		nr /= 10;
-		if(nr == 0 && zeroTrim)
-			nr = -1;
-		seg += sevenSegment(uv + vec2(-0.75, .0), nr, on);
-	} else
-		seg += sevenSegment(uv + vec2(0.75, .0), int(mod(float(nr), 10.0)), on);
-
-	return seg;
-}
-
-float dots(vec2 uv) {
-	float seg = .0;
-	uv.y -= .5;
-	seg += (1. - smoothstep(0.11, .13, length(uv))) * (1. - length(uv) * 2.0);
-	uv.y += 1.;
-	seg += (1. - smoothstep(0.11, .13, length(uv))) * (1. - length(uv) * 2.0);
-	return seg;
-}
 
 void clock(out vec4 fragColor) {
 	bool blink = mod(uSec, 2.) == 0.;
-	bool ampm = false;
 	bool isGreen = true;
 
 	vec2 uv = vUv * -8.;
@@ -81,29 +31,19 @@ void clock(out vec4 fragColor) {
 	float timeSecs = uTimestamp;
 
 	// Display seconds
-	// seg += showNum(uv, int(mod(timeSecs, 60.0)), false, blink);
 	timeSecs = floor(timeSecs / 60.0);
-	// uv.x -= 1.75;
-	// seg += dots(uv);
 	uv.x -= 1.75;
-	seg += showNum(uv, int(mod(timeSecs, 60.0)), false, blink);
+	seg += clockNumber(uv, int(mod(timeSecs, 60.)), false, blink);
 	timeSecs = floor(timeSecs / 60.0);
 
-	if(ampm) {
-		if(timeSecs > 12.0)
-			timeSecs = mod(timeSecs, 12.0);
-	}
-
 	uv.x -= 1.75;
-	seg += dots(uv);
+	seg += clockDots(uv);
 	uv.x -= 1.75;
-	seg += showNum(uv, int(mod(timeSecs, 60.0)), true, blink);
+	seg += clockNumber(uv, int(mod(timeSecs, 60.0)), true, blink);
 
 	// Matrix over segment
-	if(showMatrix) {
+	if(showMatrix)
 		seg *= .8 + .2 * smoothstep(0.02, .04, mod(uv.y + uv.x, .06025));
-		// seg *= .8+0.2*smoothstep(0.02,0.04,mod(uv.y-uv.x,0.06025));
-	}
 
 	if(seg < .0) {
 		seg = -seg;
@@ -154,5 +94,4 @@ void main() {
 	clock(clock_fragement_color);
 
 	gl_FragColor = mystic_blob_color + clock_fragement_color;
-	;
 }

@@ -12,63 +12,10 @@ varying vec2 vUv;
 uniform float uTime;
 uniform float uTimestamp;
 
+#pragma glslify: clockNumber = require(../../partials/clockNumber.glsl)
+#pragma glslify: clockDots = require(../../partials/clockDots.glsl)
+
 bool showMatrix = false;
-bool showOff = false;
-
-float segment(vec2 uv, bool On) {
-	if(!On && !showOff)
-		return .0;
-
-	float seg = (1. - smoothstep(0.08, .09 + float(On) * .02, abs(uv.x))) *
-		(1. - smoothstep(0.46, .47 + float(On) * .02, abs(uv.y) + abs(uv.x)));
-
-	// Led like brightness
-	if(On)
-		seg *= (1. - length(uv * vec2(3.8, .9)));
-	else
-		seg *= -(0.05 + length(uv * vec2(0.2, .1)));
-
-	return seg;
-}
-
-float sevenSegment(vec2 uv, int num) {
-	float seg = .0;
-	seg += segment(uv.yx + vec2(-1., .0), num != -1 && num != 1 && num != 4);
-	seg += segment(uv.xy + vec2(-0.5, -0.5), num != -1 && num != 1 && num != 2 && num != 3 && num != 7);
-	seg += segment(uv.xy + vec2(0.5, -0.5), num != -1 && num != 5 && num != 6);
-	seg += segment(uv.yx + vec2(.0, .0), num != -1 && num != 0 && num != 1 && num != 7);
-	seg += segment(uv.xy + vec2(-0.5, .5), (num == 0 || num == 2 || num == 6 || num == 8));
-	seg += segment(uv.xy + vec2(0.5, .5), num != -1 && num != 2);
-	seg += segment(uv.yx + vec2(1., .0), num != -1 && num != 1 && num != 4 && num != 7);
-
-	return seg;
-}
-
-float showNum(vec2 uv, int nr, bool zeroTrim) {
-	// Speed optimization, leave if pixel is not in segment/
-	if(abs(uv.x) > 1.5 || abs(uv.y) > 1.2)
-		return .0;
-
-	float seg = .0;
-	if(uv.x > .0) {
-		nr /= 10;
-		if(nr == 0 && zeroTrim)
-			nr = -1;
-		seg += sevenSegment(uv + vec2(-0.75, .0), nr);
-	} else
-		seg += sevenSegment(uv + vec2(0.75, .0), int(mod(float(nr), 10.0)));
-
-	return seg;
-}
-
-float dots(vec2 uv) {
-	float seg = .0;
-	uv.y -= .5;
-	seg += (1. - smoothstep(0.11, .13, length(uv))) * (1. - length(uv) * 2.0);
-	uv.y += 1.;
-	seg += (1. - smoothstep(0.11, .13, length(uv))) * (1. - length(uv) * 2.0);
-	return seg;
-}
 
 float sun(vec2 uv, float battery) {
 	float val = smoothstep(0.3, 0.29, length(uv));
@@ -130,19 +77,19 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 	float seg = .0;
 	float timeSecs = uTimestamp;
 
-	seg += showNum(uv, int(mod(timeSecs, 60.)), false);
+	seg += clockNumber(uv, int(mod(timeSecs, 60.)), false, true);
 	timeSecs = floor(timeSecs / 60.);
 	uv.x -= 1.75;
-	seg += dots(uv);
+	seg += clockDots(uv);
 
 	uv.x -= 1.75;
-	seg += showNum(uv, int(mod(timeSecs, 60.)), false);
+	seg += clockNumber(uv, int(mod(timeSecs, 60.)), false, true);
 	timeSecs = floor(timeSecs / 60.);
 
 	uv.x -= 1.75;
-	seg += dots(uv);
+	seg += clockDots(uv);
 	uv.x -= 1.75;
-	seg += showNum(uv, int(mod(timeSecs, 60.)), true);
+	seg += clockNumber(uv, int(mod(timeSecs, 60.)), true, true);
 
 	// Matrix over segment
 	if(showMatrix) {
