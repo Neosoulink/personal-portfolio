@@ -49,7 +49,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 	private _renderer = this._experience.renderer;
 	private _appTime = this._experience.app.time;
 	private _mixer?: AnimationMixer;
-	private _initialPcTopBone?: Object3D;
+	private _initialPcTopArticulation?: Object3D;
 
 	public readonly timeline = gsap.timeline();
 	public readonly colors = {
@@ -140,7 +140,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 		)
 			return;
 
-		this._initialPcTopBone = item.clone();
+		this._initialPcTopArticulation = item.clone();
 		this.pcTopArticulation = item;
 	}
 
@@ -396,16 +396,23 @@ export class Scene1Component extends SceneComponentBlueprint {
 	public togglePcOpening(state?: 0 | 1) {
 		if (!this._model || !this.modelScene || !this.pcTopArticulation) return;
 		const isOpen =
-			this.pcTopArticulation.rotation.z ===
-				this._initialPcTopBone?.rotation.z || state === 1;
+			typeof state === "number"
+				? state === 1
+				: this.pcTopArticulation.rotation.z !==
+				  this._initialPcTopArticulation?.rotation.z;
+
+		const _NEXT_VALUE = isOpen
+			? this._initialPcTopArticulation?.rotation.z ?? 0
+			: this.pcTopArticulation.rotation.z + 2.1;
 
 		return this.timeline.to(this.pcTopArticulation.rotation, {
-			z: isOpen
-				? this.pcTopArticulation.rotation.z + 2.1
-				: this._initialPcTopBone?.rotation.z ?? 0,
+			z: _NEXT_VALUE,
 			duration: Config.GSAP_ANIMATION_DURATION,
 			onUpdate: () => {},
-			onComplete: () => {},
+			onComplete: () => {
+				if (this.pcTopArticulation?.rotation)
+					this.pcTopArticulation.rotation.z = Number(_NEXT_VALUE);
+			},
 		});
 	}
 

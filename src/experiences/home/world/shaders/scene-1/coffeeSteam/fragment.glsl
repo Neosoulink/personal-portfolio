@@ -1,3 +1,9 @@
+/**
+ * @original-author {@link @brunosimon} / https://github.com/brunonsimon
+ *
+ * @source https://github.com/brunosimon/my-room-in-3d/blob/main/src/Experience/shaders/coffeeSteam/fragment.glsl
+ */
+
 uniform float uTime;
 uniform float uTimeFrequency;
 uniform vec2 uUvFrequency;
@@ -7,8 +13,7 @@ varying vec2 vUv;
 
 #pragma glslify: perlin2d = require(../../partials/perlin2d.glsl)
 
-void main()
-{
+void main() {
     vec2 uv = vUv * uUvFrequency;
     uv.y -= uTime * uTimeFrequency;
 

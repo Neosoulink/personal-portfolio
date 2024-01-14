@@ -1,3 +1,9 @@
+/**
+ * @original-author {@link @brunosimon} / https://github.com/brunonsimon
+ *
+ * @source https://github.com/brunosimon/my-room-in-3d/blob/main/src/Experience/shaders/coffeeSteam/vertex.glsl
+ */
+
 uniform float uTime;
 
 varying vec2 vUv;

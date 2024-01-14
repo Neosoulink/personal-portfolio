@@ -2,6 +2,7 @@ import {
 	Box3,
 	CatmullRomCurve3,
 	Color,
+	DoubleSide,
 	Group,
 	Mesh,
 	MeshBasicMaterial,
@@ -87,6 +88,7 @@ export class World extends ExperienceBasedBlueprint {
 			opacity: 0.5,
 			color: new Color(0x000000),
 			transparent: true,
+			side: DoubleSide,
 		});
 	}
 
@@ -160,7 +162,7 @@ export class World extends ExperienceBasedBlueprint {
 
 		if (this.sceneContainer?.modelScene instanceof Group) {
 			const BOUNDING_BOX = new Box3().setFromObject(
-				this.sceneContainer.modelScene,
+				this.sceneContainer.modelScene
 			);
 			// const WIDTH = BOUNDING_BOX.max.x - BOUNDING_BOX.min.x;
 			const HEIGHT = BOUNDING_BOX.max.y - BOUNDING_BOX.min.y;
@@ -169,7 +171,7 @@ export class World extends ExperienceBasedBlueprint {
 			this._mainSceneConfig.center.set(
 				this._mainSceneConfig.position.x,
 				this._mainSceneConfig.position.y + 2.5,
-				this._mainSceneConfig.position.z,
+				this._mainSceneConfig.position.z
 			);
 			this._mainSceneConfig.cameraPath.points = [
 				new Vector3(0, 5.5, 21),
@@ -183,7 +185,7 @@ export class World extends ExperienceBasedBlueprint {
 			this._projectedSceneConfig.center.set(
 				this._projectedSceneConfig.position.x,
 				this._projectedSceneConfig.position.y + 1.5,
-				this._projectedSceneConfig.position.z,
+				this._projectedSceneConfig.position.z
 			);
 			this._projectedSceneConfig.cameraPath.points = [
 				new Vector3(0, 5.5, 21).add(this._projectedSceneConfig.position),
@@ -193,14 +195,14 @@ export class World extends ExperienceBasedBlueprint {
 				new Vector3(0, 5.5, 21).add(this._projectedSceneConfig.position),
 			];
 
-			(this._projectedSceneContainer =
-				this.sceneContainer.modelScene.clone()).position.copy(
-				this._projectedSceneConfig.position,
+			this._projectedSceneContainer = this.sceneContainer.modelScene.clone();
+			this._projectedSceneContainer.position.copy(
+				this._projectedSceneConfig.position
 			);
 
 			this.group?.add(
 				this.sceneContainer.modelScene,
-				this._projectedSceneContainer,
+				this._projectedSceneContainer
 			);
 		}
 
