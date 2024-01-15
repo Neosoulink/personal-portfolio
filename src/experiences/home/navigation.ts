@@ -80,6 +80,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 	private _setView() {
 		this._view.enabled = true;
+		this._view.controls = true;
 
 		this._view.center = new Vector3();
 
@@ -114,6 +115,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 		};
 		this._view.move = (_x, _y) => {
 			if (
+				!this.view.controls ||
 				!this._view.enabled ||
 				!this._view?.drag?.delta ||
 				!this._view.drag.previous
@@ -140,6 +142,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 			_event.preventDefault();
 
 			if (
+				!this.view.controls ||
 				!this._view.enabled ||
 				!this._view.drag ||
 				!this._view.down ||
@@ -264,7 +267,12 @@ export class Navigation extends ExperienceBasedBlueprint {
 		this._view.onWheel = (_event) => {
 			_event.preventDefault();
 
-			if (!this._view.enabled || !this._view.zooming || !this._view.onWheel)
+			if (
+				!this.view.controls ||
+				!this._view.enabled ||
+				!this._view.zooming ||
+				!this._view.onWheel
+			)
 				return;
 
 			const normalized = normalizeWheel(_event);
@@ -278,6 +286,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 				passive: false,
 			}
 		);
+
 		this._ui?.targetElementParent?.addEventListener(
 			"wheel",
 			this._view.onWheel,
@@ -316,7 +325,63 @@ export class Navigation extends ExperienceBasedBlueprint {
 		this._appSizes.on("resize", () => this._setConfig());
 	}
 
-	public destruct() {}
+	public destruct() {
+		if (!this.view) return;
+
+		this._view.onMouseDown &&
+			this._ui?.targetElementParent?.removeEventListener(
+				"mousedown",
+				this._view.onMouseDown
+			);
+
+		this._view.onMouseUp &&
+			this._ui?.targetElementParent?.removeEventListener(
+				"mouseup",
+				this._view.onMouseUp
+			);
+
+		this._view.onMouseMove &&
+			this._ui?.targetElementParent?.removeEventListener(
+				"mousemove",
+				this._view.onMouseMove
+			);
+
+		this._view.onTouchEnd &&
+			this._ui?.targetElementParent?.removeEventListener(
+				"touchend",
+				this._view.onTouchEnd
+			);
+
+		this._view.onTouchMove &&
+			this._ui?.targetElementParent?.removeEventListener(
+				"touchmove",
+				this._view.onTouchMove
+			);
+
+		this._view.onTouchStart &&
+			this._ui?.targetElementParent?.removeEventListener(
+				"touchstart",
+				this._view.onTouchStart
+			);
+
+		this._view.onContextMenu &&
+			this._ui?.targetElementParent?.removeEventListener(
+				"contextmenu",
+				this._view.onContextMenu
+			);
+
+		this._view.onWheel &&
+			this._ui?.targetElementParent?.removeEventListener(
+				"mousewheel",
+				this._view.onWheel
+			);
+
+		this._view.onWheel &&
+			this._ui?.targetElementParent?.removeEventListener(
+				"wheel",
+				this._view.onWheel
+			);
+	}
 
 	public disableFreeAzimuthRotation(limits?: { min: number; max: number }) {
 		if (this._view.spherical?.limits) {
@@ -388,46 +453,41 @@ export class Navigation extends ExperienceBasedBlueprint {
 	/**
 	 * Move the camera position with transition from
 	 * the origin position to the passed position and,
-	 * update the lookAt position using the passed lookAt position.
+	 * update the lookAt position using the passed target position.
 	 *
 	 * @param toPosition The new camera position.
-	 * @param lookAt Where the camera will look at.
+	 * @param target Where the camera will look at.
 	 */
 	public updateCameraPosition(
 		toPosition = new Vector3(),
 		lookAt = new Vector3(),
-		onStart: gsap.Callback = () => {},
-		onUpdate: gsap.Callback = () => {},
-		onComplete: gsap.Callback = () => {}
+		duration = Config.GSAP_ANIMATION_DURATION
 	) {
 		if (!this._appCamera.instance) return this._timeline;
 
-		const lookAtA = this._view.target?.value?.clone();
-		const lookAtB = lookAt.clone();
+		const targetA = this._view.target?.value?.clone();
+		const targetB = lookAt.clone();
 		const currentCamPosition = this._appCamera.instance?.position.clone();
 
-		if (!lookAtA || !lookAtB || !currentCamPosition) return this._timeline;
+		if (!targetA || !targetB || !currentCamPosition) return this._timeline;
 
 		return this._timeline.to(currentCamPosition, {
 			x: toPosition.x,
 			y: toPosition.y,
 			z: toPosition.z,
-			duration: Config.GSAP_ANIMATION_DURATION,
+			duration,
 			ease: Config.GSAP_ANIMATION_EASE,
 			onStart: () => {
-				gsap.to(lookAtA, {
-					x: lookAtB.x,
-					y: lookAtB.y,
-					z: lookAtB.z,
-					duration: Config.GSAP_ANIMATION_DURATION * 0.55,
+				gsap.to(targetA, {
+					x: targetB.x,
+					y: targetB.y,
+					z: targetB.z,
+					duration: duration * 0.55,
 					ease: Config.GSAP_ANIMATION_EASE,
 					onUpdate: () => {
-						this?.setTargetPosition(lookAtA);
-						onUpdate();
+						this?.setTargetPosition(targetA);
 					},
 				});
-
-				onStart();
 			},
 			onUpdate: () => {
 				if (
@@ -438,7 +498,6 @@ export class Navigation extends ExperienceBasedBlueprint {
 					return;
 				this.setPositionInSphere(currentCamPosition);
 			},
-			onComplete,
 		});
 	}
 

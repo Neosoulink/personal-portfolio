@@ -23,6 +23,8 @@ import { ErrorFactory } from "~/errors";
 
 // MODELS
 import type { ExperienceConstructorProps } from "~/common/experiences/experience.model";
+import { CameraAnimation } from "./camera-aninmation";
+import { Vector3 } from "three";
 
 export class HomeExperience extends ExperienceBlueprint {
 	public ui?: UI;
@@ -32,6 +34,7 @@ export class HomeExperience extends ExperienceBlueprint {
 	public composer?: Composer;
 	public camera?: Camera;
 	public world?: World;
+	public cameraAnimation?: CameraAnimation;
 	public navigation?: Navigation;
 	public debug?: Debug;
 
@@ -41,7 +44,7 @@ export class HomeExperience extends ExperienceBlueprint {
 				HomeExperience._self ?? {
 					..._,
 					debug: Config.DEBUG,
-				},
+				}
 			);
 			if (HomeExperience._self) return HomeExperience._self;
 			HomeExperience._self = this;
@@ -54,6 +57,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.camera = new Camera();
 			this.world = new World();
 			this.navigation = new Navigation();
+			this.cameraAnimation = new CameraAnimation();
 			this.debug = new Debug();
 		} catch (_err) {
 			throw new ErrorFactory(_err);
@@ -73,6 +77,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.camera?.destruct();
 			this.world?.destruct();
 			this.navigation?.destruct();
+			this.cameraAnimation?.destruct();
 			this.debug?.destruct();
 			this.app.destroy();
 
@@ -94,6 +99,7 @@ export class HomeExperience extends ExperienceBlueprint {
 					this.renderer?.construct();
 					this.world?.construct();
 					this.navigation?.construct();
+					this.cameraAnimation?.construct();
 					this.debug?.construct();
 					this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
 					this._onConstruct?.();
@@ -102,6 +108,8 @@ export class HomeExperience extends ExperienceBlueprint {
 				}
 			});
 			this.loader?.construct();
+
+			this.camera?.setCameraLookAt(new Vector3(0, 2, 0));
 		} catch (_) {
 			throw new ErrorFactory(_);
 		}
@@ -111,6 +119,7 @@ export class HomeExperience extends ExperienceBlueprint {
 		try {
 			this.world?.update();
 			this.camera?.update();
+			this.cameraAnimation?.update();
 			this.navigation?.update();
 			this.composer?.update();
 			this.debug?.update();

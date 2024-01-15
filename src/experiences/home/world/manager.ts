@@ -1,11 +1,4 @@
-import {
-	CatmullRomCurve3,
-	Material,
-	Mesh,
-	PerspectiveCamera,
-	Raycaster,
-	Vector3,
-} from "three";
+import { Material, Mesh, Raycaster, Vector3 } from "three";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import gsap, { Power0 } from "gsap";
 
@@ -19,7 +12,7 @@ import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-ba
 import { Config } from "~/config";
 
 // STATIC
-import { errors, events, pages } from "~/static";
+import { errors, events } from "~/static";
 
 // ERROR
 import { ErrorFactory } from "~/errors";
@@ -64,53 +57,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		glassEffectDefault: { duration: 0.3, ease: Power0.easeIn },
 	};
 
-	// TODO: Reorder properties
 	public rayCaster = new Raycaster();
-	public normalizedCursorPosition = { x: 0, y: 0 };
-	/**
-	 * The curve path of the camera
-	 */
-	public cameraCurvePath = new CatmullRomCurve3([
-		new Vector3(0, 5.5, 21),
-		new Vector3(12, 10, 12),
-		new Vector3(21, 5.5, 0),
-		new Vector3(12, 3.7, 12),
-		new Vector3(0, 5.5, 21),
-	]);
-	/**
-	 * Current curve path position of the camera.
-	 */
-	public cameraCurvePosition = new Vector3();
-	public cameraCurvePathProgress = {
-		current: 0,
-		target: 0,
-		ease: 0.1,
-	};
-	/**
-	 * Enable auto curve path animation
-	 */
-	public autoCameraAnimation = false;
-	/**
-	 * gsap animation watcher. If gsap is currently animating
-	 */
-	public isGsapAnimating = false;
-	/**
-	 * Curve path backward animation
-	 */
-	public backwardCurveAnimation = false;
-	public focusPointPositionIndex = 0;
-	public focusedPosition?: Vector3;
-	public focusedRadius = 2;
-	public focusedAngleX = 0;
-	public focusedAngleY = 0;
-	public mouseDowned = false;
-	public mouseOverBubble = false;
-	public lastMouseCoordinate = { x: 0, y: 0 };
-	public modelBubbles: {
-		coordinates: Vector3;
-		DOMelement: HTMLElement;
-	}[] = [];
-	// === ^
 
 	private get _supportedPageKeys() {
 		if (!this._world?.availablePageScenes) return [];
@@ -371,8 +318,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 						SCREEN_POSITION,
 						0.84
 					),
-					SCREEN_POSITION,
-					() => {}
+					SCREEN_POSITION
 				)
 				.add(() => {
 					this._triggerGlassTransitionEffect().add(() => {
@@ -406,172 +352,5 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 	public destruct() {}
 
-	public updateModelBubblesDomElements() {
-		const _CAMERA = this._appCameraInstance;
-		if (!(_CAMERA instanceof PerspectiveCamera)) return;
-
-		for (const bubble of this.modelBubbles) {
-			if (bubble.DOMelement) {
-				const screenPosition = bubble.coordinates.clone();
-				screenPosition.project(_CAMERA);
-
-				const translateX =
-					screenPosition.x * this._experience.app.sizes.width * 0.5;
-				const translateY = -(
-					screenPosition.y *
-					this._experience.app.sizes.height *
-					0.5
-				);
-				bubble.DOMelement.style.transform = `translate(${translateX}px, ${translateY}px)`;
-			}
-		}
-	}
-
-	public setWheelEventListener() {
-		window.addEventListener("wheel", (e) => {
-			if (this.autoCameraAnimation === false) return;
-
-			if (e.deltaY < 0) {
-				this.cameraCurvePathProgress.target += 0.05;
-				this.backwardCurveAnimation = false;
-
-				return;
-			}
-
-			this.cameraCurvePathProgress.target -= 0.05;
-			this.backwardCurveAnimation = true;
-		});
-	}
-
-	public setMouseMoveEventListener() {
-		window.addEventListener("mousemove", (e) => {
-			if (this.autoCameraAnimation === true && this.mouseDowned) {
-				if (e.clientX < this.lastMouseCoordinate.x) {
-					this.cameraCurvePathProgress.target += 0.002;
-					this.backwardCurveAnimation = false;
-				} else if (e.clientX > this.lastMouseCoordinate.x) {
-					this.cameraCurvePathProgress.target -= 0.002;
-					this.backwardCurveAnimation = true;
-				}
-			}
-
-			if (!this.autoCameraAnimation) {
-				this.normalizedCursorPosition.x =
-					e.clientX / this._experience.app?.sizes.width - 0.5;
-				this.normalizedCursorPosition.y =
-					e.clientY / this._experience.app?.sizes.height - 0.5;
-			}
-
-			this.lastMouseCoordinate = { x: e.clientX, y: e.clientY };
-		});
-	}
-
-	public setMouseDownEventListener() {
-		window.addEventListener("mousedown", () => {
-			this.mouseDowned = true;
-			if (this.focusedPosition && !this.mouseOverBubble)
-				this._experience.camera?.cameraZoomIn();
-		});
-	}
-
-	public setMouseUpEventListener() {
-		window.addEventListener("mouseup", () => {
-			this.mouseDowned = false;
-			if (this.focusedPosition && !this.mouseOverBubble)
-				this._experience.camera?.cameraZoomOut();
-		});
-	}
-
-	public getFocusedLookAtPosition(position = this.focusedPosition) {
-		if (!(position && this._appCameraInstance)) return new Vector3();
-
-		return new Vector3(
-			position.x -
-				this.focusedRadius *
-					Math.cos(
-						this.focusedAngleX -
-							this._appCameraInstance.rotation.y +
-							Math.PI * 0.5
-					),
-			position.y - this.focusedRadius * Math.sin(this.focusedAngleY),
-			position.z -
-				this.focusedRadius *
-					Math.sin(
-						this.focusedAngleX -
-							this._appCameraInstance.rotation.y +
-							Math.PI * 0.5
-					)
-		);
-	}
-
-	public getGsapDefaultProps() {
-		return {
-			onStart: () => {
-				this.isGsapAnimating = true;
-			},
-			onComplete: () => {
-				this.isGsapAnimating = false;
-			},
-		};
-	}
-
-	public update() {
-		if (this.autoCameraAnimation && !this.isGsapAnimating) {
-			this.cameraCurvePathProgress.current = gsap.utils.interpolate(
-				this.cameraCurvePathProgress.current,
-				this.cameraCurvePathProgress.target,
-				this.cameraCurvePathProgress.ease
-			);
-			this.cameraCurvePathProgress.target =
-				this.cameraCurvePathProgress.target +
-				(this.backwardCurveAnimation ? -0.0001 : 0.0001);
-
-			if (this.cameraCurvePathProgress.target > 1) {
-				setTimeout(() => {
-					this.backwardCurveAnimation = true;
-				}, 1000);
-			}
-
-			if (this.cameraCurvePathProgress.target < 0) {
-				setTimeout(() => {
-					this.backwardCurveAnimation = false;
-				}, 1000);
-			}
-			this.cameraCurvePathProgress.target = gsap.utils.clamp(
-				0,
-				1,
-				this.cameraCurvePathProgress.target
-			);
-			this.cameraCurvePathProgress.current = gsap.utils.clamp(
-				0,
-				1,
-				this.cameraCurvePathProgress.current
-			);
-			this.cameraCurvePath.getPointAt(
-				this.cameraCurvePathProgress.current,
-				this.cameraCurvePosition
-			);
-			this._appCameraInstance?.position.copy(this.cameraCurvePosition);
-		}
-
-		if (
-			this._appCameraInstance &&
-			!this.autoCameraAnimation &&
-			this.focusedPosition &&
-			!this.isGsapAnimating
-		)
-			this._camera?.setCameraLookAt(this.getFocusedLookAtPosition());
-
-		this.updateModelBubblesDomElements();
-
-		if (this.autoCameraAnimation || !this.isGsapAnimating)
-			this._experience.camera?.setCameraLookAt(
-				this._camera?.lookAtPosition ?? new Vector3()
-			);
-
-		this.focusedAngleX +=
-			(this.normalizedCursorPosition.x * Math.PI - this.focusedAngleX) * 0.1;
-		this.focusedAngleY +=
-			(this.normalizedCursorPosition.y * Math.PI - this.focusedAngleY) * 0.1;
-	}
+	public update() {}
 }

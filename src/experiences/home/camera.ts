@@ -3,7 +3,6 @@ import gsap from "gsap";
 
 // EXPERIENCES
 import { HomeExperience } from ".";
-import { Navigation } from "./navigation";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
@@ -77,9 +76,6 @@ export class Camera extends ExperienceBasedBlueprint {
 			this._appDebug?.cameraHelper?.remove();
 			this._appDebug?.cameraHelper?.dispose();
 		}
-
-		if (this._experience.app.debug?.cameraControls)
-			this._experience.app.debug.cameraControls.enabled = false;
 
 		if (!(this._appCameraInstance instanceof PerspectiveCamera)) return;
 

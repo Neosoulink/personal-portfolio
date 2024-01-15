@@ -2,6 +2,7 @@ import type { Spherical, Vector3 } from "three";
 
 export interface NavigationView {
 	enabled?: boolean;
+	controls?: boolean;
 	center?: Vector3;
 	spherical?: {
 		smoothed: Spherical;

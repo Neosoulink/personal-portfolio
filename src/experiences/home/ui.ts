@@ -8,6 +8,7 @@ import { Config } from "~/config";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+import { PerspectiveCamera, type Vector3 } from "three";
 
 /**
  * Class in charge of all the direct interactions with the DOM HTML elements.
@@ -15,12 +16,19 @@ import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-ba
 export class UI extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
+	private readonly _appCamera = this._experience.app.camera;
+
 	private _loadedResourcesProgressLineElements?: HTMLElement | null;
 	private _loadedResourcesProgressElements?: HTMLElement | null;
 	private _lastLoadedResourceElement?: HTMLElement | null;
 
 	public readonly targetElement = this._experience.app.canvas;
 	public readonly targetElementParent = this.targetElement?.parentElement;
+
+	public bubblesInfo: {
+		coordinate: Vector3;
+		element: HTMLElement;
+	}[] = [];
 
 	constructor() {
 		super();
@@ -107,5 +115,26 @@ export class UI extends ExperienceBasedBlueprint {
 					_LANDING_VIEW_WRAPPER.style.display = "none";
 			},
 		});
+	}
+
+	public update(): void {
+		if (!(this._appCamera.instance instanceof PerspectiveCamera)) return;
+
+		for (const bubble of this.bubblesInfo) {
+			if (bubble.element) {
+				const screenPosition = bubble.coordinate.clone();
+				screenPosition.project(this._appCamera.instance);
+
+				const translateX =
+					screenPosition.x * this._experience.app.sizes.width * 0.5;
+				const translateY = -(
+					screenPosition.y *
+					this._experience.app.sizes.height *
+					0.5
+				);
+
+				bubble.element.style.transform = `translate(${translateX}px, ${translateY}px)`;
+			}
+		}
 	}
 }
