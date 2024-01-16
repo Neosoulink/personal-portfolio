@@ -6,8 +6,10 @@ import {
 	Mesh,
 	ShaderMaterial,
 	DoubleSide,
+	CatmullRomCurve3,
+	Vector3,
 } from "three";
-import gsap from "gsap";
+import { gsap } from "gsap";
 import { HtmlMixerPlane } from "threex.htmlmixer-continued/lib/html-mixer";
 
 // CONFIG
@@ -63,6 +65,13 @@ export class Scene3Component extends SceneComponentBlueprint {
 			enabled: true,
 		},
 	};
+	public cameraPath = new CatmullRomCurve3([
+		new Vector3(0, 5.5, 21),
+		new Vector3(12, 10, 12),
+		new Vector3(21, 5.5, 0),
+		new Vector3(12, 3.7, 12),
+		new Vector3(0, 5.5, 21),
+	]);
 
 	public pcTopArticulation?: Object3D<Object3DEventMap>;
 	public pcScreen?: Mesh;
@@ -81,6 +90,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 				pc_top_2: "scene_3",
 				"eye-glass_glass": "glass",
 				scene_3_floor: "scene_container",
+				pc_top_screen_2: "glass",
 				phone_screen_2: "phone_screen",
 				watch_screen: "watch_screen",
 				gamepad_led: "gamepad_led",
@@ -93,6 +103,13 @@ export class Scene3Component extends SceneComponentBlueprint {
 				this._setGamepadLed(child);
 			},
 		});
+	}
+
+	public get isPcOpen() {
+		return (
+			this.pcTopArticulation?.rotation.z !==
+			this._initialPcTopArticulation?.rotation.z
+		);
 	}
 
 	private _setPcTopArticulation(item: Object3D<Object3DEventMap>) {
@@ -133,6 +150,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 
 		if (!AVAILABLE_TEXTURE) return AVAILABLE_MATERIALS;
 
+		// MATERIALS
 		if (this._world?.commonMaterials.scene_container) {
 			AVAILABLE_MATERIALS.scene_container =
 				this._world?.commonMaterials.scene_container.clone();
@@ -140,8 +158,13 @@ export class Scene3Component extends SceneComponentBlueprint {
 			AVAILABLE_MATERIALS.scene_container.depthWrite = false;
 		}
 
-		if (this._world?.commonMaterials.glass)
+		if (this._world?.commonMaterials.glass) {
 			AVAILABLE_MATERIALS.glass = this._world?.commonMaterials.glass.clone();
+			if (AVAILABLE_MATERIALS.glass instanceof MeshBasicMaterial) {
+				AVAILABLE_MATERIALS.glass.alphaTest = 1;
+				AVAILABLE_MATERIALS.glass.alphaMap = AVAILABLE_TEXTURE.cloudAlphaMap;
+			}
+		}
 
 		AVAILABLE_MATERIALS.scene_3 = new MeshBasicMaterial({
 			alphaMap: AVAILABLE_TEXTURE.cloudAlphaMap,
@@ -189,40 +212,34 @@ export class Scene3Component extends SceneComponentBlueprint {
 	/**
 	 * Toggle the state of the pc between open and close
 	 *
-	 * @param state Force the state of the pc (0 = "close" & 1 = "open")
+	 * @param forceState Force the state of the pc (0 = "close" & 1 = "open")
 	 * @returns
 	 */
-	public togglePcOpening(state?: 0 | 1) {
-		if (!this._model || !this.modelScene || !this.pcTopArticulation) return;
-		const isOpen =
-			typeof state === "number"
-				? state === 1
-				: this.pcTopArticulation.rotation.z !==
-				  this._initialPcTopArticulation?.rotation.z;
+	public togglePcOpening(force?: 0 | 1) {
+		if (!this._model || !this.modelScene || !this.pcTopArticulation)
+			return this.timeline;
+
+		const isOpen = typeof force === "number" ? force !== 1 : this.isPcOpen;
 
 		const _NEXT_VALUE = isOpen
 			? this._initialPcTopArticulation?.rotation.z ?? 0
-			: this.pcTopArticulation.rotation.z + 1.7;
+			: (this._initialPcTopArticulation?.rotation.z ?? 0) + 1.7;
 
-		return this.timeline.to(this.pcTopArticulation.rotation, {
-			z: _NEXT_VALUE,
-			duration: Config.GSAP_ANIMATION_DURATION,
-			onUpdate: () => {},
-			onComplete: () => {
-				if (this.pcTopArticulation?.rotation)
-					this.pcTopArticulation.rotation.z = Number(_NEXT_VALUE);
-			},
-		});
+		return this.pcTopArticulation.rotation.z === _NEXT_VALUE
+			? this.timeline
+			: this.timeline.to(this.pcTopArticulation.rotation, {
+					z: _NEXT_VALUE,
+					duration: Config.GSAP_ANIMATION_DURATION,
+					onUpdate: () => {},
+					onComplete: () => {
+						if (this.pcTopArticulation?.rotation)
+							this.pcTopArticulation.rotation.z = Number(_NEXT_VALUE);
+					},
+			  });
 	}
 
 	public construct(): void {
 		super.construct();
-
-		~(() => {
-			if (!this._renderer) return;
-
-			this._renderer.enableCssRender = true;
-		})();
 
 		~(() => {
 			if (
@@ -254,12 +271,83 @@ export class Scene3Component extends SceneComponentBlueprint {
 
 			this.pcTopArticulation.add(this._pcScreenMixerPlane.object3d);
 		})();
+
+		~(() => {
+			const _MAT_KEYS = Object.keys(this._availableMaterials).slice(3);
+
+			if (this._pcScreenMixerPlane)
+				this._pcScreenMixerPlane.object3d.visible = false;
+			for (const key of _MAT_KEYS)
+				this._availableMaterials[key].visible = false;
+		})();
 	}
 
-	public intro(): void {
-		this.togglePcOpening();
+	public intro() {
+		if (!this.modelScene) return this.timeline;
+
+		this.modelScene.renderOrder = 1;
+
+		const _PARAMS = { alphaTest: 0 };
+		const _MAT_KEYS = Object.keys(this._availableMaterials);
+		const _ALPHA_MAT_KEYS = _MAT_KEYS.slice(0, 3);
+		const _OTHER_MAT_KEYS = _MAT_KEYS.slice(3);
+
+		return this.togglePcOpening(1)
+			?.add(
+				gsap.to(_PARAMS, {
+					alphaTest: 1,
+					duration: Config.GSAP_ANIMATION_DURATION,
+					onStart: () => {
+						// if (!this._navigation?.timeline.isActive())
+						// 	this._navigation?.setLimits(this.navigationLimits);
+					},
+					onUpdate: () => {
+						for (const key of _ALPHA_MAT_KEYS)
+							this._availableMaterials[key].alphaTest = 1 - _PARAMS.alphaTest;
+					},
+				}),
+				"<"
+			)
+			.add(() => {
+				if (this._renderer) this._renderer.enableCssRender = true;
+				if (this._pcScreenMixerPlane)
+					this._pcScreenMixerPlane.object3d.visible = true;
+				for (const key of _OTHER_MAT_KEYS)
+					this._availableMaterials[key].visible = true;
+			}, "<40%");
 	}
 
+	public outro() {
+		if (!this.modelScene) return this.timeline;
+
+		this.modelScene.renderOrder = 2;
+
+		const _PARAMS = { alphaTest: 0 };
+		const _MAT_KEYS = Object.keys(this._availableMaterials);
+		const _ALPHA_MAT_KEYS = _MAT_KEYS.slice(0, 3);
+		const _OTHER_MAT_KEYS = _MAT_KEYS.slice(3);
+
+		return this.togglePcOpening(0)?.add(
+			gsap.to(_PARAMS, {
+				alphaTest: 1,
+				duration: Config.GSAP_ANIMATION_DURATION,
+				onStart: () => {
+					if (this._renderer) this._renderer.enableCssRender = false;
+					if (this._pcScreenMixerPlane)
+						this._pcScreenMixerPlane.object3d.visible = false;
+					for (const key of _OTHER_MAT_KEYS)
+						this._availableMaterials[key].visible = false;
+					// if (!this._navigation?.timeline.isActive())
+					// 	this._navigation?.setLimits(this.navigationLimits);
+				},
+				onUpdate: () => {
+					for (const key of _ALPHA_MAT_KEYS)
+						this._availableMaterials[key].alphaTest = _PARAMS.alphaTest;
+				},
+			}),
+			"<"
+		);
+	}
 	public update() {
 		this._uTime = this._appTime.elapsed * 0.001;
 		this._uTimestamps = this._currentDayTimestamp * 0.001 + this._uTime;

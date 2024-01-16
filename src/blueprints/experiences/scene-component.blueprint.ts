@@ -1,5 +1,14 @@
-import { Group, Mesh, Object3D, type Object3DEventMap, Material } from "three";
+import {
+	Group,
+	Mesh,
+	Object3D,
+	type Object3DEventMap,
+	Material,
+	CatmullRomCurve3,
+	Vector3,
+} from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
+import type { gsap } from "gsap";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "./experience-based.blueprint";
@@ -45,10 +54,14 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 	protected _modelScene?: Group;
 	protected _availableMaterials: Materials = {};
 
-	public abstract readonly navigationLimits?: {
+	public readonly navigationLimits?: {
 		spherical: Exclude<NavigationView["spherical"], undefined>["limits"];
 		target: Exclude<NavigationView["target"], undefined>["limits"];
-	};
+	} = undefined;
+	public cameraPath = new CatmullRomCurve3();
+	public center = new Vector3();
+
+	public timeline?: gsap.core.Timeline;
 
 	constructor(_: SceneBlueprintProps) {
 		super();
@@ -118,10 +131,7 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 
 		if (typeof callback === "function") callback();
 
-		this._availableMaterials = {
-			...this._world?.commonMaterials,
-			...this._getAvailableMaterials(),
-		};
+		this._availableMaterials = this._getAvailableMaterials();
 		this._initModelMaterials();
 		this.emit(events.CONSTRUCTED);
 	}
@@ -132,9 +142,13 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 		this.emit(events.DESTRUCTED);
 	}
 
-	public intro(): void {}
+	public intro(): gsap.core.Timeline | undefined {
+		return this.timeline;
+	}
 
-	public outro(): void {}
+	public outro(): gsap.core.Timeline | undefined {
+		return this.timeline;
+	}
 
 	public update(): void {}
 }

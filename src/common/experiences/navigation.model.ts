@@ -1,10 +1,16 @@
 import type { Spherical, Vector3 } from "three";
 
 export interface NavigationView {
-	enabled?: boolean;
-	controls?: boolean;
-	center?: Vector3;
-	spherical?: {
+	/** Enable navigation update and controls interactions. */
+	enabled: boolean;
+	/** Enable controls interactions. */
+	controls: boolean;
+	/** Enable navigation limits. */
+	limits: boolean;
+	/** Define the center of the scene. used to correctly set the limits. */
+	center: Vector3;
+	/** Spherical space for navigation */
+	spherical: {
 		smoothed: Spherical;
 		smoothing: number;
 		limits: {
@@ -17,7 +23,8 @@ export interface NavigationView {
 		};
 		value: Spherical;
 	};
-	target?: {
+	/** Camera target */
+	target: {
 		value: Vector3;
 		smoothed: Vector3;
 		smoothing: number;
@@ -28,13 +35,13 @@ export interface NavigationView {
 			enabled: boolean;
 		};
 	};
-	drag?: {
+	drag: {
 		delta: { x: number; y: number };
 		previous: { x: number; y: number };
 		sensitivity: number;
 		alternative: boolean;
 	};
-	zoom?: { sensitivity: number; delta: number };
+	zoom: { sensitivity: number; delta: number };
 	down?: (x: number, y: number) => unknown;
 	move?: (x: number, y: number) => unknown;
 	up?: () => unknown;

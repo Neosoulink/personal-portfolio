@@ -1,5 +1,4 @@
 import {
-	AnimationMixer,
 	BackSide,
 	Color,
 	Material,
@@ -12,6 +11,9 @@ import {
 	type Object3DEventMap,
 	VideoTexture,
 	LinearSRGBColorSpace,
+	CatmullRomCurve3,
+	PerspectiveCamera,
+	Vector3,
 } from "three";
 import gsap from "gsap";
 
@@ -31,9 +33,6 @@ import { Config } from "~/config";
 // STATICS
 import { DESTRUCTED } from "~/static/event.static";
 
-// ERROR
-import { ErrorFactory } from "~/errors";
-
 // MODELS
 import type {
 	Materials,
@@ -48,7 +47,7 @@ import phone_screen_recording from "~/assets/videos/phone_screen_recording.webm"
 export class Scene1Component extends SceneComponentBlueprint {
 	private _renderer = this._experience.renderer;
 	private _appTime = this._experience.app.time;
-	private _mixer?: AnimationMixer;
+	private _camera = this._experience.camera;
 	private _initialPcTopArticulation?: Object3D;
 
 	public readonly timeline = gsap.timeline();
@@ -76,59 +75,69 @@ export class Scene1Component extends SceneComponentBlueprint {
 			enabled: true,
 		},
 	};
+	public readonly cameraPath = new CatmullRomCurve3([
+		new Vector3(0, 5.5, 21),
+		new Vector3(12, 10, 12),
+		new Vector3(21, 5.5, 0),
+		new Vector3(12, 3.7, 12),
+		new Vector3(0, 5.5, 21),
+	]);
 
-	public pcScreenWebglTexture = new WebGLRenderTarget(1024, 1024);
 	public pcTopArticulation?: Object3D;
-	public treeOutside?: Object3D;
+	public pcScreenProjectedCamera =
+		this._camera?.cameras[1] ?? new PerspectiveCamera();
+	public pcScreenWebglTexture = new WebGLRenderTarget(1024, 1024);
 	public pcScreen?: Mesh;
 	public phoneScreen?: Mesh;
-	public coffeeSteam?: Mesh;
 	public phoneScreenVideo?: HTMLVideoElement;
+	public treeOutside?: Object3D;
+	public coffeeSteam?: Mesh;
 	public monitorAScreenVideo?: HTMLVideoElement;
 	public monitorBScreenVideo?: HTMLVideoElement;
 
 	constructor() {
-		try {
-			super({
-				modelName: "scene_1",
-				childrenMaterials: {
-					scene_1_room: "room",
-					chair_top: "room",
-					pc_top: "room",
-					scene_1_woods: "wood",
-					coffee_steam: "coffee_steam",
-					window_glasses: "glass",
-					scene_1_floor: "scene_container",
-					monitor_a_screen: "monitor_a",
-					monitor_b_screen: "monitor_b",
-					scene_1_phone_screen: "phone_screen",
-					pc_top_screen: "pc_screen",
-					tree: "tree",
-					...(() => {
-						const _RESULTS: ModelChildrenMaterials = {};
-						const _KEYS = ["top", "front", "back", "left", "right"];
-						for (let i = 0; i < _KEYS.length; i++) {
-							_KEYS[i];
-							_RESULTS[`tree_cube_${_KEYS[i]}`] = "tree";
-							_RESULTS[`tree_cube_${_KEYS[i]}_clone`] = "tree_outside";
-						}
+		super({
+			modelName: "scene_1",
+			childrenMaterials: {
+				scene_1_room: "room",
+				chair_top: "room",
+				pc_top: "room",
+				scene_1_woods: "wood",
+				coffee_steam: "coffee_steam",
+				window_glasses: "glass",
+				scene_1_floor: "scene_container",
+				monitor_a_screen: "monitor_a",
+				monitor_b_screen: "monitor_b",
+				scene_1_phone_screen: "phone_screen",
+				pc_top_screen: "pc_screen",
+				tree: "tree",
+				...(() => {
+					const _RESULTS: ModelChildrenMaterials = {};
+					const _KEYS = ["top", "front", "back", "left", "right"];
+					for (let i = 0; i < _KEYS.length; i++) {
+						_KEYS[i];
+						_RESULTS[`tree_cube_${_KEYS[i]}`] = "tree";
+						_RESULTS[`tree_cube_${_KEYS[i]}_clone`] = "tree_outside";
+					}
 
-						return _RESULTS;
-					})(),
-				},
-				onTraverseModelScene: (child: Object3D<Object3DEventMap>) => {
-					this._setPcTopBone(child);
-					this._setPcScreen(child);
-					this._setCoffeeSteam(child);
-					this._setPhoneScreen(child);
-					this._setTreeOutSide(child);
-				},
-			});
+					return _RESULTS;
+				})(),
+			},
+			onTraverseModelScene: (child: Object3D<Object3DEventMap>) => {
+				this._setPcTopBone(child);
+				this._setPcScreen(child);
+				this._setCoffeeSteam(child);
+				this._setPhoneScreen(child);
+				this._setTreeOutSide(child);
+			},
+		});
+	}
 
-			this;
-		} catch (_err) {
-			throw new ErrorFactory(_err);
-		}
+	public get isPcOpen() {
+		return (
+			this.pcTopArticulation?.rotation.z !==
+			this._initialPcTopArticulation?.rotation.z
+		);
 	}
 
 	private _setPcTopBone(item: Object3D<Object3DEventMap>) {
@@ -240,6 +249,14 @@ export class Scene1Component extends SceneComponentBlueprint {
 		);
 		MONITOR_B_VIDEO_TEXTURE.colorSpace = LinearSRGBColorSpace;
 
+		// MATERIALS
+		if (this._world?.commonMaterials.scene_container)
+			AVAILABLE_MATERIALS.scene_container =
+				this._world?.commonMaterials.scene_container;
+
+		if (this._world?.commonMaterials.scene_container)
+			AVAILABLE_MATERIALS.glass = this._world?.commonMaterials.glass;
+
 		AVAILABLE_MATERIALS.pc_screen = new MeshBasicMaterial({
 			map: this.pcScreenWebglTexture?.texture,
 		});
@@ -346,74 +363,60 @@ export class Scene1Component extends SceneComponentBlueprint {
 				this.modelScene?.clear();
 				this.modelScene?.removeFromParent();
 				this._renderer?.removePortalAssets(`${Scene1Component.name}_screen_pc`);
-				this._mixer?.stopAllAction();
-				this._mixer = undefined;
 
 				this.emit(DESTRUCTED);
 			},
 		});
 	}
 
-	// public intro(): void {
-	// 	const WorldManager = this._world?.manager;
+	public intro() {
+		if (!(this?.modelScene && this.pcScreen && this.pcScreenWebglTexture))
+			return;
 
-	// 	if (
-	// 		!(WorldManager && this._appCamera.instance instanceof PerspectiveCamera)
-	// 	)
-	// 		return;
+		this._renderer?.addPortalAssets(`${Scene1Component.name}_pc_screen`, {
+			mesh: this.pcScreen,
+			meshCamera: this.pcScreenProjectedCamera,
+			meshWebGLTexture: this.pcScreenWebglTexture,
+		});
 
-	// 	const { x, y, z } = this.cameraPath.getPointAt(0);
+		if (!this.isPcOpen) return this.togglePcOpening(1);
 
-	// 	gsap.to(this._appCamera.instance.position, {
-	// 		...this._world?.manager?.getGsapDefaultProps(),
-	// 		duration: Config.GSAP_ANIMATION_DURATION,
-	// 		ease: Config.GSAP_ANIMATION_EASE,
-	// 		x,
-	// 		y,
-	// 		z,
-	// 		delay: Config.GSAP_ANIMATION_DURATION * 0.8,
-	// 		onUpdate: () => {
-	// 			// this._camera?.setCameraLookAt(WorldManager.initialLookAtPosition);
-	// 		},
-	// 		onComplete: () => {
-	// 			setTimeout(() => {
-	// 				if (this._world?.manager) {
-	// 					WorldManager?.getGsapDefaultProps().onComplete();
+		return this.timeline;
+	}
 
-	// 					this._world.manager.autoCameraAnimation = true;
-	// 				}
-	// 			}, 1000);
-	// 		},
-	// 	});
-	// }
+	public outro() {
+		this._renderer?.removePortalAssets(`${Scene1Component.name}_pc_screen`);
+
+		return this.timeline;
+	}
 
 	/**
 	 * Toggle the state of the pc between open and close
 	 *
-	 * @param state Force the state of the pc (0 = "close" & 1 = "open")
+	 * @param forceState Force the state of the pc (0 = "close" & 1 = "open")
 	 * @returns
 	 */
-	public togglePcOpening(state?: 0 | 1) {
-		if (!this._model || !this.modelScene || !this.pcTopArticulation) return;
-		const isOpen =
-			typeof state === "number"
-				? state === 1
-				: this.pcTopArticulation.rotation.z !==
-				  this._initialPcTopArticulation?.rotation.z;
+	public togglePcOpening(force?: 0 | 1) {
+		if (!this._model || !this.modelScene || !this.pcTopArticulation)
+			return this.timeline;
+
+		const isOpen = typeof force === "number" ? force !== 1 : this.isPcOpen;
 
 		const _NEXT_VALUE = isOpen
 			? this._initialPcTopArticulation?.rotation.z ?? 0
-			: this.pcTopArticulation.rotation.z + 2.1;
+			: (this._initialPcTopArticulation?.rotation.z ?? 0) + 2.1;
 
-		return this.timeline.to(this.pcTopArticulation.rotation, {
-			z: _NEXT_VALUE,
-			duration: Config.GSAP_ANIMATION_DURATION,
-			onUpdate: () => {},
-			onComplete: () => {
-				if (this.pcTopArticulation?.rotation)
-					this.pcTopArticulation.rotation.z = Number(_NEXT_VALUE);
-			},
-		});
+		return this.pcTopArticulation.rotation.z === _NEXT_VALUE
+			? this.timeline
+			: this.timeline.to(this.pcTopArticulation.rotation, {
+					z: _NEXT_VALUE,
+					duration: Config.GSAP_ANIMATION_DURATION,
+					onUpdate: () => {},
+					onComplete: () => {
+						if (this.pcTopArticulation?.rotation)
+							this.pcTopArticulation.rotation.z = Number(_NEXT_VALUE);
+					},
+			  });
 	}
 
 	public update(): void {

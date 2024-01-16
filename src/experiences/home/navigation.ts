@@ -16,6 +16,7 @@ import { ANIMATION_ENDED, ANIMATION_STARTED } from "~/static/event.static";
 
 // CONFIG
 import { Config } from "~/config";
+import { errors } from "~/static";
 
 /**
  * @original-author {@link @brunosimon} / https://github.com/brunonsimon
@@ -27,30 +28,28 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 	private readonly _targetElement =
 		this._experience.app.renderer.instance.domElement;
-	private readonly _appCamera = this._experience.app.camera;
 	private readonly _appSizes = this._experience.app.sizes;
 	private readonly _ui = this._experience.ui;
 	private readonly _camera = this._experience.camera;
 	private readonly _time = this._experience.app.time;
 	private readonly _config = {
-		pixelRatio: 0,
-		width: 0,
-		height: 0,
 		smallestSide: 0,
 		largestSide: 0,
 	};
 	private readonly _timeline = gsap.timeline({
 		onStart: () => {
-			if (this._view.spherical?.limits)
-				this._view.spherical.limits.enabled = false;
-			if (this._view.target?.limits) this._view.target.limits.enabled = false;
+			this._view.spherical.limits.enabled = false;
+			this._view.target.limits.enabled = false;
+			this._view.controls = false;
+
 			this.emit(ANIMATION_STARTED);
 		},
 		onComplete: () => {
 			setTimeout(() => {
-				if (this._view.spherical?.limits)
-					this._view.spherical.limits.enabled = true;
-				if (this._view.target?.limits) this._view.target.limits.enabled = true;
+				this._view.spherical.limits.enabled = true;
+				this._view.target.limits.enabled = true;
+				this._view.controls = true;
+
 				this._timeline.clear();
 				this.emit(ANIMATION_ENDED);
 			}, 100);
@@ -61,254 +60,46 @@ export class Navigation extends ExperienceBasedBlueprint {
 		target: Exclude<NavigationView["target"], undefined>["limits"];
 	} = {
 		spherical: {
-			radius: { min: 5, max: 20 },
-			phi: { min: 0.01, max: Math.PI * 0.5 },
-			theta: { min: 0, max: Math.PI * 0.5 },
-			enabled: true,
-			enabledPhi: true,
-			enabledTheta: true,
+			radius: { min: 0, max: 0 },
+			phi: { min: 0, max: 0 },
+			theta: { min: 0, max: 0 },
+			enabled: false,
+			enabledPhi: false,
+			enabledTheta: false,
 		},
 		target: {
-			x: { min: -3, max: 3 },
-			y: { min: 2, max: 6 },
-			z: { min: -2.5, max: 4 },
-			enabled: true,
+			x: { min: 0, max: 0 },
+			y: { min: 0, max: 0 },
+			z: { min: 0, max: 0 },
+			enabled: false,
 		},
 	} as const;
 
-	private _view: NavigationView = {};
-
-	private _setView() {
-		this._view.enabled = true;
-		this._view.controls = true;
-
-		this._view.center = new Vector3();
-
-		this._view.spherical = {
-			value: new Spherical(20, Math.PI * 0.5, 0),
-			smoothed: new Spherical(20, Math.PI * 0.5, 0),
+	private readonly _view: NavigationView = {
+		enabled: true,
+		controls: true,
+		limits: false,
+		center: new Vector3(),
+		spherical: {
+			value: new Spherical(),
+			smoothed: new Spherical(),
 			smoothing: 0.005,
 			limits: this._viewLimits.spherical,
-		};
-
-		this._view.target = {
+		},
+		target: {
 			value: new Vector3(0, 2, 0),
 			smoothed: new Vector3(0, 2, 0),
 			smoothing: 0.005,
 			limits: this._viewLimits.target,
-		};
-
-		this._view.drag = {
+		},
+		drag: {
 			delta: { x: 0, y: 0 },
 			previous: { x: 0, y: 0 },
 			sensitivity: 1,
 			alternative: false,
-		};
-
-		this._view.zoom = { sensitivity: 0.01, delta: 0 };
-
-		this._view.down = (_x, _y) => {
-			if (!this._view.drag?.previous) return;
-
-			this._view.drag.previous.x = _x;
-			this._view.drag.previous.y = _y;
-		};
-		this._view.move = (_x, _y) => {
-			if (
-				!this.view.controls ||
-				!this._view.enabled ||
-				!this._view?.drag?.delta ||
-				!this._view.drag.previous
-			)
-				return;
-
-			this._view.drag.delta.x += _x - this._view.drag.previous.x;
-			this._view.drag.delta.y += _y - this._view.drag.previous.y;
-
-			this._view.drag.previous.x = _x;
-			this._view.drag.previous.y = _y;
-		};
-		this._view.up = () => {};
-		this._view.zooming = (_delta) => {
-			if (typeof this._view.zoom?.delta !== "number") return;
-
-			this._view.zoom.delta += _delta;
-		};
-
-		/**
-		 * Mouse events
-		 */
-		this._view.onMouseDown = (_event) => {
-			_event.preventDefault();
-
-			if (
-				!this.view.controls ||
-				!this._view.enabled ||
-				!this._view.drag ||
-				!this._view.down ||
-				!this._view.onMouseUp ||
-				!this._view.onMouseMove
-			)
-				return;
-
-			this._view.drag.alternative =
-				_event.button === 2 ||
-				_event.button === 1 ||
-				_event.ctrlKey ||
-				_event.shiftKey;
-
-			this._view?.down(_event.clientX, _event.clientY);
-
-			this._ui?.targetElementParent?.addEventListener<"mouseup">(
-				"mouseup",
-				this._view.onMouseUp
-			);
-			this._ui?.targetElementParent?.addEventListener(
-				"mousemove",
-				this._view.onMouseMove
-			);
-		};
-
-		this._view.onMouseMove = (_event) => {
-			_event.preventDefault();
-			if (!this._view.move) return;
-
-			this._view.move(_event.clientX, _event.clientY);
-		};
-
-		this._view.onMouseUp = (_event) => {
-			_event.preventDefault();
-
-			if (!this._view?.up || !this._view.onMouseUp || !this._view.onMouseMove)
-				return;
-
-			this._view.up();
-
-			this._ui?.targetElementParent?.removeEventListener(
-				"mouseup",
-				this._view.onMouseUp
-			);
-			this._ui?.targetElementParent?.removeEventListener(
-				"mousemove",
-				this._view.onMouseMove
-			);
-		};
-
-		this._ui?.targetElementParent?.addEventListener(
-			"mousedown",
-			this._view.onMouseDown
-		);
-
-		this._view.onTouchStart = (_event) => {
-			_event.preventDefault();
-
-			if (
-				!this._view.drag ||
-				!this._view.down ||
-				!this._view.onTouchEnd ||
-				!this._view.onTouchMove
-			)
-				return;
-
-			this._view.drag.alternative = _event.touches.length > 1;
-
-			this._view.down(_event.touches[0].clientX, _event.touches[0].clientY);
-
-			this._ui?.targetElementParent?.addEventListener(
-				"touchend",
-				this._view.onTouchEnd
-			);
-			this._ui?.targetElementParent?.addEventListener(
-				"touchmove",
-				this._view.onTouchMove
-			);
-		};
-
-		this._view.onTouchMove = (_event) => {
-			_event.preventDefault();
-
-			if (!this._view.move) return;
-
-			this._view.move(_event.touches[0].clientX, _event.touches[0].clientY);
-		};
-
-		this._view.onTouchEnd = (_event) => {
-			_event.preventDefault();
-
-			if (!this._view.up || !this._view.onTouchEnd || !this._view.onTouchMove)
-				return;
-
-			this._view.up();
-
-			this._ui?.targetElementParent?.removeEventListener(
-				"touchend",
-				this._view.onTouchEnd
-			);
-			this._ui?.targetElementParent?.removeEventListener(
-				"touchmove",
-				this._view.onTouchMove
-			);
-		};
-
-		this._ui?.targetElementParent?.addEventListener(
-			"touchstart",
-			this._view.onTouchStart
-		);
-
-		this._view.onContextMenu = (_event) => {
-			_event.preventDefault();
-		};
-
-		this._ui?.targetElementParent?.addEventListener(
-			"contextmenu",
-			this._view.onContextMenu
-		);
-
-		this._view.onWheel = (_event) => {
-			_event.preventDefault();
-
-			if (
-				!this.view.controls ||
-				!this._view.enabled ||
-				!this._view.zooming ||
-				!this._view.onWheel
-			)
-				return;
-
-			const normalized = normalizeWheel(_event);
-			this._view.zooming(normalized.pixelY);
-		};
-
-		this._ui?.targetElementParent?.addEventListener(
-			"mousewheel",
-			this._view.onWheel,
-			{
-				passive: false,
-			}
-		);
-
-		this._ui?.targetElementParent?.addEventListener(
-			"wheel",
-			this._view.onWheel,
-			{ passive: false }
-		);
-	}
-
-	private _setConfig() {
-		this._config.pixelRatio = this._experience.app.sizes.pixelRatio;
-
-		const boundingClient = this._targetElement.getBoundingClientRect();
-		this._config.width = boundingClient.width;
-		this._config.height = Number(boundingClient.height || window?.innerHeight);
-		this._config.smallestSide = Math.min(
-			this._config.width,
-			this._config.height
-		);
-		this._config.largestSide = Math.max(
-			this._config.width,
-			this._config.height
-		);
-	}
+		},
+		zoom: { sensitivity: 0.01, delta: 0 },
+	};
 
 	public get timeline() {
 		return this._timeline;
@@ -318,91 +109,274 @@ export class Navigation extends ExperienceBasedBlueprint {
 		return this._view;
 	}
 
+	private _setConfig() {
+		const boundingClient = this._targetElement.getBoundingClientRect();
+		const width = boundingClient.width;
+		const height = Number(boundingClient.height || window?.innerHeight);
+
+		this._config.smallestSide = Math.min(width, height);
+		this._config.largestSide = Math.max(width, height);
+	}
+
 	public construct() {
+		if (!this._camera)
+			throw new Error("Camera class not initialized", {
+				cause: errors.WRONG_PARAM,
+			});
+
 		this._setConfig();
-		this._setView();
+
+		// Init view
+		~(() => {
+			this._view.spherical.value = new Spherical().setFromVector3(
+				this._camera?.instance.position ?? new Vector3()
+			);
+			this._view.spherical.smoothed = new Spherical().setFromVector3(
+				this._camera?.instance.position ?? new Vector3()
+			);
+		})();
+
+		// Init mouse events
+		~(() => {
+			this._view.down = (_x, _y) => {
+				if (!this._view.drag?.previous) return;
+
+				this._view.drag.previous.x = _x;
+				this._view.drag.previous.y = _y;
+			};
+			this._view.move = (_x, _y) => {
+				if (!this.view.controls || !this._view.enabled) return;
+
+				this._view.drag.delta.x += _x - this._view.drag.previous.x;
+				this._view.drag.delta.y += _y - this._view.drag.previous.y;
+
+				this._view.drag.previous.x = _x;
+				this._view.drag.previous.y = _y;
+			};
+			this._view.up = () => {};
+			this._view.zooming = (_delta) => {
+				if (typeof this._view.zoom?.delta !== "number") return;
+
+				this._view.zoom.delta += _delta;
+			};
+
+			this._view.onMouseDown = (_event) => {
+				_event.preventDefault();
+
+				if (
+					!this.view.controls ||
+					!this._view.enabled ||
+					!this._view.drag ||
+					!this._view.down ||
+					!this._view.onMouseUp ||
+					!this._view.onMouseMove
+				)
+					return;
+
+				this._view.drag.alternative =
+					_event.button === 2 ||
+					_event.button === 1 ||
+					_event.ctrlKey ||
+					_event.shiftKey;
+
+				this._view?.down(_event.clientX, _event.clientY);
+
+				this._ui?.targetElementParent?.addEventListener<"mouseup">(
+					"mouseup",
+					this._view.onMouseUp
+				);
+				this._ui?.targetElementParent?.addEventListener(
+					"mousemove",
+					this._view.onMouseMove
+				);
+			};
+			this._view.onMouseMove = (_event) => {
+				_event.preventDefault();
+				if (!this._view.move) return;
+
+				this._view.move(_event.clientX, _event.clientY);
+			};
+			this._view.onMouseUp = (_event) => {
+				_event.preventDefault();
+
+				if (!this._view?.up || !this._view.onMouseUp || !this._view.onMouseMove)
+					return;
+
+				this._view.up();
+
+				this._ui?.targetElementParent?.removeEventListener(
+					"mouseup",
+					this._view.onMouseUp
+				);
+				this._ui?.targetElementParent?.removeEventListener(
+					"mousemove",
+					this._view.onMouseMove
+				);
+			};
+			this._view.onTouchStart = (_event) => {
+				_event.preventDefault();
+
+				if (
+					!this._view.down ||
+					!this._view.onTouchEnd ||
+					!this._view.onTouchMove
+				)
+					return;
+
+				this._view.drag.alternative = _event.touches.length > 1;
+				this._view.down(_event.touches[0].clientX, _event.touches[0].clientY);
+
+				this._ui?.targetElementParent?.addEventListener(
+					"touchend",
+					this._view.onTouchEnd
+				);
+				this._ui?.targetElementParent?.addEventListener(
+					"touchmove",
+					this._view.onTouchMove
+				);
+			};
+			this._view.onTouchMove = (_event) => {
+				_event.preventDefault();
+
+				if (!this._view.move) return;
+
+				this._view.move(_event.touches[0].clientX, _event.touches[0].clientY);
+			};
+			this._view.onTouchEnd = (_event) => {
+				_event.preventDefault();
+
+				if (!this._view.up || !this._view.onTouchEnd || !this._view.onTouchMove)
+					return;
+
+				this._view.up();
+
+				this._ui?.targetElementParent?.removeEventListener(
+					"touchend",
+					this._view.onTouchEnd
+				);
+				this._ui?.targetElementParent?.removeEventListener(
+					"touchmove",
+					this._view.onTouchMove
+				);
+			};
+			this._view.onContextMenu = (_event) => {
+				_event.preventDefault();
+			};
+			this._view.onWheel = (_event) => {
+				_event.preventDefault();
+
+				if (
+					!this.view.controls ||
+					!this._view.enabled ||
+					!this._view.zooming ||
+					!this._view.onWheel
+				)
+					return;
+
+				const normalized = normalizeWheel(_event);
+				this._view.zooming(normalized.pixelY);
+			};
+
+			this._ui?.targetElementParent?.addEventListener(
+				"mousedown",
+				this._view.onMouseDown
+			);
+			this._ui?.targetElementParent?.addEventListener(
+				"touchstart",
+				this._view.onTouchStart
+			);
+			this._ui?.targetElementParent?.addEventListener(
+				"contextmenu",
+				this._view.onContextMenu
+			);
+			this._ui?.targetElementParent?.addEventListener(
+				"mousewheel",
+				this._view.onWheel,
+				{
+					passive: false,
+				}
+			);
+			this._ui?.targetElementParent?.addEventListener(
+				"wheel",
+				this._view.onWheel,
+				{ passive: false }
+			);
+		})();
 
 		this._appSizes.on("resize", () => this._setConfig());
 	}
 
 	public destruct() {
-		if (!this.view) return;
-
 		this._view.onMouseDown &&
 			this._ui?.targetElementParent?.removeEventListener(
 				"mousedown",
 				this._view.onMouseDown
 			);
-
 		this._view.onMouseUp &&
 			this._ui?.targetElementParent?.removeEventListener(
 				"mouseup",
 				this._view.onMouseUp
 			);
-
 		this._view.onMouseMove &&
 			this._ui?.targetElementParent?.removeEventListener(
 				"mousemove",
 				this._view.onMouseMove
 			);
-
 		this._view.onTouchEnd &&
 			this._ui?.targetElementParent?.removeEventListener(
 				"touchend",
 				this._view.onTouchEnd
 			);
-
 		this._view.onTouchMove &&
 			this._ui?.targetElementParent?.removeEventListener(
 				"touchmove",
 				this._view.onTouchMove
 			);
-
 		this._view.onTouchStart &&
 			this._ui?.targetElementParent?.removeEventListener(
 				"touchstart",
 				this._view.onTouchStart
 			);
-
 		this._view.onContextMenu &&
 			this._ui?.targetElementParent?.removeEventListener(
 				"contextmenu",
 				this._view.onContextMenu
 			);
-
 		this._view.onWheel &&
 			this._ui?.targetElementParent?.removeEventListener(
 				"mousewheel",
 				this._view.onWheel
 			);
-
 		this._view.onWheel &&
 			this._ui?.targetElementParent?.removeEventListener(
 				"wheel",
 				this._view.onWheel
 			);
+
+		this._appSizes.off("resize", () => this._setConfig());
 	}
 
-	public disableFreeAzimuthRotation(limits?: { min: number; max: number }) {
-		if (this._view.spherical?.limits) {
-			this._view.spherical.limits.enabledTheta = true;
-			if (limits) this._view.spherical.limits.theta = limits;
-		}
+	/**
+	 * Disable horizontal free rotation.
+	 *
+	 * @param limits Set the min & max limits (Optional)
+	 */
+	public disableAzimuthRotation(limits?: { min: number; max: number }) {
+		this._view.spherical.limits.enabledTheta = true;
+		if (limits) this._view.spherical.limits.theta = limits;
 	}
 
-	public disableFreePolarRotation(limits?: { min: number; max: number }) {
-		if (this._view.spherical?.limits) {
-			this._view.spherical.limits.enabledPhi = true;
-			if (limits) this._view.spherical.limits.phi = limits;
-		}
+	public disablePolarRotation(limits?: { min: number; max: number }) {
+		this._view.spherical.limits.enabledPhi = true;
+		if (limits) this._view.spherical.limits.phi = limits;
 	}
 
-	public enableFreeAzimuthRotation() {
+	public enableAzimuthRotation() {
 		if (this._view.spherical?.limits)
 			this._view.spherical.limits.enabledTheta = false;
 	}
 
-	public enableFreePolarRotation() {
+	public enablePolarRotation() {
 		if (this._view.spherical?.limits)
 			this._view.spherical.limits.enabledPhi = false;
 	}
@@ -417,8 +391,8 @@ export class Navigation extends ExperienceBasedBlueprint {
 	 */
 	public setTargetPosition(v3 = new Vector3()) {
 		const V3 = v3.clone();
-		this._view.target?.value?.copy(V3);
-		this._view.target?.smoothed?.copy(V3);
+		this._view.target.value = V3;
+		this._view.target.smoothed = V3;
 
 		return this._view.target;
 	}
@@ -428,12 +402,6 @@ export class Navigation extends ExperienceBasedBlueprint {
 	 * @param v3 The {@link Vector3} position where the the camera will look at.
 	 */
 	public setPositionInSphere(v3 = new Vector3()) {
-		if (
-			!this._view.spherical?.smoothed ||
-			!this._view.spherical.value ||
-			!this._view.target?.smoothed
-		)
-			return;
 		const SAFE_V3 = v3
 			.clone()
 			.add(
@@ -457,60 +425,69 @@ export class Navigation extends ExperienceBasedBlueprint {
 	 *
 	 * @param toPosition The new camera position.
 	 * @param target Where the camera will look at.
+	 * @param duration Animation duration.
 	 */
 	public updateCameraPosition(
 		toPosition = new Vector3(),
 		lookAt = new Vector3(),
+		// TODO: Change it to TimelineVars instead.
 		duration = Config.GSAP_ANIMATION_DURATION
 	) {
-		if (!this._appCamera.instance) return this._timeline;
+		if (!this._camera) return this._timeline;
 
 		const targetA = this._view.target?.value?.clone();
 		const targetB = lookAt.clone();
-		const currentCamPosition = this._appCamera.instance?.position.clone();
+		const currentCamPosition = this._camera.instance.position.clone();
 
 		if (!targetA || !targetB || !currentCamPosition) return this._timeline;
+		if (this._timeline.isActive()) {
+			console.log("One");
+			this._timeline.progress(1);
+		}
 
-		return this._timeline.to(currentCamPosition, {
-			x: toPosition.x,
-			y: toPosition.y,
-			z: toPosition.z,
-			duration,
-			ease: Config.GSAP_ANIMATION_EASE,
-			onStart: () => {
-				gsap.to(targetA, {
-					x: targetB.x,
-					y: targetB.y,
-					z: targetB.z,
-					duration: duration * 0.55,
+		return this._timeline
+			.to(targetA, {
+				x: targetB.x,
+				y: targetB.y,
+				z: targetB.z,
+				duration: duration * 0.55,
+				ease: Config.GSAP_ANIMATION_EASE,
+				onUpdate: () => {
+					this.setTargetPosition(targetA);
+				},
+				onComplete: () => {
+					this.setTargetPosition(targetA);
+				},
+			})
+			.add(
+				gsap.to(currentCamPosition, {
+					x: toPosition.x,
+					y: toPosition.y,
+					z: toPosition.z,
+					duration,
 					ease: Config.GSAP_ANIMATION_EASE,
 					onUpdate: () => {
-						this?.setTargetPosition(targetA);
+						this.setPositionInSphere(currentCamPosition);
 					},
-				});
-			},
-			onUpdate: () => {
-				if (
-					!this._view.spherical?.value ||
-					!this._view.spherical.smoothed ||
-					!this._view.spherical.smoothing
-				)
-					return;
-				this.setPositionInSphere(currentCamPosition);
-			},
-		});
+					onComplete: () => {
+						this.setPositionInSphere(currentCamPosition);
+						this.setTargetPosition(targetB);
+					},
+				}),
+				"<"
+			);
 	}
 
 	/**
 	 * Set navigation limits. use default config limits if not parameter was passed.
 	 *
-	 * @param _ Limits `spherical` and `target`
+	 * @param limits Limits `spherical` and `target` (Optional)
 	 */
-	public setLimits(_?: {
+	public setLimits(limits?: {
 		spherical?: Exclude<NavigationView["spherical"], undefined>["limits"];
 		target?: Exclude<NavigationView["target"], undefined>["limits"];
 	}) {
-		if (!_) {
+		if (!limits) {
 			if (this._view.spherical)
 				this._view.spherical.limits = this._viewLimits.spherical;
 			if (this._view.target) this._view.target.limits = this._viewLimits.target;
@@ -518,22 +495,13 @@ export class Navigation extends ExperienceBasedBlueprint {
 			return;
 		}
 
-		if (_.spherical)
-			if (this._view.spherical) this._view.spherical.limits = _.spherical;
-		if (_.target && this._view.target) this._view.target.limits = _.target;
+		if (limits.spherical)
+			if (this._view.spherical) this._view.spherical.limits = limits.spherical;
+		if (limits.target) this._view.target.limits = limits.target;
 	}
 
 	public update() {
-		if (
-			!this._view.enabled ||
-			!this._view.spherical ||
-			!this._view.zoom ||
-			!this._view.drag ||
-			!this._view.target ||
-			!this._view.center ||
-			!this._appCamera.instance
-		)
-			return;
+		if (!this._view.enabled || !this._camera?.instance) return;
 
 		// Zoom
 		this._view.spherical.value.radius +=
@@ -544,8 +512,8 @@ export class Navigation extends ExperienceBasedBlueprint {
 			const up = new Vector3(0, 1, 0);
 			const right = new Vector3(-1, 0, 0);
 
-			up.applyQuaternion(this._appCamera.instance.quaternion);
-			right.applyQuaternion(this._appCamera.instance.quaternion);
+			up.applyQuaternion(this._camera.instance.quaternion);
+			right.applyQuaternion(this._camera.instance.quaternion);
 
 			up.multiplyScalar(Number(this._view.drag.delta?.y) * 0.01);
 			right.multiplyScalar(Number(this._view.drag.delta?.x) * 0.01);
@@ -561,7 +529,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 				this._config.smallestSide;
 		}
 
-		if (!this._timeline.isActive()) {
+		if (!this._timeline.isActive() && this._view.limits) {
 			// Apply limits
 			if (this._view.spherical.limits.enabled) {
 				this._view.spherical.value.radius = Math.min(

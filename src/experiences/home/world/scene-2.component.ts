@@ -1,10 +1,12 @@
-import { MeshBasicMaterial } from "three";
+import { CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, Vector3 } from "three";
+import { gsap } from "gsap";
 
 // BLUEPRINTS
 import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-component.blueprint";
 
 // MODELS
 import type { Materials } from "~/common/experiences/experience-world.model";
+import { Config } from "~/config";
 
 export class Scene2Component extends SceneComponentBlueprint {
 	public readonly navigationLimits = {
@@ -23,6 +25,14 @@ export class Scene2Component extends SceneComponentBlueprint {
 			enabled: true,
 		},
 	};
+	public cameraPath = new CatmullRomCurve3([
+		new Vector3(0, 5.5, 21),
+		new Vector3(12, 10, 12),
+		new Vector3(21, 5.5, 0),
+		new Vector3(12, 3.7, 12),
+		new Vector3(0, 5.5, 21),
+	]);
+	public timeline = gsap.timeline();
 
 	constructor() {
 		try {
@@ -53,5 +63,48 @@ export class Scene2Component extends SceneComponentBlueprint {
 		});
 
 		return availableMaterials;
+	}
+
+	public intro() {
+		if (!this.modelScene) return this.timeline;
+		this.modelScene.renderOrder = 1;
+
+		const _PARAMS = { alphaTest: 0 };
+		const _MAT_KEYS = Object.keys(this._availableMaterials);
+
+		return this.timeline?.to(_PARAMS, {
+			alphaTest: 1,
+			duration: Config.GSAP_ANIMATION_DURATION,
+			onStart: () => {
+				// if (!this._navigation?.timeline.isActive())
+				// 	this._navigation?.setLimits(this.navigationLimits);
+			},
+			onUpdate: () => {
+				for (const key of _MAT_KEYS)
+					this._availableMaterials[key].alphaTest = 1 - _PARAMS.alphaTest;
+			},
+		});
+	}
+
+	public outro() {
+		if (!this.modelScene) return this.timeline;
+
+		this.modelScene.renderOrder = 2;
+
+		const _PARAMS = { alphaTest: 0 };
+		const _MAT_KEYS = Object.keys(this._availableMaterials);
+
+		return this.timeline?.to(_PARAMS, {
+			alphaTest: 1,
+			duration: Config.GSAP_ANIMATION_DURATION,
+			onStart: () => {
+				// if (!this._navigation?.timeline.isActive())
+				// 	this._navigation?.setLimits(this.navigationLimits);
+			},
+			onUpdate: () => {
+				for (const key of _MAT_KEYS)
+					this._availableMaterials[key].alphaTest = _PARAMS.alphaTest;
+			},
+		});
 	}
 }

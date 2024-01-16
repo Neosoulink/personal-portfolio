@@ -43,16 +43,6 @@ export class World extends ExperienceBasedBlueprint {
 	private _availablePageScenes: {
 		[sceneKey: string]: SceneComponentBlueprint;
 	} = {};
-	private _mainSceneConfig: SceneConfig = {
-		center: new Vector3(),
-		position: new Vector3(),
-		cameraPath: new CatmullRomCurve3([]),
-	};
-	private _projectedSceneConfig: SceneConfig = {
-		center: new Vector3(),
-		position: new Vector3(),
-		cameraPath: new CatmullRomCurve3([]),
-	};
 	private _projectedSceneContainer?: Group;
 
 	public readonly mainSceneKey = pages.HOME_PAGE;
@@ -108,14 +98,6 @@ export class World extends ExperienceBasedBlueprint {
 		return this._projectedSceneContainer;
 	}
 
-	public get mainSceneConfig() {
-		return this._mainSceneConfig;
-	}
-
-	public get projectedSceneConfig() {
-		return this._projectedSceneConfig;
-	}
-
 	public destruct() {
 		if (this.group) {
 			this.group.traverse((child) => {
@@ -146,6 +128,15 @@ export class World extends ExperienceBasedBlueprint {
 		}
 	}
 
+	private _correctCameraPath(paths: CatmullRomCurve3, center: Vector3) {
+		const points = paths.points;
+		for (const point of points) {
+			point.add(center);
+		}
+
+		return new CatmullRomCurve3(points);
+	}
+
 	public async construct() {
 		if (!(this._appCamera.instance instanceof PerspectiveCamera))
 			throw new Error(undefined, { cause: errors.CAMERA_UNAVAILABLE });
@@ -160,65 +151,49 @@ export class World extends ExperienceBasedBlueprint {
 		this.scene2?.construct();
 		this.scene3?.construct();
 
-		if (this.sceneContainer?.modelScene instanceof Group) {
-			const BOUNDING_BOX = new Box3().setFromObject(
-				this.sceneContainer.modelScene
-			);
-			// const WIDTH = BOUNDING_BOX.max.x - BOUNDING_BOX.min.x;
-			const HEIGHT = BOUNDING_BOX.max.y - BOUNDING_BOX.min.y;
+		if (!(this.sceneContainer?.modelScene instanceof Group)) return;
 
-			this._mainSceneConfig.position.set(0, 0, 0);
-			this._mainSceneConfig.center.set(
-				this._mainSceneConfig.position.x,
-				this._mainSceneConfig.position.y + 2.5,
-				this._mainSceneConfig.position.z
-			);
-			this._mainSceneConfig.cameraPath.points = [
-				new Vector3(0, 5.5, 21),
-				new Vector3(12, 10, 12),
-				new Vector3(21, 5.5, 0),
-				new Vector3(12, 3.7, 12),
-				new Vector3(0, 5.5, 21),
-			];
+		const BOUNDING_BOX = new Box3().setFromObject(
+			this.sceneContainer.modelScene
+		);
+		// const WIDTH = BOUNDING_BOX.max.x - BOUNDING_BOX.min.x;
+		const HEIGHT = BOUNDING_BOX.max.y - BOUNDING_BOX.min.y;
+		const PROJECTED_SCENE_POSITION = new Vector3(0, HEIGHT * -2, 0);
+		const PROJECTED_SCENE_CENTER = PROJECTED_SCENE_POSITION.clone();
+		PROJECTED_SCENE_CENTER.y += 1.5;
 
-			this._projectedSceneConfig.position.set(0, HEIGHT * -2, 0);
-			this._projectedSceneConfig.center.set(
-				this._projectedSceneConfig.position.x,
-				this._projectedSceneConfig.position.y + 1.5,
-				this._projectedSceneConfig.position.z
-			);
-			this._projectedSceneConfig.cameraPath.points = [
-				new Vector3(0, 5.5, 21).add(this._projectedSceneConfig.position),
-				new Vector3(12, 10, 12).add(this._projectedSceneConfig.position),
-				new Vector3(21, 5.5, 0).add(this._projectedSceneConfig.position),
-				new Vector3(12, 3.7, 12).add(this._projectedSceneConfig.position),
-				new Vector3(0, 5.5, 21).add(this._projectedSceneConfig.position),
-			];
+		this._projectedSceneContainer = this.sceneContainer.modelScene.clone();
+		this._projectedSceneContainer.position.copy(PROJECTED_SCENE_POSITION);
 
-			this._projectedSceneContainer = this.sceneContainer.modelScene.clone();
-			this._projectedSceneContainer.position.copy(
-				this._projectedSceneConfig.position
-			);
-
-			this.group?.add(
-				this.sceneContainer.modelScene,
-				this._projectedSceneContainer
-			);
-		}
+		this.group?.add(
+			this.sceneContainer.modelScene,
+			this._projectedSceneContainer
+		);
 
 		if (this.scene1?.modelScene) {
+			this.scene1.center = this.scene1.center.setY(2.5);
 			this._availablePageScenes[pages.HOME_PAGE] = this.scene1;
 			this.group?.add(this.scene1.modelScene);
 		}
 
 		if (this.scene2?.modelScene) {
-			this.scene2.modelScene.position.copy(this.projectedSceneConfig.position);
+			this.scene2.modelScene.position.copy(PROJECTED_SCENE_POSITION);
+			this.scene2.center = PROJECTED_SCENE_CENTER;
+			this.scene2.cameraPath = this._correctCameraPath(
+				this.scene2.cameraPath,
+				PROJECTED_SCENE_CENTER
+			);
 			this._availablePageScenes[pages.SKILL_PAGE] = this.scene2;
 			this.group?.add(this.scene2.modelScene);
 		}
 
 		if (this.scene3?.modelScene) {
-			this.scene3.modelScene.position.copy(this.projectedSceneConfig.position);
+			this.scene3.modelScene.position.copy(PROJECTED_SCENE_POSITION);
+			this.scene3.center = PROJECTED_SCENE_CENTER;
+			this.scene3.cameraPath = this._correctCameraPath(
+				this.scene3.cameraPath,
+				PROJECTED_SCENE_CENTER
+			);
 			this._availablePageScenes[pages.CONTACT_PAGE] = this.scene3;
 			this.group?.add(this.scene3.modelScene);
 		}

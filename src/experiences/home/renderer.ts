@@ -17,6 +17,9 @@ import { HomeExperience } from ".";
 // INTERFACES
 import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
 
+// CONFIG
+import { Config } from "~/config";
+
 export interface PortalAssets {
 	mesh: THREE.Mesh;
 	meshWebGLTexture: THREE.WebGLRenderTarget;
@@ -114,7 +117,8 @@ export class Renderer extends ExperienceBasedBlueprint {
 				this._experience.app.sizes.pixelRatio
 			);
 			this._appRenderer.instance.localClippingEnabled = true;
-			this._appRenderer.instance.domElement.style.pointerEvents = "none";
+			if (!Config.DEBUG)
+				this._appRenderer.instance.domElement.style.pointerEvents = "none";
 		})();
 
 		~(() => {

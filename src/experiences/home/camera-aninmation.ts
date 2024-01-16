@@ -15,19 +15,17 @@ export const defaultCameraPath = new CatmullRomCurve3([
 	new Vector3(12, 3.7, 12),
 	new Vector3(0, 5.5, 21),
 ]);
-export const defaultCameraTarget = new Vector3(0, 2, 0);
 
 export class CameraAnimation extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appSizes = this._experience.app.sizes;
-	private readonly _appCamera = this._experience.app.camera;
 	private readonly _camera = this._experience.camera;
+	private readonly _world = this._experience.world;
 	private readonly _navigation = this._experience.navigation;
 
 	public enabled = false;
 	public cameraPath = defaultCameraPath;
-	public cameraTarget = defaultCameraTarget;
 	public progress = {
 		current: 0,
 		target: 0,
@@ -117,13 +115,14 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 		if (this.enabled) return;
 		if (this._navigation?.view) this._navigation.view.controls = false;
 
-		const toPosition = this.cameraPath.getPointAt(
-			this.progress.current,
-			this.positionInCurve
-		);
+		this.cameraPath.getPointAt(this.progress.current, this.positionInCurve);
 
 		this._navigation
-			?.updateCameraPosition(toPosition, this.cameraTarget)
+			?.updateCameraPosition(
+				this.positionInCurve,
+				this._navigation.view.center,
+				Config.GSAP_ANIMATION_DURATION * 0.8
+			)
 			.then(() => {
 				this.enabled = true;
 			});
@@ -137,17 +136,25 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 
 		this._navigation
 			?.updateCameraPosition(
-				this.positionInCurve.setY(2),
-				this.cameraTarget,
+				this.positionInCurve.setY(this._camera?.lookAtPosition.y ?? 0),
+				this._navigation.view.center,
 				Config.GSAP_ANIMATION_DURATION * 0.5
 			)
 			.then(() => {
-				if (this._navigation?.view) this._navigation.view.controls = true;
+				if (this._navigation?.view) {
+					this._navigation.view.controls = true;
+				}
 			});
 	}
 
 	public update(): void {
-		if (!this.enabled || this.timeline.isActive()) return;
+		if (
+			!this.enabled ||
+			this.timeline.isActive() ||
+			this._navigation?.timeline.isActive() ||
+			this._world?.manager?.timeline.isActive()
+		)
+			return;
 
 		this.progress.current = gsap.utils.interpolate(
 			this.progress.current,

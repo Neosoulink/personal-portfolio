@@ -38,6 +38,7 @@ export class Camera extends ExperienceBasedBlueprint {
 	};
 
 	public readonly initialCameraFov = 45;
+	public readonly initialCameraPosition = new Vector3(0, 10, 20);
 	public readonly cameras = [
 		(() =>
 			this._appCameraInstance instanceof PerspectiveCamera
@@ -70,6 +71,13 @@ export class Camera extends ExperienceBasedBlueprint {
 		return this.cameras[this.currentCameraIndex];
 	}
 
+	public get instance(): PerspectiveCamera {
+		if (this._appCamera.instance instanceof PerspectiveCamera)
+			return this._appCamera.instance;
+
+		return new PerspectiveCamera();
+	}
+
 	public construct() {
 		if (!Config.DEBUG && this._appDebug?.cameraHelper) {
 			this._experience.app.scene.remove(this._appDebug?.cameraHelper);
@@ -81,6 +89,7 @@ export class Camera extends ExperienceBasedBlueprint {
 
 		this.correctAspect();
 		this._appCamera.miniCamera?.position.set(10, 8, 30);
+		this._appCameraInstance.position.copy(this.initialCameraPosition);
 		this._prevCameraProps = {
 			fov: this._appCameraInstance.fov,
 			aspect: this._appCameraInstance.aspect,
