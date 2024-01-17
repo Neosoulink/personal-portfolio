@@ -8157,7 +8157,7 @@ __metadata:
     sass: "npm:^1.64.2"
     tailwindcss: "npm:^3.3.5"
     three: "npm:^0.159.0"
-    threex.htmlmixer-continued: "npm:^0.0.1"
+    threex.htmlmixer-continued: "npm:^0.0.2"
     typescript: "npm:^5.3.3"
     vite-plugin-glsl: "npm:^1.2.0"
     vite-plugin-glslify: "npm:^2.0.2"
@@ -11085,12 +11085,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"threex.htmlmixer-continued@npm:^0.0.1":
-  version: 0.0.1
-  resolution: "threex.htmlmixer-continued@npm:0.0.1"
+"threex.htmlmixer-continued@npm:^0.0.2":
+  version: 0.0.2
+  resolution: "threex.htmlmixer-continued@npm:0.0.2"
   dependencies:
     three: "npm:^0.159.0"
-  checksum: b24dee4fbcc9f82b597c8573818f1d3312d9aaa94f31fefbc786e23728e255482f99c79b33c561764bc158ad474f575d0661d0a346988a5c076dbcf1ca5349dc
+  checksum: 00bfcd62b7d1f830fcc2f838404412ffbaafa01db430108d48717e030f754a3030c6598c3e11f89726886fcf25b8cba224f431c176bb1d7cfdb6387b9ce20868
   languageName: node
   linkType: hard
 
