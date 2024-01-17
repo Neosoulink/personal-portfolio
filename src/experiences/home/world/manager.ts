@@ -148,6 +148,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		}
 
 		this._navigation?.setViewCenter(CURRENT_SCENE.center);
+
 		this._cameraAnimation.cameraPath = CURRENT_SCENE.cameraPath;
 		this._cameraAnimation.progress = {
 			...this._cameraAnimation.progress,

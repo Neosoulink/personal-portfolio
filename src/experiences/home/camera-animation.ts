@@ -31,7 +31,7 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 		target: 0,
 		ease: 0.1,
 	};
-	public positionInCurve = new Vector3();
+	public positionOnCurve = new Vector3();
 	public reversed = false;
 	public timeline = gsap.timeline();
 	public mouseDowned = false;
@@ -112,14 +112,16 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 	}
 
 	public enable() {
-		if (this.enabled) return;
+		if (this.timeline.isActive()) this.timeline.progress(1);
+		if (this._navigation?.timeline.isActive())
+			this._navigation.timeline.progress(1);
 		if (this._navigation?.view) this._navigation.view.controls = false;
 
-		this.cameraPath.getPointAt(this.progress.current, this.positionInCurve);
+		this.cameraPath.getPointAt(this.progress.current, this.positionOnCurve);
 
 		this._navigation
 			?.updateCameraPosition(
-				this.positionInCurve,
+				this.positionOnCurve,
 				this._navigation.view.center,
 				Config.GSAP_ANIMATION_DURATION * 0.8
 			)
@@ -129,21 +131,20 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 	}
 
 	public disable() {
-		if (!this.enabled) return;
-		this.enabled = false;
-
 		if (this.timeline.isActive()) this.timeline.progress(1);
+		if (this._navigation?.timeline.isActive())
+			this._navigation.timeline.progress(1);
+
+		this.enabled = false;
 
 		this._navigation
 			?.updateCameraPosition(
-				this.positionInCurve.setY(this._camera?.lookAtPosition.y ?? 0),
+				this.positionOnCurve.setY(this._camera?.lookAtPosition.y ?? 0),
 				this._navigation.view.center,
 				Config.GSAP_ANIMATION_DURATION * 0.5
 			)
 			.then(() => {
-				if (this._navigation?.view) {
-					this._navigation.view.controls = true;
-				}
+				if (this._navigation?.view) this._navigation.view.controls = true;
 			});
 	}
 
@@ -164,21 +165,27 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 		this.progress.target =
 			this.progress.target + (this.reversed ? -0.0001 : 0.0001);
 
-		if (this.progress.target > 1) {
-			setTimeout(() => {
-				this.reversed = true;
-			}, 1000);
+		if (!this.cameraPath.closed) {
+			if (this.progress.target > 1)
+				setTimeout(() => {
+					this.reversed = true;
+				}, 1000);
+
+			if (this.progress.target < 0)
+				setTimeout(() => {
+					this.reversed = false;
+				}, 1000);
+
+			this.progress.target = gsap.utils.clamp(0, 1, this.progress.target);
+			this.progress.current = gsap.utils.clamp(0, 1, this.progress.current);
 		}
 
-		if (this.progress.target < 0) {
-			setTimeout(() => {
-				this.reversed = false;
-			}, 1000);
+		if (this.cameraPath.closed && this.progress.current < 0) {
+			this.progress.target = 1;
+			this.progress.current = 1;
 		}
-		this.progress.target = gsap.utils.clamp(0, 1, this.progress.target);
-		this.progress.current = gsap.utils.clamp(0, 1, this.progress.current);
-		this.cameraPath.getPointAt(this.progress.current, this.positionInCurve);
 
-		this._navigation?.setPositionInSphere(this.positionInCurve);
+		this.cameraPath.getPointAt(this.progress.current % 1, this.positionOnCurve);
+		this._navigation?.setPositionInSphere(this.positionOnCurve);
 	}
 }

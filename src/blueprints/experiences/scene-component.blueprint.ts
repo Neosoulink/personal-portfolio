@@ -6,6 +6,10 @@ import {
 	Material,
 	CatmullRomCurve3,
 	Vector3,
+	Line,
+	BufferGeometry,
+	LineBasicMaterial,
+	Color,
 } from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import type { gsap } from "gsap";
@@ -28,6 +32,9 @@ import type {
 	ModelChildrenMaterials,
 } from "~/common/experiences/experience-world.model";
 import type { NavigationView } from "~/common/experiences/navigation.model";
+
+// CONFIG
+import { Config } from "~/config";
 
 // TODO: Link with the names of assets in the `app.loader` assets names
 export interface SceneBlueprintProps {
@@ -130,6 +137,16 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 			);
 
 		if (typeof callback === "function") callback();
+
+		if (Config.DEBUG && this.cameraPath.points.length)
+			this._modelScene?.add(
+				new Line(
+					new BufferGeometry().setFromPoints(this.cameraPath.getPoints(50)),
+					new LineBasicMaterial({
+						color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+					})
+				)
+			);
 
 		this._availableMaterials = this._getAvailableMaterials();
 		this._initModelMaterials();

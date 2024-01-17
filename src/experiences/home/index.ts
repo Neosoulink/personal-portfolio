@@ -23,7 +23,7 @@ import { ErrorFactory } from "~/errors";
 
 // MODELS
 import type { ExperienceConstructorProps } from "~/common/experiences/experience.model";
-import { CameraAnimation } from "./camera-aninmation";
+import { CameraAnimation } from "./camera-animation";
 import { Vector3 } from "three";
 
 export class HomeExperience extends ExperienceBlueprint {

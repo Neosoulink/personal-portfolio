@@ -82,6 +82,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 		new Vector3(12, 3.7, 12),
 		new Vector3(0, 5.5, 21),
 	]);
+	public center = new Vector3(0, 3, 0);
 
 	public pcTopArticulation?: Object3D;
 	public pcScreenProjectedCamera =

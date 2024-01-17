@@ -1,4 +1,4 @@
-import { CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, Vector3 } from "three";
+import { CatmullRomCurve3, MeshBasicMaterial, Vector3 } from "three";
 import { gsap } from "gsap";
 
 // BLUEPRINTS
@@ -6,12 +6,14 @@ import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-componen
 
 // MODELS
 import type { Materials } from "~/common/experiences/experience-world.model";
+
+// CONFIG
 import { Config } from "~/config";
 
 export class Scene2Component extends SceneComponentBlueprint {
 	public readonly navigationLimits = {
 		spherical: {
-			radius: { min: 8, max: 15 },
+			radius: { min: 8, max: 12 },
 			phi: { min: 0.01, max: Math.PI * 0.5 },
 			theta: { min: 0, max: Math.PI * 0.5 },
 			enabled: true,
@@ -25,25 +27,27 @@ export class Scene2Component extends SceneComponentBlueprint {
 			enabled: true,
 		},
 	};
-	public cameraPath = new CatmullRomCurve3([
-		new Vector3(0, 5.5, 21),
-		new Vector3(12, 10, 12),
-		new Vector3(21, 5.5, 0),
-		new Vector3(12, 3.7, 12),
-		new Vector3(0, 5.5, 21),
-	]);
+	public cameraPath = new CatmullRomCurve3(
+		[
+			new Vector3(3.4, 4.5, -8.2),
+			new Vector3(8.4, 2.6, 2.5),
+			new Vector3(-1, 4.3, 8.1),
+			new Vector3(-8.3, 5.5, -1.9),
+			new Vector3(2, 4.85, -8.3),
+		],
+		true
+	);
+	public center = new Vector3(0, 1.7, 0);
 	public timeline = gsap.timeline();
 
 	constructor() {
-		try {
-			super({
-				modelName: "scene_2",
-				childrenMaterials: {
-					scene_2_logos: "scene_2",
-					scene_2_floor: "scene_container",
-				},
-			});
-		} catch (error) {}
+		super({
+			modelName: "scene_2",
+			childrenMaterials: {
+				scene_2_logos: "scene_2",
+				scene_2_floor: "scene_container",
+			},
+		});
 	}
 
 	protected _getAvailableMaterials() {

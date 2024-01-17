@@ -65,13 +65,17 @@ export class Scene3Component extends SceneComponentBlueprint {
 			enabled: true,
 		},
 	};
-	public cameraPath = new CatmullRomCurve3([
-		new Vector3(0, 5.5, 21),
-		new Vector3(12, 10, 12),
-		new Vector3(21, 5.5, 0),
-		new Vector3(12, 3.7, 12),
-		new Vector3(0, 5.5, 21),
-	]);
+	public cameraPath = new CatmullRomCurve3(
+		[
+			new Vector3(5.8, 2.8, -3.7),
+			new Vector3(3.4, 4.2, 4.6),
+			new Vector3(-5.3, 2.2, 3.8),
+			new Vector3(-4, 2, -5.3),
+			new Vector3(5, 2.6, -4.4),
+		],
+		true
+	);
+	public center = new Vector3(0, 1.3, 0);
 
 	public pcTopArticulation?: Object3D<Object3DEventMap>;
 	public pcScreen?: Mesh;

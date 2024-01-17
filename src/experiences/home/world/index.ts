@@ -133,8 +133,7 @@ export class World extends ExperienceBasedBlueprint {
 		for (const point of points) {
 			point.add(center);
 		}
-
-		return new CatmullRomCurve3(points);
+		paths.points = points;
 	}
 
 	public async construct() {
@@ -159,8 +158,6 @@ export class World extends ExperienceBasedBlueprint {
 		// const WIDTH = BOUNDING_BOX.max.x - BOUNDING_BOX.min.x;
 		const HEIGHT = BOUNDING_BOX.max.y - BOUNDING_BOX.min.y;
 		const PROJECTED_SCENE_POSITION = new Vector3(0, HEIGHT * -2, 0);
-		const PROJECTED_SCENE_CENTER = PROJECTED_SCENE_POSITION.clone();
-		PROJECTED_SCENE_CENTER.y += 1.5;
 
 		this._projectedSceneContainer = this.sceneContainer.modelScene.clone();
 		this._projectedSceneContainer.position.copy(PROJECTED_SCENE_POSITION);
@@ -178,22 +175,16 @@ export class World extends ExperienceBasedBlueprint {
 
 		if (this.scene2?.modelScene) {
 			this.scene2.modelScene.position.copy(PROJECTED_SCENE_POSITION);
-			this.scene2.center = PROJECTED_SCENE_CENTER;
-			this.scene2.cameraPath = this._correctCameraPath(
-				this.scene2.cameraPath,
-				PROJECTED_SCENE_CENTER
-			);
+			this.scene2.center.add(PROJECTED_SCENE_POSITION);
+			this._correctCameraPath(this.scene2.cameraPath, PROJECTED_SCENE_POSITION);
 			this._availablePageScenes[pages.SKILL_PAGE] = this.scene2;
 			this.group?.add(this.scene2.modelScene);
 		}
 
 		if (this.scene3?.modelScene) {
 			this.scene3.modelScene.position.copy(PROJECTED_SCENE_POSITION);
-			this.scene3.center = PROJECTED_SCENE_CENTER;
-			this.scene3.cameraPath = this._correctCameraPath(
-				this.scene3.cameraPath,
-				PROJECTED_SCENE_CENTER
-			);
+			this.scene3.center.add(PROJECTED_SCENE_POSITION);
+			this._correctCameraPath(this.scene3.cameraPath, PROJECTED_SCENE_POSITION);
 			this._availablePageScenes[pages.CONTACT_PAGE] = this.scene3;
 			this.group?.add(this.scene3.modelScene);
 		}

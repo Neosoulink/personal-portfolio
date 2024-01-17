@@ -36,25 +36,6 @@ export class Navigation extends ExperienceBasedBlueprint {
 		smallestSide: 0,
 		largestSide: 0,
 	};
-	private readonly _timeline = gsap.timeline({
-		onStart: () => {
-			this._view.spherical.limits.enabled = false;
-			this._view.target.limits.enabled = false;
-			this._view.controls = false;
-
-			this.emit(ANIMATION_STARTED);
-		},
-		onComplete: () => {
-			setTimeout(() => {
-				this._view.spherical.limits.enabled = true;
-				this._view.target.limits.enabled = true;
-				this._view.controls = true;
-
-				this._timeline.clear();
-				this.emit(ANIMATION_ENDED);
-			}, 100);
-		},
-	});
 	private readonly _viewLimits: {
 		spherical: Exclude<NavigationView["spherical"], undefined>["limits"];
 		target: Exclude<NavigationView["target"], undefined>["limits"];
@@ -74,7 +55,6 @@ export class Navigation extends ExperienceBasedBlueprint {
 			enabled: false,
 		},
 	} as const;
-
 	private readonly _view: NavigationView = {
 		enabled: true,
 		controls: true,
@@ -100,6 +80,30 @@ export class Navigation extends ExperienceBasedBlueprint {
 		},
 		zoom: { sensitivity: 0.01, delta: 0 },
 	};
+	private readonly _timelinePrevStates = {
+		limits: this._view.limits,
+		controls: this._view.controls,
+	};
+	private readonly _timeline = gsap.timeline({
+		onStart: () => {
+			this._timelinePrevStates.limits = this._view.limits;
+			this._timelinePrevStates.controls = this._view.controls;
+
+			this._view.limits = false;
+			this._view.controls = false;
+
+			this.emit(ANIMATION_STARTED);
+		},
+		onComplete: (val: typeof this._timelinePrevStates) => {
+			this._view.limits = val.limits;
+			this._view.controls = val.controls;
+
+			this._timeline.clear();
+			this.emit(ANIMATION_ENDED);
+		},
+		onStartParams: [this._timelinePrevStates],
+		onCompleteParams: [this._timelinePrevStates],
+	});
 
 	public get timeline() {
 		return this._timeline;
@@ -145,7 +149,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 				this._view.drag.previous.y = _y;
 			};
 			this._view.move = (_x, _y) => {
-				if (!this.view.controls || !this._view.enabled) return;
+				if (!this._view.controls || !this._view.enabled) return;
 
 				this._view.drag.delta.x += _x - this._view.drag.previous.x;
 				this._view.drag.delta.y += _y - this._view.drag.previous.y;
@@ -164,7 +168,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 				_event.preventDefault();
 
 				if (
-					!this.view.controls ||
+					!this._view.controls ||
 					!this._view.enabled ||
 					!this._view.drag ||
 					!this._view.down ||
@@ -178,6 +182,14 @@ export class Navigation extends ExperienceBasedBlueprint {
 					_event.button === 1 ||
 					_event.ctrlKey ||
 					_event.shiftKey;
+
+				if (this._view.drag.alternative) {
+					const viewPosition = new Vector3();
+					viewPosition.setFromSpherical(this._view.spherical.smoothed);
+					viewPosition.add(this._view.target.smoothed);
+
+					console.log(viewPosition);
+				}
 
 				this._view?.down(_event.clientX, _event.clientY);
 
@@ -266,7 +278,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 				_event.preventDefault();
 
 				if (
-					!this.view.controls ||
+					!this._view.controls ||
 					!this._view.enabled ||
 					!this._view.zooming ||
 					!this._view.onWheel
@@ -440,10 +452,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 		const currentCamPosition = this._camera.instance.position.clone();
 
 		if (!targetA || !targetB || !currentCamPosition) return this._timeline;
-		if (this._timeline.isActive()) {
-			console.log("One");
-			this._timeline.progress(1);
-		}
+		if (this._timeline.isActive()) this._timeline.progress(1);
 
 		return this._timeline
 			.to(targetA, {
