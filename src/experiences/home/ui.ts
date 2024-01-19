@@ -9,6 +9,7 @@ import { Config } from "~/config";
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
 import { PerspectiveCamera, type Vector3 } from "three";
+import { errors } from "~/static";
 
 /**
  * Class in charge of all the direct interactions with the DOM HTML elements.
@@ -21,14 +22,22 @@ export class UI extends ExperienceBasedBlueprint {
 	private _loadedResourcesProgressLineElements?: HTMLElement | null;
 	private _loadedResourcesProgressElements?: HTMLElement | null;
 	private _lastLoadedResourceElement?: HTMLElement | null;
+	private _activeMarkers: {
+		coordinates: Vector3;
+		element: HTMLElement;
+		position: Vector3;
+	}[] = [];
 
 	public readonly targetElement = this._experience.app.canvas;
 	public readonly targetElementParent = this.targetElement?.parentElement;
 
-	public bubblesInfo: {
-		coordinate: Vector3;
-		element: HTMLElement;
+	public markersContainer?: HTMLDivElement;
+	public markers: {
+		position: Vector3;
+		title: string;
+		content: string;
 	}[] = [];
+	public currentOveredMark?: HTMLDivElement;
 
 	constructor() {
 		super();
@@ -53,7 +62,17 @@ export class UI extends ExperienceBasedBlueprint {
 			this._lastLoadedResourceElement = _LAST_LOADED_RESOURCE_ELEMENT;
 	}
 
+	public get isMarkersDisplayed() {
+		return !!this._activeMarkers.length;
+	}
+
 	construct() {
+		this.markersContainer = document.createElement("div");
+		this.targetElement?.parentNode?.insertBefore(
+			this.markersContainer,
+			this.targetElement
+		);
+
 		// EVENTS
 		this._experience.loader?.on("start", () => {
 			this._lastLoadedResourceElement?.classList.remove("animate-pulse");
@@ -117,24 +136,78 @@ export class UI extends ExperienceBasedBlueprint {
 		});
 	}
 
+	public displayMarks() {
+		if (!this.markersContainer)
+			throw new Error("Marker container not found", {
+				cause: errors.WRONG_PARAM,
+			});
+
+		this.markers?.map((marker, index) => {
+			const markerElement = document.createElement("div");
+			const titleElement = document.createElement("span");
+			const contentElement = document.createElement("span");
+
+			markerElement.className = `exp-marker exp-marker-${index}`;
+			markerElement.onmouseenter = () => {
+				this.currentOveredMark = markerElement;
+			};
+			markerElement.onmouseleave = () => {
+				this.currentOveredMark = undefined;
+			};
+			markerElement.title = marker.title;
+			titleElement.className = "title";
+			titleElement.textContent = marker.title;
+			contentElement.className = "content";
+			contentElement.textContent = marker.content;
+
+			markerElement.appendChild(titleElement);
+			markerElement.appendChild(contentElement);
+
+			this._activeMarkers.push({
+				coordinates: marker.position,
+				element: markerElement,
+				position: marker.position,
+			});
+
+			this.markersContainer?.appendChild(markerElement);
+
+			setTimeout(() => markerElement.classList.add("visible"), index * 80);
+		});
+	}
+
+	public removeMarkers() {
+		if (!this._activeMarkers.length) return;
+
+		for (let i = this._activeMarkers.length - 1; i >= 0; i--) {
+			const { element } = this._activeMarkers[i];
+
+			setTimeout(
+				() => element.classList.remove("visible"),
+				(this._activeMarkers.length - 1 - i) * 80
+			);
+		}
+		setTimeout(() => {
+			if (this.markersContainer) this.markersContainer.innerHTML = "";
+		}, this._activeMarkers.length * 80);
+		this._activeMarkers = [];
+	}
+
 	public update(): void {
 		if (!(this._appCamera.instance instanceof PerspectiveCamera)) return;
 
-		for (const bubble of this.bubblesInfo) {
-			if (bubble.element) {
-				const screenPosition = bubble.coordinate.clone();
-				screenPosition.project(this._appCamera.instance);
+		for (const marker of this._activeMarkers) {
+			const position = marker.position
+				.clone()
+				.project(this._appCamera.instance);
 
-				const translateX =
-					screenPosition.x * this._experience.app.sizes.width * 0.5;
-				const translateY = -(
-					screenPosition.y *
-					this._experience.app.sizes.height *
-					0.5
-				);
+			const translateX = position.x * this._experience.app.sizes.width * 0.5;
+			const translateY = -(
+				position.y *
+				this._experience.app.sizes.height *
+				0.5
+			);
 
-				bubble.element.style.transform = `translate(${translateX}px, ${translateY}px)`;
-			}
+			marker.element.style.transform = `translate(${translateX}px, ${translateY}px)`;
 		}
 	}
 }

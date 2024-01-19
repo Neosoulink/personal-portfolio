@@ -18,7 +18,7 @@ body {
 	scrollbar-width: none;
 }
 
-#mode-bubbles-container .model-bubble {
+.exp-marker {
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -31,11 +31,11 @@ body {
 }
 
 
-#mode-bubbles-container .model-bubble:hover {
+.exp-marker:hover {
 	opacity: 1;
 }
 
-#mode-bubbles-container .model-bubble .title {
+.exp-marker .title {
 	position: absolute;
 	top: -20px;
 	left: -20px;
@@ -55,11 +55,11 @@ body {
 }
 
 
-#mode-bubbles-container .model-bubble.visible .title {
+.exp-marker.visible .title {
 	transform: scale(1, 1);
 }
 
-#mode-bubbles-container .model-bubble .content {
+.exp-marker .content {
 	width: 240px;
 	padding: 40px 20px;
 	border-radius: 20px;
@@ -75,8 +75,8 @@ body {
 	z-index: 1;
 }
 
-#mode-bubbles-container .model-bubble:hover .content,
-#mode-bubbles-container .model-bubble:hover .content {
+.exp-marker:hover .content,
+.exp-marker:hover .content {
 	transform: scale(1, 1);
 	background: rgba(var(--dark), 0.9);
 }

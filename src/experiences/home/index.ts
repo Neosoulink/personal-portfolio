@@ -122,6 +122,7 @@ export class HomeExperience extends ExperienceBlueprint {
 
 	public update() {
 		try {
+			this.ui?.update();
 			this.world?.update();
 			this.camera?.update();
 			this.cameraAnimation?.update();

@@ -25,17 +25,18 @@ import { DESTRUCTED } from "~/static/event.static";
 
 export class Debug extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
-	protected readonly _appDebug = this._experience.app.debug;
-	protected readonly _appCamera = this._experience.app.camera;
-	protected readonly _camera = this._experience.camera;
-	protected readonly _cameraAnimation = this._experience.cameraAnimation;
-	protected readonly _interactions = this._experience.interactions;
-	protected readonly _worldCameraHelpers?: CameraHelper[] = [];
 
-	protected _gui?: GUI;
-	/** Indicate where the camera is looking at. */
-	protected cameraLookAtPointIndicator?: Mesh;
-	protected _cameraCurvePathLine?: Line;
+	private readonly _appDebug = this._experience.app.debug;
+	private readonly _appCamera = this._experience.app.camera;
+	private readonly _camera = this._experience.camera;
+	private readonly _cameraAnimation = this._experience.cameraAnimation;
+	private readonly _interactions = this._experience.interactions;
+	private readonly _ui = this._experience.ui;
+	private readonly _worldCameraHelpers?: CameraHelper[] = [];
+
+	private _gui?: GUI;
+	private _targetIndicator?: Mesh;
+	private _cameraCurvePathLine?: Line;
 
 	construct() {
 		if (!Config.DEBUG) {
@@ -53,11 +54,11 @@ export class Debug extends ExperienceBasedBlueprint {
 
 		if (!this._gui || !this._experience.world) return;
 
-		this.cameraLookAtPointIndicator = new Mesh(
+		this._targetIndicator = new Mesh(
 			new SphereGeometry(0.1, 12, 12),
 			new MeshBasicMaterial({ color: "#ff0040" })
 		);
-		this.cameraLookAtPointIndicator.visible = false;
+		this._targetIndicator.visible = false;
 		this._camera?.cameras.forEach((item, id) => {
 			const cameraHelper = new CameraHelper(item);
 			this._worldCameraHelpers?.push(cameraHelper);
@@ -68,14 +69,13 @@ export class Debug extends ExperienceBasedBlueprint {
 			.add(
 				{
 					fn: () => {
-						if (this.cameraLookAtPointIndicator)
-							this.cameraLookAtPointIndicator.visible =
-								!this.cameraLookAtPointIndicator.visible;
+						if (this._targetIndicator)
+							this._targetIndicator.visible = !this._targetIndicator.visible;
 					},
 				},
 				"fn"
 			)
-			.name("Toggle LookAt indicator visibility");
+			.name("Toggle Target indicator");
 
 		this._cameraCurvePathLine = new Line(
 			new BufferGeometry().setFromPoints(
@@ -131,9 +131,38 @@ export class Debug extends ExperienceBasedBlueprint {
 			)
 			.name("Leave focus mode");
 
+		this._gui
+			?.add(
+				{
+					fn: () => {
+						if (!this._ui) return;
+
+						if (!this._ui.markers.length) {
+							this._ui.markers = [
+								{
+									position: new Vector3(2, 3, 0),
+									title: "test 1",
+									content: "test content",
+								},
+								{
+									position: new Vector3(2, 2, 5),
+									title: "test 2",
+									content: "test content",
+								},
+							];
+						}
+
+						if (this._ui.isMarkersDisplayed) return this._ui.removeMarkers();
+						this._ui.displayMarks();
+					},
+				},
+				"fn"
+			)
+			.name("Toggle ui markers");
+
 		this._experience.app.scene.add(
 			this._cameraCurvePathLine,
-			this.cameraLookAtPointIndicator
+			this._targetIndicator
 		);
 	}
 
@@ -170,7 +199,7 @@ export class Debug extends ExperienceBasedBlueprint {
 	update() {
 		this._appCamera?.instance &&
 			this._experience.camera &&
-			this.cameraLookAtPointIndicator?.position.copy(
+			this._targetIndicator?.position.copy(
 				this._experience.camera.lookAtPosition
 			);
 	}

@@ -4,8 +4,6 @@
 
 		<canvas :id="states.domRef" class="fixed top-0 left-0 w-full h-full" />
 
-		<div id="mode-bubbles-container" />
-
 		<div class="fixed font-bold top-1/2 text-red-50">
 			<NuxtLink to="/" class="mr-3">Page child 1</NuxtLink>
 			<NuxtLink to="/skills" class="mr-3">Page child 2</NuxtLink>
