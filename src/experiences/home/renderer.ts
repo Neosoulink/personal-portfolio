@@ -17,9 +17,6 @@ import { HomeExperience } from ".";
 // INTERFACES
 import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
 
-// CONFIG
-import { Config } from "~/config";
-
 export interface PortalAssets {
 	mesh: THREE.Mesh;
 	meshWebGLTexture: THREE.WebGLRenderTarget;
@@ -38,7 +35,8 @@ export class Renderer extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appRenderer = this._experience.app.renderer;
-	private readonly _appCamera = this._experience.app.camera;
+	private readonly _camera = this._experience.camera;
+	private readonly _appSizes = this._experience.app.sizes;
 	private readonly _renderPortalAssets: {
 		[callbackName: string]: {
 			assets: PortalAssets;
@@ -56,9 +54,8 @@ export class Renderer extends ExperienceBasedBlueprint {
 	private _portalBottomLeftCorner = new Vector3();
 	private _portalBottomRightCorner = new Vector3();
 	private _portalTopLeftCorner = new Vector3();
-	private _mixerContext?: HtmlMixerContext;
 
-	public enableCssRender = false;
+	public _mixerContext?: HtmlMixerContext;
 
 	private _renderPortal(
 		mesh: Mesh,
@@ -97,6 +94,8 @@ export class Renderer extends ExperienceBasedBlueprint {
 		mesh.visible = true;
 	}
 
+	public enableCssRender = false;
+
 	public get mixerContext() {
 		return this._mixerContext;
 	}
@@ -117,23 +116,27 @@ export class Renderer extends ExperienceBasedBlueprint {
 				this._experience.app.sizes.pixelRatio
 			);
 			this._appRenderer.instance.localClippingEnabled = true;
-			if (!Config.DEBUG)
-				this._appRenderer.instance.domElement.style.pointerEvents = "none";
 		})();
 
 		~(() => {
+			if (!this._camera?.instance) return;
+
 			this._mixerContext = new HtmlMixerContext(
 				this._appRenderer.instance,
-				this._appCamera.instance as PerspectiveCamera
+				this._camera?.instance
 			);
 			const rendererCss = this._mixerContext.rendererCss;
-			rendererCss.setSize(window.innerWidth, window.innerHeight);
+			rendererCss.setSize(this._appSizes.width, this._appSizes.height);
 
 			const css3dElement = rendererCss.domElement;
-			css3dElement.style.pointerEvents = "none";
+			this._appRenderer.instance.domElement.parentNode?.insertBefore(
+				css3dElement,
+				this._appRenderer.instance.domElement
+			);
 
-			document.querySelector("#css")?.appendChild(css3dElement);
-
+			this._appSizes.on("resize", () =>
+				rendererCss.setSize(this._appSizes.width, this._appSizes.height)
+			);
 			this.addBeforeRenderUpdateCallBack(
 				"_mixerContext",
 				() => this.enableCssRender && this._mixerContext?.update()
@@ -247,5 +250,17 @@ export class Renderer extends ExperienceBasedBlueprint {
 	public removeBeforeRenderUpdateCallBack(key: string) {
 		if (this.beforeRenderUpdateCallbacks[key])
 			delete this.beforeRenderUpdateCallbacks[key];
+	}
+
+	public update(): void {
+		if (!this._mixerContext) return;
+
+		this._mixerContext.rendererCss.setSize(
+			this._appSizes.width,
+			this._appSizes.height
+		);
+		this._mixerContext.cssCamera.fov = this._camera?.instance.fov ?? 0;
+		this._mixerContext.cssCamera.matrixWorldNeedsUpdate = true;
+		this._mixerContext.cssCamera.updateProjectionMatrix();
 	}
 }

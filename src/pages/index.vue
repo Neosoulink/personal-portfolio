@@ -2,7 +2,6 @@
 	<main class="flex flex-1 w-screen h-screen bg-dark">
 		<!--	<HomeLandingLoader /> -->
 
-		<div id="css" class="absolute top-0 left-0 w-full h-full" />
 		<canvas :id="states.domRef" class="fixed top-0 left-0 w-full h-full" />
 
 		<div id="mode-bubbles-container" />

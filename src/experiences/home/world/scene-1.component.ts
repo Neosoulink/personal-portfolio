@@ -254,31 +254,25 @@ export class Scene1Component extends SceneComponentBlueprint {
 		if (this._world?.commonMaterials.scene_container)
 			AVAILABLE_MATERIALS.scene_container =
 				this._world?.commonMaterials.scene_container;
-
 		if (this._world?.commonMaterials.scene_container)
 			AVAILABLE_MATERIALS.glass = this._world?.commonMaterials.glass;
 
 		AVAILABLE_MATERIALS.pc_screen = new MeshBasicMaterial({
 			map: this.pcScreenWebglTexture?.texture,
 		});
-
 		AVAILABLE_MATERIALS.phone_screen = new MeshBasicMaterial({
 			map: PHONE_VIDEO_TEXTURE,
 		});
-
 		AVAILABLE_MATERIALS.monitor_a = new MeshBasicMaterial({
 			map: MONITOR_A_VIDEO_TEXTURE,
 		});
-
 		AVAILABLE_MATERIALS.monitor_b = new MeshBasicMaterial({
 			map: MONITOR_B_VIDEO_TEXTURE,
 		});
-
 		AVAILABLE_MATERIALS.tree = new MeshBasicMaterial({
 			map: AVAILABLE_TEXTURE.scene_1_tree_baked_texture,
 			transparent: true,
 		});
-
 		AVAILABLE_MATERIALS.room = new ShaderMaterial({
 			uniforms: {
 				uBakedTexture: {
@@ -300,7 +294,6 @@ export class Scene1Component extends SceneComponentBlueprint {
 			fragmentShader: bakedTextureFragment,
 			vertexShader: bakedTextureVertex,
 		});
-
 		AVAILABLE_MATERIALS.wood = new ShaderMaterial({
 			uniforms: {
 				uBakedTexture: {
@@ -322,7 +315,6 @@ export class Scene1Component extends SceneComponentBlueprint {
 			fragmentShader: bakedTextureFragment,
 			vertexShader: bakedTextureVertex,
 		});
-
 		AVAILABLE_MATERIALS.coffee_steam = new ShaderMaterial({
 			uniforms: {
 				uTime: { value: 0 },
@@ -335,7 +327,6 @@ export class Scene1Component extends SceneComponentBlueprint {
 			transparent: true,
 			depthWrite: false,
 		});
-
 		AVAILABLE_MATERIALS.tree_outside = new MeshBasicMaterial({
 			colorWrite: false,
 			side: BackSide,

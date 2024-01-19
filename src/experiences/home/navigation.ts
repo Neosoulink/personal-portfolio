@@ -29,9 +29,9 @@ export class Navigation extends ExperienceBasedBlueprint {
 	private readonly _targetElement =
 		this._experience.app.renderer.instance.domElement;
 	private readonly _appSizes = this._experience.app.sizes;
+	private readonly _appTime = this._experience.app.time;
 	private readonly _ui = this._experience.ui;
 	private readonly _camera = this._experience.camera;
-	private readonly _time = this._experience.app.time;
 	private readonly _config = {
 		smallestSide: 0,
 		largestSide: 0,
@@ -116,7 +116,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 	private _setConfig() {
 		const boundingClient = this._targetElement.getBoundingClientRect();
 		const width = boundingClient.width;
-		const height = Number(boundingClient.height || window?.innerHeight);
+		const height = Number(boundingClient.height || this._appSizes?.width);
 
 		this._config.smallestSide = Math.min(width, height);
 		this._config.largestSide = Math.max(width, height);
@@ -187,8 +187,6 @@ export class Navigation extends ExperienceBasedBlueprint {
 					const viewPosition = new Vector3();
 					viewPosition.setFromSpherical(this._view.spherical.smoothed);
 					viewPosition.add(this._view.target.smoothed);
-
-					console.log(viewPosition);
 				}
 
 				this._view?.down(_event.clientX, _event.clientY);
@@ -402,9 +400,8 @@ export class Navigation extends ExperienceBasedBlueprint {
 	 * @param v3 The {@link Vector3} position where the the camera will look at.
 	 */
 	public setTargetPosition(v3 = new Vector3()) {
-		const V3 = v3.clone();
-		this._view.target.value = V3;
-		this._view.target.smoothed = V3;
+		this._view.target.value = v3.clone();
+		this._view.target.smoothed = v3.clone();
 
 		return this._view.target;
 	}
@@ -465,7 +462,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 					this.setTargetPosition(targetA);
 				},
 				onComplete: () => {
-					this.setTargetPosition(targetA);
+					this.setTargetPosition(targetB);
 				},
 			})
 			.add(
@@ -510,7 +507,12 @@ export class Navigation extends ExperienceBasedBlueprint {
 	}
 
 	public update() {
-		if (!this._view.enabled || !this._camera?.instance) return;
+		if (
+			!this._view.enabled ||
+			!this._camera?.instance ||
+			this._experience.interactions?.focusedObject
+		)
+			return;
 
 		// Zoom
 		this._view.spherical.value.radius +=
@@ -606,28 +608,28 @@ export class Navigation extends ExperienceBasedBlueprint {
 			(this._view.spherical.value.radius -
 				this._view.spherical.smoothed.radius) *
 			this._view.spherical.smoothing *
-			this._time.delta;
+			this._appTime.delta;
 		this._view.spherical.smoothed.phi +=
 			(this._view.spherical.value.phi - this._view.spherical.smoothed.phi) *
 			this._view.spherical.smoothing *
-			this._time.delta;
+			this._appTime.delta;
 		this._view.spherical.smoothed.theta +=
 			(this._view.spherical.value.theta - this._view.spherical.smoothed.theta) *
 			this._view.spherical.smoothing *
-			this._time.delta;
+			this._appTime.delta;
 
 		this._view.target.smoothed.x +=
 			(this._view.target.value.x - this._view.target.smoothed.x) *
 			this._view.target.smoothing *
-			this._time.delta;
+			this._appTime.delta;
 		this._view.target.smoothed.y +=
 			(this._view.target.value.y - this._view.target.smoothed.y) *
 			this._view.target.smoothing *
-			this._time.delta;
+			this._appTime.delta;
 		this._view.target.smoothed.z +=
 			(this._view.target.value.z - this._view.target.smoothed.z) *
 			this._view.target.smoothing *
-			this._time.delta;
+			this._appTime.delta;
 
 		const viewPosition = new Vector3();
 		viewPosition.setFromSpherical(this._view.spherical.smoothed);

@@ -6,14 +6,12 @@ import type { Materials } from "~/common/experiences/experience-world.model";
 
 export class SceneContainerComponent extends SceneComponentBlueprint {
 	constructor() {
-		try {
-			super({
-				modelName: "scene_container",
-				childrenMaterials: {
-					scene_container: "scene_container",
-				},
-			});
-		} catch (error) {}
+		super({
+			modelName: "scene_container",
+			childrenMaterials: {
+				scene_container: "scene_container",
+			},
+		});
 	}
 
 	protected _getAvailableMaterials() {

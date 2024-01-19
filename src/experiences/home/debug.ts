@@ -29,6 +29,7 @@ export class Debug extends ExperienceBasedBlueprint {
 	protected readonly _appCamera = this._experience.app.camera;
 	protected readonly _camera = this._experience.camera;
 	protected readonly _cameraAnimation = this._experience.cameraAnimation;
+	protected readonly _interactions = this._experience.interactions;
 	protected readonly _worldCameraHelpers?: CameraHelper[] = [];
 
 	protected _gui?: GUI;
@@ -100,7 +101,7 @@ export class Debug extends ExperienceBasedBlueprint {
 						this._experience.app.camera.instance.fov ===
 						this._experience.camera?.initialCameraFov
 							? this._experience.camera.cameraZoomIn()
-							: this._experience.camera?.cameraZoomOut();
+							: this._experience.camera?.resetFov();
 					},
 				},
 				"fn"
@@ -120,6 +121,15 @@ export class Debug extends ExperienceBasedBlueprint {
 				"fn"
 			)
 			.name("Toggle auto camera animation");
+
+		this._gui
+			.add(
+				{
+					fn: () => this._interactions?.leaveFocusMode(),
+				},
+				"fn"
+			)
+			.name("Leave focus mode");
 
 		this._experience.app.scene.add(
 			this._cameraCurvePathLine,

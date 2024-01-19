@@ -7,6 +7,7 @@ import { HomeExperience } from ".";
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
 import { Config } from "~/config";
+import { events } from "~/static";
 
 export const defaultCameraPath = new CatmullRomCurve3([
 	new Vector3(0, 5.5, 21),
@@ -21,8 +22,13 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 
 	private readonly _appSizes = this._experience.app.sizes;
 	private readonly _camera = this._experience.camera;
-	private readonly _world = this._experience.world;
 	private readonly _navigation = this._experience.navigation;
+
+	private _world = this._experience.world;
+	private _onWheel?: (e: WheelEvent) => unknown;
+	private _onMousemove?: (e: MouseEvent) => unknown;
+	private _onMousedown?: (e: MouseEvent) => unknown;
+	private _onMouseUp?: (e: MouseEvent) => unknown;
 
 	public enabled = false;
 	public cameraPath = defaultCameraPath;
@@ -33,15 +39,9 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 	};
 	public positionOnCurve = new Vector3();
 	public reversed = false;
-	public timeline = gsap.timeline();
 	public mouseDowned = false;
 	public cursorCoordinate = { x: 0, y: 0 };
 	public normalizedCursorCoordinate = { x: 0, y: 0 };
-
-	private _onWheel?: (e: WheelEvent) => unknown;
-	private _onMousemove?: (e: MouseEvent) => unknown;
-	private _onMousedown?: (e: MouseEvent) => unknown;
-	private _onMouseUp?: (e: MouseEvent) => unknown;
 
 	private _wheelEvent(e: WheelEvent) {
 		if (!this.enabled) return;
@@ -80,17 +80,21 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 
 	private _mouseDownEvent(e: MouseEvent) {
 		this.mouseDowned = true;
-		// if (this.focusedPosition && !this.mouseOverBubble)
-		// 	this._camera?.cameraZoomIn();
 	}
 
 	private _mouseUpEvent(e: MouseEvent) {
 		this.mouseDowned = false;
-		// if (this.focusedPosition && !this.mouseOverBubble)
-		// 	this._experience.camera?.cameraZoomOut();
+	}
+
+	private _doneAnimations() {
+		if (this._navigation?.timeline.isActive())
+			this._navigation.timeline.progress(1);
+		if (this._world?.manager?.timeline.isActive())
+			this._world.manager.timeline.progress(1);
 	}
 
 	public construct() {
+		this._world = this._experience.world;
 		this._onWheel = (e) => this._wheelEvent(e);
 		this._onMousemove = (e) => this._mouseMoveEvent(e);
 		this._onMousedown = (e) => this._mouseDownEvent(e);
@@ -112,48 +116,45 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 	}
 
 	public enable() {
-		if (this.timeline.isActive()) this.timeline.progress(1);
-		if (this._navigation?.timeline.isActive())
-			this._navigation.timeline.progress(1);
-		if (this._navigation?.view) this._navigation.view.controls = false;
+		this._doneAnimations();
 
+		if (this._navigation?.view) this._navigation.view.controls = false;
 		this.cameraPath.getPointAt(this.progress.current, this.positionOnCurve);
 
-		this._navigation
+		return this._navigation
 			?.updateCameraPosition(
 				this.positionOnCurve,
 				this._navigation.view.center,
 				Config.GSAP_ANIMATION_DURATION * 0.8
 			)
-			.then(() => {
+			.add(() => {
 				this.enabled = true;
+				this.emit(events.STARTED, this);
 			});
 	}
 
 	public disable() {
-		if (this.timeline.isActive()) this.timeline.progress(1);
-		if (this._navigation?.timeline.isActive())
-			this._navigation.timeline.progress(1);
-
+		this._doneAnimations();
 		this.enabled = false;
 
-		this._navigation
+		return this._navigation
 			?.updateCameraPosition(
 				this.positionOnCurve.setY(this._camera?.lookAtPosition.y ?? 0),
 				this._navigation.view.center,
 				Config.GSAP_ANIMATION_DURATION * 0.5
 			)
-			.then(() => {
+			.add(() => {
 				if (this._navigation?.view) this._navigation.view.controls = true;
+				this.emit(events.ENDED, this);
 			});
 	}
 
 	public update(): void {
 		if (
 			!this.enabled ||
-			this.timeline.isActive() ||
 			this._navigation?.timeline.isActive() ||
-			this._world?.manager?.timeline.isActive()
+			this._experience.world?.manager?.timeline.isActive() ||
+			this._experience.interactions?.focusedObject
 		)
 			return;
 

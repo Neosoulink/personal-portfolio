@@ -7,6 +7,7 @@ import { Composer } from "./composer";
 import { Camera } from "./camera";
 import { World } from "./world";
 import { Navigation } from "./navigation";
+import { Interactions } from "./interactions";
 import { Debug } from "./debug";
 
 // BLUEPRINTS
@@ -30,12 +31,13 @@ export class HomeExperience extends ExperienceBlueprint {
 	public ui?: UI;
 	public router?: Router;
 	public loader?: Loader;
-	public renderer?: Renderer;
 	public composer?: Composer;
 	public camera?: Camera;
+	public renderer?: Renderer;
 	public world?: World;
 	public cameraAnimation?: CameraAnimation;
 	public navigation?: Navigation;
+	public interactions?: Interactions;
 	public debug?: Debug;
 
 	constructor(_?: Omit<ExperienceConstructorProps, "debug">) {
@@ -52,12 +54,13 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.ui = new UI();
 			this.router = new Router();
 			this.loader = new Loader();
-			this.renderer = new Renderer();
-			this.composer = new Composer();
 			this.camera = new Camera();
-			this.world = new World();
+			this.composer = new Composer();
+			this.renderer = new Renderer();
 			this.navigation = new Navigation();
 			this.cameraAnimation = new CameraAnimation();
+			this.interactions = new Interactions();
+			this.world = new World();
 			this.debug = new Debug();
 		} catch (_err) {
 			throw new ErrorFactory(_err);
@@ -72,12 +75,13 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.ui?.destruct();
 			this.router?.destruct();
 			this.loader?.destruct();
-			this.renderer?.destruct();
-			this.composer?.destruct();
 			this.camera?.destruct();
-			this.world?.destruct();
+			this.composer?.destruct();
+			this.renderer?.destruct();
 			this.navigation?.destruct();
 			this.cameraAnimation?.destruct();
+			this.interactions?.destruct();
+			this.world?.destruct();
 			this.debug?.destruct();
 			this.app.destroy();
 
@@ -97,9 +101,10 @@ export class HomeExperience extends ExperienceBlueprint {
 					this.camera?.construct();
 					this.composer?.construct();
 					this.renderer?.construct();
-					this.world?.construct();
 					this.navigation?.construct();
 					this.cameraAnimation?.construct();
+					this.interactions?.construct();
+					this.world?.construct();
 					this.debug?.construct();
 					this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
 					this._onConstruct?.();
@@ -122,6 +127,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.cameraAnimation?.update();
 			this.navigation?.update();
 			this.composer?.update();
+			this.renderer?.update();
 			this.debug?.update();
 		} catch (_) {
 			throw new ErrorFactory(_);

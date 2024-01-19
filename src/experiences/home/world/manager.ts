@@ -37,7 +37,12 @@ export class WorldManager extends ExperienceBasedBlueprint {
 	private _prevSceneKey?: string;
 	private _prevProjectedSceneKey?: string;
 
-	public readonly timeline = gsap.timeline();
+	public readonly timeline = gsap.timeline({
+		onStart: () => {},
+		onComplete: () => {
+			this.timeline.clear();
+		},
+	});
 
 	private get _supportedPageKeys() {
 		if (!this._world?.availablePageScenes) return [];
@@ -110,6 +115,14 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			: undefined;
 		const CURRENT_SCENE =
 			this._world.availablePageScenes[this._router.currentRouteKey];
+
+		if (this._camera?.timeline.isActive()) this._camera.timeline.progress(1);
+		if (this._navigation?.timeline.isActive())
+			this._navigation.timeline.progress(1);
+		if (this.timeline.isActive()) this.timeline.progress(1);
+		if (PREV_SCENE?.timeline?.isActive()) PREV_SCENE.timeline.progress(1);
+		if (CURRENT_SCENE.timeline?.isActive()) CURRENT_SCENE.timeline.progress(1);
+
 		const SCENE1_PC_SCREEN_POSITION =
 			this._world.scene1?.pcScreen?.localToWorld(new Vector3()) ??
 			new Vector3();
@@ -120,24 +133,19 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		const IS_SWITCHING_PROJECTED =
 			this._router.currentRouteKey !== this._world?.mainSceneKey &&
 			this._camera?.currentCameraIndex === 0;
+		const updateCameraToCurrentScene = () => {
+			if (this._navigation?.timeline.isActive())
+				this._navigation.timeline.progress(1);
 
-		const updateCameraToCurrentScene = () =>
 			this._navigation?.updateCameraPosition(
 				CURRENT_SCENE.cameraPath?.getPoint(0),
 				CURRENT_SCENE.center,
 				0.84
 			);
-
-		if (this._camera?.timeline.isActive()) this._camera.timeline.progress(1);
-		if (this._navigation?.timeline.isActive())
-			this._navigation.timeline.progress(1);
-		if (this.timeline.isActive()) this.timeline.progress(1);
-		if (PREV_SCENE?.timeline?.isActive()) PREV_SCENE.timeline.progress(1);
-		if (CURRENT_SCENE.timeline?.isActive()) CURRENT_SCENE.timeline.progress(1);
+		};
 
 		if (this?._prevSceneKey !== this._world.mainSceneKey && !IS_SWITCHING_MAIN)
 			PREV_SCENE?.outro();
-
 		if (this._prevProjectedSceneKey !== this._router?.currentRouteKey) {
 			CURRENT_SCENE.intro();
 
@@ -148,7 +156,6 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		}
 
 		this._navigation?.setViewCenter(CURRENT_SCENE.center);
-
 		this._cameraAnimation.cameraPath = CURRENT_SCENE.cameraPath;
 		this._cameraAnimation.progress = {
 			...this._cameraAnimation.progress,
@@ -161,6 +168,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 			this._triggerTransitionEffect().add(() => {
 				this._camera?.switchCamera(0);
+				console.log(SCENE1_PC_SCREEN_POSITION)
 				this._navigation?.setLimits(CURRENT_SCENE.navigationLimits);
 				this._navigation?.setTargetPosition(SCENE1_PC_SCREEN_POSITION);
 				this._navigation?.updateCameraPosition(

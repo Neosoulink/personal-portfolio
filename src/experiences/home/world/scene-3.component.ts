@@ -21,6 +21,9 @@ import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-componen
 // MODELS
 import type { Materials } from "~/common/experiences/experience-world.model";
 
+// UTILS
+import { getTodayTimestamp } from "~/utils/common-utils";
+
 // SHADERS
 import phoneScreenFragment from "./shaders/scene-3/phone-screen/fragment.glsl";
 import phoneScreenVertex from "./shaders/scene-3/phone-screen/vertex.glsl";
@@ -30,21 +33,12 @@ import gamepadLedFragment from "./shaders/scene-3/gamepad_led/fragment.glsl";
 import gamepadLedVertex from "./shaders/scene-3/gamepad_led/vertex.glsl";
 
 export class Scene3Component extends SceneComponentBlueprint {
-	private _appTime = this._experience.app.time;
-	private _renderer = this._experience.renderer;
-	private _initialPcTopArticulation?: Object3D<Object3DEventMap>;
-	private _pcScreenMixerPlane?: HtmlMixerPlane;
-	private _pcScreenDomElement?: HTMLIFrameElement;
-	private _phoneScreen?: Mesh;
-	private _watchScreen?: Mesh;
-	private _gamepadLed?: Mesh;
-	private _currentDayTimestamp = (() => {
-		const currentDate = new Date();
-		const startOfDay = new Date(currentDate);
-		startOfDay.setHours(0, 0, 0, 0);
+	private readonly _appTime = this._experience.app.time;
+	private readonly _renderer = this._experience.renderer;
+	private readonly _interactions = this._experience.interactions;
+	private readonly _currentDayTimestamp = getTodayTimestamp();
 
-		return currentDate.getTime() - startOfDay.getTime();
-	})();
+	private _initialPcTopArticulation?: Object3D<Object3DEventMap>;
 	private _uTime = 0;
 	private _uTimestamps = 0;
 
@@ -65,6 +59,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 			enabled: true,
 		},
 	};
+
 	public cameraPath = new CatmullRomCurve3(
 		[
 			new Vector3(5.8, 2.8, -3.7),
@@ -76,9 +71,20 @@ export class Scene3Component extends SceneComponentBlueprint {
 		true
 	);
 	public center = new Vector3(0, 1.3, 0);
-
+	public pcScreenMixerPlane?: HtmlMixerPlane;
+	public pcScreenDomElement?: HTMLIFrameElement;
+	public phoneScreen?: Mesh;
+	public watchScreen?: Mesh;
+	public gamepadLed?: Mesh;
 	public pcTopArticulation?: Object3D<Object3DEventMap>;
 	public pcScreen?: Mesh;
+	public pcTop?: Mesh;
+	public linkedinLogo?: Mesh;
+	public githubLogo?: Mesh;
+	public twitterLogo?: Mesh;
+	public discordLogo?: Mesh;
+	public telegramLogo?: Mesh;
+	public stackoverflowLogo?: Mesh;
 
 	constructor() {
 		super({
@@ -100,52 +106,9 @@ export class Scene3Component extends SceneComponentBlueprint {
 				gamepad_led: "gamepad_led",
 			},
 			onTraverseModelScene: (child: Object3D<Object3DEventMap>) => {
-				this._setPcTopArticulation(child);
-				this._setPcScreen(child);
-				this._setPhoneScreen(child);
-				this._setWatchScreen(child);
-				this._setGamepadLed(child);
+				this._setObjects(child);
 			},
 		});
-	}
-
-	public get isPcOpen() {
-		return (
-			this.pcTopArticulation?.rotation.z !==
-			this._initialPcTopArticulation?.rotation.z
-		);
-	}
-
-	private _setPcTopArticulation(item: Object3D<Object3DEventMap>) {
-		if (!(item instanceof Object3D) || item.name !== "pc_top_articulation_2")
-			return;
-
-		this._initialPcTopArticulation = item.clone();
-		this.pcTopArticulation = item;
-	}
-
-	private _setPcScreen(item: Object3D<Object3DEventMap>) {
-		if (!(item instanceof Mesh) || item.name !== "pc_top_screen_2") return;
-
-		this.pcScreen = item;
-	}
-
-	private _setPhoneScreen(item: Object3D<Object3DEventMap>) {
-		if (!(item instanceof Mesh) || item.name !== "phone_screen_2") return;
-
-		this._phoneScreen = item;
-	}
-
-	private _setWatchScreen(item: Object3D<Object3DEventMap>) {
-		if (!(item instanceof Mesh) || item.name !== "watch_screen") return;
-
-		this._watchScreen = item;
-	}
-
-	private _setGamepadLed(item: Object3D<Object3DEventMap>) {
-		if (!(item instanceof Mesh) || item.name !== "gamepad_led") return;
-
-		this._gamepadLed = item;
 	}
 
 	protected _getAvailableMaterials() {
@@ -213,6 +176,85 @@ export class Scene3Component extends SceneComponentBlueprint {
 		return AVAILABLE_MATERIALS;
 	}
 
+	private _setObjects(object: Object3D<Object3DEventMap>) {
+		if (
+			object instanceof Object3D &&
+			object.name === "pc_top_articulation_2" &&
+			!this._initialPcTopArticulation
+		) {
+			this._initialPcTopArticulation = object.clone();
+			this.pcTopArticulation = object;
+		}
+
+		if (!(object instanceof Mesh)) return;
+		if (object.name === "pc_top_2" && !this.pcTop) this.pcTop = object;
+		if (object.name === "pc_top_screen_2" && !this.pcScreen)
+			this.pcScreen = object;
+		if (object.name === "phone_screen_2" && !this.phoneScreen)
+			this.phoneScreen = object;
+		if (object.name === "watch_screen" && !this.watchScreen)
+			this.watchScreen = object;
+		if (object.name === "gamepad_led" && !this.gamepadLed)
+			this.gamepadLed = object;
+		if (object.name === "linkedin_logo" && !this.linkedinLogo)
+			this.linkedinLogo = object;
+		if (object.name === "github_logo_2" && !this.githubLogo)
+			this.githubLogo = object;
+		if (object.name === "twitter_x_logo" && !this.twitterLogo)
+			this.twitterLogo = object;
+		if (object.name === "discord_logo" && !this.discordLogo)
+			this.discordLogo = object;
+		if (object.name === "telegram_logo" && !this.telegramLogo)
+			this.telegramLogo = object;
+		if (object.name === "stackoverflow_logo" && !this.stackoverflowLogo)
+			this.stackoverflowLogo = object;
+	}
+
+	private _initPcScreenIframe() {
+		if (
+			!this._renderer?.mixerContext ||
+			!this.pcTopArticulation ||
+			!this.pcScreen
+		)
+			return;
+
+		const boundingBox = new Box3().setFromObject(this.pcScreen);
+		const _WIDTH = boundingBox.max.y - boundingBox.min.y - 0.075;
+		const _HEIGHT = boundingBox.max.x - boundingBox.min.x - 0.076;
+
+		this.pcScreenDomElement = document.createElement("iframe");
+		this.pcScreenDomElement.src = "http://threejs.org";
+		this.pcScreenDomElement.style.border = "none";
+
+		this.pcScreenMixerPlane = new HtmlMixerPlane(
+			this._renderer.mixerContext,
+			this.pcScreenDomElement,
+			{ planeH: _HEIGHT, planeW: _WIDTH, elementW: 1129 }
+		);
+		this.pcScreenMixerPlane.object3d.position
+			.copy(this.pcScreen.position)
+			.add(new Vector3(0, -0.005, 0));
+		this.pcScreenMixerPlane.object3d.rotation.set(
+			Math.PI * 0.5,
+			0.0055,
+			Math.PI * -0.5
+		);
+		this.pcScreenMixerPlane.object3d.visible = false;
+		this.pcScreenMixerPlane.object3d.name = "pc_screen";
+
+		this.pcScreen.position.setY(-1.415);
+		this.pcScreen.removeFromParent();
+
+		this.pcTopArticulation.add(this.pcScreenMixerPlane.object3d);
+	}
+
+	public get isPcOpen() {
+		return (
+			this.pcTopArticulation?.rotation.z !==
+			this._initialPcTopArticulation?.rotation.z
+		);
+	}
+
 	/**
 	 * Toggle the state of the pc between open and close
 	 *
@@ -245,42 +287,11 @@ export class Scene3Component extends SceneComponentBlueprint {
 	public construct(): void {
 		super.construct();
 
-		~(() => {
-			if (
-				!this._renderer?.mixerContext ||
-				!this.pcTopArticulation ||
-				!this.pcScreen
-			)
-				return;
-
-			const boundingBox = new Box3().setFromObject(this.pcScreen);
-			const _WIDTH = boundingBox.max.y - boundingBox.min.y - 0.075;
-			const _HEIGHT = boundingBox.max.x - boundingBox.min.x - 0.076;
-
-			this._pcScreenDomElement = document.createElement("iframe");
-			this._pcScreenDomElement.src = "http://threejs.org/";
-			this._pcScreenDomElement.style.border = "none";
-
-			this._pcScreenMixerPlane = new HtmlMixerPlane(
-				this._renderer.mixerContext,
-				this._pcScreenDomElement,
-				{ planeH: _HEIGHT, planeW: _WIDTH }
-			);
-			this._pcScreenMixerPlane.object3d.position.set(
-				this.pcScreen.position.x,
-				0.01,
-				this.pcScreen.position.z
-			);
-			this._pcScreenMixerPlane.object3d.rotation.set(-4.71, 0, -1.57);
-
-			this.pcTopArticulation.add(this._pcScreenMixerPlane.object3d);
-		})();
+		this._initPcScreenIframe();
 
 		~(() => {
 			const _MAT_KEYS = Object.keys(this._availableMaterials).slice(3);
 
-			if (this._pcScreenMixerPlane)
-				this._pcScreenMixerPlane.object3d.visible = false;
 			for (const key of _MAT_KEYS)
 				this._availableMaterials[key].visible = false;
 		})();
@@ -301,10 +312,6 @@ export class Scene3Component extends SceneComponentBlueprint {
 				gsap.to(_PARAMS, {
 					alphaTest: 1,
 					duration: Config.GSAP_ANIMATION_DURATION,
-					onStart: () => {
-						// if (!this._navigation?.timeline.isActive())
-						// 	this._navigation?.setLimits(this.navigationLimits);
-					},
 					onUpdate: () => {
 						for (const key of _ALPHA_MAT_KEYS)
 							this._availableMaterials[key].alphaTest = 1 - _PARAMS.alphaTest;
@@ -314,11 +321,64 @@ export class Scene3Component extends SceneComponentBlueprint {
 			)
 			.add(() => {
 				if (this._renderer) this._renderer.enableCssRender = true;
-				if (this._pcScreenMixerPlane)
-					this._pcScreenMixerPlane.object3d.visible = true;
+				if (this.pcScreenMixerPlane)
+					this.pcScreenMixerPlane.object3d.visible = true;
 				for (const key of _OTHER_MAT_KEYS)
 					this._availableMaterials[key].visible = true;
-			}, "<40%");
+			}, "<40%")
+			.add(() => {
+				const pcScreen = this.pcScreenMixerPlane?.object3d;
+				const pcScreenPosition = new Vector3();
+				const pcScreenFocusPoint = new Vector3();
+				pcScreen?.localToWorld(pcScreenPosition);
+				pcScreen?.position.add(new Vector3(0, -1.415, 0));
+				pcScreen?.localToWorld(pcScreenFocusPoint);
+				pcScreen?.position.add(new Vector3(0, 1.415, 0));
+
+				this._interactions?.start(
+					[
+						...(this.phoneScreen !== undefined
+							? [
+									{
+										object: this.phoneScreen,
+									},
+							  ]
+							: []),
+						...(this.watchScreen !== undefined
+							? [{ object: this.watchScreen }]
+							: []),
+						...(this.githubLogo !== undefined
+							? [{ object: this.githubLogo, link: "https://github.com" }]
+							: []),
+						...(this.discordLogo !== undefined
+							? [{ object: this.discordLogo }]
+							: []),
+						...(this.twitterLogo !== undefined
+							? [{ object: this.twitterLogo }]
+							: []),
+						...(this.telegramLogo !== undefined
+							? [{ object: this.telegramLogo }]
+							: []),
+						...(this.linkedinLogo !== undefined
+							? [{ object: this.linkedinLogo }]
+							: []),
+						...(this.stackoverflowLogo !== undefined
+							? [{ object: this.stackoverflowLogo }]
+							: []),
+						...(pcScreen !== undefined
+							? [
+									{
+										object: pcScreen,
+										focusPoint: pcScreenFocusPoint,
+										focusTarget: pcScreenPosition,
+										focusFov: 25,
+									},
+							  ]
+							: []),
+					],
+					this.modelScene
+				);
+			});
 	}
 
 	public outro() {
@@ -331,66 +391,66 @@ export class Scene3Component extends SceneComponentBlueprint {
 		const _ALPHA_MAT_KEYS = _MAT_KEYS.slice(0, 3);
 		const _OTHER_MAT_KEYS = _MAT_KEYS.slice(3);
 
-		return this.togglePcOpening(0)?.add(
-			gsap.to(_PARAMS, {
-				alphaTest: 1,
-				duration: Config.GSAP_ANIMATION_DURATION,
-				onStart: () => {
-					if (this._renderer) this._renderer.enableCssRender = false;
-					if (this._pcScreenMixerPlane)
-						this._pcScreenMixerPlane.object3d.visible = false;
-					for (const key of _OTHER_MAT_KEYS)
-						this._availableMaterials[key].visible = false;
-					// if (!this._navigation?.timeline.isActive())
-					// 	this._navigation?.setLimits(this.navigationLimits);
-				},
-				onUpdate: () => {
-					for (const key of _ALPHA_MAT_KEYS)
-						this._availableMaterials[key].alphaTest = _PARAMS.alphaTest;
-				},
-			}),
-			"<"
-		);
+		return this.togglePcOpening(0)
+			?.add(
+				gsap.to(_PARAMS, {
+					alphaTest: 1,
+					duration: Config.GSAP_ANIMATION_DURATION,
+					onStart: () => {
+						if (this._renderer) this._renderer.enableCssRender = false;
+						if (this.pcScreenMixerPlane)
+							this.pcScreenMixerPlane.object3d.visible = false;
+						for (const key of _OTHER_MAT_KEYS)
+							this._availableMaterials[key].visible = false;
+					},
+					onUpdate: () => {
+						for (const key of _ALPHA_MAT_KEYS)
+							this._availableMaterials[key].alphaTest = _PARAMS.alphaTest;
+					},
+				}),
+				"<"
+			)
+			.add(() => {
+				this._interactions?.stop();
+			});
 	}
 	public update() {
 		this._uTime = this._appTime.elapsed * 0.001;
 		this._uTimestamps = this._currentDayTimestamp * 0.001 + this._uTime;
 
 		if (
-			this._phoneScreen?.material instanceof ShaderMaterial &&
-			typeof this._phoneScreen?.material.uniforms?.uTime?.value === "number"
+			this.phoneScreen?.material instanceof ShaderMaterial &&
+			typeof this.phoneScreen?.material.uniforms?.uTime?.value === "number"
 		)
-			this._phoneScreen.material.uniforms.uTime.value = this._uTime;
+			this.phoneScreen.material.uniforms.uTime.value = this._uTime;
 		if (
-			this._phoneScreen?.material instanceof ShaderMaterial &&
-			typeof this._phoneScreen?.material.uniforms?.uTimestamp?.value ===
-				"number"
+			this.phoneScreen?.material instanceof ShaderMaterial &&
+			typeof this.phoneScreen?.material.uniforms?.uTimestamp?.value === "number"
 		)
-			this._phoneScreen.material.uniforms.uTimestamp.value = this._uTimestamps;
+			this.phoneScreen.material.uniforms.uTimestamp.value = this._uTimestamps;
 
 		if (
-			this._watchScreen?.material instanceof ShaderMaterial &&
-			typeof this._watchScreen?.material.uniforms?.uTime?.value === "number"
+			this.watchScreen?.material instanceof ShaderMaterial &&
+			typeof this.watchScreen?.material.uniforms?.uTime?.value === "number"
 		)
-			this._watchScreen.material.uniforms.uTime.value = this._uTime;
+			this.watchScreen.material.uniforms.uTime.value = this._uTime;
 
 		if (
-			this._watchScreen?.material instanceof ShaderMaterial &&
-			typeof this._watchScreen?.material.uniforms?.uSec?.value === "number"
+			this.watchScreen?.material instanceof ShaderMaterial &&
+			typeof this.watchScreen?.material.uniforms?.uSec?.value === "number"
 		)
-			this._watchScreen.material.uniforms.uSec.value = Math.round(this._uTime);
+			this.watchScreen.material.uniforms.uSec.value = Math.round(this._uTime);
 
 		if (
-			this._watchScreen?.material instanceof ShaderMaterial &&
-			typeof this._watchScreen?.material.uniforms?.uTimestamp?.value ===
-				"number"
+			this.watchScreen?.material instanceof ShaderMaterial &&
+			typeof this.watchScreen?.material.uniforms?.uTimestamp?.value === "number"
 		)
-			this._watchScreen.material.uniforms.uTimestamp.value = this._uTimestamps;
+			this.watchScreen.material.uniforms.uTimestamp.value = this._uTimestamps;
 
 		if (
-			this._gamepadLed?.material instanceof ShaderMaterial &&
-			typeof this._gamepadLed?.material.uniforms?.uTime?.value === "number"
+			this.gamepadLed?.material instanceof ShaderMaterial &&
+			typeof this.gamepadLed?.material.uniforms?.uTime?.value === "number"
 		)
-			this._gamepadLed.material.uniforms.uTime.value = this._uTime;
+			this.gamepadLed.material.uniforms.uTime.value = this._uTime;
 	}
 }

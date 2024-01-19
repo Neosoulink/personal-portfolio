@@ -17,6 +17,7 @@ export class Camera extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appCamera = this._experience.app.camera;
+	private readonly _router = this._experience.router;
 	private readonly _appCameraInstance = this._experience.app.camera.instance;
 	private readonly _appDebug = this._experience.app.debug;
 	private readonly _timeline = gsap.timeline({
@@ -24,6 +25,7 @@ export class Camera extends ExperienceBasedBlueprint {
 			this.emit(events.ANIMATION_STARTED);
 		},
 		onComplete: () => {
+			this._timeline.clear();
 			this.emit(events.ANIMATION_ENDED);
 		},
 	});
@@ -36,6 +38,7 @@ export class Camera extends ExperienceBasedBlueprint {
 		near: 0,
 		far: 0,
 	};
+	private _onRouteChange?: () => void;
 
 	public readonly initialCameraFov = 45;
 	public readonly initialCameraPosition = new Vector3(0, 10, 20);
@@ -96,26 +99,48 @@ export class Camera extends ExperienceBasedBlueprint {
 			near: this._appCameraInstance.near,
 			far: this._appCameraInstance.far,
 		};
+		this._onRouteChange = () => {
+			this.resetFov();
+		};
 
+		this._router?.on(events.CHANGED, this._onRouteChange);
 		this.emit(events.CONSTRUCTED);
 	}
 
 	public destruct() {
+		if (this._onRouteChange)
+			this._router?.off(events.CHANGED, this._onRouteChange);
 		this.emit(events.DESTRUCTED);
 	}
 
 	public cameraZoomIn() {
-		if (this._experience.app?.camera.instance instanceof PerspectiveCamera)
-			this._timeline.to(this._experience.app?.camera.instance, {
-				fov: 25,
-			});
+		if (!(this.instance instanceof PerspectiveCamera)) return;
+		if (this._timeline.isActive()) this.timeline.progress(1);
+
+		this._timeline.to(this.instance, {
+			fov: 25,
+			duration: Config.GSAP_ANIMATION_DURATION,
+		});
 	}
 
-	public cameraZoomOut() {
-		if (this._experience.app?.camera.instance instanceof PerspectiveCamera)
-			this._timeline.to(this._experience.app?.camera.instance, {
-				fov: this._experience.camera?.initialCameraFov ?? 0,
-			});
+	public updateCameraFov(fov: number, duration?: number) {
+		if (!(this.instance instanceof PerspectiveCamera)) return;
+		if (this._timeline.isActive()) this.timeline.progress(1);
+
+		this._timeline.to(this.instance, {
+			fov: Number(fov),
+			duration: Number(duration) ?? Config.GSAP_ANIMATION_DURATION,
+		});
+	}
+
+	public resetFov() {
+		if (!(this.instance instanceof PerspectiveCamera)) return;
+		if (this._timeline.isActive()) this.timeline.progress(1);
+
+		this._timeline.to(this.instance, {
+			fov: this.initialCameraFov,
+			duration: Config.GSAP_ANIMATION_DURATION,
+		});
 	}
 
 	/**
