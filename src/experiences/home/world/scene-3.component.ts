@@ -53,9 +53,9 @@ export class Scene3Component extends SceneComponentBlueprint {
 			enabledTheta: false,
 		},
 		target: {
-			x: { min: -3, max: 3 },
-			y: { min: 0, max: 3 },
-			z: { min: -3, max: 3 },
+			x: { min: -1.5, max: 1.5 },
+			y: { min: 0, max: 1.5 },
+			z: { min: -1.5, max: 1.5 },
 			enabled: true,
 		},
 	};
@@ -63,7 +63,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 	public cameraPath = new CatmullRomCurve3(
 		[
 			new Vector3(5.8, 2.8, -4.6),
-			new Vector3(4.6, 4.2, 4.6),
+			new Vector3(5, 4.2, 5),
 			new Vector3(-5.3, 2.2, 4.6),
 			new Vector3(-4.6, 2, -5.3),
 			new Vector3(4.2, 2.7, -5),
