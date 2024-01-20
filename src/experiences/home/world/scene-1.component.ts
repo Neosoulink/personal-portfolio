@@ -38,6 +38,7 @@ import type {
 	Materials,
 	ModelChildrenMaterials,
 } from "~/common/experiences/experience-world.model";
+import type { ViewLimits } from "~/common/experiences/navigation.model";
 
 // ASSETS
 import monitor_a_screen_recording from "~/assets/videos/monitor_a_screen_recording.webm?url";
@@ -59,9 +60,9 @@ export class Scene1Component extends SceneComponentBlueprint {
 		fixedComputerLed: "#50cdff",
 		coffeeSteam: "#b7a08e",
 	};
-	public readonly navigationLimits = {
+	public readonly navigationLimits: ViewLimits = {
 		spherical: {
-			radius: { min: 5, max: 20 },
+			radius: { min: 10, max: 19.2 },
 			phi: { min: 0.01, max: Math.PI * 0.5 },
 			theta: { min: 0, max: Math.PI * 0.5 },
 			enabled: true,
@@ -69,18 +70,18 @@ export class Scene1Component extends SceneComponentBlueprint {
 			enabledTheta: true,
 		},
 		target: {
-			x: { min: -3, max: 3 },
-			y: { min: 2, max: 6 },
-			z: { min: -2.5, max: 4 },
+			x: { min: -1.5, max: 1.5 },
+			y: { min: 0, max: 3.5 },
+			z: { min: -1.5, max: 1.5 },
 			enabled: true,
 		},
 	};
 	public readonly cameraPath = new CatmullRomCurve3([
-		new Vector3(0, 5.5, 21),
+		new Vector3(0, 5.5, 19),
 		new Vector3(12, 10, 12),
-		new Vector3(21, 5.5, 0),
+		new Vector3(19, 5.5, 0),
 		new Vector3(12, 3.7, 12),
-		new Vector3(0, 5.5, 21),
+		new Vector3(0, 5.5, 19),
 	]);
 	public center = new Vector3(0, 3, 0);
 

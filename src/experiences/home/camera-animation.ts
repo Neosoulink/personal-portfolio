@@ -117,34 +117,35 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 
 	public enable() {
 		this._doneAnimations();
+		this.enabled = true;
 
 		if (this._navigation?.view) this._navigation.view.controls = false;
-		this.cameraPath.getPointAt(this.progress.current, this.positionOnCurve);
+		this.cameraPath.getPointAt(this.progress.current % 1, this.positionOnCurve);
 
 		return this._navigation
 			?.updateCameraPosition(
 				this.positionOnCurve,
 				this._navigation.view.center,
-				Config.GSAP_ANIMATION_DURATION * 0.8
+				Config.GSAP_ANIMATION_DURATION * 0.4
 			)
 			.add(() => {
-				this.enabled = true;
 				this.emit(events.STARTED, this);
 			});
 	}
 
 	public disable() {
 		this._doneAnimations();
+
 		this.enabled = false;
+		if (this._navigation?.view) this._navigation.view.controls = true;
 
 		return this._navigation
 			?.updateCameraPosition(
 				this.positionOnCurve.setY(this._camera?.lookAtPosition.y ?? 0),
 				this._navigation.view.center,
-				Config.GSAP_ANIMATION_DURATION * 0.5
+				Config.GSAP_ANIMATION_DURATION * 0.2
 			)
 			.add(() => {
-				if (this._navigation?.view) this._navigation.view.controls = true;
 				this.emit(events.ENDED, this);
 			});
 	}

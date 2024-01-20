@@ -55,3 +55,8 @@ export interface NavigationView {
 	onContextMenu?: (event: MouseEvent) => unknown;
 	onWheel?: (event: Event) => unknown;
 }
+
+export interface ViewLimits {
+	spherical: Exclude<NavigationView["spherical"], undefined>["limits"];
+	target: Exclude<NavigationView["target"], undefined>["limits"];
+}

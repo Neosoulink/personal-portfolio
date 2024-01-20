@@ -13,7 +13,7 @@ import { Config } from "~/config";
 export class Scene2Component extends SceneComponentBlueprint {
 	public readonly navigationLimits = {
 		spherical: {
-			radius: { min: 8, max: 12 },
+			radius: { min: 6.5, max: 12 },
 			phi: { min: 0.01, max: Math.PI * 0.5 },
 			theta: { min: 0, max: Math.PI * 0.5 },
 			enabled: true,
@@ -21,19 +21,19 @@ export class Scene2Component extends SceneComponentBlueprint {
 			enabledTheta: false,
 		},
 		target: {
-			x: { min: -3, max: 3 },
-			y: { min: 0, max: 3 },
-			z: { min: -3, max: 3 },
+			x: { min: -1.5, max: 1.5 },
+			y: { min: 0, max: 1.5 },
+			z: { min: -1.5, max: 1.5 },
 			enabled: true,
 		},
 	};
 	public cameraPath = new CatmullRomCurve3(
 		[
-			new Vector3(3.4, 4.5, -8.2),
-			new Vector3(8.4, 2.6, 2.5),
-			new Vector3(-1, 4.3, 8.1),
+			new Vector3(3.4, 4.5, -8.4),
+			new Vector3(8.6, 2.6, 2.5),
+			new Vector3(-1, 4.3, 8.4),
 			new Vector3(-8.3, 5.5, -1.9),
-			new Vector3(2, 4.85, -8.3),
+			new Vector3(3, 4.65, -8.5),
 		],
 		true
 	);

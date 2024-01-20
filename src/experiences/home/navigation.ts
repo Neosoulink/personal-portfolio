@@ -9,7 +9,10 @@ import { HomeExperience } from "./";
 import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
 
 // MODELS
-import type { NavigationView } from "~/common/experiences/navigation.model";
+import type {
+	NavigationView,
+	ViewLimits,
+} from "~/common/experiences/navigation.model";
 
 // STATIC
 import { ANIMATION_ENDED, ANIMATION_STARTED } from "~/static/event.static";
@@ -36,10 +39,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 		smallestSide: 0,
 		largestSide: 0,
 	};
-	private readonly _viewLimits: {
-		spherical: Exclude<NavigationView["spherical"], undefined>["limits"];
-		target: Exclude<NavigationView["target"], undefined>["limits"];
-	} = {
+	private readonly _viewLimits: ViewLimits = {
 		spherical: {
 			radius: { min: 0, max: 0 },
 			phi: { min: 0, max: 0 },
@@ -58,7 +58,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 	private readonly _view: NavigationView = {
 		enabled: true,
 		controls: true,
-		limits: false,
+		limits: true,
 		center: new Vector3(),
 		spherical: {
 			value: new Spherical(),

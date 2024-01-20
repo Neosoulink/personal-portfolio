@@ -41,7 +41,7 @@ export class Camera extends ExperienceBasedBlueprint {
 	private _onRouteChange?: () => void;
 
 	public readonly initialCameraFov = 45;
-	public readonly initialCameraPosition = new Vector3(0, 10, 20);
+	public readonly initialCameraPosition = new Vector3(0, 15, 30);
 	public readonly cameras = [
 		(() =>
 			this._appCameraInstance instanceof PerspectiveCamera
