@@ -35,7 +35,6 @@ import gamepadLedVertex from "./shaders/scene-3/gamepad_led/vertex.glsl";
 export class Scene3Component extends SceneComponentBlueprint {
 	private readonly _appTime = this._experience.app.time;
 	private readonly _renderer = this._experience.renderer;
-	private readonly _interactions = this._experience.interactions;
 	private readonly _currentDayTimestamp = getTodayTimestamp();
 
 	private _initialPcTopArticulation?: Object3D<Object3DEventMap>;
@@ -45,7 +44,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 	public readonly timeline = gsap.timeline();
 	public readonly navigationLimits = {
 		spherical: {
-			radius: { min: 4, max: 8 },
+			radius: { min: 4, max: 7.5 },
 			phi: { min: 0.01, max: Math.PI * 0.5 },
 			theta: { min: 0, max: Math.PI * 0.5 },
 			enabled: true,
@@ -100,7 +99,6 @@ export class Scene3Component extends SceneComponentBlueprint {
 				pc_top_2: "scene_3",
 				"eye-glass_glass": "glass",
 				scene_3_floor: "scene_container",
-				pc_top_screen_2: "glass",
 				phone_screen_2: "phone_screen",
 				watch_screen: "watch_screen",
 				gamepad_led: "gamepad_led",
@@ -242,9 +240,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 		this.pcScreenMixerPlane.object3d.visible = false;
 		this.pcScreenMixerPlane.object3d.name = "pc_screen";
 
-		this.pcScreen.position.setY(-1.415);
 		this.pcScreen.removeFromParent();
-
 		this.pcTopArticulation.add(this.pcScreenMixerPlane.object3d);
 	}
 
@@ -253,6 +249,74 @@ export class Scene3Component extends SceneComponentBlueprint {
 			this.pcTopArticulation?.rotation.z !==
 			this._initialPcTopArticulation?.rotation.z
 		);
+	}
+
+	public initSelectableObjects() {
+		const pcScreen = this.pcScreenMixerPlane?.object3d;
+		const pcScreenPosition = new Vector3();
+		const pcScreenFocusPoint = new Vector3();
+		pcScreen?.localToWorld(pcScreenPosition);
+		pcScreen?.position.add(new Vector3(0, -1.415, 0));
+		pcScreen?.localToWorld(pcScreenFocusPoint);
+		pcScreen?.position.add(new Vector3(0, 1.415, 0));
+
+		this.selectableObjects = [
+			...(pcScreen !== undefined
+				? [
+						{
+							object: pcScreen,
+							focusPoint: pcScreenFocusPoint,
+							focusTarget: pcScreenPosition,
+							focusFov: 25,
+						},
+				  ]
+				: []),
+			...(this.phoneScreen !== undefined
+				? [
+						{
+							object: this.phoneScreen,
+							focusPoint: this.phoneScreen
+								.localToWorld(new Vector3())
+								.add(new Vector3(0.225, 1, 0.1)),
+							focusTarget: this.phoneScreen.localToWorld(new Vector3()),
+						},
+				  ]
+				: []),
+			...(this.watchScreen !== undefined
+				? [
+						{
+							object: this.watchScreen,
+							focusPoint: this.watchScreen
+								.localToWorld(new Vector3())
+								.add(new Vector3(-0.2, 0.7, 0.028)),
+							focusTarget: this.watchScreen.localToWorld(new Vector3()),
+						},
+				  ]
+				: []),
+			...(this.githubLogo !== undefined
+				? [{ object: this.githubLogo, externalLink: Config.GITHUB_LINK }]
+				: []),
+			...(this.discordLogo !== undefined
+				? [{ object: this.discordLogo, externalLink: Config.DISCORD_LINK }]
+				: []),
+			...(this.twitterLogo !== undefined
+				? [{ object: this.twitterLogo, externalLink: Config.TWITTER_LINK }]
+				: []),
+			...(this.telegramLogo !== undefined
+				? [{ object: this.telegramLogo, externalLink: Config.TELEGRAM_LINK }]
+				: []),
+			...(this.linkedinLogo !== undefined
+				? [{ object: this.linkedinLogo, externalLink: Config.LINKEDIN_LINK }]
+				: []),
+			...(this.stackoverflowLogo !== undefined
+				? [
+						{
+							object: this.stackoverflowLogo,
+							externalLink: Config.STACKOVERFLOW_LINK,
+						},
+				  ]
+				: []),
+		];
 	}
 
 	/**
@@ -286,7 +350,6 @@ export class Scene3Component extends SceneComponentBlueprint {
 
 	public construct(): void {
 		super.construct();
-
 		this._initPcScreenIframe();
 
 		~(() => {
@@ -325,60 +388,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 					this.pcScreenMixerPlane.object3d.visible = true;
 				for (const key of _OTHER_MAT_KEYS)
 					this._availableMaterials[key].visible = true;
-			}, "<40%")
-			.add(() => {
-				const pcScreen = this.pcScreenMixerPlane?.object3d;
-				const pcScreenPosition = new Vector3();
-				const pcScreenFocusPoint = new Vector3();
-				pcScreen?.localToWorld(pcScreenPosition);
-				pcScreen?.position.add(new Vector3(0, -1.415, 0));
-				pcScreen?.localToWorld(pcScreenFocusPoint);
-				pcScreen?.position.add(new Vector3(0, 1.415, 0));
-
-				this._interactions?.start(
-					[
-						...(this.phoneScreen !== undefined
-							? [
-									{
-										object: this.phoneScreen,
-									},
-							  ]
-							: []),
-						...(this.watchScreen !== undefined
-							? [{ object: this.watchScreen }]
-							: []),
-						...(this.githubLogo !== undefined
-							? [{ object: this.githubLogo, link: "https://github.com" }]
-							: []),
-						...(this.discordLogo !== undefined
-							? [{ object: this.discordLogo }]
-							: []),
-						...(this.twitterLogo !== undefined
-							? [{ object: this.twitterLogo }]
-							: []),
-						...(this.telegramLogo !== undefined
-							? [{ object: this.telegramLogo }]
-							: []),
-						...(this.linkedinLogo !== undefined
-							? [{ object: this.linkedinLogo }]
-							: []),
-						...(this.stackoverflowLogo !== undefined
-							? [{ object: this.stackoverflowLogo }]
-							: []),
-						...(pcScreen !== undefined
-							? [
-									{
-										object: pcScreen,
-										focusPoint: pcScreenFocusPoint,
-										focusTarget: pcScreenPosition,
-										focusFov: 25,
-									},
-							  ]
-							: []),
-					],
-					this.modelScene
-				);
-			});
+			}, "<40%");
 	}
 
 	public outro() {
@@ -391,29 +401,26 @@ export class Scene3Component extends SceneComponentBlueprint {
 		const _ALPHA_MAT_KEYS = _MAT_KEYS.slice(0, 3);
 		const _OTHER_MAT_KEYS = _MAT_KEYS.slice(3);
 
-		return this.togglePcOpening(0)
-			?.add(
-				gsap.to(_PARAMS, {
-					alphaTest: 1,
-					duration: Config.GSAP_ANIMATION_DURATION,
-					onStart: () => {
-						if (this._renderer) this._renderer.enableCssRender = false;
-						if (this.pcScreenMixerPlane)
-							this.pcScreenMixerPlane.object3d.visible = false;
-						for (const key of _OTHER_MAT_KEYS)
-							this._availableMaterials[key].visible = false;
-					},
-					onUpdate: () => {
-						for (const key of _ALPHA_MAT_KEYS)
-							this._availableMaterials[key].alphaTest = _PARAMS.alphaTest;
-					},
-				}),
-				"<"
-			)
-			.add(() => {
-				this._interactions?.stop();
-			});
+		return this.togglePcOpening(0)?.add(
+			gsap.to(_PARAMS, {
+				alphaTest: 1,
+				duration: Config.GSAP_ANIMATION_DURATION,
+				onStart: () => {
+					if (this._renderer) this._renderer.enableCssRender = false;
+					if (this.pcScreenMixerPlane)
+						this.pcScreenMixerPlane.object3d.visible = false;
+					for (const key of _OTHER_MAT_KEYS)
+						this._availableMaterials[key].visible = false;
+				},
+				onUpdate: () => {
+					for (const key of _ALPHA_MAT_KEYS)
+						this._availableMaterials[key].alphaTest = _PARAMS.alphaTest;
+				},
+			}),
+			"<"
+		);
 	}
+
 	public update() {
 		this._uTime = this._appTime.elapsed * 0.001;
 		this._uTimestamps = this._currentDayTimestamp * 0.001 + this._uTime;

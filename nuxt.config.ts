@@ -37,7 +37,13 @@ export default defineNuxtConfig({
 	srcDir: "./src",
 	runtimeConfig: {
 		public: {
-			env: process.env.MODE,
+			MODE: process.env.MODE,
+			GITHUB_LINK: process.env.GITHUB_LINK,
+			LINKEDIN_LINK: process.env.LINKEDIN_LINK,
+			DISCORD_LINK: process.env.DISCORD_LINK,
+			STACKOVERFLOW_LINK: process.env.STACKOVERFLOW_LINK,
+			TWITTER_LINK: process.env.TWITTER_LINK,
+			TELEGRAM_LINK: process.env.TELEGRAM_LINK,
 		},
 	},
 	vite: {

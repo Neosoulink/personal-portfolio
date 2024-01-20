@@ -71,18 +71,14 @@ export class Scene2Component extends SceneComponentBlueprint {
 
 	public intro() {
 		if (!this.modelScene) return this.timeline;
-		this.modelScene.renderOrder = 1;
-
 		const _PARAMS = { alphaTest: 0 };
 		const _MAT_KEYS = Object.keys(this._availableMaterials);
+
+		this.modelScene.renderOrder = 1;
 
 		return this.timeline?.to(_PARAMS, {
 			alphaTest: 1,
 			duration: Config.GSAP_ANIMATION_DURATION,
-			onStart: () => {
-				// if (!this._navigation?.timeline.isActive())
-				// 	this._navigation?.setLimits(this.navigationLimits);
-			},
 			onUpdate: () => {
 				for (const key of _MAT_KEYS)
 					this._availableMaterials[key].alphaTest = 1 - _PARAMS.alphaTest;
@@ -93,18 +89,14 @@ export class Scene2Component extends SceneComponentBlueprint {
 	public outro() {
 		if (!this.modelScene) return this.timeline;
 
-		this.modelScene.renderOrder = 2;
-
 		const _PARAMS = { alphaTest: 0 };
 		const _MAT_KEYS = Object.keys(this._availableMaterials);
+
+		this.modelScene.renderOrder = 2;
 
 		return this.timeline?.to(_PARAMS, {
 			alphaTest: 1,
 			duration: Config.GSAP_ANIMATION_DURATION,
-			onStart: () => {
-				// if (!this._navigation?.timeline.isActive())
-				// 	this._navigation?.setLimits(this.navigationLimits);
-			},
 			onUpdate: () => {
 				for (const key of _MAT_KEYS)
 					this._availableMaterials[key].alphaTest = _PARAMS.alphaTest;

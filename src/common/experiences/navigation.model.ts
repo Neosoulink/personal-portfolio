@@ -54,6 +54,7 @@ export interface NavigationView {
 	onTouchMove?: (event: TouchEvent) => unknown;
 	onContextMenu?: (event: MouseEvent) => unknown;
 	onWheel?: (event: Event) => unknown;
+	onLeave?: (event: Event) => unknown;
 }
 
 export interface ViewLimits {

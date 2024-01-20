@@ -173,7 +173,8 @@ export class Navigation extends ExperienceBasedBlueprint {
 					!this._view.drag ||
 					!this._view.down ||
 					!this._view.onMouseUp ||
-					!this._view.onMouseMove
+					!this._view.onMouseMove ||
+					this._experience.cameraAnimation?.enabled
 				)
 					return;
 
@@ -191,7 +192,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 				this._view?.down(_event.clientX, _event.clientY);
 
-				this._ui?.targetElementParent?.addEventListener<"mouseup">(
+				this._ui?.targetElementParent?.addEventListener(
 					"mouseup",
 					this._view.onMouseUp
 				);
@@ -200,12 +201,14 @@ export class Navigation extends ExperienceBasedBlueprint {
 					this._view.onMouseMove
 				);
 			};
+
 			this._view.onMouseMove = (_event) => {
 				_event.preventDefault();
 				if (!this._view.move) return;
 
 				this._view.move(_event.clientX, _event.clientY);
 			};
+
 			this._view.onMouseUp = (_event) => {
 				_event.preventDefault();
 
@@ -223,13 +226,15 @@ export class Navigation extends ExperienceBasedBlueprint {
 					this._view.onMouseMove
 				);
 			};
+
 			this._view.onTouchStart = (_event) => {
 				_event.preventDefault();
 
 				if (
 					!this._view.down ||
 					!this._view.onTouchEnd ||
-					!this._view.onTouchMove
+					!this._view.onTouchMove ||
+					this._experience.cameraAnimation?.enabled
 				)
 					return;
 
@@ -245,6 +250,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 					this._view.onTouchMove
 				);
 			};
+
 			this._view.onTouchMove = (_event) => {
 				_event.preventDefault();
 
@@ -269,9 +275,11 @@ export class Navigation extends ExperienceBasedBlueprint {
 					this._view.onTouchMove
 				);
 			};
+
 			this._view.onContextMenu = (_event) => {
 				_event.preventDefault();
 			};
+
 			this._view.onWheel = (_event) => {
 				_event.preventDefault();
 
@@ -285,6 +293,14 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 				const normalized = normalizeWheel(_event);
 				this._view.zooming(normalized.pixelY);
+			};
+
+			this._view.onLeave = (_event) => {
+				if (this._view.onMouseMove)
+					this._ui?.targetElement?.removeEventListener(
+						"mousemove",
+						this._view.onMouseMove
+					);
 			};
 
 			this._ui?.targetElementParent?.addEventListener(
@@ -302,14 +318,20 @@ export class Navigation extends ExperienceBasedBlueprint {
 			this._ui?.targetElementParent?.addEventListener(
 				"mousewheel",
 				this._view.onWheel,
-				{
-					passive: false,
-				}
+				{ passive: false }
 			);
 			this._ui?.targetElementParent?.addEventListener(
 				"wheel",
 				this._view.onWheel,
 				{ passive: false }
+			);
+			this._ui?.targetElementParent?.addEventListener(
+				"mouseleave",
+				this._view.onLeave
+			);
+			this._ui?.targetElementParent?.addEventListener(
+				"mouseenter",
+				this._view.onLeave
 			);
 		})();
 
@@ -361,6 +383,16 @@ export class Navigation extends ExperienceBasedBlueprint {
 			this._ui?.targetElementParent?.removeEventListener(
 				"wheel",
 				this._view.onWheel
+			);
+		this._view.onLeave &&
+			this._ui?.targetElementParent?.removeEventListener(
+				"mouseleave",
+				this._view.onLeave
+			);
+		this._view.onLeave &&
+			this._ui?.targetElementParent?.removeEventListener(
+				"mouseenter",
+				this._view.onLeave
 			);
 
 		this._appSizes.off("resize", () => this._setConfig());

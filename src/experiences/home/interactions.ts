@@ -4,6 +4,7 @@ import {
 	Vector2,
 	type Object3DEventMap,
 	Vector3,
+	Color,
 } from "three";
 import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 import { gsap } from "gsap";
@@ -23,11 +24,13 @@ export class Interactions extends ExperienceBasedBlueprint {
 	protected _experience = new HomeExperience();
 
 	private readonly mouseCoordinate = new Vector2();
-	private readonly outlineDefault = {
-		strength: 12,
+	private readonly _outlineDefault = {
+		strength: 2,
 		glow: 1,
-		thickness: 2.5,
+		thickness: 2,
 		pulse: 4.5,
+		visibleColor: "#fff",
+		hiddenColor: "#fff",
 	};
 
 	private _appScene = this._experience.app.scene;
@@ -92,9 +95,9 @@ export class Interactions extends ExperienceBasedBlueprint {
 		selectables: SelectableObject[],
 		intersectable: Object3D<Object3DEventMap> = this._appScene
 	) {
-		if (!this._camera?.instance || this.outlinePass || !selectables.length)
+		if (!this._camera?.instance || this.outlinePass)
 			throw new Error("Wrong params");
-
+		if (!selectables.length) return;
 		if (this.timeline.isActive()) this.timeline.progress(1);
 
 		this.enabled = true;
@@ -118,6 +121,12 @@ export class Interactions extends ExperienceBasedBlueprint {
 			this._camera.instance,
 			selectableObjects
 		);
+		this.outlinePass.visibleEdgeColor = new Color(
+			this._outlineDefault.visibleColor
+		);
+		this.outlinePass.hiddenEdgeColor = new Color(
+			this._outlineDefault.hiddenColor
+		);
 
 		this.timeline
 			.fromTo(
@@ -126,7 +135,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 					edgeStrength: 0,
 				},
 				{
-					edgeStrength: this.outlineDefault.strength + 4,
+					edgeStrength: this._outlineDefault.strength + 2,
 					repeat: 1,
 					repeatDelay: 1,
 					yoyo: true,
@@ -136,10 +145,10 @@ export class Interactions extends ExperienceBasedBlueprint {
 				if (!this.outlinePass) return;
 
 				this.outlinePass.selectedObjects = [];
-				this.outlinePass.edgeStrength = this.outlineDefault.strength;
-				this.outlinePass.edgeGlow = this.outlineDefault.glow;
-				this.outlinePass.edgeThickness = this.outlineDefault.thickness;
-				this.outlinePass.pulsePeriod = this.outlineDefault.pulse;
+				this.outlinePass.edgeStrength = this._outlineDefault.strength;
+				this.outlinePass.edgeGlow = this._outlineDefault.glow;
+				this.outlinePass.edgeThickness = this._outlineDefault.thickness;
+				this.outlinePass.pulsePeriod = this._outlineDefault.pulse;
 			});
 
 		this._composer?.addPass(`${Interactions.name}_pass`, this.outlinePass);
@@ -166,7 +175,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 
 		if (this.outlinePass) {
 			this.outlinePass.selectedObjects = [];
-			this.outlinePass.edgeStrength = this.outlineDefault.strength;
+			this.outlinePass.edgeStrength = this._outlineDefault.strength;
 		}
 
 		if (this._ui?.targetElement)
@@ -189,17 +198,18 @@ export class Interactions extends ExperienceBasedBlueprint {
 			!e.isPrimary ||
 			!this.controls ||
 			!this.outlinePass?.selectedObjects.length ||
-			!this._camera?.instance
+			!this._camera?.instance ||
+			!this._selectedObject?.uuid
 		)
 			return;
 
-		const currentObject =
-			this._selectableObjects?.[this._selectedObject?.uuid ?? ""];
+		const router = useRouter();
+		const currentObject = this._selectableObjects?.[this._selectedObject.uuid];
 
 		if (
 			currentObject?.focusPoint &&
 			currentObject.focusTarget &&
-			!currentObject.link
+			!(currentObject.link || currentObject?.externalLink)
 		) {
 			const duration = Config.GSAP_ANIMATION_DURATION - 0.5;
 			this._lastCameraPosition = this._camera.instance.position.clone();
@@ -224,7 +234,10 @@ export class Interactions extends ExperienceBasedBlueprint {
 				});
 		}
 
-		if (currentObject?.link) return window.open(currentObject.link, "_blank");
+		if (currentObject?.link) return router?.push(currentObject.link);
+
+		if (currentObject?.externalLink)
+			return window.open(currentObject.externalLink, "_blank");
 	};
 
 	public construct() {

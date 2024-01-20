@@ -10,10 +10,11 @@ import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-ba
 
 export class Router extends ExperienceBasedBlueprint {
 	protected _experience = new HomeExperience();
-	protected _router = useRouter();
-	protected _route = useRoute();
-	protected _availableRoutes: { [routeName: string]: RouteRecordRaw } = {};
-	protected _currentRouteName?: string;
+
+	private _router = useRouter();
+	private _route = useRoute();
+	private _availableRoutes: { [routeName: string]: RouteRecordRaw } = {};
+	private _currentRouteName?: string;
 
 	constructor() {
 		super();

@@ -35,6 +35,7 @@ import type { NavigationView } from "~/common/experiences/navigation.model";
 
 // CONFIG
 import { Config } from "~/config";
+import type { SelectableObject } from "~/common/experiences/interaction.model";
 
 // TODO: Link with the names of assets in the `app.loader` assets names
 export interface SceneBlueprintProps {
@@ -65,10 +66,11 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 		spherical: Exclude<NavigationView["spherical"], undefined>["limits"];
 		target: Exclude<NavigationView["target"], undefined>["limits"];
 	} = undefined;
+
 	public cameraPath = new CatmullRomCurve3();
 	public center = new Vector3();
-
 	public timeline?: gsap.core.Timeline;
+	public selectableObjects: SelectableObject[] = [];
 
 	constructor(_: SceneBlueprintProps) {
 		super();
@@ -166,6 +168,8 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 	public outro(): gsap.core.Timeline | undefined {
 		return this.timeline;
 	}
+
+	public initSelectableObjects(): void {}
 
 	public update(): void {}
 }

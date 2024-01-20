@@ -28,6 +28,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 	private readonly _cameraAnimation = this._experience.cameraAnimation;
 	private readonly _navigation = this._experience.navigation;
 	private readonly _composer = this._experience.composer;
+	private readonly _interactions = this._experience.interactions;
 	private readonly _transitionEffectDefault = {
 		duration: 0.3,
 		ease: Power0.easeIn,
@@ -36,6 +37,9 @@ export class WorldManager extends ExperienceBasedBlueprint {
 	private _world: typeof this._experience.world;
 	private _prevSceneKey?: string;
 	private _prevProjectedSceneKey?: string;
+	private _onRouterChange?: () => unknown;
+	private _onCameraAnimationStart?: () => unknown;
+	private _onCameraAnimationEnd?: () => unknown;
 
 	public readonly timeline = gsap.timeline({
 		onStart: () => {},
@@ -260,7 +264,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			mainScene.cameraPath?.getPoint(0),
 			mainScene.center
 		);
-		this._cameraAnimation.enabled = true
+		this._cameraAnimation.enabled = true;
 	}
 
 	public async construct() {
@@ -284,11 +288,38 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		await this._intro();
 		this._setScene();
 
-		this._router?.on(events.CHANGED, () => this._setScene());
+		this._onRouterChange = () => this._setScene();
+		this._onCameraAnimationStart = () => {
+			this._interactions?.stop();
+		};
+		this._onCameraAnimationEnd = () => {
+			if (!this._world || typeof this._router?.currentRouteKey !== "string")
+				return;
+
+			const currentScene =
+				this._world.availablePageScenes[this._router.currentRouteKey];
+
+			currentScene.initSelectableObjects();
+			this._interactions?.start(
+				currentScene.selectableObjects,
+				currentScene.modelScene
+			);
+		};
+
+		this._router?.on(events.CHANGED, this._onRouterChange);
+		this._cameraAnimation?.on(events.STARTED, this._onCameraAnimationStart);
+		this._cameraAnimation?.on(events.ENDED, this._onCameraAnimationEnd);
 		this.emit(events.CONSTRUCTED, this);
 	}
 
-	public destruct() {}
+	public destruct() {
+		if (this._onRouterChange)
+			this._router?.off(events.CHANGED, this._onRouterChange);
+		if (this._onCameraAnimationStart)
+			this._cameraAnimation?.off(events.STARTED, this._onCameraAnimationStart);
+		if (this._onCameraAnimationEnd)
+			this._cameraAnimation?.off(events.ENDED, this._onCameraAnimationEnd);
+	}
 
 	public update() {}
 }

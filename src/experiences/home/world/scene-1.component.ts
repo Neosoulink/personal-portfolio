@@ -32,6 +32,7 @@ import { Config } from "~/config";
 
 // STATICS
 import { DESTRUCTED } from "~/static/event.static";
+import { pages } from "~/static";
 
 // MODELS
 import type {
@@ -360,6 +361,31 @@ export class Scene1Component extends SceneComponentBlueprint {
 				this.emit(DESTRUCTED);
 			},
 		});
+	}
+
+	public initSelectableObjects() {
+		const router = useRouter();
+		let nextPage: string | undefined;
+
+		for (let i = 0; i < router.getRoutes().length; i++) {
+			const route = router.getRoutes()[i];
+
+			if (route.meta.key === pages.SKILL_PAGE) {
+				nextPage = route.path;
+				break;
+			}
+		}
+
+		this.selectableObjects = [
+			...(this.pcScreen && nextPage
+				? [
+						{
+							object: this.pcScreen,
+							link: nextPage,
+						},
+				  ]
+				: []),
+		];
 	}
 
 	public intro() {
