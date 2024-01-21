@@ -165,13 +165,15 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			}
 		}
 
-		this._navigation?.setViewCenter(CURRENT_SCENE.center);
+		this._navigation.setLimits(CURRENT_SCENE.navigationLimits);
+		this._navigation.setViewCenter(CURRENT_SCENE.center);
 		this._cameraAnimation.cameraPath = CURRENT_SCENE.cameraPath;
 		this._cameraAnimation.progress = {
 			...this._cameraAnimation.progress,
 			current: 0,
 			target: 0,
 		};
+		this._cameraAnimation.enable(true)
 
 		if (IS_SWITCHING_MAIN || IS_SWITCHING_PROJECTED)
 			this._navigation.view.limits = false;
@@ -182,7 +184,6 @@ export class WorldManager extends ExperienceBasedBlueprint {
 				if (!this._navigation || !this._camera) return;
 
 				this._camera.switchCamera(0);
-				this._navigation.setLimits(CURRENT_SCENE.navigationLimits);
 				this._navigation.setTargetPosition(SCENE1_PC_SCREEN_POSITION);
 				this._navigation.updateCameraPosition(
 					CURRENT_SCENE.cameraPath?.getPoint(0),
@@ -208,7 +209,6 @@ export class WorldManager extends ExperienceBasedBlueprint {
 							if (!this._navigation || !this._camera) return;
 
 							this._camera.switchCamera(1);
-							this._navigation.setLimits(CURRENT_SCENE.navigationLimits);
 							this._navigation.setTargetPosition(
 								this._camera.currentCamera.userData.lookAt
 							);
@@ -259,12 +259,10 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		mainScene.pcScreenProjectedCamera.lookAt(projectedScene.center);
 		mainScene.pcScreenProjectedCamera.userData.lookAt = projectedScene.center;
 		mainScene.intro();
-		this._navigation?.setLimits(mainScene.navigationLimits);
 		await this._navigation?.updateCameraPosition(
 			mainScene.cameraPath?.getPoint(0),
 			mainScene.center
 		);
-		this._cameraAnimation.enabled = true;
 	}
 
 	public async construct() {
@@ -287,7 +285,6 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 		await this._intro();
 		this._setScene();
-
 		this._onRouterChange = () => this._setScene();
 		this._onCameraAnimationStart = () => {
 			this._interactions?.stop();

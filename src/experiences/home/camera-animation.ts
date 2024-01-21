@@ -44,7 +44,7 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 	public normalizedCursorCoordinate = { x: 0, y: 0 };
 
 	private _wheelEvent(e: WheelEvent) {
-		if (!this.enabled) return;
+		if (!this.enabled && !this._navigation?.timeline.isActive()) return;
 
 		if (e.deltaY < 0) {
 			this.progress.target += 0.05;
@@ -58,7 +58,9 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 	}
 
 	private _mouseMoveEvent(e: MouseEvent) {
-		if (this.enabled && this.mouseDowned) {
+		if (!this.enabled && !this._navigation?.timeline.isActive()) return;
+
+		if (this.mouseDowned) {
 			if (e.clientX < this.cursorCoordinate.x) {
 				this.progress.target += 0.002;
 				this.reversed = false;
@@ -68,12 +70,9 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 			}
 		}
 
-		if (!this.enabled) {
-			this.normalizedCursorCoordinate.x =
-				e.clientX / this._appSizes?.width - 0.5;
-			this.normalizedCursorCoordinate.y =
-				e.clientY / this._appSizes?.height - 0.5;
-		}
+		this.normalizedCursorCoordinate.x = e.clientX / this._appSizes?.width - 0.5;
+		this.normalizedCursorCoordinate.y =
+			e.clientY / this._appSizes?.height - 0.5;
 
 		this.cursorCoordinate = { x: e.clientX, y: e.clientY };
 	}
@@ -115,9 +114,11 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 		this._onMouseUp && window.removeEventListener("mouseup", this._onMouseUp);
 	}
 
-	public enable() {
+	public enable(direct?: boolean) {
 		this._doneAnimations();
 		this.enabled = true;
+
+		if (direct) return;
 
 		if (this._navigation?.view) this._navigation.view.controls = false;
 		this.cameraPath.getPointAt(this.progress.current % 1, this.positionOnCurve);
