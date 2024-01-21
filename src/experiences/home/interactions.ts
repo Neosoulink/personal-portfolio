@@ -46,10 +46,12 @@ export class Interactions extends ExperienceBasedBlueprint {
 	private _selectableUuids: string[] = [];
 	private _intersectableContainer?: Object3D<Object3DEventMap>;
 	private _selectedObject?: Object3D<Object3DEventMap>;
+	private _pointerDownSelectedObject?: Object3D<Object3DEventMap>;
 	private _lastCameraPosition?: Vector3;
 	private _lastCameraTarget?: Vector3;
 	private _onPointerMove?: (e: PointerEvent) => unknown;
-	private _onClick?: (e: PointerEvent) => unknown;
+	private _onPointerDown?: (e: PointerEvent) => unknown;
+	private _onPointerUp?: (e: PointerEvent) => unknown;
 	private _onRouteChange?: () => unknown;
 
 	public raycaster = new Raycaster();
@@ -195,7 +197,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 		}
 	}
 
-	private _onClickEvent = (e: PointerEvent) => {
+	private _onPointerDownEvent = (e: PointerEvent) => {
 		if (
 			!e.isPrimary ||
 			!this.controls ||
@@ -205,6 +207,21 @@ export class Interactions extends ExperienceBasedBlueprint {
 		)
 			return;
 
+		this._pointerDownSelectedObject = this._selectedObject;
+	};
+
+	private _onPointerUpEvent = (e: PointerEvent) => {
+		if (
+			!e.isPrimary ||
+			!this.controls ||
+			!this.outlinePass?.selectedObjects.length ||
+			!this._camera?.instance ||
+			!this._selectedObject?.uuid ||
+			this._pointerDownSelectedObject?.uuid !== this._selectedObject.uuid
+		)
+			return;
+
+		this._pointerDownSelectedObject = undefined;
 		const router = useRouter();
 		const currentObject = this._selectableObjects?.[this._selectedObject.uuid];
 
@@ -252,13 +269,15 @@ export class Interactions extends ExperienceBasedBlueprint {
 			)
 				return;
 
+			this._pointerDownSelectedObject = undefined;
 			this.mouseCoordinate.x = (e.clientX / this._appSizes.width) * 2 - 1;
 			this.mouseCoordinate.y = -(e.clientY / this._appSizes.height) * 2 + 1;
 
 			this._checkIntersection();
 		};
 
-		this._onClick = this._onClickEvent;
+		this._onPointerDown = this._onPointerDownEvent;
+		this._onPointerUp = this._onPointerUpEvent;
 
 		this._onRouteChange = () => {
 			if (this._ui?.targetElement) this._ui.targetElement.style.cursor = "auto";
@@ -269,8 +288,11 @@ export class Interactions extends ExperienceBasedBlueprint {
 			"pointermove",
 			this._onPointerMove
 		);
-
-		this._ui?.targetElement?.addEventListener("pointerdown", this._onClick);
+		this._ui?.targetElement?.addEventListener(
+			"pointerdown",
+			this._onPointerDown
+		);
+		this._ui?.targetElement?.addEventListener("pointerup", this._onPointerUp);
 		this._router?.on(events.CHANGED, this._onRouteChange);
 	}
 
@@ -281,10 +303,10 @@ export class Interactions extends ExperienceBasedBlueprint {
 				this._onPointerMove
 			);
 
-		this._onClick &&
+		this._onPointerDown &&
 			this._ui?.targetElement?.removeEventListener(
-				"pointerdown",
-				this._onClick
+				"pointerup",
+				this._onPointerDown
 			);
 
 		this._onRouteChange &&
