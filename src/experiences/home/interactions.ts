@@ -189,7 +189,9 @@ export class Interactions extends ExperienceBasedBlueprint {
 					this._lastCameraTarget,
 					duration
 				)
-				.add(() => this._camera?.resetFov(), "<");
+				.add(() => {
+					this._camera?.resetFov();
+				}, "<");
 		}
 	}
 

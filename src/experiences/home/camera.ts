@@ -114,32 +114,32 @@ export class Camera extends ExperienceBasedBlueprint {
 	}
 
 	public cameraZoomIn() {
-		if (!(this.instance instanceof PerspectiveCamera)) return;
+		if (!(this.instance instanceof PerspectiveCamera)) this._timeline;
 		if (this._timeline.isActive()) this.timeline.progress(1);
 
-		this._timeline.to(this.instance, {
+		return this._timeline.to(this.instance, {
 			fov: 25,
 			duration: Config.GSAP_ANIMATION_DURATION,
 		});
 	}
 
 	public updateCameraFov(fov: number, duration?: number) {
-		if (!(this.instance instanceof PerspectiveCamera)) return;
+		if (!(this.instance instanceof PerspectiveCamera)) return this._timeline;
 		if (this._timeline.isActive()) this.timeline.progress(1);
 
-		this._timeline.to(this.instance, {
+		return this._timeline.to(this.instance, {
 			fov: Number(fov),
 			duration: Number(duration) ?? Config.GSAP_ANIMATION_DURATION,
 		});
 	}
 
-	public resetFov() {
-		if (!(this.instance instanceof PerspectiveCamera)) return;
+	public resetFov(duration = Config.GSAP_ANIMATION_DURATION) {
+		if (!(this.instance instanceof PerspectiveCamera)) return this._timeline;
 		if (this._timeline.isActive()) this.timeline.progress(1);
 
-		this._timeline.to(this.instance, {
+		return this._timeline.to(this.instance, {
 			fov: this.initialCameraFov,
-			duration: Config.GSAP_ANIMATION_DURATION,
+			duration: duration,
 		});
 	}
 

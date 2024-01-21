@@ -141,7 +141,7 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 
 		return this._navigation
 			?.updateCameraPosition(
-				this.positionOnCurve.setY(this._camera?.lookAtPosition.y ?? 0),
+				lerpPosition(this.positionOnCurve, this._navigation.view.center, 0.1),
 				this._navigation.view.center,
 				Config.GSAP_ANIMATION_DURATION * 0.2
 			)
