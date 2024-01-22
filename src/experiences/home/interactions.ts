@@ -54,6 +54,8 @@ export class Interactions extends ExperienceBasedBlueprint {
 	private _onPointerUp?: (e: PointerEvent) => unknown;
 	private _onRouteChange?: () => unknown;
 
+	public readonly passName = `${Interactions.name}_pass`;
+
 	public raycaster = new Raycaster();
 	public timeline = gsap.timeline({
 		onComplete: () => {
@@ -153,7 +155,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 				this.outlinePass.pulsePeriod = this._outlineDefault.pulse;
 			});
 
-		this._composer?.addPass(`${Interactions.name}_pass`, this.outlinePass);
+		this._composer?.addPass(this.passName, this.outlinePass);
 	}
 
 	public stop() {
@@ -166,7 +168,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 		if (this._ui?.targetElement)
 			this._ui.targetElement.style.pointerEvents = "auto";
 
-		this._composer?.removePass(`${Interactions.name}_pass`);
+		this._composer?.removePass(this.passName);
 	}
 
 	public leaveFocusMode() {

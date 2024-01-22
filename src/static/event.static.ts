@@ -8,3 +8,5 @@ export const LOADED = Symbol("6");
 export const CHANGED = Symbol("7");
 export const ANIMATION_STARTED = Symbol("8");
 export const ANIMATION_ENDED = Symbol("9");
+export const ADDED = Symbol("10");
+export const REMOVED = Symbol("11");

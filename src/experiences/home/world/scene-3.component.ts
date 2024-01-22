@@ -21,6 +21,9 @@ import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-componen
 // MODELS
 import type { Materials } from "~/common/experiences/experience-world.model";
 
+// STATICS
+import { events } from "~/static";
+
 // UTILS
 import { getTodayTimestamp } from "~/utils/common-utils";
 
@@ -40,6 +43,8 @@ export class Scene3Component extends SceneComponentBlueprint {
 	private _initialPcTopArticulation?: Object3D<Object3DEventMap>;
 	private _uTime = 0;
 	private _uTimestamps = 0;
+	private _onComposerStarted?: () => unknown;
+	private _onComposerEnded?: () => unknown;
 
 	public readonly timeline = gsap.timeline();
 	public readonly navigationLimits = {
@@ -351,6 +356,32 @@ export class Scene3Component extends SceneComponentBlueprint {
 	public construct(): void {
 		super.construct();
 		this._initPcScreenIframe();
+		this._onComposerStarted = () => {
+			if (
+				!this.pcScreenMixerPlane ||
+				!this._experience.composer?.passes ||
+				(Object.keys(this._experience.composer.passes).length === 1 &&
+					this._experience.interactions?.passName &&
+					this._experience.composer.passes[
+						this._experience.interactions.passName
+					])
+			)
+				return;
+			this.pcScreenMixerPlane.object3d.userData.visible =
+				this.pcScreenMixerPlane.object3d.visible;
+			this.pcScreenMixerPlane.object3d.visible = false;
+		};
+		this._onComposerEnded = () => {
+			if (
+				!this.pcScreenMixerPlane ||
+				typeof this.pcScreenMixerPlane?.object3d?.userData.visible !== "boolean"
+			)
+				return;
+
+			this.pcScreenMixerPlane.object3d.visible =
+				this.pcScreenMixerPlane.object3d.userData.visible;
+			this.pcScreenMixerPlane.object3d.userData.visible = undefined;
+		};
 
 		~(() => {
 			const _MAT_KEYS = Object.keys(this._availableMaterials).slice(3);
@@ -358,6 +389,18 @@ export class Scene3Component extends SceneComponentBlueprint {
 			for (const key of _MAT_KEYS)
 				this._availableMaterials[key].visible = false;
 		})();
+
+		this._experience.composer?.on(events.STARTED, this._onComposerStarted);
+		this._experience.composer?.on(events.ENDED, this._onComposerEnded);
+	}
+
+	public destruct(): void {
+		super.destruct();
+
+		this._onComposerStarted &&
+			this._experience.composer?.off(events.STARTED, this._onComposerStarted);
+		this._onComposerEnded &&
+			this._experience.composer?.off(events.ENDED, this._onComposerEnded);
 	}
 
 	public intro() {

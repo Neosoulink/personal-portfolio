@@ -10,6 +10,7 @@ import { HomeExperience } from ".";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+import { events } from "~/static";
 
 export class Composer extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
@@ -25,6 +26,10 @@ export class Composer extends ExperienceBasedBlueprint {
 
 	public get effect() {
 		return this._effect;
+	}
+
+	public get passes() {
+		return this._passes;
 	}
 
 	public construct(): void {
@@ -46,21 +51,24 @@ export class Composer extends ExperienceBasedBlueprint {
 	}
 
 	public addPass(key: string, pass: Pass) {
+		this._passes[key] = pass;
+
 		if (!this._effect?.passes.length) {
 			if (this._appCamera.instance) {
 				this._renderPass = new RenderPass(
 					this._experience.app.scene,
-					this._appCamera.instance,
+					this._appCamera.instance
 				);
 				this._effect?.addPass(this._renderPass);
 			}
 
 			this._outputPass = new OutputPass();
 			this._effect?.addPass(this._outputPass);
+			this.emit(events.STARTED);
 		}
 
-		this._passes[key] = pass;
 		this._effect?.addPass(this._passes[key]);
+		this.emit(events.ADDED);
 	}
 
 	public removePass(key: string) {
@@ -70,9 +78,11 @@ export class Composer extends ExperienceBasedBlueprint {
 		this._passes[key].dispose();
 		delete this._passes[key];
 
+		this.emit(events.REMOVED);
 		if (Object.keys(this._passes).length) return;
 		this._renderPass && this._effect?.removePass(this._renderPass);
 		this._outputPass && this._effect?.removePass(this._outputPass);
+		this.emit(events.ENDED);
 	}
 
 	public update(): void {
@@ -86,7 +96,7 @@ export class Composer extends ExperienceBasedBlueprint {
 			0,
 			0,
 			this._appSizes.width,
-			this._appSizes.height,
+			this._appSizes.height
 		);
 		this._effect.render();
 	}
