@@ -9,8 +9,10 @@
  */
 
 varying vec2 vUv;
+
 uniform float uTime;
 uniform float uTimestamp;
+uniform sampler2D uIcons;
 
 #pragma glslify: clockNumber = require(../../partials/clockNumber.glsl)
 #pragma glslify: clockDots = require(../../partials/clockDots.glsl)
@@ -34,12 +36,20 @@ float grid(vec2 uv, float battery) {
 	return clamp(lines.x + lines.y, 0.0, 3.0);
 }
 
-void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-	vec2 uv = vUv * -1.5;
-	uv.x += .35;
-	uv.y += .7;
+vec3 icons(vec2 uv, vec3 maincolor) {
+	vec3 iconsColor = texture2D(uIcons, uv).rgb;
+	iconsColor = iconsColor + maincolor;
 
+	return iconsColor;
+}
+
+void mainImage(out vec4 fragColor) {
+	vec2 uv = vUv * -1.75;
+	uv.x += .41;
+	uv.y += .8;
+	vec3 finalColor;
 	float battery = .8;
+
 	// TODO: connect the mouse position.
 	// if(iMouse.x > 1.0 && iMouse.y > 1.0)
 	// 	battery = iMouse.y / iResolution.y;
@@ -64,15 +74,15 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 		}
 
 		col += fog * fog * fog;
-		col = mix(vec3(col.r, col.b, col.r) * 0.5, col, battery * 0.7);
+		col = mix(vec3(col.b, col.g, col.g) * 0.5, col, battery * 0.7);
 
 		fragColor = vec4(col, 1.0);
 	} else
 		fragColor = vec4(0.0);
 
-	uv = vUv * -24.;
-	uv.y += 24. / 2.;
-	uv.x += 24. / 2.75;
+	uv = vUv * -26.;
+	uv.x += 26. / 2.725;
+	uv.y += 26. / 2.;
 
 	float seg = .0;
 	float timeSecs = uTimestamp;
@@ -96,19 +106,23 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 		seg *= .8 + .2 * smoothstep(0.02, .04, mod(uv.y + uv.x, .06025));
 	}
 
-	vec3 finalColor;
-
 	if(seg < .0)
 		seg = -seg;
 
 	finalColor = vec3(seg, seg, seg);
 	finalColor += smoothstep(0.8, 0.9, 1. - seg) * fragColor.xyz;
 
+	uv = vUv;
+	uv.x = vUv.x * 2.15;
+	vec3 finalColorIcons = icons(uv, finalColor);
+	finalColor = finalColorIcons;
+
 	fragColor = vec4(finalColor, 1.);
 }
 
 void main() {
 	vec4 fragment_color;
-	mainImage(fragment_color, gl_FragColor.xy);
+	mainImage(fragment_color);
+
 	gl_FragColor = fragment_color;
 }

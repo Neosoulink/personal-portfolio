@@ -32,6 +32,7 @@ import scene_container_model from "~/assets/models/scene_container/model.glb?url
 import scene_container_baked_texture from "~/assets/models/scene_container/baked_texture.jpg?url";
 import cloudAlphaMapTexture from "~/assets/textures/cloudAlphaMap.jpg?url";
 import rocksAlphaMapTexture from "~/assets/textures/rocksAlphaMap.jpg?url";
+import phoneScreenshotTexture from "~/assets/textures/phone_icons.png?url";
 
 export class Loader extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
@@ -124,6 +125,11 @@ export class Loader extends ExperienceBasedBlueprint {
 				name: "rocksAlphaMap",
 				type: "texture",
 				path: rocksAlphaMapTexture,
+			},
+			{
+				name: "phoneScreenshot",
+				type: "texture",
+				path: phoneScreenshotTexture,
 			},
 		]);
 	}

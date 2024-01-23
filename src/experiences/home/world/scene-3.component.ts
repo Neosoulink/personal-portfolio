@@ -148,6 +148,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 			uniforms: {
 				uTime: { value: 0 },
 				uTimestamp: { value: 0 },
+				uIcons: { value: AVAILABLE_TEXTURE.phoneScreenshot },
 			},
 			fragmentShader: phoneScreenFragment,
 			vertexShader: phoneScreenVertex,
