@@ -128,6 +128,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.cameraAnimation?.update();
 			this.navigation?.update();
 			this.composer?.update();
+			this.interactions?.update();
 			this.renderer?.update();
 			this.debug?.update();
 		} catch (_) {

@@ -9,10 +9,8 @@ import {
 	Line,
 	BufferGeometry,
 	LineBasicMaterial,
-	Color,
 } from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
-import type { gsap } from "gsap";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "./experience-based.blueprint";
@@ -32,10 +30,10 @@ import type {
 	ModelChildrenMaterials,
 } from "~/common/experiences/experience-world.model";
 import type { NavigationView } from "~/common/experiences/navigation.model";
+import type { SelectableObject } from "~/common/experiences/interaction.model";
 
 // CONFIG
 import { Config } from "~/config";
-import type { SelectableObject } from "~/common/experiences/interaction.model";
 
 // TODO: Link with the names of assets in the `app.loader` assets names
 export interface SceneBlueprintProps {

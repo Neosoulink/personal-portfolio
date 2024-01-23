@@ -7,6 +7,8 @@ export interface SelectableObject {
 	focusPoint?: Vector3;
 	focusTarget?: Vector3;
 	focusFov?: number;
+	focusRadius?: number;
+	focusOffset?: Vector3;
 	onFocusedIn?: () => unknown;
 	onFocusedOut?: () => unknown;
 }

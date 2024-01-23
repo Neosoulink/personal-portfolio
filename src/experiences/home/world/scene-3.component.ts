@@ -34,6 +34,7 @@ import watchScreenFragment from "./shaders/scene-3/watch-screen/fragment.glsl";
 import watchScreenVertex from "./shaders/scene-3/watch-screen/vertex.glsl";
 import gamepadLedFragment from "./shaders/scene-3/gamepad_led/fragment.glsl";
 import gamepadLedVertex from "./shaders/scene-3/gamepad_led/vertex.glsl";
+import { iframeMouseMoveDispatcher } from "../../../utils/iframe-utils";
 
 export class Scene3Component extends SceneComponentBlueprint {
 	private readonly _appTime = this._experience.app.time;
@@ -226,7 +227,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 		const _HEIGHT = boundingBox.max.x - boundingBox.min.x - 0.076;
 
 		this.pcScreenDomElement = document.createElement("iframe");
-		this.pcScreenDomElement.src = "http://threejs.org";
+		this.pcScreenDomElement.src = "/about";
 		this.pcScreenDomElement.style.border = "none";
 
 		this.pcScreenMixerPlane = new HtmlMixerPlane(
@@ -273,6 +274,8 @@ export class Scene3Component extends SceneComponentBlueprint {
 							focusPoint: pcScreenFocusPoint,
 							focusTarget: pcScreenPosition,
 							focusFov: 25,
+							focusRadius: 0.03,
+							focusOffset: new Vector3(0, 0, Math.PI),
 						},
 				  ]
 				: []),
@@ -284,6 +287,8 @@ export class Scene3Component extends SceneComponentBlueprint {
 								.localToWorld(new Vector3())
 								.add(new Vector3(0.225, 1, 0.1)),
 							focusTarget: this.phoneScreen.localToWorld(new Vector3()),
+							focusRadius: 0.03,
+							focusOffset: new Vector3(2.2, 0, 2.1),
 						},
 				  ]
 				: []),
@@ -295,6 +300,8 @@ export class Scene3Component extends SceneComponentBlueprint {
 								.localToWorld(new Vector3())
 								.add(new Vector3(-0.2, 0.7, 0.028)),
 							focusTarget: this.watchScreen.localToWorld(new Vector3()),
+							focusRadius: 0.02,
+							focusOffset: new Vector3(-2.2, -0.6, -2),
 						},
 				  ]
 				: []),
