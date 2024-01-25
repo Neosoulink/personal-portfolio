@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col min-h-safe">
+	<div class="flex flex-col overflow-hidden min-h-safe w-safe">
 		<!-- <LayoutHeader /> -->
 
 		<G-Menu />

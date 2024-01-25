@@ -1,8 +1,8 @@
 <template>
-	<main class="w-full h-safe bg-dark">
+	<main class="relative overflow-hidden w-safe h-safe bg-dark">
 		<HomeLoader />
 
-		<canvas :id="states.domRef" class="fixed top-0 left-0 w-full h-full" />
+		<canvas :id="states.domRef" class="fixed top-0 left-0 w-full h-full"/>
 
 		<div class="fixed font-bold top-1/2 text-red-50">
 			<NuxtLink to="/" class="mr-3">Page child 1</NuxtLink>

@@ -1,4 +1,4 @@
-import { Config } from "~/config";
+import { DomConfig } from "~/config/dom.config";
 import { preventDefault } from "./common-utils";
 
 export function preventDefaultForScrollKeys(e: KeyboardEvent) {
@@ -26,9 +26,9 @@ export function disableChromePassive() {
 			() => {},
 			Object.defineProperty({}, "passive", {
 				get: () => {
-					Config.supportsPassive = true;
+					DomConfig.supportsPassive = true;
 				},
-			}),
+			})
 		);
 	} catch (e) {}
 }
@@ -36,17 +36,17 @@ export function disableChromePassive() {
 export function disableScroll() {
 	window.addEventListener("DOMMouseScroll", preventDefault, false); // older FF
 	window.addEventListener(
-		Config.wheelEvent,
+		DomConfig.wheelEvent,
 		preventDefault,
-		Config.wheelOption,
+		DomConfig.wheelOption
 	);
-	window.addEventListener("touchmove", preventDefault, Config.wheelOption);
+	window.addEventListener("touchmove", preventDefault, DomConfig.wheelOption);
 	window.addEventListener("keydown", preventDefaultForScrollKeys, false);
 }
 
 export function enableScroll() {
 	window.removeEventListener("DOMMouseScroll", preventDefault, false);
-	window.removeEventListener(Config.wheelEvent, preventDefault);
+	window.removeEventListener(DomConfig.wheelEvent, preventDefault);
 	window.removeEventListener("touchmove", preventDefault);
 	window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
 }

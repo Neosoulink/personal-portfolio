@@ -8,11 +8,11 @@ const safeWidth = "calc(var(--vw, 1vw) * 100)";
 module.exports = {
 	content: [
 		"./src/components/**/*.{js,vue,ts}",
-		"./src/layouts/**/*.vue",
-		"./src/pages/**/*.vue",
-		"./src/app.vue",
+		"./src/layouts/**/*.{js,vue,ts}",
+		"./src/pages/**/*.{js,vue,ts}",
 	],
 	theme: {
+		...theme,
 		colors: {
 			...colors,
 			dark: "rgb(var(--dark))",
@@ -29,6 +29,7 @@ module.exports = {
 			},
 		},
 		extend: {
+			...theme.extend,
 			minHeight: {
 				safe: safeHeight,
 			},
