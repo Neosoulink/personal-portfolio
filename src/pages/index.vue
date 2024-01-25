@@ -1,6 +1,6 @@
 <template>
-	<main class="flex flex-1 w-screen h-screen bg-dark">
-		<!--	<HomeLandingLoader /> -->
+	<main class="w-full h-safe bg-dark">
+		<HomeLoader />
 
 		<canvas :id="states.domRef" class="fixed top-0 left-0 w-full h-full" />
 

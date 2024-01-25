@@ -1,8 +1,8 @@
 <template>
-	<div class="flex flex-col min-h-screen">
+	<div class="flex flex-col min-h-safe">
 		<!-- <LayoutHeader /> -->
 
-		<Menu />
+		<G-Menu />
 
 		<slot />
 

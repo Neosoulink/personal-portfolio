@@ -95,15 +95,16 @@ export class HomeExperience extends ExperienceBlueprint {
 	public construct() {
 		try {
 			this.ui?.construct();
+			this.loader?.construct();
 			this.router?.construct();
-			this.loader?.on(events.LOADED, () => {
+			this.camera?.construct();
+			this.composer?.construct();
+			this.renderer?.construct();
+			this.navigation?.construct();
+			this.cameraAnimation?.construct();
+			this.interactions?.construct();
+			this.ui?.on(events.LOADED, () => {
 				try {
-					this.camera?.construct();
-					this.composer?.construct();
-					this.renderer?.construct();
-					this.navigation?.construct();
-					this.cameraAnimation?.construct();
-					this.interactions?.construct();
 					this.world?.construct();
 					this.debug?.construct();
 					this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
@@ -112,7 +113,6 @@ export class HomeExperience extends ExperienceBlueprint {
 					throw new ErrorFactory(_);
 				}
 			});
-			this.loader?.construct();
 
 			this.camera?.setCameraLookAt(new Vector3(0, 2, 0));
 		} catch (_) {

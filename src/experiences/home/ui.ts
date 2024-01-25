@@ -1,4 +1,4 @@
-import GSAP from "gsap";
+import gsap from "gsap";
 
 // EXPERIENCE
 import { HomeExperience } from ".";
@@ -9,7 +9,7 @@ import { Config } from "~/config";
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
 import { PerspectiveCamera, type Vector3 } from "three";
-import { errors } from "~/static";
+import { errors, events } from "~/static";
 
 /**
  * Class in charge of all the direct interactions with the DOM HTML elements.
@@ -19,15 +19,27 @@ export class UI extends ExperienceBasedBlueprint {
 
 	private readonly _appCamera = this._experience.app.camera;
 
-	private _loadedResourcesProgressLineElements?: HTMLElement | null;
-	private _loadedResourcesProgressElements?: HTMLElement | null;
-	private _lastLoadedResourceElement?: HTMLElement | null;
+	private _loadedResourcesProgressLine?: HTMLElement | null;
+	private _loadedResourcesProgress?: HTMLElement | null;
+	private _loadedResourcesStartButton?: HTMLElement | null;
+	private _lastLoadedResource?: HTMLElement | null;
+	private _loaderContainer?: HTMLElement | null;
 	private _activeMarkers: {
 		coordinates: Vector3;
 		element: HTMLElement;
 		position: Vector3;
 	}[] = [];
 
+	public static readonly loaderContainerId = "home-loader-container";
+	public static readonly loadedResourcesProgressLineId =
+		"loaded-resources-progress-line";
+	public static readonly loadedResourcesProgressId =
+		"loaded-resources-progress";
+	public static readonly loadedResourcesStartButtonId =
+		"loaded-resources-start-button";
+	public static readonly lastLoadedResourceId = "last-loaded-resource";
+
+	public readonly timeline = gsap.timeline();
 	public readonly targetElement = this._experience.app.canvas;
 	public readonly targetElementParent = this.targetElement?.parentElement;
 
@@ -42,24 +54,17 @@ export class UI extends ExperienceBasedBlueprint {
 	constructor() {
 		super();
 
-		const _LOADED_RESOURCES_PROGRESS_LINE_ELEMENT = document.getElementById(
-			"loaded-resources-progress-line"
+		this._loaderContainer = document.getElementById(UI.loaderContainerId);
+		this._loadedResourcesProgressLine = document.getElementById(
+			UI.loadedResourcesProgressLineId
 		);
-		const _LOADED_RESOURCES_PROGRESS_ELEMENT = document.getElementById(
-			"loaded-resources-progress"
+		this._loadedResourcesProgress = document.getElementById(
+			UI.loadedResourcesProgressId
 		);
-		const _LAST_LOADED_RESOURCE_ELEMENT = document.getElementById(
-			"last-loaded-resource"
+		this._loadedResourcesStartButton = document.getElementById(
+			UI.loadedResourcesStartButtonId
 		);
-
-		if (_LOADED_RESOURCES_PROGRESS_LINE_ELEMENT)
-			this._loadedResourcesProgressLineElements =
-				_LOADED_RESOURCES_PROGRESS_LINE_ELEMENT;
-		if (_LOADED_RESOURCES_PROGRESS_ELEMENT)
-			this._loadedResourcesProgressElements =
-				_LOADED_RESOURCES_PROGRESS_ELEMENT;
-		if (_LAST_LOADED_RESOURCE_ELEMENT)
-			this._lastLoadedResourceElement = _LAST_LOADED_RESOURCE_ELEMENT;
+		this._lastLoadedResource = document.getElementById(UI.lastLoadedResourceId);
 	}
 
 	public get isMarkersDisplayed() {
@@ -67,71 +72,100 @@ export class UI extends ExperienceBasedBlueprint {
 	}
 
 	construct() {
-		this.markersContainer = document.createElement("div");
-		this.targetElement?.parentNode?.insertBefore(
-			this.markersContainer,
-			this.targetElement
-		);
+		if (this.targetElement) {
+			this.markersContainer = document.createElement("div");
+			this.targetElementParent?.insertBefore(
+				this.markersContainer,
+				this.targetElement
+			);
+		}
 
 		// EVENTS
-		this._experience.loader?.on("start", () => {
-			this._lastLoadedResourceElement?.classList.remove("animate-pulse");
-			if (this._loadedResourcesProgressLineElements)
-				this._loadedResourcesProgressLineElements.style.width = "0%";
-			if (this._loadedResourcesProgressElements)
-				this._loadedResourcesProgressElements.innerHTML = "0%";
+		this._experience.loader?.on(events.STARTED, () => {
+			this._lastLoadedResource?.classList.remove("animate-pulse");
+			if (this._loadedResourcesProgressLine)
+				this._loadedResourcesProgressLine.style.width = "0%";
+			if (this._loadedResourcesProgress)
+				this._loadedResourcesProgress.innerText = "0%";
 		});
 
-		this._experience.loader?.on("progress", (progress: number, url: string) => {
-			if (this._loadedResourcesProgressLineElements)
-				this._loadedResourcesProgressLineElements.style.width = `${progress}%`;
-			if (this._loadedResourcesProgressElements)
-				this._loadedResourcesProgressElements.innerHTML = `${progress.toFixed(
-					0
-				)}%`;
-			if (this._lastLoadedResourceElement)
-				this._lastLoadedResourceElement.innerHTML = url.replace(/^.*\//, "");
-		});
+		this._experience.loader?.on(
+			events.PROGRESSED,
+			(progress: number, url: string) => {
+				setTimeout(() => {
+					if (this._loadedResourcesProgressLine)
+						this._loadedResourcesProgressLine.style.width = `${progress}%`;
+					if (this._loadedResourcesProgress)
+						this._loadedResourcesProgress.innerText = `${progress.toFixed(0)}%`;
+					if (this._lastLoadedResource)
+						this._lastLoadedResource.innerText = `Loaded: ${url.replace(
+							/.*\/|\..*/gi,
+							""
+						)}`;
+				}, 10 * progress);
+			}
+		);
 
-		this._experience.loader?.on("load", () => {
-			if (this._loadedResourcesProgressElements)
-				this._loadedResourcesProgressElements.innerHTML = "100%";
-			if (this._loadedResourcesProgressLineElements)
-				this._loadedResourcesProgressLineElements.style.width = "100%";
+		this._experience.loader?.on(events.LOADED, () => {
+			setTimeout(() => {
+				if (this._loadedResourcesProgressLine)
+					this._loadedResourcesProgressLine.style.width = "100%";
+				if (this._loadedResourcesProgress)
+					this._loadedResourcesProgress.innerText = "100%";
+				if (this._lastLoadedResource)
+					this._lastLoadedResource.innerText = "Resources Loaded Successfully";
+			}, 1500);
 
 			setTimeout(() => {
-				if (this._lastLoadedResourceElement)
-					this._lastLoadedResourceElement.innerHTML =
-						"Resources Loaded Successfully";
+				this._loadedResourcesProgress?.remove();
+				this._loadedResourcesStartButton?.classList.remove("hidden");
 
-				this.intro();
-				this.emit("ready");
-			}, 1000);
+				const onClickButton = () => {
+					this._loadedResourcesStartButton?.classList.remove("animate-pulse");
+					this._loadedResourcesStartButton?.removeEventListener(
+						"click",
+						onClickButton
+					);
+					this.intro();
+					this.emit(events.LOADED);
+				};
+				const onTouchStart = () => {
+					this._loadedResourcesStartButton?.classList.remove("animate-pulse");
+					this._loadedResourcesStartButton?.removeEventListener(
+						"touchstart",
+						onTouchStart
+					);
+				};
+
+				this._loadedResourcesStartButton?.addEventListener(
+					"touchstart",
+					onTouchStart,
+					{ passive: true }
+				);
+				this._loadedResourcesStartButton?.addEventListener(
+					"click",
+					onClickButton
+				);
+			}, 2000);
 		});
-
-		this._experience.app.resources.startLoading();
 	}
 
 	destruct() {
-		this._loadedResourcesProgressLineElements = undefined;
-		this._loadedResourcesProgressElements = undefined;
-		this._lastLoadedResourceElement = undefined;
+		this._loadedResourcesProgressLine = undefined;
+		this._loadedResourcesProgress = undefined;
+		this._lastLoadedResource = undefined;
 	}
 
 	intro() {
-		const _TIMELINE = GSAP.timeline();
-		_TIMELINE.to("#landing-view-wrapper", {
+		if (!this._loaderContainer) return;
+		if (this.timeline.isActive()) this.timeline.progress(1);
+
+		this.timeline.to(this._loaderContainer, {
 			duration: Config.GSAP_ANIMATION_DURATION,
 			ease: Config.GSAP_ANIMATION_EASE,
 			opacity: 0,
-			delay: 2,
 			onComplete: () => {
-				const _LANDING_VIEW_WRAPPER = document.getElementById(
-					"landing-view-wrapper"
-				);
-
-				if (_LANDING_VIEW_WRAPPER?.style)
-					_LANDING_VIEW_WRAPPER.style.display = "none";
+				this._loaderContainer?.remove();
 			},
 		});
 	}
@@ -187,7 +221,7 @@ export class UI extends ExperienceBasedBlueprint {
 			);
 		}
 		setTimeout(() => {
-			if (this.markersContainer) this.markersContainer.innerHTML = "";
+			if (this.markersContainer) this.markersContainer.innerText = "";
 		}, this._activeMarkers.length * 80);
 		this._activeMarkers = [];
 	}

@@ -1,4 +1,4 @@
-import { Texture, LinearSRGBColorSpace, CubeTexture } from "three";
+import { Texture, LinearSRGBColorSpace, VideoTexture } from "three";
 
 // EXPERIENCE
 import { HomeExperience } from ".";
@@ -33,9 +33,14 @@ import scene_container_baked_texture from "~/assets/models/scene_container/baked
 import cloudAlphaMapTexture from "~/assets/textures/cloudAlphaMap.jpg?url";
 import rocksAlphaMapTexture from "~/assets/textures/rocksAlphaMap.jpg?url";
 import phoneScreenshotTexture from "~/assets/textures/phone_icons.png?url";
+import monitor_a_screen_record from "~/assets/videos/monitor_a_screen_record.webm?url";
+import monitor_b_screen_record from "~/assets/videos/monitor_b_screen_record.webm?url";
+import phone_screen_record from "~/assets/videos/phone_screen_record.webm?url";
+import { events } from "~/static";
 
 export class Loader extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
+
 	private readonly _appResources = this._experience.app.resources;
 
 	private _progress = 0;
@@ -115,6 +120,23 @@ export class Loader extends ExperienceBasedBlueprint {
 				path: scene_container_baked_texture,
 			},
 
+			// VIDEO TEXTURES
+			{
+				name: "monitor_a_screen_record",
+				type: "video",
+				path: monitor_a_screen_record,
+			},
+			{
+				name: "monitor_b_screen_record",
+				type: "video",
+				path: monitor_b_screen_record,
+			},
+			{
+				name: "phone_screen_record",
+				type: "video",
+				path: phone_screen_record,
+			},
+
 			// OTHER TEXTURES
 			{
 				name: "cloudAlphaMap",
@@ -140,7 +162,7 @@ export class Loader extends ExperienceBasedBlueprint {
 		for (let i = 0; i < _KEYS.length; i++) {
 			const _ITEM = this._appResources.items[_KEYS[i]];
 			if (_ITEM instanceof Texture) {
-				_ITEM.flipY = false;
+				if (!(_ITEM instanceof VideoTexture)) _ITEM.flipY = false;
 				_ITEM.colorSpace = LinearSRGBColorSpace;
 			}
 		}
@@ -171,33 +193,32 @@ export class Loader extends ExperienceBasedBlueprint {
 	}
 
 	public construct() {
-		~(() => {
-			this._progress = 0;
-			this._appResources.loadingManager.onStart = () => {
-				this.emit(STARTED, this._progress);
-			};
-		})();
+		const onStart = () => {
+			this.emit(events.STARTED, this._progress);
+		};
+		const onProgress = (
+			itemPath: string,
+			itemsLoaded: number,
+			itemsToLoad: number
+		) => {
+			this._progress = (itemsLoaded / itemsToLoad) * 100;
 
-		~(() => {
-			this._appResources.loadingManager.onProgress = (
-				itemUrl,
-				itemsLoaded,
-				itemsToLoad
-			) => {
-				this._progress = (itemsLoaded / itemsToLoad) * 100;
-				this.emit(PROGRESSED, this._progress, itemUrl);
-			};
-		})();
+			this.emit(PROGRESSED, this._progress, itemPath);
+		};
+		const onLoad = () => {
+			this._correctTextures();
+			this._setAvailableTexture();
 
-		~(() => {
-			this._appResources.loadingManager.onLoad = () => {
-				this._correctTextures();
-				this._setAvailableTexture();
+			// this._appResources.off("start", onStart);
+			this._appResources.off("progress", onProgress);
+			this._appResources.off("load", onLoad);
+			this.emit(LOADED, this._progress);
+		};
 
-				this.emit(LOADED, this._progress);
-			};
-		})();
-
+		this._progress = 0;
+		this._appResources.on("start", onStart);
+		this._appResources.on("progress", onProgress);
+		this._appResources.on("load", onLoad);
 		this._appResources.startLoading();
 		this.emit(CONSTRUCTED, this._progress);
 	}
@@ -206,17 +227,15 @@ export class Loader extends ExperienceBasedBlueprint {
 		this._appResources.loadingManager.removeHandler(
 			/onStart|onError|onProgress|onLoad/
 		);
+		const keys = Object.keys(this._appResources.items);
 
-		const _KEYS = Object.keys(this._appResources.items);
-		for (let i = 0; i < _KEYS.length; i++) {
-			const ITEM = this._appResources.items[_KEYS[i]];
-			if (ITEM instanceof Texture || ITEM instanceof CubeTexture)
-				ITEM.dispose();
-			if (ITEM instanceof CubeTexture) ITEM.dispose();
+		for (let i = 0; i < keys.length; i++) {
+			const item = this._appResources.items[keys[i]];
+			if (item instanceof Texture) item.dispose();
 		}
 
 		this._appResources.setSources([]);
-
+		this.removeAllListeners();
 		this.emit(DESTRUCTED);
 	}
 }

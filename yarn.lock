@@ -8152,8 +8152,9 @@ __metadata:
     lil-gui: "npm:^0.18.1"
     normalize-wheel: "npm:^1.0.1"
     nuxt: "npm:^3.8.2"
+    nuxt-storage: "npm:^1.2.2"
     postcss: "npm:^8.4.21"
-    quick-threejs: "npm:^0.1.25"
+    quick-threejs: "npm:^0.1.29"
     sass: "npm:^1.64.2"
     tailwindcss: "npm:^3.3.5"
     three: "npm:^0.159.0"
@@ -8668,6 +8669,13 @@ __metadata:
     nuxt: bin/nuxi.mjs
     nuxt-cli: bin/nuxi.mjs
   checksum: c31cb271a895cb12d8dd16c61f46d88262368154ac4a8d3bcf9bf030cc631ef69ed9a95327e1a6791a6bb8771f5e23052d20143d9c6187691851385fc05b5f9d
+  languageName: node
+  linkType: hard
+
+"nuxt-storage@npm:^1.2.2":
+  version: 1.2.2
+  resolution: "nuxt-storage@npm:1.2.2"
+  checksum: 0fd9235e79ae45b975b9f0939496f3098da1a9a85eedfe056b493c77aa5bbe5bcca378ba84f472eea0a4549325dace86fa5c686166fd5045a84c4c0e6e41d8e9
   languageName: node
   linkType: hard
 
@@ -9686,15 +9694,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"quick-threejs@npm:^0.1.25":
-  version: 0.1.25
-  resolution: "quick-threejs@npm:0.1.25"
+"quick-threejs@npm:^0.1.29":
+  version: 0.1.29
+  resolution: "quick-threejs@npm:0.1.29"
   dependencies:
     events: "npm:^3.3.0"
     lil-gui: "npm:^0.19.1"
     stats.js: "npm:^0.17.0"
     three: "npm:^0.159.0"
-  checksum: f3173b822432b73d7d50b6c3c734fa621887104d938027dd729ca7ccf3a97b74ca1bec29d030826c356065173637b21d2131986b176e6bd86eda490ec3e38613
+  checksum: a16635cc517978923a94b1085d395f3538f5545a26a6a43cf90983f24988e8f43319d3e49f6bed953ecdcfcd4984a87a42c07128338d818dbd5813a9ba69885e
   languageName: node
   linkType: hard
 

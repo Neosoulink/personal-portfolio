@@ -2,7 +2,7 @@
 import gsap from "gsap";
 
 // COMPOSABLES
-import { useMenuState } from "../composables/menu";
+import { useMenuState } from "~/composables/menu";
 
 // DATA
 const LINKS = [
@@ -69,7 +69,7 @@ watch(IS_MENU_OPEN, async (newState) => {
 				<li v-for="(link, index) in LINKS" :key="index" class="mb-5">
 					<nuxt-link
 						:to="link.path"
-						class="text-3xl opacity-70 hover:opacity-100 transition"
+						class="text-3xl transition opacity-70 hover:opacity-100"
 						@click="() => (IS_MENU_OPEN = false)"
 					>
 						{{ link.label }}

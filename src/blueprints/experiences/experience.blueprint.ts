@@ -28,7 +28,7 @@ export abstract class ExperienceBlueprint implements Experience {
 					withMiniCamera: _?.debug,
 					camera: "Perspective",
 				},
-				_?.domElementRef,
+				_?.domElementRef
 			);
 			this._onConstruct = _?.onConstruct;
 			this._onDestruct = _?.onDestruct;

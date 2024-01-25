@@ -18,6 +18,7 @@ import { lerpPosition } from "~/utils/three-utils";
 import camTransitionFrag from "./shaders/glass-effect/fragment.glsl";
 import camTransitionVert from "./shaders/glass-effect/vertex.glsl";
 import { WRONG_PARAM } from "~/static/error.static";
+import { Config } from "~/config";
 
 export class WorldManager extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
@@ -173,7 +174,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			current: 0,
 			target: 0,
 		};
-		this._cameraAnimation.enable(true)
+		this._cameraAnimation.enable(true);
 
 		if (IS_SWITCHING_MAIN || IS_SWITCHING_PROJECTED)
 			this._navigation.view.limits = false;
@@ -261,7 +262,8 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		mainScene.intro();
 		await this._navigation?.updateCameraPosition(
 			mainScene.cameraPath?.getPoint(0),
-			mainScene.center
+			mainScene.center,
+			Config.GSAP_ANIMATION_DURATION + 1
 		);
 	}
 
@@ -317,6 +319,4 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		if (this._onCameraAnimationEnd)
 			this._cameraAnimation?.off(events.ENDED, this._onCameraAnimationEnd);
 	}
-
-	public update() {}
 }

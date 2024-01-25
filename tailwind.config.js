@@ -1,11 +1,8 @@
 const colors = require("tailwindcss/colors");
 const theme = require("tailwindcss/defaultTheme");
 
-colors.lightBlue = undefined;
-colors.warmGray = undefined;
-colors.trueGray = undefined;
-colors.coolGray = undefined;
-colors.blueGray = undefined;
+const safeHeight = "calc(var(--vh, 1vh) * 100)";
+const safeWidth = "calc(var(--vw, 1vw) * 100)";
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -13,8 +10,6 @@ module.exports = {
 		"./src/components/**/*.{js,vue,ts}",
 		"./src/layouts/**/*.vue",
 		"./src/pages/**/*.vue",
-		"./src/plugins/**/*.{js,ts}",
-		"./src/nuxt.config.{js,ts}",
 		"./src/app.vue",
 	],
 	theme: {
@@ -33,7 +28,26 @@ module.exports = {
 				exo: ["Exo", "Segoe UI", "Tahoma", "Geneva", "Verdana", "sans-serif"],
 			},
 		},
-		extend: {},
+		extend: {
+			minHeight: {
+				safe: safeHeight,
+			},
+			minWidth: {
+				safe: safeWidth,
+			},
+			height: {
+				safe: safeHeight,
+			},
+			width: {
+				safe: safeWidth,
+			},
+			maxHeight: {
+				safe: safeHeight,
+			},
+			maxWidth: {
+				safe: safeWidth,
+			},
+		},
 	},
 	plugins: [],
 };

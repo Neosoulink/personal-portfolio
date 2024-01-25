@@ -92,11 +92,8 @@ export class Scene1Component extends SceneComponentBlueprint {
 	public pcScreenWebglTexture = new WebGLRenderTarget(1024, 1024);
 	public pcScreen?: Mesh;
 	public phoneScreen?: Mesh;
-	public phoneScreenVideo?: HTMLVideoElement;
 	public treeOutside?: Object3D;
 	public coffeeSteam?: Mesh;
-	public monitorAScreenVideo?: HTMLVideoElement;
-	public monitorBScreenVideo?: HTMLVideoElement;
 
 	constructor() {
 		super({
@@ -205,52 +202,11 @@ export class Scene1Component extends SceneComponentBlueprint {
 		}
 	}
 
-	private _initScreesVideos() {
-		this.phoneScreenVideo = this._createVideoElement(phone_screen_recording);
-
-		this.monitorAScreenVideo = this._createVideoElement(
-			monitor_a_screen_recording
-		);
-		this.monitorBScreenVideo = this._createVideoElement(
-			monitor_b_screen_recording
-		);
-	}
-
-	private _createVideoElement(source: string) {
-		const ELEMENT = document.createElement("video");
-
-		ELEMENT.muted = true;
-		ELEMENT.loop = true;
-		ELEMENT.controls = true;
-		ELEMENT.playsInline = true;
-		ELEMENT.autoplay = true;
-		ELEMENT.src = source;
-		ELEMENT.play();
-
-		return ELEMENT;
-	}
-
 	protected _getAvailableMaterials(): Materials {
 		const AVAILABLE_TEXTURE = this._loader?.availableTextures;
 		const AVAILABLE_MATERIALS: Materials = {};
 
 		if (!AVAILABLE_TEXTURE) return AVAILABLE_MATERIALS;
-
-		// TEXTURES
-		const PHONE_VIDEO_TEXTURE = new VideoTexture(
-			this.phoneScreenVideo ?? document.createElement("video")
-		);
-		PHONE_VIDEO_TEXTURE.colorSpace = LinearSRGBColorSpace;
-
-		const MONITOR_A_VIDEO_TEXTURE = new VideoTexture(
-			this.monitorAScreenVideo ?? document.createElement("video")
-		);
-		MONITOR_A_VIDEO_TEXTURE.colorSpace = LinearSRGBColorSpace;
-
-		const MONITOR_B_VIDEO_TEXTURE = new VideoTexture(
-			this.monitorBScreenVideo ?? document.createElement("video")
-		);
-		MONITOR_B_VIDEO_TEXTURE.colorSpace = LinearSRGBColorSpace;
 
 		// MATERIALS
 		if (this._world?.commonMaterials.scene_container)
@@ -263,13 +219,13 @@ export class Scene1Component extends SceneComponentBlueprint {
 			map: this.pcScreenWebglTexture?.texture,
 		});
 		AVAILABLE_MATERIALS.phone_screen = new MeshBasicMaterial({
-			map: PHONE_VIDEO_TEXTURE,
+			map: AVAILABLE_TEXTURE.phone_screen_record,
 		});
 		AVAILABLE_MATERIALS.monitor_a = new MeshBasicMaterial({
-			map: MONITOR_A_VIDEO_TEXTURE,
+			map: AVAILABLE_TEXTURE.monitor_a_screen_record,
 		});
 		AVAILABLE_MATERIALS.monitor_b = new MeshBasicMaterial({
-			map: MONITOR_B_VIDEO_TEXTURE,
+			map: AVAILABLE_TEXTURE.monitor_b_screen_record,
 		});
 		AVAILABLE_MATERIALS.tree = new MeshBasicMaterial({
 			map: AVAILABLE_TEXTURE.scene_1_tree_baked_texture,
@@ -341,7 +297,6 @@ export class Scene1Component extends SceneComponentBlueprint {
 		super.construct(() => {
 			this.treeOutside = new Object3D();
 			this.modelScene?.add(this.treeOutside);
-			this._initScreesVideos();
 		});
 	}
 

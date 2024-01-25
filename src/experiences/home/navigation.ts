@@ -192,11 +192,11 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 				this._view?.down(_event.clientX, _event.clientY);
 
-				this._ui?.targetElementParent?.addEventListener(
+				this._ui?.targetElement?.addEventListener(
 					"mouseup",
 					this._view.onMouseUp
 				);
-				this._ui?.targetElementParent?.addEventListener(
+				this._ui?.targetElement?.addEventListener(
 					"mousemove",
 					this._view.onMouseMove
 				);
@@ -217,11 +217,11 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 				this._view.up();
 
-				this._ui?.targetElementParent?.removeEventListener(
+				this._ui?.targetElement?.removeEventListener(
 					"mouseup",
 					this._view.onMouseUp
 				);
-				this._ui?.targetElementParent?.removeEventListener(
+				this._ui?.targetElement?.removeEventListener(
 					"mousemove",
 					this._view.onMouseMove
 				);
@@ -241,13 +241,14 @@ export class Navigation extends ExperienceBasedBlueprint {
 				this._view.drag.alternative = _event.touches.length > 1;
 				this._view.down(_event.touches[0].clientX, _event.touches[0].clientY);
 
-				this._ui?.targetElementParent?.addEventListener(
+				this._ui?.targetElement?.addEventListener(
 					"touchend",
 					this._view.onTouchEnd
 				);
-				this._ui?.targetElementParent?.addEventListener(
+				this._ui?.targetElement?.addEventListener(
 					"touchmove",
-					this._view.onTouchMove
+					this._view.onTouchMove,
+					{ passive: false }
 				);
 			};
 
@@ -266,11 +267,11 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 				this._view.up();
 
-				this._ui?.targetElementParent?.removeEventListener(
+				this._ui?.targetElement?.removeEventListener(
 					"touchend",
 					this._view.onTouchEnd
 				);
-				this._ui?.targetElementParent?.removeEventListener(
+				this._ui?.targetElement?.removeEventListener(
 					"touchmove",
 					this._view.onTouchMove
 				);
@@ -303,33 +304,32 @@ export class Navigation extends ExperienceBasedBlueprint {
 					);
 			};
 
-			this._ui?.targetElementParent?.addEventListener(
+			this._ui?.targetElement?.addEventListener(
 				"mousedown",
 				this._view.onMouseDown
 			);
-			this._ui?.targetElementParent?.addEventListener(
+			this._ui?.targetElement?.addEventListener(
 				"touchstart",
-				this._view.onTouchStart
+				this._view.onTouchStart,
+				{ passive: false }
 			);
-			this._ui?.targetElementParent?.addEventListener(
+			this._ui?.targetElement?.addEventListener(
 				"contextmenu",
 				this._view.onContextMenu
 			);
-			this._ui?.targetElementParent?.addEventListener(
+			this._ui?.targetElement?.addEventListener(
 				"mousewheel",
 				this._view.onWheel,
 				{ passive: false }
 			);
-			this._ui?.targetElementParent?.addEventListener(
-				"wheel",
-				this._view.onWheel,
-				{ passive: false }
-			);
-			this._ui?.targetElementParent?.addEventListener(
+			this._ui?.targetElement?.addEventListener("wheel", this._view.onWheel, {
+				passive: false,
+			});
+			this._ui?.targetElement?.addEventListener(
 				"mouseleave",
 				this._view.onLeave
 			);
-			this._ui?.targetElementParent?.addEventListener(
+			this._ui?.targetElement?.addEventListener(
 				"mouseenter",
 				this._view.onLeave
 			);
@@ -340,57 +340,54 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 	public destruct() {
 		this._view.onMouseDown &&
-			this._ui?.targetElementParent?.removeEventListener(
+			this._ui?.targetElement?.removeEventListener(
 				"mousedown",
 				this._view.onMouseDown
 			);
 		this._view.onMouseUp &&
-			this._ui?.targetElementParent?.removeEventListener(
+			this._ui?.targetElement?.removeEventListener(
 				"mouseup",
 				this._view.onMouseUp
 			);
 		this._view.onMouseMove &&
-			this._ui?.targetElementParent?.removeEventListener(
+			this._ui?.targetElement?.removeEventListener(
 				"mousemove",
 				this._view.onMouseMove
 			);
 		this._view.onTouchEnd &&
-			this._ui?.targetElementParent?.removeEventListener(
+			this._ui?.targetElement?.removeEventListener(
 				"touchend",
 				this._view.onTouchEnd
 			);
 		this._view.onTouchMove &&
-			this._ui?.targetElementParent?.removeEventListener(
+			this._ui?.targetElement?.removeEventListener(
 				"touchmove",
 				this._view.onTouchMove
 			);
 		this._view.onTouchStart &&
-			this._ui?.targetElementParent?.removeEventListener(
+			this._ui?.targetElement?.removeEventListener(
 				"touchstart",
 				this._view.onTouchStart
 			);
 		this._view.onContextMenu &&
-			this._ui?.targetElementParent?.removeEventListener(
+			this._ui?.targetElement?.removeEventListener(
 				"contextmenu",
 				this._view.onContextMenu
 			);
 		this._view.onWheel &&
-			this._ui?.targetElementParent?.removeEventListener(
+			this._ui?.targetElement?.removeEventListener(
 				"mousewheel",
 				this._view.onWheel
 			);
 		this._view.onWheel &&
-			this._ui?.targetElementParent?.removeEventListener(
-				"wheel",
-				this._view.onWheel
-			);
+			this._ui?.targetElement?.removeEventListener("wheel", this._view.onWheel);
 		this._view.onLeave &&
-			this._ui?.targetElementParent?.removeEventListener(
+			this._ui?.targetElement?.removeEventListener(
 				"mouseleave",
 				this._view.onLeave
 			);
 		this._view.onLeave &&
-			this._ui?.targetElementParent?.removeEventListener(
+			this._ui?.targetElement?.removeEventListener(
 				"mouseenter",
 				this._view.onLeave
 			);

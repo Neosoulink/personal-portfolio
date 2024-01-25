@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 // CONSTANTS
-import packageJson from "../../package.json";
+import packageJson from "~~/package.json";
 
 // COMPOSAPLES
-import { useMenuState } from "../composables/menu";
+import { useMenuState } from "~/composables/menu";
 
 // STATES
 const IS_MENU_OPEN = useMenuState();
@@ -18,7 +18,7 @@ const IS_MENU_OPEN = useMenuState();
 				<h1>
 					<a href="/" class="flex flex-row items-center text-2xl font-semibold">
 						<img
-							src="../assets/img/logo.png"
+							src="~/assets/img/logo.png"
 							class="h-10 min-w-[40px] rounded-full drop-shadow-md mr-3 transition-all"
 						/>
 
@@ -26,11 +26,11 @@ const IS_MENU_OPEN = useMenuState();
 							class="flex flex-row items-center text-lg font-semibold uppercase"
 						>
 							<div
-								v-for="(c, i) in packageJson.name.split('')"
+								v-for="(l, i) in packageJson.name.split('')"
 								:key="i"
 								class="transition-all drop-shadow-md"
 							>
-								{{ c }}
+								{{ l }}
 							</div>
 						</span>
 					</a>

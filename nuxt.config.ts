@@ -35,6 +35,18 @@ export default defineNuxtConfig({
 		},
 	},
 	srcDir: "./src",
+	components: [
+		// ~/components/pages/home/Update.vue => <HomeUpdate />
+		{ path: "~/components/pages" },
+
+		// ~/components/layout/Theme.vue => <L-Theme />
+		{ path: "~/components/layout", prefix: "L-" },
+
+		// ~/components/global/Btn.vue => <G-Btn />
+		{ path: "~/components/global", prefix: "G-" },
+
+		"~/components",
+	],
 	runtimeConfig: {
 		public: {
 			MODE: process.env.MODE,
