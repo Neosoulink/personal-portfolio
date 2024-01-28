@@ -6,6 +6,7 @@ const safeWidth = "calc(var(--vw, 1vw) * 100)";
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+	darkMode: "class",
 	content: [
 		"./src/components/**/*.{js,vue,ts}",
 		"./src/layouts/**/*.{js,vue,ts}",
@@ -15,6 +16,11 @@ module.exports = {
 		...theme,
 		colors: {
 			...colors,
+			lightBlue: undefined,
+			warmGray: undefined,
+			trueGray: undefined,
+			coolGray: undefined,
+			blueGray: undefined,
 			dark: "rgb(var(--dark))",
 			light: "rgb(var(--light))",
 			primary: {
@@ -27,6 +33,10 @@ module.exports = {
 				...theme.fontFamily,
 				exo: ["Exo", "Segoe UI", "Tahoma", "Geneva", "Verdana", "sans-serif"],
 			},
+		},
+		screens: {
+			...theme.screens,
+			xs: "340px",
 		},
 		extend: {
 			...theme.extend,

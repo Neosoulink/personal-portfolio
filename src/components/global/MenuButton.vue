@@ -25,7 +25,6 @@ onMounted(() => {
 
 <template>
 	<button
-		id="hamburger-menu-button"
 		class="space-y-2"
 		type="button"
 		@click="
@@ -37,7 +36,7 @@ onMounted(() => {
 		<div
 			v-for="i in [0, 1, 2]"
 			:key="i"
-			:class="`transition w-[35px] h-0.5 ${
+			:class="`transition-all w-[30px] sm:w-[35px] h-0.5 ${
 				i === 0 && props.active
 					? 'translate-y-[10.25px] rotate-45'
 					: i === 2 && props.active
@@ -47,20 +46,24 @@ onMounted(() => {
 					: ''
 			}`"
 		>
-			<div class="bg-light h-full w-full" />
+			<div class="w-full h-full bg-light" />
 		</div>
 	</button>
 </template>
 
-<style lang="css" scoped>
-#hamburger-menu-button:hover > .transition > div {
-	animation: start-animation 0.5s;
-}
-#hamburger-menu-button > .transition:nth-child(2) > div {
-	animation-delay: 0.05s;
-}
-#hamburger-menu-button > .transition:nth-child(3) > div {
-	animation-delay: 0.1s;
+<style lang="scss" scoped>
+button {
+	&:hover > div {
+		> div {
+			animation: start-animation 0.5s;
+		}
+
+		@for $i from 1 through 2 {
+			&:nth-child(#{$i + 1}) > div {
+				animation-delay: #{$i * 0.05}s;
+			}
+		}
+	}
 }
 
 @keyframes start-animation {

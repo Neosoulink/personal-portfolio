@@ -54,6 +54,8 @@ export class Debug extends ExperienceBasedBlueprint {
 
 		if (!this._gui || !this._experience.world) return;
 
+		this._gui.close();
+
 		this._targetIndicator = new Mesh(
 			new SphereGeometry(0.1, 12, 12),
 			new MeshBasicMaterial({ color: "#ff0040" })

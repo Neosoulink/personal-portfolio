@@ -35,6 +35,7 @@ export class Renderer extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appRenderer = this._experience.app.renderer;
+	private readonly _ui = this._experience.ui;
 	private readonly _camera = this._experience.camera;
 	private readonly _appSizes = this._experience.app.sizes;
 	private readonly _renderPortalAssets: {
@@ -101,6 +102,7 @@ export class Renderer extends ExperienceBasedBlueprint {
 	}
 
 	public construct() {
+		// RENDERER
 		~(() => {
 			this._appRenderer.instance.outputColorSpace = LinearSRGBColorSpace;
 			this._appRenderer.instance.toneMapping = NoToneMapping;
@@ -118,6 +120,7 @@ export class Renderer extends ExperienceBasedBlueprint {
 			this._appRenderer.instance.localClippingEnabled = true;
 		})();
 
+		// CSS RENDERER
 		~(() => {
 			if (!this._camera?.instance) return;
 
@@ -125,14 +128,10 @@ export class Renderer extends ExperienceBasedBlueprint {
 				this._appRenderer.instance,
 				this._camera?.instance
 			);
+
 			const rendererCss = this._mixerContext.rendererCss;
 			rendererCss.setSize(this._appSizes.width, this._appSizes.height);
-
-			const css3dElement = rendererCss.domElement;
-			this._appRenderer.instance.domElement.parentNode?.insertBefore(
-				css3dElement,
-				this._appRenderer.instance.domElement
-			);
+			if (this._ui) this._ui.cssTargetElement = rendererCss.domElement;
 
 			this._appSizes.on("resize", () =>
 				rendererCss.setSize(this._appSizes.width, this._appSizes.height)
@@ -143,6 +142,7 @@ export class Renderer extends ExperienceBasedBlueprint {
 			);
 		})();
 
+		// PORTAL RENDERER
 		~(() => {
 			this.addBeforeRenderUpdateCallBack(Renderer.name, () => {
 				if (!Object.keys(this._renderPortalAssets).length) return;

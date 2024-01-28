@@ -1,13 +1,25 @@
-<template>
-	<div class="text-5xl font-bold top-1/2 text-red-50">
-		<NuxtLink to="/contact">Page child 2 -> click to child 3</NuxtLink>
-	</div>
-</template>
-
+template
 <script setup lang="ts">
-import { SKILL_PAGE } from "~/static/page.static";
+// STATIC
+import { pages } from "~/static";
+
+const canDisplayLanding = useState<boolean>(
+	`canDisplayLanding_${pages.SKILL_PAGE}`,
+	() => true
+);
 
 definePageMeta({
-	key: SKILL_PAGE,
+	key: pages.SKILL_PAGE,
 });
 </script>
+
+<template>
+	<HomeContent
+		:can-display-landing="canDisplayLanding"
+		landing-head="You said"
+		landing-foot="Skill?"
+		content-title="About skills."
+		content-body="Home here we are. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perferendis, ullam. Quibusdam alias dolores a voluptatum eveniet quia veniam ad quos, qui quae. Eveniet enim quasi tenetur, sapiente sed dolor labore!"
+		@landing-animation-done="() => (canDisplayLanding = false)"
+	/>
+</template>

@@ -7,7 +7,7 @@ const props = defineProps<{ string: string }>();
 		<div
 			v-for="(l, i) in props.string.split('')"
 			:key="i"
-			class="transition-all drop-shadow-md"
+			class="transition-all"
 		>
 			{{ l }}
 		</div>

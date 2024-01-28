@@ -1,21 +1,3 @@
-<template>
-	<main class="relative overflow-hidden w-safe h-safe bg-dark">
-		<HomeLoader />
-
-		<canvas :id="states.domRef" class="fixed top-0 left-0 w-full h-full"/>
-
-		<div class="fixed font-bold top-1/2 text-red-50">
-			<NuxtLink to="/" class="mr-3">Page child 1</NuxtLink>
-			<NuxtLink to="/skills" class="mr-3">Page child 2</NuxtLink>
-			<NuxtLink to="/contact">Page child 3</NuxtLink>
-
-			<div class="block mb-4" />
-
-			<NuxtPage />
-		</div>
-	</main>
-</template>
-
 <script lang="ts" setup>
 // EXPERIENCES
 import { HomeExperience } from "~/experiences/home";
@@ -24,38 +6,86 @@ import { HomeExperience } from "~/experiences/home";
 import { events } from "~/static";
 
 // DATA
-const states = reactive<{
-	experience?: HomeExperience;
-	domRef: string;
-}>({ domRef: "home-experience" });
+const appCanvasId = "home-experience";
+const availableRoutes = useState<{ name: string; path: string; key: string }[]>(
+	"availableRoutes",
+	() => []
+);
+const isExperienceReady = useState<boolean>("isExperienceReady", () => false);
+let experience: HomeExperience | undefined;
 
-// FUNCTIONS
-const initExperience = () => {
-	if (!process.client) return;
-
-	const Experience = new HomeExperience({
-		domElementRef: `#${states.domRef}`,
+// EVENTS
+const onUiReady = () => {
+	isExperienceReady.value = true;
+};
+const init = () => {
+	if (!process.client || experience) return;
+	experience = new HomeExperience({
+		domElementRef: `#${appCanvasId}`,
 	});
+	experience.construct();
+	experience?.ui?.on(events.READY, onUiReady);
 
-	Experience.construct();
-	states.experience = Experience;
+	const routes = experience.router?.availableRoutes;
+	if (routes)
+		availableRoutes.value = Object.keys(routes).map((key) => {
+			const name = (routes[key].name?.toString() ?? "Not defined").replace(
+				/index\-?/,
+				""
+			);
+
+			return {
+				name: name.length === 0 ? "home" : name,
+				path: "/" + routes[key].path,
+				key: routes[key].meta?.key?.toString() ?? "",
+			};
+		});
+};
+const dispose = () => {
+	if (!experience) return;
+	experience?.ui?.off(events.READY, onUiReady);
+	experience.destruct();
+	experience = undefined;
 };
 
-const endExperience = () => {
-	if (!states.experience) return;
-
-	states.experience.destruct();
-	states.experience = undefined;
-};
-
-// HOOKS
-onMounted(() => {
-	!states.experience && setTimeout(initExperience, 500);
-});
-
-onBeforeUnmount(() => setTimeout(endExperience, 500));
-
+onMounted(init);
+onBeforeUnmount(dispose);
 onBeforeRouteUpdate((route) => {
-	states.experience?.router?.emit(events.CHANGED, route);
+	experience?.router?.emit(events.CHANGED, route);
 });
 </script>
+
+<template>
+	<main
+		class="relative overflow-hidden group-data-[device=pc]:h-screen w-safe h-safe bg-dark"
+	>
+		<HomeLoader />
+
+		<canvas :id="appCanvasId" class="fixed top-0 left-0 w-full h-full" />
+
+		<G-Container
+			class="relative flex flex-col justify-between h-full py-5 sm:py-8 md:py-12"
+		>
+			<HomeHeader />
+
+			<section class="flex flex-row flex-1">
+				<HomeNav :routes="availableRoutes" />
+				<NuxtPage
+					v-if="!!experience"
+					class="relative flex"
+					:experience="experience"
+				/>
+			</section>
+
+			<HomeFooter />
+		</G-Container>
+	</main>
+</template>
+
+<style lang="scss">
+main {
+	* {
+		user-select: none;
+	}
+}
+</style>

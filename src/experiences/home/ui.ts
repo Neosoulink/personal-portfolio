@@ -24,6 +24,8 @@ export class UI extends ExperienceBasedBlueprint {
 	private _loadedResourcesStartButton?: HTMLElement | null;
 	private _lastLoadedResource?: HTMLElement | null;
 	private _loaderContainer?: HTMLElement | null;
+	private _loaderSecretMessage?: HTMLElement | null;
+	private _cssTargetElement?: HTMLElement;
 	private _activeMarkers: {
 		coordinates: Vector3;
 		element: HTMLElement;
@@ -38,8 +40,13 @@ export class UI extends ExperienceBasedBlueprint {
 	public static readonly loadedResourcesStartButtonId =
 		"loaded-resources-start-button";
 	public static readonly lastLoadedResourceId = "last-loaded-resource";
+	public static readonly LoaderSecretMessageId = "loader-secret-message";
 
-	public readonly timeline = gsap.timeline();
+	public readonly timeline = gsap.timeline({
+		onComplete: () => {
+			this.timeline.clear();
+		},
+	});
 	public readonly targetElement = this._experience.app.canvas;
 	public readonly targetElementParent = this.targetElement?.parentElement;
 
@@ -64,6 +71,9 @@ export class UI extends ExperienceBasedBlueprint {
 		this._loadedResourcesStartButton = document.getElementById(
 			UI.loadedResourcesStartButtonId
 		);
+		this._loaderSecretMessage = document.getElementById(
+			UI.LoaderSecretMessageId
+		);
 		this._lastLoadedResource = document.getElementById(UI.lastLoadedResourceId);
 	}
 
@@ -71,7 +81,28 @@ export class UI extends ExperienceBasedBlueprint {
 		return !!this._activeMarkers.length;
 	}
 
-	construct() {
+	public get cssTargetElement(): HTMLElement | undefined {
+		return this._cssTargetElement;
+	}
+
+	public set cssTargetElement(element: HTMLElement) {
+		this._cssTargetElement = element;
+		this._cssTargetElement.classList.add(
+			"fixed",
+			"top-0",
+			"left-0",
+			"w-full",
+			"h-full"
+		);
+
+		this.targetElement &&
+			this.targetElementParent?.insertBefore(
+				this._cssTargetElement,
+				this.targetElement
+			);
+	}
+
+	public construct() {
 		if (this.targetElement) {
 			this.markersContainer = document.createElement("div");
 			this.targetElementParent?.insertBefore(
@@ -150,13 +181,13 @@ export class UI extends ExperienceBasedBlueprint {
 		});
 	}
 
-	destruct() {
+	public destruct() {
 		this._loadedResourcesProgressLine = undefined;
 		this._loadedResourcesProgress = undefined;
 		this._lastLoadedResource = undefined;
 	}
 
-	intro() {
+	public intro() {
 		if (!this._loaderContainer) return;
 		if (this.timeline.isActive()) this.timeline.progress(1);
 
@@ -164,8 +195,14 @@ export class UI extends ExperienceBasedBlueprint {
 			duration: Config.GSAP_ANIMATION_DURATION,
 			ease: Config.GSAP_ANIMATION_EASE,
 			opacity: 0,
+			onUpdate: () => {
+				if (!this._loaderSecretMessage?.style) return;
+				this._loaderSecretMessage.style.opacity =
+					this._loaderContainer?.style.opacity ?? "0";
+			},
 			onComplete: () => {
 				this._loaderContainer?.remove();
+				this.emit(events.READY);
 			},
 		});
 	}

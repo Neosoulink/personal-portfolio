@@ -16,7 +16,8 @@
 				"noConstructorReturn": "off"
 			},
 			"suspicious": {
-				"noExplicitAny": "off"
+				"noExplicitAny": "off",
+				"noAssignInExpressions": "off"
 			}
 		},
 		"ignore": ["./src/public"]

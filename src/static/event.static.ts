@@ -10,3 +10,4 @@ export const ANIMATION_STARTED = Symbol("8");
 export const ANIMATION_ENDED = Symbol("9");
 export const ADDED = Symbol("10");
 export const REMOVED = Symbol("11");
+export const READY = Symbol("12");

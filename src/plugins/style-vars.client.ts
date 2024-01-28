@@ -1,4 +1,7 @@
+// ERRORS
 import { ErrorFactory } from "~/errors";
+
+// CONFIG
 
 export default defineNuxtPlugin((nuxtApp) => {
 	const getSizes = () => {
@@ -32,17 +35,22 @@ export default defineNuxtPlugin((nuxtApp) => {
 		}
 	};
 
-	const initStylesAddon = () => {
+	const onResize = () => {
 		setSizes();
-		window.removeEventListener("resize", setSizes);
-		window.addEventListener("resize", setSizes);
 	};
 
-	nuxtApp.vueApp.use(initStylesAddon);
+	const init = () => {
+		onResize();
+		window.removeEventListener("resize", onResize);
+		window.addEventListener("resize", onResize);
+	};
+
+	nuxtApp.vueApp.use(init);
 
 	return {
 		provide: {
 			getSizes,
+			setSizes,
 		},
 	};
 });

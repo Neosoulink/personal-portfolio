@@ -1,11 +1,9 @@
 <template>
-	<div class="flex flex-col overflow-hidden min-h-safe w-safe">
-		<!-- <LayoutHeader /> -->
-
+	<div
+		class="flex flex-col w-screen min-h-safe group-data-[device=pc]:!min-h-screen overflow-hidden"
+	>
 		<G-Menu />
 
 		<slot />
-
-		<!-- <LayoutFooter /> -->
 	</div>
 </template>
