@@ -8152,7 +8152,6 @@ __metadata:
     lil-gui: "npm:^0.18.1"
     normalize-wheel: "npm:^1.0.1"
     nuxt: "npm:^3.8.2"
-    nuxt-storage: "npm:^1.2.2"
     postcss: "npm:^8.4.21"
     quick-threejs: "npm:^0.1.29"
     sass: "npm:^1.64.2"
@@ -8669,13 +8668,6 @@ __metadata:
     nuxt: bin/nuxi.mjs
     nuxt-cli: bin/nuxi.mjs
   checksum: c31cb271a895cb12d8dd16c61f46d88262368154ac4a8d3bcf9bf030cc631ef69ed9a95327e1a6791a6bb8771f5e23052d20143d9c6187691851385fc05b5f9d
-  languageName: node
-  linkType: hard
-
-"nuxt-storage@npm:^1.2.2":
-  version: 1.2.2
-  resolution: "nuxt-storage@npm:1.2.2"
-  checksum: 0fd9235e79ae45b975b9f0939496f3098da1a9a85eedfe056b493c77aa5bbe5bcca378ba84f472eea0a4549325dace86fa5c686166fd5045a84c4c0e6e41d8e9
   languageName: node
   linkType: hard
 
