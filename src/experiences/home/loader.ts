@@ -36,6 +36,8 @@ import phoneScreenshotTexture from "~/assets/textures/phone_icons.png?url";
 import monitor_a_screen_record from "~/assets/videos/monitor_a_screen_record.webm?url";
 import monitor_b_screen_record from "~/assets/videos/monitor_b_screen_record.webm?url";
 import phone_screen_record from "~/assets/videos/phone_screen_record.webm?url";
+
+// STATIC
 import { events } from "~/static";
 
 export class Loader extends ExperienceBasedBlueprint {
@@ -50,7 +52,9 @@ export class Loader extends ExperienceBasedBlueprint {
 		super();
 
 		// RESOURCES
-		this._appResources.setDracoLoader("/decoders/draco-gltf/");
+		this._appResources.setDracoLoader(
+			"https://www.gstatic.com/draco/versioned/decoders/1.4.3/"
+		);
 		this._appResources.setSources([
 			// SCENE 1
 			{

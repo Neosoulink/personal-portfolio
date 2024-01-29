@@ -2,7 +2,10 @@
 // STATIC
 import { pages } from "~/static";
 
-const canDisplayLanding = useState<boolean>("canDisplayLanding", () => true);
+const canDisplayLanding = useState<boolean>(
+	`canDisplayLanding_${pages.CONTACT_PAGE}`,
+	() => true
+);
 
 definePageMeta({
 	key: pages.CONTACT_PAGE,
