@@ -15,7 +15,7 @@ const props = withDefaults(
 	>
 		<img
 			src="~/assets/img/logo.png"
-			:class="`h-8 mb-1 mr-2 transition-all`"
+			:class="`h-7 sm:h-8 mb-1 mr-2 transition-all`"
 			:style="{
 				height: props.logoHeight ? `${props.logoHeight}px` : undefined,
 			}"

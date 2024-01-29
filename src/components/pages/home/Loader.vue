@@ -36,6 +36,14 @@ const initLaunchedTimes = () => {
 	localStorage.setItem("launchedTimes", appLaunchedTimes.value.toString());
 };
 
+const onLoadStart = () => {
+	isLoadingStarted.value = true;
+	isLoadingCompleted.value = false;
+	isLoadingEnded.value = false;
+	loadingProgress.value = 0;
+	loadedResources.value = [];
+};
+
 const onLoaderProgress = (progress: number, url: string) => {
 	setTimeout(() => {
 		loadingProgress.value = progress;
@@ -54,12 +62,7 @@ const initUI = () => {
 	if (!props.experience) return;
 
 	// EVENTS
-	isLoadingStarted.value = true;
-	isLoadingCompleted.value = false;
-	isLoadingEnded.value = false;
-	loadingProgress.value = 0;
-	loadedResources.value = [];
-
+	onLoadStart();
 	props.experience.loader?.on(events.PROGRESSED, onLoaderProgress);
 	props.experience.loader?.on(events.LOADED, onLoaderCompleted);
 };
@@ -96,7 +99,8 @@ const watchStopHandle = watchEffect(
 		if (DeviceConfig.DEVICE !== "pc") return;
 
 		const onKeypress = (e: KeyboardEvent) => {
-			if (e.key !== "Enter" && e.key !== " ") return;
+			if (!isLoadingCompleted.value || (e.key !== "Enter" && e.key !== " "))
+				return;
 			onPressStart();
 			window?.removeEventListener("keypress", onKeypress);
 		};

@@ -9,12 +9,10 @@ export class DeviceConfig {
 		| "chrome"
 		| "firefox"
 		| "safari"
-		| "ie" = DeviceConfig.checkBrowser();
-	public static OS?: "pc" | "windows" | "macos" | "ios" | "android" =
-		DeviceConfig.checkOs();
-	public static DEVICE?: "pc" | "mobile" | "tablet" =
-		DeviceConfig.checkDevice();
-	public static IPHONE?: "iphone" = DeviceConfig.checkIPhone();
+		| "ie";
+	public static OS?: "pc" | "windows" | "macos" | "ios" | "android";
+	public static DEVICE?: "pc" | "mobile" | "tablet";
+	public static IPHONE?: "iphone";
 
 	public static checkBrowser() {
 		if (

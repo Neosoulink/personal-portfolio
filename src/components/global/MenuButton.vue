@@ -36,7 +36,7 @@ onMounted(() => {
 		<div
 			v-for="i in [0, 1, 2]"
 			:key="i"
-			:class="`transition-all w-[30px] sm:w-[35px] h-0.5 ${
+			:class="`transition-all w-[30px] h-0.5 ${
 				i === 0 && props.active
 					? 'translate-y-[10.25px] rotate-45'
 					: i === 2 && props.active

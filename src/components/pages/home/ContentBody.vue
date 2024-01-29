@@ -4,9 +4,12 @@ defineProps<{ content: string; title?: string }>();
 
 <template>
 	<div
-		class="flex flex-col items-start opacity-0 animate-[0.5s_linear_showWithTransition_forwards] [text-shadow:_0_1px_2px_rgb(0_0_0_/_70%)] border-light"
+		class="flex flex-col items-start opacity-0 animate-[0.5s_linear_showWithTransition_forwards] border-light text-[4vw] xs:text-sm sm:text-base"
 	>
-		<h3 v-if="!!title" class="mb-2 text-xl capitalize border-b-2">
+		<h3
+			v-if="!!title"
+			class="mb-2 text-[4.5vw] xs:text-lg sm:text-xl capitalize border-b-2"
+		>
 			{{ title }}
 		</h3>
 

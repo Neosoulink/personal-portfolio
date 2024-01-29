@@ -66,11 +66,11 @@ onBeforeRouteUpdate((route) => {
 		<canvas :id="appCanvasId" class="fixed top-0 left-0 w-full h-full" />
 
 		<G-Container
-			class="relative flex flex-col justify-between h-full py-5 sm:py-8 md:py-12"
+			class="relative flex flex-col justify-between h-full sm:py-8 md:py-12"
 		>
 			<HomeHeader />
 
-			<section class="flex flex-row flex-1">
+			<section class="flex flex-col flex-1 sm:flex-row">
 				<HomeNav :routes="availableRoutes" />
 				<NuxtPage
 					v-if="!!experience"
