@@ -1,14 +1,11 @@
+import { PerspectiveCamera, type Vector3 } from "three";
 import gsap from "gsap";
 
 // EXPERIENCE
 import { HomeExperience } from ".";
 
-// CONFIG
-import { Config } from "~/config";
-
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
-import { PerspectiveCamera, type Vector3 } from "three";
 import { errors, events } from "~/static";
 
 /**
@@ -19,28 +16,12 @@ export class UI extends ExperienceBasedBlueprint {
 
 	private readonly _appCamera = this._experience.app.camera;
 
-	private _loadedResourcesProgressLine?: HTMLElement | null;
-	private _loadedResourcesProgress?: HTMLElement | null;
-	private _loadedResourcesStartButton?: HTMLElement | null;
-	private _lastLoadedResource?: HTMLElement | null;
-	private _loaderContainer?: HTMLElement | null;
-	private _loaderSecretMessage?: HTMLElement | null;
 	private _cssTargetElement?: HTMLElement;
 	private _activeMarkers: {
 		coordinates: Vector3;
 		element: HTMLElement;
 		position: Vector3;
 	}[] = [];
-
-	public static readonly loaderContainerId = "home-loader-container";
-	public static readonly loadedResourcesProgressLineId =
-		"loaded-resources-progress-line";
-	public static readonly loadedResourcesProgressId =
-		"loaded-resources-progress";
-	public static readonly loadedResourcesStartButtonId =
-		"loaded-resources-start-button";
-	public static readonly lastLoadedResourceId = "last-loaded-resource";
-	public static readonly LoaderSecretMessageId = "loader-secret-message";
 
 	public readonly timeline = gsap.timeline({
 		onComplete: () => {
@@ -57,25 +38,6 @@ export class UI extends ExperienceBasedBlueprint {
 		content: string;
 	}[] = [];
 	public currentOveredMark?: HTMLDivElement;
-
-	constructor() {
-		super();
-
-		this._loaderContainer = document.getElementById(UI.loaderContainerId);
-		this._loadedResourcesProgressLine = document.getElementById(
-			UI.loadedResourcesProgressLineId
-		);
-		this._loadedResourcesProgress = document.getElementById(
-			UI.loadedResourcesProgressId
-		);
-		this._loadedResourcesStartButton = document.getElementById(
-			UI.loadedResourcesStartButtonId
-		);
-		this._loaderSecretMessage = document.getElementById(
-			UI.LoaderSecretMessageId
-		);
-		this._lastLoadedResource = document.getElementById(UI.lastLoadedResourceId);
-	}
 
 	public get isMarkersDisplayed() {
 		return !!this._activeMarkers.length;
@@ -110,102 +72,10 @@ export class UI extends ExperienceBasedBlueprint {
 				this.targetElement
 			);
 		}
-
-		// EVENTS
-		this._experience.loader?.on(events.STARTED, () => {
-			this._lastLoadedResource?.classList.remove("animate-pulse");
-			if (this._loadedResourcesProgressLine)
-				this._loadedResourcesProgressLine.style.width = "0%";
-			if (this._loadedResourcesProgress)
-				this._loadedResourcesProgress.innerText = "0%";
-		});
-
-		this._experience.loader?.on(
-			events.PROGRESSED,
-			(progress: number, url: string) => {
-				setTimeout(() => {
-					if (this._loadedResourcesProgressLine)
-						this._loadedResourcesProgressLine.style.width = `${progress}%`;
-					if (this._loadedResourcesProgress)
-						this._loadedResourcesProgress.innerText = `${progress.toFixed(0)}%`;
-					if (this._lastLoadedResource)
-						this._lastLoadedResource.innerText = `Loaded: ${url.replace(
-							/.*\/|\..*/gi,
-							""
-						)}`;
-				}, 10 * progress);
-			}
-		);
-
-		this._experience.loader?.on(events.LOADED, () => {
-			setTimeout(() => {
-				if (this._loadedResourcesProgressLine)
-					this._loadedResourcesProgressLine.style.width = "100%";
-				if (this._loadedResourcesProgress)
-					this._loadedResourcesProgress.innerText = "100%";
-				if (this._lastLoadedResource)
-					this._lastLoadedResource.innerText = "Resources Loaded Successfully";
-			}, 1500);
-
-			setTimeout(() => {
-				this._loadedResourcesProgress?.remove();
-				this._loadedResourcesStartButton?.classList.remove("hidden");
-
-				const onClickButton = () => {
-					this._loadedResourcesStartButton?.classList.remove("animate-pulse");
-					this._loadedResourcesStartButton?.removeEventListener(
-						"click",
-						onClickButton
-					);
-					this.intro();
-					this.emit(events.LOADED);
-				};
-				const onTouchStart = () => {
-					this._loadedResourcesStartButton?.classList.remove("animate-pulse");
-					this._loadedResourcesStartButton?.removeEventListener(
-						"touchstart",
-						onTouchStart
-					);
-				};
-
-				this._loadedResourcesStartButton?.addEventListener(
-					"touchstart",
-					onTouchStart,
-					{ passive: true }
-				);
-				this._loadedResourcesStartButton?.addEventListener(
-					"click",
-					onClickButton
-				);
-			}, 2000);
-		});
+		this.emit(events.CONSTRUCTED);
 	}
 
-	public destruct() {
-		this._loadedResourcesProgressLine = undefined;
-		this._loadedResourcesProgress = undefined;
-		this._lastLoadedResource = undefined;
-	}
-
-	public intro() {
-		if (!this._loaderContainer) return;
-		if (this.timeline.isActive()) this.timeline.progress(1);
-
-		this.timeline.to(this._loaderContainer, {
-			duration: Config.GSAP_ANIMATION_DURATION,
-			ease: Config.GSAP_ANIMATION_EASE,
-			opacity: 0,
-			onUpdate: () => {
-				if (!this._loaderSecretMessage?.style) return;
-				this._loaderSecretMessage.style.opacity =
-					this._loaderContainer?.style.opacity ?? "0";
-			},
-			onComplete: () => {
-				this._loaderContainer?.remove();
-				this.emit(events.READY);
-			},
-		});
-	}
+	public destruct() {}
 
 	public displayMarks() {
 		if (!this.markersContainer)

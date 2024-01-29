@@ -16,8 +16,6 @@ defineProps<{
 const emits = defineEmits(["landingAnimationDone"]);
 
 onMounted(() => {
-	if (timeline.isActive()) timeline.progress(1);
-
 	timeline
 		.to(
 			{},
@@ -54,7 +52,7 @@ onBeforeUnmount(() => {
 <template>
 	<div
 		ref="landingContainerRef"
-		class="flex-row flex items-center translate-x-0 justify-center h-full flex-1 transition-[opacity,transform] duration-1000 text-light group opacity-0"
+		class="select-none pointer-events-none flex-row flex items-center translate-x-0 justify-center h-full flex-1 transition-[opacity,transform] duration-1000 text-light group opacity-0"
 	>
 		<h2
 			class="font-medium transition-[inherit] duration-[inherit] leading-tight uppercase text-8xl"

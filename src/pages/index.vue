@@ -7,26 +7,25 @@ import { events } from "~/static";
 
 // DATA
 const appCanvasId = "home-experience";
+const experience = ref<HomeExperience | undefined>();
 const availableRoutes = useState<{ name: string; path: string; key: string }[]>(
 	"availableRoutes",
 	() => []
 );
 const isExperienceReady = useState<boolean>("isExperienceReady", () => false);
-let experience: HomeExperience | undefined;
 
 // EVENTS
 const onUiReady = () => {
 	isExperienceReady.value = true;
 };
 const init = () => {
-	if (!process.client || experience) return;
-	experience = new HomeExperience({
+	if (!process.client || experience.value) return;
+	const _exp = new HomeExperience({
 		domElementRef: `#${appCanvasId}`,
 	});
-	experience.construct();
-	experience?.ui?.on(events.READY, onUiReady);
+	_exp.construct();
 
-	const routes = experience.router?.availableRoutes;
+	const routes = _exp.router?.availableRoutes;
 	if (routes)
 		availableRoutes.value = Object.keys(routes).map((key) => {
 			const name = (routes[key].name?.toString() ?? "Not defined").replace(
@@ -40,18 +39,21 @@ const init = () => {
 				key: routes[key].meta?.key?.toString() ?? "",
 			};
 		});
+
+	_exp?.ui?.on(events.READY, onUiReady);
+	experience.value = _exp;
 };
 const dispose = () => {
-	if (!experience) return;
-	experience?.ui?.off(events.READY, onUiReady);
-	experience.destruct();
-	experience = undefined;
+	if (!experience.value) return;
+	experience.value?.ui?.off(events.READY, onUiReady);
+	experience.value.destruct();
+	experience.value = undefined;
 };
 
 onMounted(init);
 onBeforeUnmount(dispose);
 onBeforeRouteUpdate((route) => {
-	experience?.router?.emit(events.CHANGED, route);
+	experience.value?.router?.emit(events.CHANGED, route);
 });
 </script>
 
@@ -59,7 +61,7 @@ onBeforeRouteUpdate((route) => {
 	<main
 		class="relative overflow-hidden group-data-[device=pc]:h-screen w-safe h-safe bg-dark"
 	>
-		<HomeLoader />
+		<HomeLoader :experience="experience" />
 
 		<canvas :id="appCanvasId" class="fixed top-0 left-0 w-full h-full" />
 

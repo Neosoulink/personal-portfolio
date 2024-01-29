@@ -1,6 +1,3 @@
-// ERRORS
-import { ErrorFactory } from "~/errors";
-
 // CONFIGS
 import { DeviceConfig } from "~/config/device.config";
 
@@ -8,6 +5,8 @@ import { DeviceConfig } from "~/config/device.config";
 
 export default defineNuxtPlugin((nuxtApp) => {
 	const setDimensions = () => {
+		DeviceConfig.ua = window.navigator.userAgent.toLowerCase();
+
 		/* Tailwind support */
 		document.documentElement.classList.add("group");
 

@@ -1,6 +1,6 @@
 template
 <script setup lang="ts">
-// STATIC
+// STATICS
 import { pages } from "~/static";
 
 const canDisplayLanding = useState<boolean>(
@@ -20,6 +20,6 @@ definePageMeta({
 		landing-foot="my spaceship"
 		content-title="Hello humans."
 		content-body="Home here we are. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perferendis, ullam. Quibusdam alias dolores a voluptatum eveniet quia veniam ad quos, qui quae. Eveniet enim quasi tenetur, sapiente sed dolor labore!"
-		@landing-animation-done.once="() => (canDisplayLanding = false)"
+		@landing-animation-done="() => (canDisplayLanding = false)"
 	/>
 </template>

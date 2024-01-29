@@ -1,10 +1,20 @@
 export class DeviceConfig {
-	public static readonly ua = window.navigator.userAgent.toLowerCase();
+	public static ua = "";
 
-	public static BROWSER?: string = DeviceConfig.checkBrowser();
-	public static OS?: string = DeviceConfig.checkOs();
-	public static DEVICE?: string = DeviceConfig.checkDevice();
-	public static IPHONE?: string = DeviceConfig.checkIPhone();
+	public static BROWSER?:
+		| "edge"
+		| "opera"
+		| "samsung"
+		| "uc"
+		| "chrome"
+		| "firefox"
+		| "safari"
+		| "ie" = DeviceConfig.checkBrowser();
+	public static OS?: "pc" | "windows" | "macos" | "ios" | "android" =
+		DeviceConfig.checkOs();
+	public static DEVICE?: "pc" | "mobile" | "tablet" =
+		DeviceConfig.checkDevice();
+	public static IPHONE?: "iphone" = DeviceConfig.checkIPhone();
 
 	public static checkBrowser() {
 		if (
@@ -58,7 +68,8 @@ export class DeviceConfig {
 		if (DeviceConfig.ua.indexOf("windows nt") !== -1)
 			return (DeviceConfig.OS = "windows");
 
-		if (DeviceConfig.ua.indexOf("android") !== -1) DeviceConfig.OS = "android";
+		if (DeviceConfig.ua.indexOf("android") !== -1)
+			return (DeviceConfig.OS = "android");
 
 		if (
 			DeviceConfig.ua.indexOf("iphone") !== -1 ||
@@ -66,7 +77,8 @@ export class DeviceConfig {
 		)
 			return (DeviceConfig.OS = "ios");
 
-		if (DeviceConfig.ua.indexOf("mac os x") !== -1) DeviceConfig.OS = "macos";
+		if (DeviceConfig.ua.indexOf("mac os x") !== -1)
+			return (DeviceConfig.OS = "macos");
 
 		if (!DeviceConfig.OS) console.warn("Unknown OS");
 
