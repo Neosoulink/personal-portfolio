@@ -70,16 +70,12 @@ onBeforeRouteUpdate((route) => {
 		>
 			<HomeHeader />
 
-			<section class="flex flex-col flex-1 sm:flex-row">
+			<section class="flex flex-col flex-1 sm:flex-row" v-if="!!experience">
 				<HomeNav :routes="availableRoutes" />
-				<NuxtPage
-					v-if="!!experience"
-					class="relative flex"
-					:experience="experience"
-				/>
+				<NuxtPage class="relative flex" :experience="experience" />
 			</section>
 
-			<HomeFooter />
+			<HomeFooter v-if="!!experience" />
 		</G-Container>
 	</main>
 </template>
