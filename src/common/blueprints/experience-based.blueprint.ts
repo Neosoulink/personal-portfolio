@@ -1,10 +1,10 @@
 import { EventEmitter } from "events";
 
-// BLUEPRINTS
+// MODELS
 import type { ExperienceBlueprint } from "./experience.blueprint";
 
 // MODELS
-import type { Experience } from "~/common/experiences/experience.model";
+import type { Experience } from "~/common/models/experience.model";
 
 /** Represent a class that depend on {@link ExperienceBlueprint}. */
 export abstract class ExperienceBasedBlueprint

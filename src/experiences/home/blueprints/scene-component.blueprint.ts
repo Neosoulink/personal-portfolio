@@ -12,8 +12,8 @@ import {
 } from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 
-// BLUEPRINTS
-import { ExperienceBasedBlueprint } from "./experience-based.blueprint";
+// MODELS
+import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
 // EXPERIENCES
 import { HomeExperience } from "~/experiences/home";
@@ -28,9 +28,9 @@ import { ErrorFactory } from "~/errors";
 import type {
 	Materials,
 	ModelChildrenMaterials,
-} from "~/common/experiences/experience-world.model";
-import type { NavigationView } from "~/common/experiences/navigation.model";
-import type { SelectableObject } from "~/common/experiences/interaction.model";
+} from "~/common/models/experience-world.model";
+import type { NavigationView } from "~/common/models/experience-navigation.model";
+import type { SelectableObject } from "~/common/models/experience-interaction.model";
 
 // CONFIG
 import { Config } from "~/config";

@@ -14,8 +14,11 @@ import { HtmlMixerContext } from "threex.htmlmixer-continued/lib/html-mixer";
 // EXPERIENCE
 import { HomeExperience } from ".";
 
-// INTERFACES
-import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+// BLUEPRINTS
+import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
+
+// STATIC
+import { events } from "~/static";
 
 export interface PortalAssets {
 	mesh: THREE.Mesh;
@@ -30,7 +33,10 @@ export interface PortalMeshCorners {
 	topRight: Vector3;
 }
 
-/** Renderer */
+/**
+ * [`quick-threejs#Renderer`](https://www.npmjs.com/package/quick-threejs)
+ * Subset module. In charge of managing renderer states.
+ */
 export class Renderer extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
@@ -55,6 +61,7 @@ export class Renderer extends ExperienceBasedBlueprint {
 	private _portalBottomLeftCorner = new Vector3();
 	private _portalBottomRightCorner = new Vector3();
 	private _portalTopLeftCorner = new Vector3();
+	private _onResize?: () => unknown;
 
 	public _mixerContext?: HtmlMixerContext;
 
@@ -103,87 +110,78 @@ export class Renderer extends ExperienceBasedBlueprint {
 
 	public construct() {
 		// RENDERER
-		~(() => {
-			this._appRenderer.instance.outputColorSpace = LinearSRGBColorSpace;
-			this._appRenderer.instance.toneMapping = NoToneMapping;
-			this._appRenderer.instance.toneMappingExposure = 1;
-			this._appRenderer.instance.shadowMap.enabled = false;
-			this._appRenderer.instance.shadowMap.type = PCFShadowMap;
-			this._appRenderer.instance.setClearColor("#5f5f5f", 1);
-			this._appRenderer.instance.setSize(
-				this._experience.app.sizes.width,
-				this._experience.app.sizes.height
-			);
-			this._appRenderer.instance.setPixelRatio(
-				this._experience.app.sizes.pixelRatio
-			);
-			this._appRenderer.instance.localClippingEnabled = true;
-		})();
+		this._appRenderer.instance.outputColorSpace = LinearSRGBColorSpace;
+		this._appRenderer.instance.toneMapping = NoToneMapping;
+		this._appRenderer.instance.toneMappingExposure = 1;
+		this._appRenderer.instance.shadowMap.enabled = false;
+		this._appRenderer.instance.shadowMap.type = PCFShadowMap;
+		this._appRenderer.instance.setClearColor("#5f5f5f", 1);
+		this._appRenderer.instance.setSize(
+			this._experience.app.sizes.width,
+			this._experience.app.sizes.height
+		);
+		this._appRenderer.instance.setPixelRatio(
+			this._experience.app.sizes.pixelRatio
+		);
+		this._appRenderer.instance.localClippingEnabled = true;
 
 		// CSS RENDERER
-		~(() => {
-			if (!this._camera?.instance) return;
+		if (!this._camera?.instance) return;
 
-			this._mixerContext = new HtmlMixerContext(
-				this._appRenderer.instance,
-				this._camera?.instance
-			);
+		this._mixerContext = new HtmlMixerContext(
+			this._appRenderer.instance,
+			this._camera?.instance
+		);
 
-			const rendererCss = this._mixerContext.rendererCss;
+		const rendererCss = this._mixerContext.rendererCss;
+		rendererCss.setSize(this._appSizes.width, this._appSizes.height);
+		if (this._ui) this._ui.cssTargetElement = rendererCss.domElement;
+
+		this._onResize = () =>
 			rendererCss.setSize(this._appSizes.width, this._appSizes.height);
-			if (this._ui) this._ui.cssTargetElement = rendererCss.domElement;
-
-			this._appSizes.on("resize", () =>
-				rendererCss.setSize(this._appSizes.width, this._appSizes.height)
-			);
-			this.addBeforeRenderUpdateCallBack(
-				"_mixerContext",
-				() => this.enableCssRender && this._mixerContext?.update()
-			);
-		})();
+		this._appSizes.on("resize", this._onResize);
+		this.addBeforeRenderUpdateCallBack(
+			"_mixerContext",
+			() => this.enableCssRender && this._mixerContext?.update()
+		);
 
 		// PORTAL RENDERER
-		~(() => {
-			this.addBeforeRenderUpdateCallBack(Renderer.name, () => {
-				if (!Object.keys(this._renderPortalAssets).length) return;
+		this.addBeforeRenderUpdateCallBack(Renderer.name, () => {
+			if (!Object.keys(this._renderPortalAssets).length) return;
 
-				const _KEYS = Object.keys(this._renderPortalAssets);
-				for (let i = 0; i < _KEYS.length; i++) {
-					if (this._renderPortalAssets[_KEYS[i]]) {
-						this._currentRenderTarget =
-							this._appRenderer.instance.getRenderTarget();
-						this._currentXrEnabled = this._appRenderer.instance.xr.enabled;
-						this._currentShadowAutoUpdate =
-							this._appRenderer.instance.shadowMap.autoUpdate;
-						this._appRenderer.instance.xr.enabled = false;
-						this._appRenderer.instance.shadowMap.autoUpdate = false;
-						this._renderPortal(
-							this._renderPortalAssets[_KEYS[i]].assets.mesh,
-							this._renderPortalAssets[_KEYS[i]].assets.meshWebGLTexture,
-							this._renderPortalAssets[_KEYS[i]].assets.meshCamera,
-							this._renderPortalAssets[_KEYS[i]].corners
-						);
-						// restore the original rendering properties
-						this._appRenderer.instance.xr.enabled = this._currentXrEnabled;
-						this._appRenderer.instance.shadowMap.autoUpdate =
-							this._currentShadowAutoUpdate;
-						this._appRenderer.instance.setRenderTarget(
-							this._currentRenderTarget
-						);
-					}
+			const keys = Object.keys(this._renderPortalAssets);
+			for (let i = 0; i < keys.length; i++) {
+				if (this._renderPortalAssets[keys[i]]) {
+					this._currentRenderTarget =
+						this._appRenderer.instance.getRenderTarget();
+					this._currentXrEnabled = this._appRenderer.instance.xr.enabled;
+					this._currentShadowAutoUpdate =
+						this._appRenderer.instance.shadowMap.autoUpdate;
+					this._appRenderer.instance.xr.enabled = false;
+					this._appRenderer.instance.shadowMap.autoUpdate = false;
+					this._renderPortal(
+						this._renderPortalAssets[keys[i]].assets.mesh,
+						this._renderPortalAssets[keys[i]].assets.meshWebGLTexture,
+						this._renderPortalAssets[keys[i]].assets.meshCamera,
+						this._renderPortalAssets[keys[i]].corners
+					);
+					this._appRenderer.instance.xr.enabled = this._currentXrEnabled;
+					this._appRenderer.instance.shadowMap.autoUpdate =
+						this._currentShadowAutoUpdate;
+					this._appRenderer.instance.setRenderTarget(this._currentRenderTarget);
 				}
-			});
-		})();
+			}
+		});
 
-		~(() => {
-			this._appRenderer.beforeRenderUpdate = () => {
-				const _KEYS = Object.keys(this.beforeRenderUpdateCallbacks);
+		this._appRenderer.beforeRenderUpdate = () => {
+			const keys = Object.keys(this.beforeRenderUpdateCallbacks);
 
-				for (let i = 0; i < _KEYS.length; i++) {
-					this.beforeRenderUpdateCallbacks[_KEYS[i]]?.();
-				}
-			};
-		})();
+			for (let i = 0; i < keys.length; i++) {
+				this.beforeRenderUpdateCallbacks[keys[i]]?.();
+			}
+		};
+
+		this.emit(events.CONSTRUCTED);
 	}
 
 	public destruct() {
@@ -198,6 +196,10 @@ export class Renderer extends ExperienceBasedBlueprint {
 
 		for (let i = 0; i < _KEYS_PORTAL_ASSETS.length; i++)
 			this.removePortalAssets(_KEYS_PORTAL_ASSETS[i]);
+
+		this._onResize && this._appSizes.off("resize", this._onResize);
+		this.emit(events.DESTRUCTED);
+		this.removeAllListeners();
 	}
 
 	public addPortalAssets(portalName: string, assets: PortalAssets): void {
@@ -236,20 +238,34 @@ export class Renderer extends ExperienceBasedBlueprint {
 				topRight: corners[3],
 			},
 		};
+
+		this.emit(events.PORTAL_ADDED, portalName);
 	}
 
 	public removePortalAssets(portalName: string): void {
+		if (!Object.keys(this._renderPortalAssets).length) return;
 		if (this._renderPortalAssets[portalName])
 			delete this._renderPortalAssets[portalName];
+		if (!Object.keys(this._renderPortalAssets).length)
+			this.emit(events.ALL_PORTALS_REMOVED, portalName);
+
+		this.emit(events.PORTAL_REMOVED, portalName);
 	}
 
 	public addBeforeRenderUpdateCallBack(key: string, callback: () => unknown) {
 		this.beforeRenderUpdateCallbacks[key] = callback;
+
+		this.emit(events.BEFORE_RENDERER_ADDED, key);
 	}
 
 	public removeBeforeRenderUpdateCallBack(key: string) {
+		if (!Object.keys(this.beforeRenderUpdateCallbacks).length) return;
 		if (this.beforeRenderUpdateCallbacks[key])
 			delete this.beforeRenderUpdateCallbacks[key];
+		if (!Object.keys(this.beforeRenderUpdateCallbacks).length)
+			this.emit(events.ALL_BEFORE_RENDERER_REMOVED, key);
+
+		this.emit(events.BEFORE_RENDERER_REMOVED, key);
 	}
 
 	public update(): void {

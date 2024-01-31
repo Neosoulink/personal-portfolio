@@ -1,6 +1,6 @@
 template
 <script setup lang="ts">
-// STATICS
+// STATIC
 import { pages } from "~/static";
 
 const canDisplayLanding = useState<boolean>(

@@ -5,7 +5,7 @@ import { gsap } from "gsap";
 import { HomeExperience } from ".";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 import { Config } from "~/config";
 import { events } from "~/static";
 
@@ -22,10 +22,9 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 
 	private readonly _navigation = this._experience.navigation;
 
-	private _world = this._experience.world;
+	private _enabled = false;
 	private _onWheel?: (e: WheelEvent) => unknown;
 
-	public enabled = false;
 	public cameraPath = defaultCameraPath;
 	public progressCurrent = 0;
 	public progressTarget = 0;
@@ -34,9 +33,18 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 	public reversed = false;
 	public isSliding = false;
 
+	public get enabled() {
+		return this._enabled;
+	}
+
+	public set enabled(b: boolean) {
+		this._enabled = !!b;
+		this.emit(events.CHANGED);
+	}
+
 	private _wheelEvent(e: WheelEvent) {
 		if (
-			!this.enabled ||
+			!this._enabled ||
 			this._navigation?.timeline.isActive() ||
 			this.isSliding
 		)
@@ -53,15 +61,7 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 		this.reversed = true;
 	}
 
-	private _doneAnimations() {
-		if (this._navigation?.timeline.isActive())
-			this._navigation.timeline.progress(1);
-		if (this._world?.manager?.timeline.isActive())
-			this._world.manager.timeline.progress(1);
-	}
-
 	public construct() {
-		this._world = this._experience.world;
 		this._onWheel = (e) => this._wheelEvent(e);
 
 		window.addEventListener("wheel", this._onWheel);
@@ -72,7 +72,8 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 	}
 
 	public enable(direct?: boolean) {
-		this._doneAnimations();
+		if (this._navigation?.timeline.isActive())
+			this._navigation.timeline.progress(1);
 		this.enabled = true;
 
 		if (direct) return;
@@ -92,7 +93,11 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 	}
 
 	public disable() {
-		this._doneAnimations();
+		if (
+			Object.keys(this._experience.composer?.passes ?? {}).length ||
+			this._navigation?.timeline.isActive()
+		)
+			return;
 
 		this.enabled = false;
 		if (this._navigation?.view) this._navigation.view.controls = true;
@@ -110,7 +115,7 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 
 	public update(): void {
 		if (
-			!this.enabled ||
+			!this._enabled ||
 			this._navigation?.timeline.isActive() ||
 			this._experience.world?.manager?.timeline.isActive() ||
 			this._experience.interactions?.focusedObject

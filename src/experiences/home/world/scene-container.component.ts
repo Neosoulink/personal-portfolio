@@ -1,8 +1,8 @@
-// EXPERIENCES
-import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-component.blueprint";
+// BLUEPRINTS
+import { SceneComponentBlueprint } from "../blueprints/scene-component.blueprint";
 
 // COMMONS
-import type { Materials } from "~/common/experiences/experience-world.model";
+import type { Materials } from "~/common/models/experience-world.model";
 
 export class SceneContainerComponent extends SceneComponentBlueprint {
 	constructor() {
@@ -15,13 +15,13 @@ export class SceneContainerComponent extends SceneComponentBlueprint {
 	}
 
 	protected _getAvailableMaterials() {
-		const AVAILABLE_MATERIALS: Materials = {};
+		const availableMaterials: Materials = {};
 
 		// MATERIALS
 		if (this._world?.commonMaterials.scene_container)
-			AVAILABLE_MATERIALS.scene_container =
+			availableMaterials.scene_container =
 				this._world?.commonMaterials.scene_container;
 
-		return AVAILABLE_MATERIALS;
+		return availableMaterials;
 	}
 }

@@ -9,9 +9,12 @@ import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { HomeExperience } from ".";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
+
+// STATIC
 import { events } from "~/static";
 
+/** Effect Composer Manager */
 export class Composer extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 	private readonly _appRender = this._experience.app.renderer;
@@ -42,12 +45,15 @@ export class Composer extends ExperienceBasedBlueprint {
 			this._effect?.setSize(this._appSizes.width, this._appSizes.height);
 		};
 		this._appSizes.on("resize", this._onResize);
+		this.emit(events.CONSTRUCTED);
 	}
 
 	public destruct(): void {
 		this._onResize && this._appSizes.off("resize", this._onResize);
 		this._effect?.dispose();
 		this._effect = undefined;
+		this.emit(events.DESTRUCTED);
+		this.removeAllListeners();
 	}
 
 	public addPass(key: string, pass: Pass) {

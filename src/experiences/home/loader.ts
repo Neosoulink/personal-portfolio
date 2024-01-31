@@ -5,6 +5,7 @@ import { HomeExperience } from ".";
 
 // STATIC
 import {
+	CHANGED,
 	CONSTRUCTED,
 	DESTRUCTED,
 	LOADED,
@@ -13,7 +14,7 @@ import {
 } from "~/static/event.static";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
 // ASSETS
 import scene_1_model from "~/assets/models/scene_1/model.glb?url";
@@ -37,9 +38,10 @@ import monitor_a_screen_record from "~/assets/videos/monitor_a_screen_record.web
 import monitor_b_screen_record from "~/assets/videos/monitor_b_screen_record.webm?url";
 import phone_screen_record from "~/assets/videos/phone_screen_record.webm?url";
 
-// STATIC
-import { events } from "~/static";
-
+/**
+ * [`quick-threejs#Resource`](https://www.npmjs.com/package/quick-threejs)
+ * Subset module. In charge of managing resources to load.
+ */
 export class Loader extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
@@ -160,31 +162,22 @@ export class Loader extends ExperienceBasedBlueprint {
 		]);
 	}
 
-	/** Correct resource textures color and flip faces. */
-	private _correctTextures() {
-		const _KEYS = Object.keys(this._appResources.items);
-		for (let i = 0; i < _KEYS.length; i++) {
-			const _ITEM = this._appResources.items[_KEYS[i]];
-			if (_ITEM instanceof Texture) {
-				if (!(_ITEM instanceof VideoTexture)) _ITEM.flipY = false;
-				_ITEM.colorSpace = LinearSRGBColorSpace;
+	private _initAvailableTexture(): typeof this._availableTextures {
+		const items = this._appResources.items;
+		if (!(items && Object.keys(items).length)) return {};
+		const availableTextures: typeof this._availableTextures = {};
+		const keys = Object.keys(items);
+
+		for (let i = 0; i < keys.length; i++) {
+			const item = items[keys[i]];
+			if (item instanceof Texture) {
+				this.correctTextures(item);
+				availableTextures[keys[i]] = item;
 			}
 		}
-	}
 
-	private _setAvailableTexture(): typeof this._availableTextures {
-		const ITEMS = this._appResources.items;
-		if (!(ITEMS && Object.keys(ITEMS).length)) return {};
-
-		const _AVAILABLE_TEXTURES: typeof this._availableTextures = {};
-		const _KEYS = Object.keys(ITEMS);
-		for (let i = 0; i < _KEYS.length; i++) {
-			const ITEM = ITEMS[_KEYS[i]];
-
-			if (ITEM instanceof Texture) _AVAILABLE_TEXTURES[_KEYS[i]] = ITEM;
-		}
-
-		this._availableTextures = _AVAILABLE_TEXTURES;
+		this._availableTextures = availableTextures;
+		this.emit(CHANGED);
 		return this._availableTextures;
 	}
 
@@ -196,9 +189,17 @@ export class Loader extends ExperienceBasedBlueprint {
 		return this._availableTextures;
 	}
 
+	/** Correct resource textures color and flip faces. */
+	public correctTextures(item: Texture) {
+		if (item instanceof Texture) {
+			if (!(item instanceof VideoTexture)) item.flipY = false;
+			item.colorSpace = LinearSRGBColorSpace;
+		}
+	}
+
 	public construct() {
 		const onStart = () => {
-			this.emit(events.STARTED, this._progress);
+			this.emit(STARTED, this._progress);
 		};
 		const onProgress = (
 			itemPath: string,
@@ -210,8 +211,7 @@ export class Loader extends ExperienceBasedBlueprint {
 			this.emit(PROGRESSED, this._progress, itemPath);
 		};
 		const onLoad = () => {
-			this._correctTextures();
-			this._setAvailableTexture();
+			this._initAvailableTexture();
 
 			// this._appResources.off("start", onStart);
 			this._appResources.off("progress", onProgress);
@@ -239,7 +239,7 @@ export class Loader extends ExperienceBasedBlueprint {
 		}
 
 		this._appResources.setSources([]);
-		this.removeAllListeners();
 		this.emit(DESTRUCTED);
+		this.removeAllListeners();
 	}
 }

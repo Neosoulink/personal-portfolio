@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { HomeExperience } from ".";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
 // STATIC
 import { events, errors } from "~/static";
@@ -13,13 +13,17 @@ import { events, errors } from "~/static";
 // CONFIG
 import { Config } from "~/config";
 
+/**
+ * [`quick-threejs#Camera`](https://www.npmjs.com/package/quick-threejs)
+ * Subset module. In charge of managing camera states.
+ */
 export class Camera extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appCamera = this._experience.app.camera;
-	private readonly _router = this._experience.router;
 	private readonly _appCameraInstance = this._experience.app.camera.instance;
 	private readonly _appDebug = this._experience.app.debug;
+	private readonly _router = this._experience.router;
 	private readonly _timeline = gsap.timeline({
 		onStart: () => {
 			this.emit(events.ANIMATION_STARTED);
@@ -63,7 +67,7 @@ export class Camera extends ExperienceBasedBlueprint {
 	}
 
 	public get lookAtPosition() {
-		return this._lookAtPosition.clone();
+		return this._lookAtPosition;
 	}
 
 	public get timeline() {
@@ -110,7 +114,9 @@ export class Camera extends ExperienceBasedBlueprint {
 	public destruct() {
 		if (this._onRouteChange)
 			this._router?.off(events.CHANGED, this._onRouteChange);
+
 		this.emit(events.DESTRUCTED);
+		this.removeAllListeners();
 	}
 
 	public cameraZoomIn() {
@@ -209,6 +215,7 @@ export class Camera extends ExperienceBasedBlueprint {
 	 * @param v3 The {@link Vector3} position where the the camera will look at.
 	 */
 	public setCameraLookAt(v3 = new Vector3()) {
+		if (!(v3 instanceof Vector3)) return;
 		const V3 = v3.clone();
 
 		if (this._appCameraInstance) {
@@ -217,7 +224,6 @@ export class Camera extends ExperienceBasedBlueprint {
 		}
 
 		this.currentCamera.userData.lookAt = V3;
-
 		this._lookAtPosition = V3;
 
 		return this._lookAtPosition;

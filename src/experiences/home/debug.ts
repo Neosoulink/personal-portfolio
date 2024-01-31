@@ -17,8 +17,8 @@ import { HomeExperience } from ".";
 // CONFIG
 import { Config } from "~/config";
 
-// BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+// MODELS
+import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
 // STATIC
 import { DESTRUCTED } from "~/static/event.static";
@@ -196,6 +196,7 @@ export class Debug extends ExperienceBasedBlueprint {
 		// 	);
 		// }
 		this.emit(DESTRUCTED);
+		this.removeAllListeners();
 	}
 
 	update() {

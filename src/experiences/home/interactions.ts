@@ -10,13 +10,13 @@ import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 import { gsap } from "gsap";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
 // EXPERIENCES
 import { HomeExperience } from ".";
 
 // MODELS
-import type { SelectableObject } from "~/common/experiences/interaction.model";
+import type { SelectableObject } from "~/common/models/experience-interaction.model";
 import { Config } from "~/config";
 import { events } from "~/static";
 
@@ -26,7 +26,6 @@ export class Interactions extends ExperienceBasedBlueprint {
 	private readonly _mouseCoordinate = new Vector2();
 	private readonly _focusedMouseCoordinate = new Vector2();
 	private readonly _normalizedMouseCoordinate = new Vector2();
-
 	private readonly _outlineDefault = {
 		strength: 2,
 		glow: 1,
@@ -52,6 +51,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 	private _pointerDownSelectedObject?: Object3D<Object3DEventMap>;
 	private _lastCameraPosition?: Vector3;
 	private _lastCameraTarget?: Vector3;
+	private _enabled = false;
 
 	public readonly passName = `${Interactions.name}_pass`;
 
@@ -63,10 +63,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 	});
 	public focusedObject?: SelectableObject;
 	public outlinePass?: OutlinePass;
-	public enabled = false;
 	public controls = true;
-
-	private _onIframeMouseMoveCleanUp?: () => unknown;
 
 	private readonly _onPointerDownEvent = (e: PointerEvent) => {
 		if (
@@ -114,10 +111,14 @@ export class Interactions extends ExperienceBasedBlueprint {
 			const params = { lerpProgress: 0 };
 			const prevNavLimits = this._navigation.view.limits;
 			this._navigation.view.limits = false;
+
 			return this.timeline
 				.to(params, {
 					lerpProgress: 1,
 					duration,
+					onStart: () => {
+						this.emit(events.INTERACTION_FOCUS_STARTED);
+					},
 					onUpdate: () => {
 						if (
 							!this._lastCameraPosition ||
@@ -150,6 +151,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 					if (this._navigation?.view)
 						this._navigation.view.limits = prevNavLimits;
 
+					// TODO: If you leave it like this in prod... wtf man
 					const iframeElement =
 						this._experience.world?.scene3?.pcScreenDomElement;
 					if (iframeElement) {
@@ -160,6 +162,8 @@ export class Interactions extends ExperienceBasedBlueprint {
 							}
 						);
 					}
+					this.emit(events.INTERACTION_FOCUS_ANIMATION_DONE);
+					this.emit(events.CHANGED);
 				});
 		}
 
@@ -198,6 +202,8 @@ export class Interactions extends ExperienceBasedBlueprint {
 		this.stop();
 	};
 
+	private _onIframeMouseMoveCleanUp?: () => unknown;
+
 	private _checkIntersection() {
 		if (!this._camera?.instance) throw new Error("Wrong params");
 		if (
@@ -230,6 +236,22 @@ export class Interactions extends ExperienceBasedBlueprint {
 		this.outlinePass.selectedObjects = [selectedObj];
 		if (this._ui?.targetElement)
 			this._ui.targetElement.style.cursor = "pointer";
+	}
+
+	public get enabled() {
+		return this._enabled;
+	}
+
+	public get isFocusing() {
+		return !!this.focusedObject;
+	}
+
+	public set enabled(b: boolean) {
+		this._enabled = !!b;
+		this.emit(
+			this._enabled ? events.INTERACTION_STARTED : events.INTERACTION_ENDED
+		);
+		this.emit(events.CHANGED);
 	}
 
 	public start(
@@ -292,6 +314,8 @@ export class Interactions extends ExperienceBasedBlueprint {
 				this.outlinePass.pulsePeriod = this._outlineDefault.pulse;
 			});
 
+		this.emit(events.STARTED);
+		this.emit(events.CHANGED);
 		this._composer?.addPass(this.passName, this.outlinePass);
 	}
 
@@ -307,6 +331,8 @@ export class Interactions extends ExperienceBasedBlueprint {
 
 		this._onIframeMouseMoveCleanUp?.();
 		this._composer?.removePass(this.passName);
+		this.emit(events.ENDED);
+		this.emit(events.CHANGED);
 	}
 
 	public leaveFocusMode() {
@@ -333,7 +359,12 @@ export class Interactions extends ExperienceBasedBlueprint {
 			.add(() => {
 				this._camera?.resetFov();
 				this._onIframeMouseMoveCleanUp?.();
-			}, "<");
+			}, "<")
+			.add(() => {
+				this.emit(events.INTERACTION_FOCUS_ENDED);
+				this.emit(events.INTERACTION_FOCUS_ANIMATION_DONE);
+			});
+		this.emit(events.CHANGED);
 	}
 
 	public construct() {
@@ -365,6 +396,8 @@ export class Interactions extends ExperienceBasedBlueprint {
 
 		this._onRouteChange &&
 			this._router?.off(events.CHANGED, this._onRouteChange);
+		this.emit(events.DESTRUCTED);
+		this.removeAllListeners();
 	}
 
 	private _getFocusedPosition(object: SelectableObject) {

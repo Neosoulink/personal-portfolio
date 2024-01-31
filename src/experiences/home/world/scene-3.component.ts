@@ -16,12 +16,12 @@ import { HtmlMixerPlane } from "threex.htmlmixer-continued/lib/html-mixer";
 import { Config } from "~/config";
 
 // BLUEPRINTS
-import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-component.blueprint";
+import { SceneComponentBlueprint } from "../blueprints/scene-component.blueprint";
 
 // MODELS
-import type { Materials } from "~/common/experiences/experience-world.model";
+import type { Materials } from "~/common/models/experience-world.model";
 
-// STATICS
+// STATIC
 import { events } from "~/static";
 
 // UTILS
@@ -116,39 +116,39 @@ export class Scene3Component extends SceneComponentBlueprint {
 	}
 
 	protected _getAvailableMaterials() {
-		const AVAILABLE_TEXTURE = this._loader?.availableTextures;
-		const AVAILABLE_MATERIALS: Materials = {};
+		const availableTextures = this._loader?.availableTextures;
+		const availableMaterials: Materials = {};
 
-		if (!AVAILABLE_TEXTURE) return AVAILABLE_MATERIALS;
+		if (!availableTextures) return availableMaterials;
 
 		// MATERIALS
 		if (this._world?.commonMaterials.scene_container) {
-			AVAILABLE_MATERIALS.scene_container =
+			availableMaterials.scene_container =
 				this._world?.commonMaterials.scene_container.clone();
-			AVAILABLE_MATERIALS.scene_container.alphaTest = 1;
-			AVAILABLE_MATERIALS.scene_container.depthWrite = false;
+			availableMaterials.scene_container.alphaTest = 1;
+			availableMaterials.scene_container.depthWrite = false;
 		}
 
 		if (this._world?.commonMaterials.glass) {
-			AVAILABLE_MATERIALS.glass = this._world?.commonMaterials.glass.clone();
-			if (AVAILABLE_MATERIALS.glass instanceof MeshBasicMaterial) {
-				AVAILABLE_MATERIALS.glass.alphaTest = 1;
-				AVAILABLE_MATERIALS.glass.alphaMap = AVAILABLE_TEXTURE.cloudAlphaMap;
+			availableMaterials.glass = this._world?.commonMaterials.glass.clone();
+			if (availableMaterials.glass instanceof MeshBasicMaterial) {
+				availableMaterials.glass.alphaTest = 1;
+				availableMaterials.glass.alphaMap = availableTextures.cloudAlphaMap;
 			}
 		}
 
-		AVAILABLE_MATERIALS.scene_3 = new MeshBasicMaterial({
-			alphaMap: AVAILABLE_TEXTURE.cloudAlphaMap,
+		availableMaterials.scene_3 = new MeshBasicMaterial({
+			alphaMap: availableTextures.cloudAlphaMap,
 			alphaTest: 1,
-			map: AVAILABLE_TEXTURE.scene_3_baked_texture,
+			map: availableTextures.scene_3_baked_texture,
 			side: DoubleSide,
 		});
 
-		AVAILABLE_MATERIALS.phone_screen = new ShaderMaterial({
+		availableMaterials.phone_screen = new ShaderMaterial({
 			uniforms: {
 				uTime: { value: 0 },
 				uTimestamp: { value: 0 },
-				uIcons: { value: AVAILABLE_TEXTURE.phoneScreenshot },
+				uIcons: { value: availableTextures.phoneScreenshot },
 			},
 			fragmentShader: phoneScreenFragment,
 			vertexShader: phoneScreenVertex,
@@ -156,7 +156,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 			depthWrite: false,
 		});
 
-		AVAILABLE_MATERIALS.watch_screen = new ShaderMaterial({
+		availableMaterials.watch_screen = new ShaderMaterial({
 			uniforms: {
 				uSec: { value: 0 },
 				uTimestamp: { value: 0 },
@@ -168,7 +168,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 			depthWrite: false,
 		});
 
-		AVAILABLE_MATERIALS.gamepad_led = new ShaderMaterial({
+		availableMaterials.gamepad_led = new ShaderMaterial({
 			uniforms: {
 				uTime: { value: 0 },
 			},
@@ -178,7 +178,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 			depthWrite: false,
 		});
 
-		return AVAILABLE_MATERIALS;
+		return availableMaterials;
 	}
 
 	private _setObjects(object: Object3D<Object3DEventMap>) {
@@ -344,19 +344,19 @@ export class Scene3Component extends SceneComponentBlueprint {
 
 		const isOpen = typeof force === "number" ? force !== 1 : this.isPcOpen;
 
-		const _NEXT_VALUE = isOpen
+		const nextValue = isOpen
 			? this._initialPcTopArticulation?.rotation.z ?? 0
 			: (this._initialPcTopArticulation?.rotation.z ?? 0) + 1.7;
 
-		return this.pcTopArticulation.rotation.z === _NEXT_VALUE
+		return this.pcTopArticulation.rotation.z === nextValue
 			? this.timeline
 			: this.timeline.to(this.pcTopArticulation.rotation, {
-					z: _NEXT_VALUE,
+					z: nextValue,
 					duration: Config.GSAP_ANIMATION_DURATION,
 					onUpdate: () => {},
 					onComplete: () => {
 						if (this.pcTopArticulation?.rotation)
-							this.pcTopArticulation.rotation.z = Number(_NEXT_VALUE);
+							this.pcTopArticulation.rotation.z = Number(nextValue);
 					},
 			  });
 	}

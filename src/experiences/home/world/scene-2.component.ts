@@ -2,10 +2,10 @@ import { CatmullRomCurve3, MeshBasicMaterial, Vector3 } from "three";
 import { gsap } from "gsap";
 
 // BLUEPRINTS
-import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-component.blueprint";
+import { SceneComponentBlueprint } from "../blueprints/scene-component.blueprint";
 
 // MODELS
-import type { Materials } from "~/common/experiences/experience-world.model";
+import type { Materials } from "~/common/models/experience-world.model";
 
 // CONFIG
 import { Config } from "~/config";

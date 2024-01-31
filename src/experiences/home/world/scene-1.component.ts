@@ -18,7 +18,7 @@ import {
 import gsap from "gsap";
 
 // BLUEPRINTS
-import { SceneComponentBlueprint } from "~/blueprints/experiences/scene-component.blueprint";
+import { SceneComponentBlueprint } from "../blueprints/scene-component.blueprint";
 
 // SHADERS
 import bakedTextureFragment from "./shaders/scene-1/lights/fragment.glsl";
@@ -30,7 +30,7 @@ import coffeeSteamVertex from "./shaders/scene-1/coffeeSteam/vertex.glsl";
 // CONFIGS
 import { Config } from "~/config";
 
-// STATICS
+// STATIC
 import { DESTRUCTED } from "~/static/event.static";
 import { pages } from "~/static";
 
@@ -38,13 +38,8 @@ import { pages } from "~/static";
 import type {
 	Materials,
 	ModelChildrenMaterials,
-} from "~/common/experiences/experience-world.model";
-import type { ViewLimits } from "~/common/experiences/navigation.model";
-
-// ASSETS
-import monitor_a_screen_recording from "~/assets/videos/monitor_a_screen_recording.webm?url";
-import monitor_b_screen_recording from "~/assets/videos/monitor_b_screen_recording.webm?url";
-import phone_screen_recording from "~/assets/videos/phone_screen_recording.webm";
+} from "~/common/models/experience-world.model";
+import type { ViewLimits } from "~/common/models/experience-navigation.model";
 
 export class Scene1Component extends SceneComponentBlueprint {
 	private _renderer = this._experience.renderer;
@@ -112,15 +107,15 @@ export class Scene1Component extends SceneComponentBlueprint {
 				pc_top_screen: "pc_screen",
 				tree: "tree",
 				...(() => {
-					const _RESULTS: ModelChildrenMaterials = {};
-					const _KEYS = ["top", "front", "back", "left", "right"];
-					for (let i = 0; i < _KEYS.length; i++) {
-						_KEYS[i];
-						_RESULTS[`tree_cube_${_KEYS[i]}`] = "tree";
-						_RESULTS[`tree_cube_${_KEYS[i]}_clone`] = "tree_outside";
+					const results: ModelChildrenMaterials = {};
+					const keys = ["top", "front", "back", "left", "right"];
+					for (let i = 0; i < keys.length; i++) {
+						keys[i];
+						results[`tree_cube_${keys[i]}`] = "tree";
+						results[`tree_cube_${keys[i]}_clone`] = "tree_outside";
 					}
 
-					return _RESULTS;
+					return results;
 				})(),
 			},
 			onTraverseModelScene: (child: Object3D<Object3DEventMap>) => {
@@ -203,41 +198,41 @@ export class Scene1Component extends SceneComponentBlueprint {
 	}
 
 	protected _getAvailableMaterials(): Materials {
-		const AVAILABLE_TEXTURE = this._loader?.availableTextures;
-		const AVAILABLE_MATERIALS: Materials = {};
+		const availableTextures = this._loader?.availableTextures;
+		const availableMaterials: Materials = {};
 
-		if (!AVAILABLE_TEXTURE) return AVAILABLE_MATERIALS;
+		if (!availableTextures) return availableMaterials;
 
 		// MATERIALS
 		if (this._world?.commonMaterials.scene_container)
-			AVAILABLE_MATERIALS.scene_container =
+			availableMaterials.scene_container =
 				this._world?.commonMaterials.scene_container;
 		if (this._world?.commonMaterials.scene_container)
-			AVAILABLE_MATERIALS.glass = this._world?.commonMaterials.glass;
+			availableMaterials.glass = this._world?.commonMaterials.glass;
 
-		AVAILABLE_MATERIALS.pc_screen = new MeshBasicMaterial({
+		availableMaterials.pc_screen = new MeshBasicMaterial({
 			map: this.pcScreenWebglTexture?.texture,
 		});
-		AVAILABLE_MATERIALS.phone_screen = new MeshBasicMaterial({
-			map: AVAILABLE_TEXTURE.phone_screen_record,
+		availableMaterials.phone_screen = new MeshBasicMaterial({
+			map: availableTextures.phone_screen_record,
 		});
-		AVAILABLE_MATERIALS.monitor_a = new MeshBasicMaterial({
-			map: AVAILABLE_TEXTURE.monitor_a_screen_record,
+		availableMaterials.monitor_a = new MeshBasicMaterial({
+			map: availableTextures.monitor_a_screen_record,
 		});
-		AVAILABLE_MATERIALS.monitor_b = new MeshBasicMaterial({
-			map: AVAILABLE_TEXTURE.monitor_b_screen_record,
+		availableMaterials.monitor_b = new MeshBasicMaterial({
+			map: availableTextures.monitor_b_screen_record,
 		});
-		AVAILABLE_MATERIALS.tree = new MeshBasicMaterial({
-			map: AVAILABLE_TEXTURE.scene_1_tree_baked_texture,
+		availableMaterials.tree = new MeshBasicMaterial({
+			map: availableTextures.scene_1_tree_baked_texture,
 			transparent: true,
 		});
-		AVAILABLE_MATERIALS.room = new ShaderMaterial({
+		availableMaterials.room = new ShaderMaterial({
 			uniforms: {
 				uBakedTexture: {
-					value: AVAILABLE_TEXTURE.scene_1_no_lights_baked_texture,
+					value: availableTextures.scene_1_no_lights_baked_texture,
 				},
 				uBakedLightTexture: {
-					value: AVAILABLE_TEXTURE.scene_1_lights_baked_texture,
+					value: availableTextures.scene_1_lights_baked_texture,
 				},
 
 				uRedAccent: { value: new Color(this.colors.pocketComputerScreen) },
@@ -252,13 +247,13 @@ export class Scene1Component extends SceneComponentBlueprint {
 			fragmentShader: bakedTextureFragment,
 			vertexShader: bakedTextureVertex,
 		});
-		AVAILABLE_MATERIALS.wood = new ShaderMaterial({
+		availableMaterials.wood = new ShaderMaterial({
 			uniforms: {
 				uBakedTexture: {
-					value: AVAILABLE_TEXTURE.scene_1_woods_no_lights_baked_texture,
+					value: availableTextures.scene_1_woods_no_lights_baked_texture,
 				},
 				uBakedLightTexture: {
-					value: AVAILABLE_TEXTURE.scene_1_woods_lights_baked_texture,
+					value: availableTextures.scene_1_woods_lights_baked_texture,
 				},
 
 				uRedAccent: { value: new Color(this.colors.pocketComputerScreen) },
@@ -273,7 +268,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 			fragmentShader: bakedTextureFragment,
 			vertexShader: bakedTextureVertex,
 		});
-		AVAILABLE_MATERIALS.coffee_steam = new ShaderMaterial({
+		availableMaterials.coffee_steam = new ShaderMaterial({
 			uniforms: {
 				uTime: { value: 0 },
 				uTimeFrequency: { value: 0.0005 },
@@ -285,12 +280,12 @@ export class Scene1Component extends SceneComponentBlueprint {
 			transparent: true,
 			depthWrite: false,
 		});
-		AVAILABLE_MATERIALS.tree_outside = new MeshBasicMaterial({
+		availableMaterials.tree_outside = new MeshBasicMaterial({
 			colorWrite: false,
 			side: BackSide,
 		});
 
-		return AVAILABLE_MATERIALS;
+		return availableMaterials;
 	}
 
 	public construct() {
@@ -376,19 +371,19 @@ export class Scene1Component extends SceneComponentBlueprint {
 
 		const isOpen = typeof force === "number" ? force !== 1 : this.isPcOpen;
 
-		const _NEXT_VALUE = isOpen
+		const nextValue = isOpen
 			? this._initialPcTopArticulation?.rotation.z ?? 0
 			: (this._initialPcTopArticulation?.rotation.z ?? 0) + 2.1;
 
-		return this.pcTopArticulation.rotation.z === _NEXT_VALUE
+		return this.pcTopArticulation.rotation.z === nextValue
 			? this.timeline
 			: this.timeline.to(this.pcTopArticulation.rotation, {
-					z: _NEXT_VALUE,
+					z: nextValue,
 					duration: Config.GSAP_ANIMATION_DURATION,
 					onUpdate: () => {},
 					onComplete: () => {
 						if (this.pcTopArticulation?.rotation)
-							this.pcTopArticulation.rotation.z = Number(_NEXT_VALUE);
+							this.pcTopArticulation.rotation.z = Number(nextValue);
 					},
 			  });
 	}

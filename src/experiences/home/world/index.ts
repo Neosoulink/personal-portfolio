@@ -20,17 +20,16 @@ import { Scene2Component } from "./scene-2.component";
 import { Scene3Component } from "./scene-3.component";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
 // MODELS
 import { events, errors, pages } from "~/static";
 
 // MODELS
-import type { Materials } from "~/common/experiences/experience-world.model";
-import type { SceneConfig } from "./model";
+import type { Materials } from "~/common/models/experience-world.model";
 
-// BLUEPRINTS
-import type { SceneComponentBlueprint } from "~/blueprints/experiences/scene-component.blueprint";
+// MODELS
+import type { SceneComponentBlueprint } from "../blueprints/scene-component.blueprint";
 
 export class World extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
@@ -64,14 +63,14 @@ export class World extends ExperienceBasedBlueprint {
 	}
 
 	private _setCommonMaterials() {
-		const AVAILABLE_TEXTURES = this._loader?.availableTextures;
+		const availableTextures = this._loader?.availableTextures;
 
-		if (!AVAILABLE_TEXTURES) return;
+		if (!availableTextures) return;
 
-		if (AVAILABLE_TEXTURES.scene_container_baked_texture instanceof Texture)
+		if (availableTextures.scene_container_baked_texture instanceof Texture)
 			this._commonMaterials.scene_container = new MeshBasicMaterial({
-				alphaMap: AVAILABLE_TEXTURES.cloudAlphaMap,
-				map: AVAILABLE_TEXTURES.scene_container_baked_texture,
+				alphaMap: availableTextures.cloudAlphaMap,
+				map: availableTextures.scene_container_baked_texture,
 			});
 
 		this._commonMaterials.glass = new MeshBasicMaterial({

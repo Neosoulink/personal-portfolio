@@ -5,30 +5,33 @@ import { HomeExperience } from ".";
 // STATIC
 import { events, errors } from "~/static";
 
-// BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+// MODELS
+import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
+/** `NuxtJs` routing system pipe. */
 export class Router extends ExperienceBasedBlueprint {
 	protected _experience = new HomeExperience();
 
-	private _router = useRouter();
-	private _route = useRoute();
-	private _availableRoutes: { [routeName: string]: RouteRecordRaw } = {};
+	private readonly _router = useRouter();
+	private readonly _route = useRoute();
+	private readonly _availableRoutes: { [routeName: string]: RouteRecordRaw } =
+		{};
+
 	private _currentRouteName?: string;
 
 	constructor() {
 		super();
 
 		try {
-			const ROUTES = this._router.getRoutes();
-			ROUTES.forEach((route) => {
+			const routes = this._router.getRoutes();
+			routes.forEach((route) => {
 				if (route.name === undefined) throw new Error("", { cause: route });
 			});
 		} catch (_: any) {
-			const CAUSE = _.cause as RouteRecordNormalized | undefined;
-			if (!CAUSE?.children.length) return;
+			const cause = _.cause as RouteRecordNormalized | undefined;
+			if (!cause?.children.length) return;
 
-			CAUSE.children.forEach((route) => {
+			cause.children.forEach((route) => {
 				this._availableRoutes[route.name?.toString() ?? ""] = route;
 			});
 		}
@@ -76,9 +79,6 @@ export class Router extends ExperienceBasedBlueprint {
 
 	public destruct(): void {
 		this.emit(events.DESTRUCTED);
-	}
-
-	public update(): void {
-		this.emit(events.UPDATED);
+		this.removeAllListeners();
 	}
 }

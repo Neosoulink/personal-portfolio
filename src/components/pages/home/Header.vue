@@ -11,11 +11,11 @@ const isMenuOpen = useMenuState();
 		class="flex flex-col items-end w-full px-4 pt-5 text-light justify-stretch xs:items-center xs:justify-between xs:flex-row sm:pt-0 sm:px-0"
 	>
 		<G-BrandLogo
-			class="z-[60] w-full xs:w-auto flex items-start justify-start"
+			class="z-[60] w-full xs:w-auto flex items-start justify-start !pointer-events-auto"
 		/>
 
 		<G-MenuButton
-			class="z-40 mb-0 xs:mb-1"
+			class="z-40 mb-0 xs:mb-1 !pointer-events-auto"
 			:active="isMenuOpen"
 			@click="
 				() => {

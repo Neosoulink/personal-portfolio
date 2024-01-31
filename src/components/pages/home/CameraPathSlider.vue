@@ -15,7 +15,7 @@ const onPointerUp = () => {
 };
 const onInput = (e: Event) => {
 	const target = e.target as HTMLInputElement | undefined;
-	if (!experience.value?.cameraAnimation || !target) return;
+	if (!experience.value?.cameraAnimation?.enabled || !target) return;
 
 	experience.value.cameraAnimation.progressTarget = Number(target.value) / 100;
 };
@@ -51,7 +51,7 @@ onBeforeRouteUpdate(() => {
 		min="0"
 		max="100"
 		:value="progress"
-		class="relative w-full h-2 transition-opacity rounded outline-none appearance-none cursor-pointer bg-light sm:opacity-70 sm:hover:opacity-100"
+		class="relative w-full h-[6px] transition-opacity rounded outline-none appearance-none cursor-pointer bg-light sm:opacity-70 sm:hover:opacity-100"
 		id="myRange"
 		@input="onInput"
 		@pointerdown="onPointerDown"

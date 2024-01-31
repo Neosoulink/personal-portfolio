@@ -6,25 +6,27 @@ import gsap from "gsap";
 import { HomeExperience } from "./";
 
 // BLUEPRINTS
-import { ExperienceBasedBlueprint } from "~/blueprints/experiences/experience-based.blueprint";
+import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
 // MODELS
 import type {
 	NavigationView,
 	ViewLimits,
-} from "~/common/experiences/navigation.model";
+} from "~/common/models/experience-navigation.model";
 
 // STATIC
 import { ANIMATION_ENDED, ANIMATION_STARTED } from "~/static/event.static";
 
 // CONFIG
 import { Config } from "~/config";
-import { errors } from "~/static";
+import { errors, events } from "~/static";
 
 /**
  * @original-author {@link @brunosimon} / https://github.com/brunonsimon
  *
  * @source  https://github.com/brunosimon/my-room-in-3d/blob/main/src/Experience/Navigation.js
+ *
+ * In charge of camera interactions.
  */
 export class Navigation extends ExperienceBasedBlueprint {
 	protected _experience = new HomeExperience();
@@ -104,6 +106,8 @@ export class Navigation extends ExperienceBasedBlueprint {
 		onStartParams: [this._timelinePrevStates],
 		onCompleteParams: [this._timelinePrevStates],
 	});
+
+	private _onResize?: () => unknown;
 
 	public get timeline() {
 		return this._timeline;
@@ -335,7 +339,9 @@ export class Navigation extends ExperienceBasedBlueprint {
 			);
 		})();
 
-		this._appSizes.on("resize", () => this._setConfig());
+		this._onResize = () => this._setConfig();
+		this._appSizes.on("resize", this._onResize);
+		this.emit(events.CONSTRUCTED);
 	}
 
 	public destruct() {
@@ -391,8 +397,9 @@ export class Navigation extends ExperienceBasedBlueprint {
 				"mouseenter",
 				this._view.onLeave
 			);
-
-		this._appSizes.off("resize", () => this._setConfig());
+		this._onResize && this._appSizes.on("resize", this._onResize);
+		this.emit(events.DESTRUCTED);
+		this.removeAllListeners();
 	}
 
 	/**
@@ -440,7 +447,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 	 * @param v3 The {@link Vector3} position where the the camera will look at.
 	 */
 	public setPositionInSphere(v3 = new Vector3()) {
-		const SAFE_V3 = v3
+		const safeV3 = v3
 			.clone()
 			.add(
 				new Vector3(
@@ -450,8 +457,8 @@ export class Navigation extends ExperienceBasedBlueprint {
 				)
 			);
 
-		this._view.spherical?.smoothed?.setFromVector3(SAFE_V3);
-		this._view.spherical?.value?.setFromVector3(SAFE_V3);
+		this._view.spherical?.smoothed?.setFromVector3(safeV3);
+		this._view.spherical?.value?.setFromVector3(safeV3);
 
 		return this._view.spherical;
 	}
@@ -491,6 +498,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 					this.setTargetPosition(targetA);
 				},
 				onComplete: () => {
+					this.setPositionInSphere(currentCamPosition);
 					this.setTargetPosition(targetB);
 				},
 			})
@@ -503,10 +511,6 @@ export class Navigation extends ExperienceBasedBlueprint {
 					ease: Config.GSAP_ANIMATION_EASE,
 					onUpdate: () => {
 						this.setPositionInSphere(currentCamPosition);
-					},
-					onComplete: () => {
-						this.setPositionInSphere(currentCamPosition);
-						this.setTargetPosition(targetB);
 					},
 				}),
 				"<"

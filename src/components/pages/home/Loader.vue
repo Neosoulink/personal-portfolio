@@ -122,12 +122,6 @@ onBeforeUnmount(() => {
 		ref="loaderContainer"
 		v-if="!isLoadingEnded"
 		class="fixed top-0 z-50 py-12 overflow-hidden h-safe w-safe text-light bg-dark"
-		@load="
-			(e) => {
-				console.log(e?.target);
-				e;
-			}
-		"
 	>
 		<G-Container class="relative flex flex-col h-full">
 			<section

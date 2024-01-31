@@ -2,16 +2,17 @@
 import { UI } from "./ui";
 import { Router } from "./router";
 import { Loader } from "./loader";
+import { Camera } from "./camera";
 import { Renderer } from "./renderer";
 import { Composer } from "./composer";
-import { Camera } from "./camera";
-import { World } from "./world";
 import { Navigation } from "./navigation";
+import { CameraAnimation } from "./camera-animation";
 import { Interactions } from "./interactions";
+import { World } from "./world";
 import { Debug } from "./debug";
 
-// BLUEPRINTS
-import { ExperienceBlueprint } from "~/blueprints/experiences/experience.blueprint";
+// MODELS
+import { ExperienceBlueprint } from "~/common/blueprints/experience.blueprint";
 
 // CONFIG
 import { Config } from "~/config";
@@ -23,22 +24,24 @@ import { events } from "~/static";
 import { ErrorFactory } from "~/errors";
 
 // MODELS
-import type { ExperienceConstructorProps } from "~/common/experiences/experience.model";
-import { CameraAnimation } from "./camera-animation";
-import { Vector3 } from "three";
+import type { ExperienceConstructorProps } from "~/common/models/experience.model";
 
+/**
+ * Experience class for Home page.
+ * (Module root).
+ */
 export class HomeExperience extends ExperienceBlueprint {
-	public ui?: UI;
-	public router?: Router;
-	public loader?: Loader;
-	public composer?: Composer;
-	public camera?: Camera;
-	public renderer?: Renderer;
-	public world?: World;
-	public cameraAnimation?: CameraAnimation;
-	public navigation?: Navigation;
-	public interactions?: Interactions;
-	public debug?: Debug;
+	public readonly ui?: UI;
+	public readonly router?: Router;
+	public readonly loader?: Loader;
+	public readonly camera?: Camera;
+	public readonly renderer?: Renderer;
+	public readonly composer?: Composer;
+	public readonly navigation?: Navigation;
+	public readonly cameraAnimation?: CameraAnimation;
+	public readonly interactions?: Interactions;
+	public readonly world?: World;
+	public readonly debug?: Debug;
 
 	constructor(_?: Omit<ExperienceConstructorProps, "debug">) {
 		try {
@@ -55,15 +58,15 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.router = new Router();
 			this.loader = new Loader();
 			this.camera = new Camera();
-			this.composer = new Composer();
 			this.renderer = new Renderer();
+			this.composer = new Composer();
 			this.navigation = new Navigation();
 			this.cameraAnimation = new CameraAnimation();
 			this.interactions = new Interactions();
 			this.world = new World();
 			this.debug = new Debug();
-		} catch (_err) {
-			throw new ErrorFactory(_err);
+		} catch (err) {
+			throw new ErrorFactory(err);
 		}
 	}
 
@@ -76,8 +79,8 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.router?.destruct();
 			this.loader?.destruct();
 			this.camera?.destruct();
-			this.composer?.destruct();
 			this.renderer?.destruct();
+			this.composer?.destruct();
 			this.navigation?.destruct();
 			this.cameraAnimation?.destruct();
 			this.interactions?.destruct();
@@ -86,7 +89,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.app.destroy();
 
 			HomeExperience._self = undefined;
-			this._onDestruct?.();
+			this.emit?.(events.DESTRUCTED);
 		} catch (_) {
 			throw new ErrorFactory(_);
 		}
@@ -95,11 +98,11 @@ export class HomeExperience extends ExperienceBlueprint {
 	public construct() {
 		try {
 			this.ui?.construct();
-			this.loader?.construct();
 			this.router?.construct();
+			this.loader?.construct();
 			this.camera?.construct();
-			this.composer?.construct();
 			this.renderer?.construct();
+			this.composer?.construct();
 			this.navigation?.construct();
 			this.cameraAnimation?.construct();
 			this.interactions?.construct();
@@ -108,13 +111,11 @@ export class HomeExperience extends ExperienceBlueprint {
 					this.world?.construct();
 					this.debug?.construct();
 					this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
-					this._onConstruct?.();
+					this.emit?.(events.CONSTRUCTED);
 				} catch (_) {
 					throw new ErrorFactory(_);
 				}
 			});
-
-			this.camera?.setCameraLookAt(new Vector3(0, 2, 0));
 		} catch (_) {
 			throw new ErrorFactory(_);
 		}
@@ -123,14 +124,16 @@ export class HomeExperience extends ExperienceBlueprint {
 	public update() {
 		try {
 			this.ui?.update();
-			this.world?.update();
+			this.router?.update();
 			this.camera?.update();
-			this.cameraAnimation?.update();
-			this.navigation?.update();
-			this.composer?.update();
-			this.interactions?.update();
 			this.renderer?.update();
+			this.composer?.update();
+			this.navigation?.update();
+			this.cameraAnimation?.update();
+			this.interactions?.update();
+			this.world?.update();
 			this.debug?.update();
+			this.emit?.(events.UPDATED);
 		} catch (_) {
 			throw new ErrorFactory(_);
 		}
