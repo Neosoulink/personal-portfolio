@@ -175,7 +175,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		this._cameraAnimation.progressTarget = 0;
 		this._cameraAnimation.enable(true);
 
-		if (this._experience.ui) this._experience.ui.markers = [];
+		if (this._experience.ui) this._experience.ui.markers = currentScene.markers;
 
 		if (isSwitchingMain || isSwitchingProjected)
 			this._navigation.view.limits = false;
@@ -225,8 +225,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 						});
 				}, "<87%");
 
-		if (!isSwitchingMain && !isSwitchingProjected)
-			updateCameraToCurrentScene();
+		if (!isSwitchingMain && !isSwitchingProjected) updateCameraToCurrentScene();
 
 		if (this._prevProjectedSceneKey === this._router?.currentRouteKey)
 			this._prevProjectedSceneKey = undefined;

@@ -12,7 +12,7 @@ import {
 } from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 
-// MODELS
+// BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
 // EXPERIENCES
@@ -40,6 +40,11 @@ export interface SceneBlueprintProps {
 	modelName: string;
 	childrenMaterials: ModelChildrenMaterials;
 	onTraverseModelScene?: (child: Object3D<Object3DEventMap>) => unknown;
+	markers?: {
+		position: Vector3;
+		title: string;
+		content: string;
+	}[];
 }
 
 export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
@@ -64,6 +69,7 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 		spherical: Exclude<NavigationView["spherical"], undefined>["limits"];
 		target: Exclude<NavigationView["target"], undefined>["limits"];
 	} = undefined;
+	public readonly markers: Exclude<SceneBlueprintProps["markers"], undefined>;
 
 	public cameraPath = new CatmullRomCurve3();
 	public center = new Vector3();
@@ -83,6 +89,8 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 		});
 
 		this._onTraverseModelScene = _.onTraverseModelScene;
+
+		this.markers = _.markers ?? [];
 	}
 
 	public get modelScene() {

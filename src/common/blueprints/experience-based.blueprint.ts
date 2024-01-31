@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 
-// MODELS
+// BLUEPRINTS
 import type { ExperienceBlueprint } from "./experience.blueprint";
 
 // MODELS

@@ -125,6 +125,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 				this._setPhoneScreen(child);
 				this._setTreeOutSide(child);
 			},
+			markers: [{ title: "One", content: "two", position: new Vector3() }],
 		});
 	}
 

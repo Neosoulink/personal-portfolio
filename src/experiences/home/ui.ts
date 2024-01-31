@@ -22,6 +22,8 @@ export class UI extends ExperienceBasedBlueprint {
 		element: HTMLElement;
 		position: Vector3;
 	}[] = [];
+	private _onRouteChange?: () => unknown;
+
 	public _markersContainer?: HTMLDivElement;
 	public _markers: {
 		position: Vector3;
@@ -119,10 +121,16 @@ export class UI extends ExperienceBasedBlueprint {
 				this.targetElement
 			);
 		}
+		this._onRouteChange = () => {
+			this.removeMarkers();
+		};
+		this._experience.router?.on(events.CHANGED, this._onRouteChange);
 		this.emit(events.CONSTRUCTED);
 	}
 
 	public destruct() {
+		this._onRouteChange &&
+			this._experience.router?.off(events.CHANGED, this._onRouteChange);
 		this.emit(events.DESTRUCTED);
 		this.removeAllListeners();
 	}

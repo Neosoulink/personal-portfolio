@@ -12,6 +12,7 @@ const availableRoutes = ref<{ name: string; path: string; key: string }[]>([]);
 const isExperienceReady = useState<boolean>("isExperienceReady", () => false);
 const isFreeCamera = useState<boolean>("isFreeCamera", () => false);
 const isFocusMode = useState<boolean>("isFocusMode", () => false);
+const isMarkersDisplayed = useState<boolean>("isMarkersDisplayed", () => false);
 
 // EVENTS
 const onUiReady = () => {
@@ -25,6 +26,8 @@ const onCameraAnimationChange = () => {
 };
 const onInteractionFocusStarted = () => (isFocusMode.value = true);
 const onInteractionFocusEnded = () => (isFocusMode.value = false);
+const onMarkersDisplayed = () => (isMarkersDisplayed.value = true);
+const onMarkersRemoved = () => (isMarkersDisplayed.value = false);
 
 const init = () => {
 	if (!process.client || experience.value) return;
@@ -49,6 +52,8 @@ const init = () => {
 		});
 
 	_exp.ui?.on(events.READY, onUiReady);
+	_exp.ui?.on(events.MARKERS_DISPLAYED, onMarkersDisplayed);
+	_exp.ui?.on(events.MARKERS_REMOVED, onMarkersRemoved);
 	_exp.cameraAnimation?.on(events.CHANGED, onCameraAnimationChange);
 	_exp.interactions?.on(
 		events.INTERACTION_FOCUS_STARTED,
