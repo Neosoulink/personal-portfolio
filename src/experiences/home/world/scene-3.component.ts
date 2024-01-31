@@ -368,7 +368,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 			if (
 				!this.pcScreenMixerPlane ||
 				!this._experience.composer?.passes ||
-				(Object.keys(this._experience.composer.passes).length === 1 &&
+				(Object.keys(this._experience.composer.passes).length > 0 &&
 					this._experience.interactions?.passName &&
 					this._experience.composer.passes[
 						this._experience.interactions.passName

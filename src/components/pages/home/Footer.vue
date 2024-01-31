@@ -36,17 +36,16 @@ const isFocusMode = useState<boolean>("isFocusMode");
 			<home-sound-toggle-button
 				class="transition-opacity w-7 h-7 opacity-70 hover:opacity-100"
 			/>
+
 			<home-markers-toggle-button
 				:class="`w-6 h-6 transition-opacity opacity-70 hover:opacity-100 ${
 					isFocusMode ? 'pointer-events-none !opacity-40' : ''
 				}`"
 			/>
+
 			<home-free-camera-button
-				:class="`w-[22px] transition-opacity h-6 opacity-70 hover:opacity-100 ${
-					isFocusMode ? 'pointer-events-none !opacity-40' : ''
-				}`"
+				class="w-[22px] transition-opacity h-6 opacity-70 hover:opacity-100"
 			/>
-			<home-leave-focus-mode-button v-if="isFocusMode" class="w-6 h-6" />
 		</div>
 	</footer>
 </template>

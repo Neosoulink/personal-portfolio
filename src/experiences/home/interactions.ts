@@ -66,6 +66,8 @@ export class Interactions extends ExperienceBasedBlueprint {
 	public controls = true;
 
 	private readonly _onPointerDownEvent = (e: PointerEvent) => {
+		this._onPointerMoveEvent(e);
+
 		if (
 			!e.isPrimary ||
 			!this.controls ||
@@ -86,7 +88,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 			!this._camera?.instance ||
 			!this._navigation?.view ||
 			!this._selectedObject?.uuid ||
-			this.focusedObject ||
+			this.isFocusing ||
 			this._pointerDownSelectedObject?.uuid !== this._selectedObject.uuid
 		)
 			return;
@@ -187,7 +189,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 		const clientX = e instanceof PointerEvent ? e.clientX : e.detail.clientX;
 		const clientY = e instanceof PointerEvent ? e.clientY : e.detail.clientY;
 
-		this._pointerDownSelectedObject = undefined;
+		// this._pointerDownSelectedObject = undefined;
 		this._mouseCoordinate.x = (clientX / this._appSizes.width) * 2 - 1;
 		this._mouseCoordinate.y = -(clientY / this._appSizes.height) * 2 + 1;
 
@@ -210,7 +212,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 			!this.enabled ||
 			!this.outlinePass ||
 			!this._intersectableContainer ||
-			this.focusedObject
+			this.isFocusing
 		)
 			return;
 
@@ -336,7 +338,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 	}
 
 	public leaveFocusMode() {
-		if (!this.focusedObject) return;
+		if (!this.isFocusing) return;
 
 		this.focusedObject = undefined;
 		this._selectedObject = undefined;

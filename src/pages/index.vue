@@ -79,6 +79,7 @@ const dispose = () => {
 onMounted(init);
 onBeforeUnmount(dispose);
 onBeforeRouteUpdate((route) => {
+	isFocusMode.value = false;
 	experience.value?.router?.emit(events.CHANGED, route);
 });
 </script>
