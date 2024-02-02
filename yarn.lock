@@ -8153,7 +8153,7 @@ __metadata:
     normalize-wheel: "npm:^1.0.1"
     nuxt: "npm:^3.8.2"
     postcss: "npm:^8.4.21"
-    quick-threejs: "npm:^0.1.29"
+    quick-threejs: "npm:^0.1.30"
     sass: "npm:^1.64.2"
     tailwindcss: "npm:^3.3.5"
     three: "npm:^0.159.0"
@@ -9686,15 +9686,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"quick-threejs@npm:^0.1.29":
-  version: 0.1.29
-  resolution: "quick-threejs@npm:0.1.29"
+"quick-threejs@npm:^0.1.30":
+  version: 0.1.30
+  resolution: "quick-threejs@npm:0.1.30"
   dependencies:
     events: "npm:^3.3.0"
     lil-gui: "npm:^0.19.1"
     stats.js: "npm:^0.17.0"
     three: "npm:^0.159.0"
-  checksum: a16635cc517978923a94b1085d395f3538f5545a26a6a43cf90983f24988e8f43319d3e49f6bed953ecdcfcd4984a87a42c07128338d818dbd5813a9ba69885e
+  checksum: 3a823b162bd9a524a27ccaefdeb4878914669be1196b4686cca8ffd32f1b0e2b691902dfeab32360a7d6e03a0ed4a3fd92776682a716979b8c30dae763d0e0ec
   languageName: node
   linkType: hard
 
