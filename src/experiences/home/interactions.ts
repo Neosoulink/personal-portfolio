@@ -145,8 +145,18 @@ export class Interactions extends ExperienceBasedBlueprint {
 					},
 				})
 				.add(() => {
-					if (this._camera && currentObject.focusFov)
-						this._camera.updateCameraFov(currentObject.focusFov, duration);
+					if (this._camera && currentObject.focusFov) {
+						const { $getSizes } = useNuxtApp();
+						const sizes = $getSizes();
+						let fovFactor = 1;
+
+						if (sizes.sw < sizes.vl) fovFactor = (sizes.vl / sizes.sw) * 1.25;
+
+						this._camera.updateCameraFov(
+							currentObject.focusFov * fovFactor,
+							duration
+						);
+					}
 				}, "<")
 				.add(() => {
 					if (currentObject) this.focusedObject = currentObject;
@@ -189,7 +199,6 @@ export class Interactions extends ExperienceBasedBlueprint {
 		const clientX = e instanceof PointerEvent ? e.clientX : e.detail.clientX;
 		const clientY = e instanceof PointerEvent ? e.clientY : e.detail.clientY;
 
-		// this._pointerDownSelectedObject = undefined;
 		this._mouseCoordinate.x = (clientX / this._appSizes.width) * 2 - 1;
 		this._mouseCoordinate.y = -(clientY / this._appSizes.height) * 2 + 1;
 

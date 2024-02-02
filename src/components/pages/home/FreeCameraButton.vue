@@ -6,7 +6,6 @@ const isFreeCamera = useState<boolean>("isFreeCamera");
 const isFocusMode = useState<boolean>("isFocusMode");
 
 const onLeaveFocusMode = () => {
-	console.log(isFocusMode.value);
 	if (!isFocusMode.value) return;
 
 	experience.interactions?.leaveFocusMode();

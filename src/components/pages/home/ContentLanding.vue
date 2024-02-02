@@ -70,7 +70,7 @@ onBeforeUnmount(() => {
 		</h2>
 
 		<div
-			class="right-0 relative w-[30vw] sm:w-3/12 h-2 duration-[inherit] transition-[inherit] -translate-x-[2vh] group-[.active]:translate-x-0 mb-[8vw] sm:mb-[10vw] lg:mb-24"
+			class="right-0 relative w-[30vw] sm:w-3/12 sm:h-2 h-1 duration-[inherit] transition-[inherit] -translate-x-[2vh] group-[.active]:translate-x-0 mb-[8vw] sm:mb-[10vw] lg:mb-24"
 		>
 			<div
 				class="absolute w-0 h-full bg-light group-[.active.reversed]:right-0 group-[.active.reversed]:w-0 group-[.active]:w-full duration-[inherit] transition-[width]"

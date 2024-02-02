@@ -89,7 +89,6 @@ const intro = () => {
 const onPressStart = () => {
 	if (!isButtonPressable.value) return;
 	isButtonPressable.value = false;
-	console.log(isButtonPressable.value)
 	window?.removeEventListener("keypress", onKeypress);
 	setTimeout(() => intro(), 200);
 };
