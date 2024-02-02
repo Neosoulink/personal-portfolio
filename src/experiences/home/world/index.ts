@@ -139,8 +139,8 @@ export class World extends ExperienceBasedBlueprint {
 		if (!(this._appCamera.instance instanceof PerspectiveCamera))
 			throw new Error(undefined, { cause: errors.CAMERA_UNAVAILABLE });
 
-		this.group = new Group();
 		this._manager = new WorldManager();
+		this.group = new Group();
 
 		this._setCommonMaterials();
 
@@ -167,7 +167,6 @@ export class World extends ExperienceBasedBlueprint {
 		);
 
 		if (this.scene1?.modelScene) {
-			this.scene1.center = this.scene1.center.setY(2.5);
 			this._availablePageScenes[pages.HOME_PAGE] = this.scene1;
 			this.group?.add(this.scene1.modelScene);
 		}

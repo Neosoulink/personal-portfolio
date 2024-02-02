@@ -154,7 +154,7 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 			this.progressCurrent -= 1;
 		}
 
-		this.cameraPath.getPointAt(this.progressCurrent % 1, this.positionOnCurve);
+		this.cameraPath.getPointAt(this.progressCurrent, this.positionOnCurve);
 		this._navigation?.setPositionInSphere(this.positionOnCurve);
 		this.emit(events.UPDATED);
 	}

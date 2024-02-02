@@ -3,7 +3,7 @@ import gsap from "gsap";
 import packageJson from "~~/package.json";
 
 // EXPERIENCE
-import type { HomeExperience } from "~/experiences/home";
+import { HomeExperience } from "~/experiences/home";
 
 // STATIC
 import { events } from "~/static";
@@ -12,7 +12,7 @@ import { events } from "~/static";
 import { Config } from "~/config";
 import { DeviceConfig } from "~/config/device.config";
 
-const props = defineProps<{ experience?: HomeExperience | undefined }>();
+const isExperienceConstructed = useState("isExperienceConstructed");
 const timeline = gsap.timeline({
 	onComplete: () => {
 		timeline.clear();
@@ -27,6 +27,7 @@ const isLoadingEnded = ref(false);
 const appLaunchedTimes = ref(0);
 const loadingProgress = ref(0);
 const loadedResources = ref<string[]>([]);
+const isButtonPressable = ref(true);
 
 const initLaunchedTimes = () => {
 	let localLaunchedTimes = localStorage.getItem("launchedTimes");
@@ -59,38 +60,48 @@ const onLoaderCompleted = () => {
 };
 
 const initUI = () => {
-	if (!props.experience) return;
+	const _exp = new HomeExperience();
+	if (!_exp) return;
 
 	// EVENTS
 	onLoadStart();
-	props.experience.loader?.on(events.PROGRESSED, onLoaderProgress);
-	props.experience.loader?.on(events.LOADED, onLoaderCompleted);
+	_exp.loader?.on(events.PROGRESSED, onLoaderProgress);
+	_exp.loader?.on(events.LOADED, onLoaderCompleted);
 };
 
 const intro = () => {
-	if (!loaderContainer.value || !props.experience) return;
+	if (!loaderContainer.value || !isExperienceConstructed.value) return;
 	if (timeline.isActive()) timeline.progress(1);
+	const _exp = new HomeExperience();
 
-	props.experience.ui?.emit(events.LOADED);
+	_exp.ui?.emit(events.LOADED);
 	timeline.to(loaderContainer.value, {
 		duration: Config.GSAP_ANIMATION_DURATION,
 		ease: Config.GSAP_ANIMATION_EASE,
 		opacity: 0,
 		onComplete: () => {
 			loaderContainer.value?.remove();
-			props.experience?.ui?.emit(events.READY);
+			_exp?.ui?.emit(events.READY);
 		},
 	});
 };
 
 const onPressStart = () => {
-	loaderButton.value?.classList.remove("animate-pulse");
+	if (!isButtonPressable.value) return;
+	isButtonPressable.value = false;
+	console.log(isButtonPressable.value)
+	window?.removeEventListener("keypress", onKeypress);
 	setTimeout(() => intro(), 200);
+};
+
+const onKeypress = (e: KeyboardEvent) => {
+	if (!isLoadingCompleted.value || (e.key !== "Enter" && e.key !== " ")) return;
+	onPressStart();
 };
 
 const watchStopHandle = watchEffect(
 	() => {
-		if (!props.experience) return;
+		if (!isExperienceConstructed.value) return;
 
 		watchStopHandle();
 		initUI();
@@ -98,12 +109,6 @@ const watchStopHandle = watchEffect(
 
 		if (DeviceConfig.DEVICE !== "pc") return;
 
-		const onKeypress = (e: KeyboardEvent) => {
-			if (!isLoadingCompleted.value || (e.key !== "Enter" && e.key !== " "))
-				return;
-			onPressStart();
-			window?.removeEventListener("keypress", onKeypress);
-		};
 		window?.addEventListener("keypress", onKeypress);
 	},
 	{
@@ -112,8 +117,9 @@ const watchStopHandle = watchEffect(
 );
 
 onBeforeUnmount(() => {
-	props.experience?.loader?.off(events.PROGRESSED, onLoaderProgress);
-	props.experience?.loader?.off(events.LOADED, onLoaderCompleted);
+	const _exp = new HomeExperience();
+	_exp?.loader?.off(events.PROGRESSED, onLoaderProgress);
+	_exp?.loader?.off(events.LOADED, onLoaderCompleted);
 });
 </script>
 
@@ -139,9 +145,10 @@ onBeforeUnmount(() => {
 				>
 					<button
 						ref="loaderButton"
-						class="px-4 py-2 capitalize border-[1px] sm:border-[1.5px] rounded-md cursor-pointer text-md animate-pulse hover:animate-none active:opacity-40 border-light font-light"
+						:class="`px-4 py-2 capitalize border-[1px] sm:border-[1.5px] rounded-md cursor-pointer text-md hover:animate-none active:opacity-40 border-light font-light ${
+							isButtonPressable ? 'animate-pulse' : 'pointer-events-none'
+						}`"
 						@click.once="onPressStart"
-						@keyup="onPressStart"
 					>
 						Press to start
 					</button>
@@ -173,6 +180,28 @@ onBeforeUnmount(() => {
 						>
 						to start.
 					</span>
+					<span
+						class="text-[10px] mt-1 opacity-40 text-center group-data-[device=mobile]:hidden"
+						>Better experience with
+						<strong>
+							<svg
+								viewBox="0 0 668 664"
+								class="inline-block h-[10px] mb-[2px] fill-light"
+							>
+								<path
+									d="M25.6606 553.693C11.9939 553.693 0.660608 542.36 0.660608 528.693V338.693C-1.00606 248.359 32.6606 163.026 95.3273 99.026C157.994 35.3594 241.994 0.359375 332.327 0.359375C516.993 0.359375 667.327 150.693 667.327 335.36V525.36C667.327 539.027 655.993 550.36 642.327 550.36C628.66 550.36 617.327 539.027 617.327 525.36V335.36C617.327 178.359 489.66 50.3594 332.327 50.3594C255.327 50.3594 183.994 80.026 130.994 134.026C77.6606 188.359 49.3273 260.693 50.6606 338.027V528.36C50.6606 542.36 39.6606 553.693 25.6606 553.693Z"
+								/>
+								<path
+									d="M132 346.973H127.666C57.6665 346.973 0.666504 403.973 0.666504 473.973V536.64C0.666504 606.64 57.6665 663.64 127.666 663.64H132C202 663.64 259 606.64 259 536.64V473.973C259 403.973 202 346.973 132 346.973Z"
+								/>
+								<path
+									d="M540.333 346.973H536C466 346.973 409 403.973 409 473.973V536.64C409 606.64 466 663.64 536 663.64H540.333C610.333 663.64 667.333 606.64 667.333 536.64V473.973C667.333 403.973 610.333 346.973 540.333 346.973Z"
+								/>
+							</svg>
+
+							headphones.</strong
+						></span
+					>
 				</div>
 
 				<span

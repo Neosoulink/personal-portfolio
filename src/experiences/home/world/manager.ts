@@ -220,7 +220,10 @@ export class WorldManager extends ExperienceBasedBlueprint {
 							this._navigation.view.limits = prevNavigationLimits;
 						}, `-=${this._transitionEffectDefault.duration}`)
 						.add(() => {
-							prevScene?.outro();
+							(
+								prevScene ??
+								this._world?.availablePageScenes[this._world.mainSceneKey]
+							)?.outro();
 							updateCameraToCurrentScene();
 						});
 				}, "<87%");

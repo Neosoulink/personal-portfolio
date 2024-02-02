@@ -8,6 +8,7 @@ import { Composer } from "./composer";
 import { Navigation } from "./navigation";
 import { CameraAnimation } from "./camera-animation";
 import { Interactions } from "./interactions";
+import { Sound } from "./sound";
 import { World } from "./world";
 import { Debug } from "./debug";
 
@@ -40,6 +41,7 @@ export class HomeExperience extends ExperienceBlueprint {
 	public readonly navigation?: Navigation;
 	public readonly cameraAnimation?: CameraAnimation;
 	public readonly interactions?: Interactions;
+	public readonly sound?: Sound;
 	public readonly world?: World;
 	public readonly debug?: Debug;
 
@@ -63,6 +65,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.navigation = new Navigation();
 			this.cameraAnimation = new CameraAnimation();
 			this.interactions = new Interactions();
+			this.sound = new Sound();
 			this.world = new World();
 			this.debug = new Debug();
 		} catch (err) {
@@ -84,6 +87,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.navigation?.destruct();
 			this.cameraAnimation?.destruct();
 			this.interactions?.destruct();
+			this.sound?.destruct();
 			this.world?.destruct();
 			this.debug?.destruct();
 			this.app.destroy();
@@ -108,6 +112,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.interactions?.construct();
 			this.ui?.on(events.LOADED, () => {
 				try {
+					this.sound?.construct();
 					this.world?.construct();
 					this.debug?.construct();
 					this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
@@ -131,6 +136,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.navigation?.update();
 			this.cameraAnimation?.update();
 			this.interactions?.update();
+			this.sound?.update();
 			this.world?.update();
 			this.debug?.update();
 			this.emit?.(events.UPDATED);

@@ -1,21 +1,24 @@
 <script setup lang="ts">
-const enabled = ref(false);
+import { HomeExperience } from "~/experiences/home";
+
+const experience = new HomeExperience();
+const isSoundMuted = useState("isSoundMuted");
 
 const onPress = () => {
-	enabled.value = !enabled.value;
+	experience.sound?.toggleMute();
 };
 </script>
 
 <template>
 	<button
 		@pointerup="onPress"
-		:title="`${enabled ? 'Disable' : 'Enable'} Sound`"
+		:title="`${isSoundMuted ? 'Enable' : 'Disable'} Sound`"
 	>
 		<svg
 			viewBox="0 0 38 25"
 			fill="none"
 			:class="`transition-transform scale-y-100 translate-y-0  ${
-				enabled ? 'active' : ''
+				isSoundMuted ? '' : 'active'
 			}`"
 		>
 			<path

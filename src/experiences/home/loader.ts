@@ -1,4 +1,12 @@
-import { Texture, LinearSRGBColorSpace, VideoTexture } from "three";
+import {
+	Texture,
+	LinearSRGBColorSpace,
+	VideoTexture,
+	PositionalAudio,
+	Audio,
+	AudioListener,
+} from "three";
+import type { LoadedItem, Source } from "quick-threejs/lib/utils/Resources";
 
 // EXPERIENCE
 import { HomeExperience } from ".";
@@ -19,24 +27,30 @@ import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.b
 // ASSETS
 import scene_1_model from "~/assets/models/scene_1/model.glb?url";
 import scene_1_lights_baked_texture from "~/assets/models/scene_1/lights_baked_texture.jpg?url";
-import scene_1no_lights_baked_texture from "~/assets/models/scene_1/no_lights_baked_texture.jpg?url";
+import scene_1_no_lights_baked_texture from "~/assets/models/scene_1/no_lights_baked_texture.jpg?url";
 import scene_1_woods_lights_baked_texture from "~/assets/models/scene_1/woods_lights_baked_texture.jpg?url";
-
 import scene_1_woods_no_lights_baked_texture from "~/assets/models/scene_1/woods_no_lights_baked_texture.jpg?url";
-
 import scene_1_tree_baked_texture from "~/assets/models/scene_1/tree_baked_texture.jpg?url";
+
 import scene_2_model from "~/assets/models/scene_2/model.glb?url";
 import scene_2_baked_texture from "~/assets/models/scene_2/baked_texture.jpg?url";
 import scene_3_model from "~/assets/models/scene_3/model.glb?url";
 import scene_3_baked_texture from "~/assets/models/scene_3/baked_texture.jpg?url";
+
 import scene_container_model from "~/assets/models/scene_container/model.glb?url";
 import scene_container_baked_texture from "~/assets/models/scene_container/baked_texture.jpg?url";
+
 import cloudAlphaMapTexture from "~/assets/textures/cloudAlphaMap.jpg?url";
 import rocksAlphaMapTexture from "~/assets/textures/rocksAlphaMap.jpg?url";
 import phoneScreenshotTexture from "~/assets/textures/phone_icons.png?url";
+
 import monitor_a_screen_record from "~/assets/videos/monitor_a_screen_record.webm?url";
 import monitor_b_screen_record from "~/assets/videos/monitor_b_screen_record.webm?url";
 import phone_screen_record from "~/assets/videos/phone_screen_record.webm?url";
+
+import computer_startup_audio from "~/assets/sounds/computer_startup.mp3?url";
+import keyboard_typing_audio from "~/assets/sounds/keyboard_typing.mp3?url";
+import empty_room_audio from "~/assets/sounds/empty_room_ambient_noise.mp3?url";
 
 /**
  * [`quick-threejs#Resource`](https://www.npmjs.com/package/quick-threejs)
@@ -46,14 +60,17 @@ export class Loader extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appResources = this._experience.app.resources;
+	private readonly _audioListener = new AudioListener();
 
 	private _progress = 0;
 	private _availableTextures: { [name: string]: Texture } = {};
+	private _availableAudios: { [name: string]: AudioBuffer } = {};
 
 	constructor() {
 		super();
 
 		// RESOURCES
+
 		this._appResources.setDracoLoader(
 			"https://www.gstatic.com/draco/versioned/decoders/1.4.3/"
 		);
@@ -72,7 +89,7 @@ export class Loader extends ExperienceBasedBlueprint {
 			{
 				name: "scene_1_no_lights_baked_texture",
 				type: "texture",
-				path: scene_1no_lights_baked_texture,
+				path: scene_1_no_lights_baked_texture,
 			},
 			{
 				name: "scene_1_woods_lights_baked_texture",
@@ -143,6 +160,23 @@ export class Loader extends ExperienceBasedBlueprint {
 				path: phone_screen_record,
 			},
 
+			// AUDIO
+			{
+				name: "computer_startup_audio",
+				type: "audio",
+				path: computer_startup_audio,
+			},
+			{
+				name: "keyboard_typing_audio",
+				type: "audio",
+				path: keyboard_typing_audio,
+			},
+			{
+				name: "empty_room_audio",
+				type: "audio",
+				path: empty_room_audio,
+			},
+
 			// OTHER TEXTURES
 			{
 				name: "cloudAlphaMap",
@@ -162,23 +196,15 @@ export class Loader extends ExperienceBasedBlueprint {
 		]);
 	}
 
-	private _initAvailableTexture(): typeof this._availableTextures {
-		const items = this._appResources.items;
-		if (!(items && Object.keys(items).length)) return {};
-		const availableTextures: typeof this._availableTextures = {};
-		const keys = Object.keys(items);
-
-		for (let i = 0; i < keys.length; i++) {
-			const item = items[keys[i]];
-			if (item instanceof Texture) {
-				this.correctTextures(item);
-				availableTextures[keys[i]] = item;
-			}
+	private _initAvailableResource(source: Source, file: LoadedItem) {
+		if (file instanceof Texture) {
+			this.correctTextures(file);
+			this._availableTextures[source.name] = file;
 		}
 
-		this._availableTextures = availableTextures;
+		if (file instanceof AudioBuffer) this._availableAudios[source.name] = file;
+
 		this.emit(CHANGED);
-		return this._availableTextures;
 	}
 
 	public get progress() {
@@ -187,6 +213,10 @@ export class Loader extends ExperienceBasedBlueprint {
 
 	public get availableTextures() {
 		return this._availableTextures;
+	}
+
+	public get availableAudios() {
+		return this._availableAudios;
 	}
 
 	/** Correct resource textures color and flip faces. */
@@ -202,18 +232,17 @@ export class Loader extends ExperienceBasedBlueprint {
 			this.emit(STARTED, this._progress);
 		};
 		const onProgress = (
-			itemPath: string,
 			itemsLoaded: number,
-			itemsToLoad: number
+			itemsToLoad: number,
+			source: Source,
+			file: LoadedItem
 		) => {
 			this._progress = (itemsLoaded / itemsToLoad) * 100;
-
-			this.emit(PROGRESSED, this._progress, itemPath);
+			this.emit(PROGRESSED, this._progress, source.path);
+			this._initAvailableResource(source, file);
 		};
 		const onLoad = () => {
-			this._initAvailableTexture();
-
-			// this._appResources.off("start", onStart);
+			this._appResources.off("start", onStart);
 			this._appResources.off("progress", onProgress);
 			this._appResources.off("load", onLoad);
 			this.emit(LOADED, this._progress);

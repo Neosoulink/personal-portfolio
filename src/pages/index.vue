@@ -7,34 +7,42 @@ import { events } from "~/static";
 
 // DATA
 const appCanvasId = "home-experience";
-const experience = ref<HomeExperience | undefined>();
-const availableRoutes = ref<{ name: string; path: string; key: string }[]>([]);
+const isExperienceConstructed = useState(
+	"isExperienceConstructed",
+	() => false
+);
 const isExperienceReady = useState<boolean>("isExperienceReady", () => false);
 const isFreeCamera = useState<boolean>("isFreeCamera", () => false);
 const isFocusMode = useState<boolean>("isFocusMode", () => false);
 const isMarkersDisplayed = useState<boolean>("isMarkersDisplayed", () => false);
+const isSoundMuted = useState<boolean>("isSoundMuted", () => false);
+const availableRoutes = ref<{ name: string; path: string; key: string }[]>([]);
 
 // EVENTS
 const onUiReady = () => {
 	isExperienceReady.value = true;
 };
 const onCameraAnimationChange = () => {
+	const _exp = new HomeExperience();
 	isFreeCamera.value = !!(
-		!experience.value?.cameraAnimation?.enabled &&
-		experience.value?.navigation?.view.enabled
+		!_exp?.cameraAnimation?.enabled && _exp?.navigation?.view.enabled
 	);
 };
 const onInteractionFocusStarted = () => (isFocusMode.value = true);
 const onInteractionFocusEnded = () => (isFocusMode.value = false);
 const onMarkersDisplayed = () => (isMarkersDisplayed.value = true);
 const onMarkersRemoved = () => (isMarkersDisplayed.value = false);
+const onSoundChanged = () => {
+	isSoundMuted.value = !!new HomeExperience()?.sound?.isMuted;
+};
 
 const init = () => {
-	if (!process.client || experience.value) return;
+	if (!process.client || isExperienceConstructed.value) return;
 	const _exp = new HomeExperience({
 		domElementRef: `#${appCanvasId}`,
 	});
 	_exp.construct();
+	isExperienceConstructed.value = true;
 
 	const routes = _exp.router?.availableRoutes;
 	if (routes)
@@ -51,6 +59,7 @@ const init = () => {
 			};
 		});
 
+	onSoundChanged();
 	_exp.ui?.on(events.READY, onUiReady);
 	_exp.ui?.on(events.MARKERS_DISPLAYED, onMarkersDisplayed);
 	_exp.ui?.on(events.MARKERS_REMOVED, onMarkersRemoved);
@@ -63,29 +72,35 @@ const init = () => {
 		events.INTERACTION_FOCUS_ENDED,
 		onInteractionFocusEnded
 	);
-
-	experience.value = _exp;
+	_exp.sound?.on(events.CHANGED, onSoundChanged);
 };
 const dispose = () => {
-	if (!experience.value) return;
-	experience.value?.ui?.off(events.READY, onUiReady);
-	experience.value.cameraAnimation?.off(
-		events.CHANGED,
-		onCameraAnimationChange
+	const _exp = new HomeExperience();
+
+	_exp.ui?.off(events.READY, onUiReady);
+	_exp.ui?.off(events.MARKERS_DISPLAYED, onMarkersDisplayed);
+	_exp.ui?.off(events.MARKERS_REMOVED, onMarkersRemoved);
+	_exp.cameraAnimation?.off(events.CHANGED, onCameraAnimationChange);
+	_exp.interactions?.off(
+		events.INTERACTION_FOCUS_STARTED,
+		onInteractionFocusStarted
 	);
-	experience.value.cameraAnimation?.off(
-		events.CHANGED,
-		onCameraAnimationChange
+	_exp.interactions?.off(
+		events.INTERACTION_FOCUS_ENDED,
+		onInteractionFocusEnded
 	);
-	experience.value.destruct();
-	experience.value = undefined;
+	_exp.sound?.off(events.CHANGED, onSoundChanged);
+
+	_exp.destruct();
+	isExperienceConstructed.value = false;
 };
 
 onMounted(init);
 onBeforeUnmount(dispose);
 onBeforeRouteUpdate((route) => {
+	const _exp = new HomeExperience();
 	isFocusMode.value = false;
-	experience.value?.router?.emit(events.CHANGED, route);
+	_exp?.router?.emit(events.CHANGED, route);
 });
 </script>
 
@@ -93,7 +108,7 @@ onBeforeRouteUpdate((route) => {
 	<main
 		class="relative overflow-hidden group-data-[device=pc]:h-screen w-safe h-safe bg-dark"
 	>
-		<HomeLoader :experience="experience" />
+		<HomeLoader :isExperienceConstructed="isExperienceConstructed" />
 
 		<canvas :id="appCanvasId" class="fixed top-0 left-0 z-0 w-full h-full" />
 
@@ -104,12 +119,15 @@ onBeforeRouteUpdate((route) => {
 		>
 			<HomeHeader />
 
-			<section class="flex flex-col flex-1 sm:flex-row" v-if="!!experience">
+			<section
+				class="flex flex-col flex-1 sm:flex-row"
+				v-if="!!isExperienceConstructed"
+			>
 				<HomeNav :routes="availableRoutes" />
 				<NuxtPage class="relative flex" />
 			</section>
 
-			<HomeFooter v-if="!!experience" />
+			<HomeFooter v-if="!!isExperienceConstructed" />
 		</G-Container>
 	</main>
 </template>

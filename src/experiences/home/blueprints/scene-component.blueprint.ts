@@ -70,9 +70,9 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 		target: Exclude<NavigationView["target"], undefined>["limits"];
 	} = undefined;
 	public readonly markers: Exclude<SceneBlueprintProps["markers"], undefined>;
+	public readonly cameraPath = new CatmullRomCurve3();
+	public readonly center = new Vector3();
 
-	public cameraPath = new CatmullRomCurve3();
-	public center = new Vector3();
 	public timeline?: gsap.core.Timeline;
 	public selectableObjects: SelectableObject[] = [];
 

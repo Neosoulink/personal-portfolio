@@ -24,13 +24,7 @@ export interface PortalAssets {
 	mesh: THREE.Mesh;
 	meshWebGLTexture: THREE.WebGLRenderTarget;
 	meshCamera: THREE.PerspectiveCamera;
-}
-
-export interface PortalMeshCorners {
-	bottomLeft: Vector3;
-	bottomRight: Vector3;
-	topLeft: Vector3;
-	topRight: Vector3;
+	aspect: number;
 }
 
 /**
@@ -45,10 +39,7 @@ export class Renderer extends ExperienceBasedBlueprint {
 	private readonly _camera = this._experience.camera;
 	private readonly _appSizes = this._experience.app.sizes;
 	private readonly _renderPortalAssets: {
-		[callbackName: string]: {
-			assets: PortalAssets;
-			corners: PortalMeshCorners;
-		};
+		[callbackName: string]: PortalAssets;
 	} = {};
 	private readonly beforeRenderUpdateCallbacks: {
 		[key: string]: () => unknown;
@@ -58,9 +49,6 @@ export class Renderer extends ExperienceBasedBlueprint {
 	private _currentXrEnabled = this._appRenderer.instance.xr.enabled;
 	private _currentShadowAutoUpdate =
 		this._appRenderer.instance.shadowMap.autoUpdate;
-	private _portalBottomLeftCorner = new Vector3();
-	private _portalBottomRightCorner = new Vector3();
-	private _portalTopLeftCorner = new Vector3();
 	private _onResize?: () => unknown;
 
 	public _mixerContext?: HtmlMixerContext;
@@ -69,35 +57,16 @@ export class Renderer extends ExperienceBasedBlueprint {
 		mesh: Mesh,
 		meshWebGLTexture: WebGLRenderTarget,
 		portalCamera: PerspectiveCamera,
-		corners: PortalMeshCorners
+		aspect: number
 	) {
-		mesh.localToWorld(
-			this._portalBottomLeftCorner.set(
-				corners.bottomLeft.x,
-				corners.bottomLeft.y,
-				corners.bottomLeft.z
-			)
-		);
-		mesh.localToWorld(
-			this._portalBottomRightCorner.set(
-				corners.bottomRight.x,
-				corners.bottomRight.y,
-				corners.bottomRight.z
-			)
-		);
-		mesh.localToWorld(
-			this._portalTopLeftCorner.set(
-				corners.topLeft.x,
-				corners.topLeft.y,
-				corners.topLeft.z
-			)
-		);
-
 		this._appRenderer.instance.setRenderTarget(meshWebGLTexture);
 		this._appRenderer.instance.state.buffers.depth.setMask(true);
 		if (this._appRenderer.instance.autoClear === false)
 			this._appRenderer.instance.clear();
 		mesh.visible = false;
+
+		portalCamera.aspect = aspect;
+		portalCamera.updateProjectionMatrix();
 		this._appRenderer.instance.render(this._experience.app.scene, portalCamera);
 		mesh.visible = true;
 	}
@@ -106,6 +75,10 @@ export class Renderer extends ExperienceBasedBlueprint {
 
 	public get mixerContext() {
 		return this._mixerContext;
+	}
+
+	public get renderPortalAssets() {
+		return this._renderPortalAssets;
 	}
 
 	public construct() {
@@ -160,10 +133,10 @@ export class Renderer extends ExperienceBasedBlueprint {
 					this._appRenderer.instance.xr.enabled = false;
 					this._appRenderer.instance.shadowMap.autoUpdate = false;
 					this._renderPortal(
-						this._renderPortalAssets[keys[i]].assets.mesh,
-						this._renderPortalAssets[keys[i]].assets.meshWebGLTexture,
-						this._renderPortalAssets[keys[i]].assets.meshCamera,
-						this._renderPortalAssets[keys[i]].corners
+						this._renderPortalAssets[keys[i]].mesh,
+						this._renderPortalAssets[keys[i]].meshWebGLTexture,
+						this._renderPortalAssets[keys[i]].meshCamera,
+						this._renderPortalAssets[keys[i]].aspect
 					);
 					this._appRenderer.instance.xr.enabled = this._currentXrEnabled;
 					this._appRenderer.instance.shadowMap.autoUpdate =
@@ -203,41 +176,11 @@ export class Renderer extends ExperienceBasedBlueprint {
 	}
 
 	public addPortalAssets(portalName: string, assets: PortalAssets): void {
-		// Calculate width, height
-		const boundingBox = new Box3().setFromObject(assets.mesh);
-		const width = boundingBox.max.x - boundingBox.min.x;
-		const height = boundingBox.max.y - boundingBox.min.y;
-		const halfWidth = width / 2;
-		const halfHeight = height / 2;
-
-		// Define the corners of the plane in local coordinates
-		const corners = [
-			new Vector3(-halfWidth, -halfHeight, 0),
-			new Vector3(halfWidth, -halfHeight, 0),
-			new Vector3(-halfWidth, halfHeight, 0),
-			new Vector3(halfWidth, halfHeight, 0),
-		];
-
-		// Apply the mesh's position and rotation to the corners
 		const matrix = new Matrix4();
 		matrix.makeRotationFromQuaternion(assets.mesh.quaternion);
 		matrix.setPosition(assets.mesh.position);
-		matrix.compose(
-			assets.mesh.position,
-			assets.mesh.quaternion,
-			assets.mesh.scale
-		);
-		corners.map((corner) => corner.applyMatrix4(matrix));
 
-		this._renderPortalAssets[portalName] = {
-			assets,
-			corners: {
-				bottomLeft: corners[0],
-				bottomRight: corners[1],
-				topLeft: corners[2],
-				topRight: corners[3],
-			},
-		};
+		this._renderPortalAssets[portalName] = assets;
 
 		this.emit(events.PORTAL_ADDED, portalName);
 	}

@@ -126,6 +126,10 @@ export class Camera extends ExperienceBasedBlueprint {
 		return this._timeline.to(this.instance, {
 			fov: 25,
 			duration: Config.GSAP_ANIMATION_DURATION,
+			onComplete: () => {
+				this.emit(events.CAMERA_FOV_CHANGED);
+				this.emit(events.CHANGED);
+			},
 		});
 	}
 
@@ -136,6 +140,10 @@ export class Camera extends ExperienceBasedBlueprint {
 		return this._timeline.to(this.instance, {
 			fov: Number(fov),
 			duration: Number(duration) ?? Config.GSAP_ANIMATION_DURATION,
+			onComplete: () => {
+				this.emit(events.CAMERA_FOV_CHANGED);
+				this.emit(events.CHANGED);
+			},
 		});
 	}
 
@@ -146,6 +154,10 @@ export class Camera extends ExperienceBasedBlueprint {
 		return this._timeline.to(this.instance, {
 			fov: this.initialCameraFov,
 			duration: duration,
+			onComplete: () => {
+				this.emit(events.CAMERA_FOV_CHANGED);
+				this.emit(events.CHANGED);
+			},
 		});
 	}
 
@@ -170,6 +182,8 @@ export class Camera extends ExperienceBasedBlueprint {
 			});
 		if (!(this._appCameraInstance instanceof PerspectiveCamera))
 			throw new Error(undefined, { cause: errors.CAMERA_UNAVAILABLE });
+
+		this.emit(events.BEFORE_CAMERA_SWITCH);
 
 		const currentCamera = this.cameras[this.currentCameraIndex];
 		const nextCamera = this.cameras[cameraIndex];
@@ -199,6 +213,9 @@ export class Camera extends ExperienceBasedBlueprint {
 			far: nextCamera.far,
 		};
 		this._currentCameraIndex = cameraIndex;
+
+		this.emit(events.CAMERA_SWITCHED);
+		this.emit(events.CHANGED);
 	}
 
 	/**

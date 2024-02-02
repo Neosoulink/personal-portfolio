@@ -1,4 +1,9 @@
-import { CatmullRomCurve3, MeshBasicMaterial, Vector3 } from "three";
+import {
+	CatmullRomCurve3,
+	DoubleSide,
+	MeshBasicMaterial,
+	Vector3,
+} from "three";
 import { gsap } from "gsap";
 
 // BLUEPRINTS
@@ -64,6 +69,7 @@ export class Scene2Component extends SceneComponentBlueprint {
 			alphaMap: availableTexture.cloudAlphaMap,
 			alphaTest: 1,
 			map: availableTexture.scene_2_baked_texture,
+			side: DoubleSide,
 		});
 
 		return availableMaterials;

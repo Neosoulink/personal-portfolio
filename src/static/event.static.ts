@@ -27,3 +27,6 @@ export const INTERACTION_ENDED = Symbol("25");
 export const INTERACTION_FOCUS_STARTED = Symbol("24");
 export const INTERACTION_FOCUS_ENDED = Symbol("25");
 export const INTERACTION_FOCUS_ANIMATION_DONE = Symbol("26");
+export const BEFORE_CAMERA_SWITCH = Symbol("27");
+export const CAMERA_SWITCHED = Symbol("28");
+export const CAMERA_FOV_CHANGED = Symbol("29");
