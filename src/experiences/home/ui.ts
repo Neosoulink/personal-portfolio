@@ -7,6 +7,9 @@ import { HomeExperience } from ".";
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
+// MODELS
+import type { Marker } from "~/common/models/experience-ui.model";
+
 // STATIC
 import { errors, events } from "~/static";
 
@@ -22,14 +25,11 @@ export class UI extends ExperienceBasedBlueprint {
 		element: HTMLElement;
 		position: Vector3;
 	}[] = [];
-	private _onRouteChange?: () => unknown;
+	private _isMarkersAnimating = false;
+	private _onStateChange?: () => unknown;
 
 	public _markersContainer?: HTMLDivElement;
-	public _markers: {
-		position: Vector3;
-		title: string;
-		content: string;
-	}[] = [];
+	public _markers: Marker[] = [];
 
 	public readonly timeline = gsap.timeline({
 		onComplete: () => {
@@ -38,8 +38,6 @@ export class UI extends ExperienceBasedBlueprint {
 	});
 	public readonly targetElement = this._experience.app.canvas;
 	public readonly targetElementParent = this.targetElement?.parentElement;
-
-	public currentOveredMark?: HTMLDivElement;
 
 	public get isMarkersDisplayed() {
 		return !!this._activeMarkers.length;
@@ -98,7 +96,7 @@ export class UI extends ExperienceBasedBlueprint {
 		for (let i = 0; i < markers.length; i++) {
 			if (
 				!(markers[i].position instanceof Vector3) ||
-				typeof markers[i].title !== "string" ||
+				typeof markers[i].icon !== "string" ||
 				typeof markers[i].content !== "string"
 			)
 				throw new Error("Unable to set Markers", {
@@ -121,16 +119,25 @@ export class UI extends ExperienceBasedBlueprint {
 				this.targetElement
 			);
 		}
-		this._onRouteChange = () => {
+		this._onStateChange = () => {
 			this.removeMarkers();
 		};
-		this._experience.router?.on(events.CHANGED, this._onRouteChange);
+		this._experience.router?.on(events.CHANGED, this._onStateChange);
+		this._experience.interactions?.on(
+			events.INTERACTION_FOCUS_STARTED,
+			this._onStateChange
+		);
 		this.emit(events.CONSTRUCTED);
 	}
 
 	public destruct() {
-		this._onRouteChange &&
-			this._experience.router?.off(events.CHANGED, this._onRouteChange);
+		if (this._onStateChange) {
+			this._experience.router?.off(events.CHANGED, this._onStateChange);
+			this._experience.interactions?.off(
+				events.INTERACTION_FOCUS_STARTED,
+				this._onStateChange
+			);
+		}
 		this.emit(events.DESTRUCTED);
 		this.removeAllListeners();
 	}
@@ -141,28 +148,22 @@ export class UI extends ExperienceBasedBlueprint {
 				cause: errors.WRONG_PARAM,
 			});
 
-		if (!this.markers?.length) return;
+		if (!this.markers?.length || this._isMarkersAnimating) return;
 
+		this._isMarkersAnimating = true;
 		this._activeMarkers = [];
 		this.markers.map((marker, index) => {
 			const markerElement = document.createElement("div");
-			const titleElement = document.createElement("span");
+			const icon = document.createElement("span");
 			const contentElement = document.createElement("span");
 
 			markerElement.className = `exp-marker exp-marker-${index}`;
-			markerElement.onmouseenter = () => {
-				this.currentOveredMark = markerElement;
-			};
-			markerElement.onmouseleave = () => {
-				this.currentOveredMark = undefined;
-			};
-			markerElement.title = marker.title;
-			titleElement.className = "title";
-			titleElement.textContent = marker.title;
+			icon.className = "icon";
+			icon.textContent = marker.icon;
 			contentElement.className = "content";
 			contentElement.textContent = marker.content;
 
-			markerElement.appendChild(titleElement);
+			markerElement.appendChild(icon);
 			markerElement.appendChild(contentElement);
 
 			this._activeMarkers.push({
@@ -181,26 +182,30 @@ export class UI extends ExperienceBasedBlueprint {
 
 		setTimeout(() => {
 			this.emit(events.MARKERS_DISPLAYED);
+			this._isMarkersAnimating = false;
 		}, this._markers.length * 80);
 	}
 
 	public removeMarkers() {
-		if (!this._activeMarkers.length) return;
+		if (!this._activeMarkers.length || this._isMarkersAnimating) return;
 
+		this._isMarkersAnimating = true;
 		for (let i = this._activeMarkers.length - 1; i >= 0; i--) {
 			const { element } = this._activeMarkers[i];
 
 			setTimeout(() => {
 				element.classList.remove("visible");
 				this.emit(events.MARKER_REMOVED);
+				this._activeMarkers = [];
 			}, (this._activeMarkers.length - 1 - i) * 80);
 		}
+
 		setTimeout(() => {
 			if (this._markersContainer) this._markersContainer.innerText = "";
+			this._isMarkersAnimating = false;
+			this.emit(events.MARKERS_REMOVED);
 		}, this._activeMarkers.length * 80);
 
-		this._activeMarkers = [];
-		this.emit(events.MARKERS_REMOVED);
 		this.emit(events.CHANGED);
 	}
 

@@ -1,5 +1,5 @@
 import { Vector3 } from "three";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import gsap, { Power0 } from "gsap";
 
 // EXPERIENCES
@@ -17,7 +17,8 @@ import { lerpPosition } from "~/utils/three-utils";
 // SHADERS
 import camTransitionFrag from "./shaders/glass-effect/fragment.glsl";
 import camTransitionVert from "./shaders/glass-effect/vertex.glsl";
-import { WRONG_PARAM } from "~/static/error.static";
+
+// CONFIGS
 import { Config } from "~/config";
 
 export class WorldManager extends ExperienceBasedBlueprint {
@@ -115,11 +116,13 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 		if (!this._cameraAnimation)
 			throw new Error("No cameraAnimation module found", {
-				cause: WRONG_PARAM,
+				cause: errors.WRONG_PARAM,
 			});
 
 		if (!this._navigation)
-			throw new Error("No navigation module found", { cause: WRONG_PARAM });
+			throw new Error("No navigation module found", {
+				cause: errors.WRONG_PARAM,
+			});
 
 		const prevScene = this?._prevSceneKey
 			? this._world.availablePageScenes[this._prevSceneKey]
@@ -144,17 +147,20 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		const isSwitchingProjected =
 			this._router.currentRouteKey !== this._world.mainSceneKey &&
 			this._camera?.currentCameraIndex === 0;
-		const updateCameraToCurrentScene = () => {
+		const updateCameraToCurrentScene = (fast = true) => {
 			if (this._navigation?.timeline.isActive())
 				this._navigation.timeline.progress(1);
 
-			this._navigation?.updateCameraPosition(
-				currentScene.cameraPath?.getPoint(0),
-				currentScene.center,
-				0.84
-			);
+			return this._navigation
+				?.updateCameraPosition(
+					currentScene.cameraPath?.getPoint(0),
+					currentScene.center,
+					fast ? 0.84 : undefined
+				)
+				.add(() => {
+					if (this._navigation) this._navigation.view.limits = true;
+				});
 		};
-		const prevNavigationLimits = this._navigation.view.limits;
 
 		if (this?._prevSceneKey !== this._world.mainSceneKey && !isSwitchingMain)
 			prevScene?.outro();
@@ -187,11 +193,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 
 				this._camera.switchCamera(0);
 				this._navigation.setTargetPosition(scene1PcScreenPosition);
-				this._navigation.updateCameraPosition(
-					currentScene.cameraPath?.getPoint(0),
-					currentScene.center
-				);
-				this._navigation.view.limits = prevNavigationLimits;
+				updateCameraToCurrentScene(false);
 			}, `-=${this._transitionEffectDefault.duration}`);
 		}
 
@@ -217,13 +219,13 @@ export class WorldManager extends ExperienceBasedBlueprint {
 							this._navigation.setPositionInSphere(
 								this._camera.currentCamera.position
 							);
-							this._navigation.view.limits = prevNavigationLimits;
 						}, `-=${this._transitionEffectDefault.duration}`)
 						.add(() => {
 							(
 								prevScene ??
 								this._world?.availablePageScenes[this._world.mainSceneKey]
 							)?.outro();
+
 							updateCameraToCurrentScene();
 						});
 				}, "<87%");

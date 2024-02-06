@@ -83,21 +83,17 @@ export class Navigation extends ExperienceBasedBlueprint {
 		zoom: { sensitivity: 0.01, delta: 0 },
 	};
 	private readonly _timelinePrevStates = {
-		limits: this._view.limits,
 		controls: this._view.controls,
 	};
 	private readonly _timeline = gsap.timeline({
 		onStart: () => {
-			this._timelinePrevStates.limits = this._view.limits;
 			this._timelinePrevStates.controls = this._view.controls;
 
-			this._view.limits = false;
 			this._view.controls = false;
 
 			this.emit(ANIMATION_STARTED);
 		},
 		onComplete: (val: typeof this._timelinePrevStates) => {
-			this._view.limits = val.limits;
 			this._view.controls = val.controls;
 
 			this._timeline.clear();
@@ -476,7 +472,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 		toPosition = new Vector3(),
 		lookAt = new Vector3(),
 		// TODO: Change it to TimelineVars instead.
-		duration = Config.GSAP_ANIMATION_DURATION
+		duration = Config.GSAP_ANIMATION_DURATION,
 	) {
 		if (!this._camera) return this._timeline;
 
@@ -573,8 +569,8 @@ export class Navigation extends ExperienceBasedBlueprint {
 				this._config.smallestSide;
 		}
 
+		// Limits
 		if (!this._timeline.isActive() && this._view.limits) {
-			// Apply limits
 			if (this._view.spherical.limits.enabled) {
 				this._view.spherical.value.radius = Math.min(
 					Math.max(

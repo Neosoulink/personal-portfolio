@@ -49,16 +49,11 @@ export class Camera extends ExperienceBasedBlueprint {
 	public readonly cameras = [
 		(() =>
 			this._appCameraInstance instanceof PerspectiveCamera
-				? new PerspectiveCamera().copy(this._appCameraInstance)
+				? this._appCameraInstance.clone()
 				: new PerspectiveCamera())(),
 		(() =>
 			this._appCameraInstance instanceof PerspectiveCamera
-				? new PerspectiveCamera(
-						this._appCameraInstance.fov,
-						Config.FIXED_WINDOW_WIDTH / Config.FIXED_WINDOW_HEIGHT,
-						this._appCameraInstance.near,
-						this._appCameraInstance.far
-				  )
+				? new PerspectiveCamera().copy(this._appCameraInstance)
 				: new PerspectiveCamera())(),
 	] as const;
 

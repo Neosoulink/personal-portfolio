@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { name } from "~~/package.json";
 
-const props = withDefaults(
-	defineProps<{ link?: string; logoHeight?: number }>(),
-	{ link: "/" }
-);
+const props = defineProps<{ link?: string; logoHeight?: number }>();
 </script>
 
 <template>
 	<NuxtLink
 		ref="linkRef"
 		:href="props.link"
-		class="flex flex-row items-center text-lg font-medium uppercase cursor-pointer"
+		class="flex flex-row items-center justify-start text-lg font-medium uppercase cursor-pointer"
 	>
 		<img
 			src="~/assets/img/logo.png"

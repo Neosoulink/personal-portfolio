@@ -1,6 +1,4 @@
-template
 <script setup lang="ts">
-// STATIC
 import { pages } from "~/static";
 
 const canDisplayLanding = useState<boolean>(
@@ -14,12 +12,12 @@ definePageMeta({
 </script>
 
 <template>
-	<HomeContent
+	<LazyHomeContent
 		:can-display-landing="canDisplayLanding"
-		landing-head="Welcome to"
-		landing-foot="my spaceship"
-		content-title="Hello humans."
-		content-body="Home here we are. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perferendis, ullam. Quibusdam alias dolores a voluptatum eveniet quia veniam ad quos, qui quae. Eveniet enim quasi tenetur, sapiente sed dolor labore!"
+		:landing-head="$t('homeLandingHead')"
+		:landing-foot="$t('homeLandingFoot')"
+		:content-title="$t('homeTitle')"
+		:content-body="$t('homeContent')"
 		@landing-animation-done="() => (canDisplayLanding = false)"
 	/>
 </template>

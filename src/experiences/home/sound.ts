@@ -77,19 +77,19 @@ export class Sound extends ExperienceBasedBlueprint {
 		this.keyboard_typing_audio = new PositionalAudio(this.listener);
 		this.keyboard_typing_audio.setBuffer(keyboard_typing_audio);
 		this.keyboard_typing_audio.setLoop(true);
-		this.keyboard_typing_audio.setRefDistance(0.15);
+		this.keyboard_typing_audio.setRefDistance(0.5);
 		this.keyboard_typing_audio.autoplay = false;
 
 		this.empty_room_audio = new PositionalAudio(this.listener);
 		this.empty_room_audio.setBuffer(empty_room_audio);
 		this.empty_room_audio.setLoop(true);
-		this.empty_room_audio.setRefDistance(5.2);
+		this.empty_room_audio.setRefDistance(8);
 		this.empty_room_audio.autoplay = false;
 
 		this.computer_startup_audio = new PositionalAudio(this.listener);
 		this.computer_startup_audio.setBuffer(computer_startup_audio);
 		this.computer_startup_audio.setLoop(false);
-		this.computer_startup_audio.setRefDistance(0.15);
+		this.computer_startup_audio.setRefDistance(0.3);
 		this.computer_startup_audio.autoplay = false;
 
 		this._onBeforeCameraSwitch = () => this.listener.removeFromParent();

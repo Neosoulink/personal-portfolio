@@ -1,7 +1,9 @@
 import {
 	CatmullRomCurve3,
 	DoubleSide,
+	Mesh,
 	MeshBasicMaterial,
+	SphereGeometry,
 	Vector3,
 } from "three";
 import { gsap } from "gsap";
@@ -52,6 +54,13 @@ export class Scene2Component extends SceneComponentBlueprint {
 				scene_2_logos: "scene_2",
 				scene_2_floor: "scene_container",
 			},
+			markers: [
+				{
+					icon: "💡",
+					content: "Some are missing...",
+					position: new Vector3(0.14, 3, 0.35),
+				},
+			],
 		});
 	}
 

@@ -1,12 +1,16 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 // EXPERIENCES
 import { HomeExperience } from "~/experiences/home";
 
 // STATIC
-import { events } from "~/static";
+import { events, pages } from "~/static";
 
 // DATA
 const appCanvasId = "home-experience";
+const availableRoutes = useState<{ name: string; path: string; key: string }[]>(
+	"availableRoutes",
+	() => []
+);
 const isExperienceConstructed = useState(
 	"isExperienceConstructed",
 	() => false
@@ -16,9 +20,8 @@ const isFreeCamera = useState<boolean>("isFreeCamera", () => false);
 const isFocusMode = useState<boolean>("isFocusMode", () => false);
 const isMarkersDisplayed = useState<boolean>("isMarkersDisplayed", () => false);
 const isSoundMuted = useState<boolean>("isSoundMuted", () => false);
-const availableRoutes = ref<{ name: string; path: string; key: string }[]>([]);
 
-// EVENTS
+// EVENTS;
 const onUiReady = () => {
 	isExperienceReady.value = true;
 };
@@ -41,23 +44,36 @@ const init = () => {
 	const _exp = new HomeExperience({
 		domElementRef: `#${appCanvasId}`,
 	});
+
 	_exp.construct();
 	isExperienceConstructed.value = true;
 
 	const routes = _exp.router?.availableRoutes;
-	if (routes)
-		availableRoutes.value = Object.keys(routes).map((key) => {
-			const name = (routes[key].name?.toString() ?? "Not defined").replace(
+	availableRoutes.value = [];
+	if (routes) {
+		let safeRoutes = [];
+		const routeKeys = Object.keys(routes);
+		for (let i = 0; i < routeKeys.length; i++) {
+			const route = routes[routeKeys[i]];
+			const name = (route.name?.toString() ?? "Not defined").replace(
 				/index\-?/,
 				""
 			);
-
-			return {
+			const value = {
 				name: name.length === 0 ? "home" : name,
-				path: "/" + routes[key].path,
-				key: routes[key].meta?.key?.toString() ?? "",
+				path: "/" + route.path,
+				key: route.meta?.key?.toString() ?? "",
 			};
-		});
+
+			if (route.meta?.key === pages.HOME_PAGE)
+				availableRoutes.value.unshift(value);
+			else if (route.meta?.key === pages.SKILL_PAGE)
+				availableRoutes.value.push(value);
+			else safeRoutes.push(value);
+		}
+
+		availableRoutes.value = [...availableRoutes.value, ...safeRoutes];
+	}
 
 	onSoundChanged();
 	_exp.ui?.on(events.READY, onUiReady);
@@ -108,27 +124,24 @@ onBeforeRouteUpdate((route) => {
 	<main
 		class="relative overflow-hidden group-data-[device=pc]:h-screen w-safe h-safe bg-dark"
 	>
-		<HomeLoader :isExperienceConstructed="isExperienceConstructed" />
+		<LazyHomeLoader />
 
 		<canvas :id="appCanvasId" class="fixed top-0 left-0 z-0 w-full h-full" />
 
-		<G-Container
+		<LazyGContainer
 			:class="`relative flex flex-col justify-between h-full sm:py-8 md:py-12 ${
 				isFreeCamera ? 'pointer-events-none' : ''
 			}`"
 		>
-			<HomeHeader />
+			<LazyGHeader class="px-4 pt-5 sm:pt-0 sm:px-0" />
 
-			<section
-				class="flex flex-col flex-1 sm:flex-row"
-				v-if="!!isExperienceConstructed"
-			>
-				<HomeNav :routes="availableRoutes" />
-				<NuxtPage class="relative flex" />
+			<section class="flex flex-col flex-1 sm:flex-row">
+				<LazyHomeNav />
+				<LazyNuxtPage class="relative flex" />
 			</section>
 
-			<HomeFooter v-if="!!isExperienceConstructed" />
-		</G-Container>
+			<LazyHomeFooter />
+		</LazyGContainer>
 	</main>
 </template>
 

@@ -30,6 +30,7 @@ import type { Materials } from "~/common/models/experience-world.model";
 
 // MODELS
 import type { SceneComponentBlueprint } from "../blueprints/scene-component.blueprint";
+import type { Marker } from "~/common/models/experience-ui.model";
 
 export class World extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
@@ -135,6 +136,12 @@ export class World extends ExperienceBasedBlueprint {
 		paths.points = points;
 	}
 
+	private _correctMarkersPosition(markers: Marker[], center: Vector3) {
+		for (const marker of markers) {
+			marker.position.add(center);
+		}
+	}
+
 	public async construct() {
 		if (!(this._appCamera.instance instanceof PerspectiveCamera))
 			throw new Error(undefined, { cause: errors.CAMERA_UNAVAILABLE });
@@ -151,15 +158,15 @@ export class World extends ExperienceBasedBlueprint {
 
 		if (!(this.sceneContainer?.modelScene instanceof Group)) return;
 
-		const BOUNDING_BOX = new Box3().setFromObject(
+		const boundingBox = new Box3().setFromObject(
 			this.sceneContainer.modelScene
 		);
-		// const WIDTH = BOUNDING_BOX.max.x - BOUNDING_BOX.min.x;
-		const HEIGHT = BOUNDING_BOX.max.y - BOUNDING_BOX.min.y;
-		const PROJECTED_SCENE_POSITION = new Vector3(0, HEIGHT * -2, 0);
+		// const width = boundingBox.max.x - boundingBox.min.x;
+		const height = boundingBox.max.y - boundingBox.min.y;
+		const projectedScenePosition = new Vector3(0, height * -2, 0);
 
 		this._projectedSceneContainer = this.sceneContainer.modelScene.clone();
-		this._projectedSceneContainer.position.copy(PROJECTED_SCENE_POSITION);
+		this._projectedSceneContainer.position.copy(projectedScenePosition);
 
 		this.group?.add(
 			this.sceneContainer.modelScene,
@@ -172,17 +179,25 @@ export class World extends ExperienceBasedBlueprint {
 		}
 
 		if (this.scene2?.modelScene) {
-			this.scene2.modelScene.position.copy(PROJECTED_SCENE_POSITION);
-			this.scene2.center.add(PROJECTED_SCENE_POSITION);
-			this._correctCameraPath(this.scene2.cameraPath, PROJECTED_SCENE_POSITION);
+			this.scene2.modelScene.position.copy(projectedScenePosition);
+			this.scene2.center.add(projectedScenePosition);
+			this._correctCameraPath(this.scene2.cameraPath, projectedScenePosition);
+			this._correctMarkersPosition(
+				this.scene2.markers,
+				projectedScenePosition
+			);
 			this._availablePageScenes[pages.SKILL_PAGE] = this.scene2;
 			this.group?.add(this.scene2.modelScene);
 		}
 
 		if (this.scene3?.modelScene) {
-			this.scene3.modelScene.position.copy(PROJECTED_SCENE_POSITION);
-			this.scene3.center.add(PROJECTED_SCENE_POSITION);
-			this._correctCameraPath(this.scene3.cameraPath, PROJECTED_SCENE_POSITION);
+			this.scene3.modelScene.position.copy(projectedScenePosition);
+			this.scene3.center.add(projectedScenePosition);
+			this._correctCameraPath(this.scene3.cameraPath, projectedScenePosition);
+			this._correctMarkersPosition(
+				this.scene3.markers,
+				projectedScenePosition
+			);
 			this._availablePageScenes[pages.CONTACT_PAGE] = this.scene3;
 			this.group?.add(this.scene3.modelScene);
 		}

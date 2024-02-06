@@ -71,7 +71,7 @@ export class Renderer extends ExperienceBasedBlueprint {
 		mesh.visible = true;
 	}
 
-	public enableCssRender = false;
+	public enableCssRender = true;
 
 	public get mixerContext() {
 		return this._mixerContext;
@@ -117,6 +117,10 @@ export class Renderer extends ExperienceBasedBlueprint {
 			"_mixerContext",
 			() => this.enableCssRender && this._mixerContext?.update()
 		);
+
+		this._experience.ui?.on(events.READY, () => {
+			// this.enableCssRender = false;
+		});
 
 		// PORTAL RENDERER
 		this.addBeforeRenderUpdateCallBack(Renderer.name, () => {

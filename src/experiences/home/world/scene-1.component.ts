@@ -59,7 +59,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 	public readonly lightsBakedTextureStrength = {
 		r: 0.5,
 		g: 1,
-		b: 2,
+		b: 1.8,
 	};
 	public readonly woodsLightsBakedTextureStrength = {
 		r: 1,
@@ -139,10 +139,51 @@ export class Scene1Component extends SceneComponentBlueprint {
 					return results;
 				})(),
 			},
+			markers: [
+				{
+					icon: "💡",
+					content: "Is that a portal!",
+					position: new Vector3(-2.11, 3.17, -1.52),
+				},
+				{
+					icon: "💡",
+					content: "Hardcore coding.",
+					position: new Vector3(-0.7, 3.26, -2.22),
+				},
+				{
+					icon: "💡",
+					content: "Heavy process...",
+					position: new Vector3(-2.7, 3.17, 0.08),
+				},
+				{
+					icon: "💡",
+					content: "Mobile development.",
+					position: new Vector3(-2.34, 2.49, 0.34),
+				},
+				{
+					icon: "❔",
+					content: "No planning yet?",
+					position: new Vector3(-0.38, 4.7, -2.78),
+				},
+				{
+					icon: "❤",
+					content: "A gift from a friend.",
+					position: new Vector3(-2.85, 4.3, 0.8),
+				},
+				{
+					icon: "❤",
+					content: "Never finished it.",
+					position: new Vector3(-2.82, 4.51, 1.99),
+				},
+				{
+					icon: "❔",
+					content: "I saw something...",
+					position: new Vector3(2.08, 3.11, -2.92),
+				},
+			],
 			onTraverseModelScene: (child) => {
 				this._setSceneObjects(child);
 			},
-			markers: [{ title: "One", content: "two", position: new Vector3() }],
 		});
 	}
 
@@ -387,7 +428,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 				this.lightsBakedTextureStrength,
 				{ b: 0 },
 				{
-					b: 2,
+					b: 1.8,
 					duration: Config.GSAP_ANIMATION_DURATION / 2,
 					onComplete: () => {
 						if (this.monitorAScreen?.material instanceof MeshBasicMaterial) {

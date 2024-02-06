@@ -1,8 +1,8 @@
 import {
 	EffectComposer,
 	Pass,
-} from "three/examples/jsm/postprocessing/EffectComposer";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+} from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
 // EXPERIENCES
@@ -17,6 +17,7 @@ import { events } from "~/static";
 /** Effect Composer Manager */
 export class Composer extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
+
 	private readonly _appRender = this._experience.app.renderer;
 	private readonly _appCamera = this._experience.app.camera;
 	private readonly _appSizes = this._experience.app.sizes;

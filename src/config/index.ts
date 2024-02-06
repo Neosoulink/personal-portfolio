@@ -7,6 +7,7 @@ export class Config {
 		try {
 			return useRuntimeConfig().public.MODE === "development";
 		} catch {
+			console.log(useRuntimeConfig);
 			return false;
 		}
 	})();

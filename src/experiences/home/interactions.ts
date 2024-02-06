@@ -6,7 +6,7 @@ import {
 	Vector3,
 	Color,
 } from "three";
-import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
 import { gsap } from "gsap";
 
 // BLUEPRINTS
@@ -111,7 +111,6 @@ export class Interactions extends ExperienceBasedBlueprint {
 				this._ui.targetElement.style.pointerEvents = "none";
 
 			const params = { lerpProgress: 0 };
-			const prevNavLimits = this._navigation.view.limits;
 			this._navigation.view.limits = false;
 
 			return this.timeline
@@ -160,13 +159,12 @@ export class Interactions extends ExperienceBasedBlueprint {
 				}, "<")
 				.add(() => {
 					if (currentObject) this.focusedObject = currentObject;
-					if (this._navigation?.view)
-						this._navigation.view.limits = prevNavLimits;
+					if (this._navigation?.view) this._navigation.view.limits = true;
 
 					// TODO: If you leave it like this in prod... wtf man
 					const iframeElement =
-						this._experience.world?.scene3?.pcScreenDomElement;
-					if (iframeElement) {
+						this._experience.world?.scene3?.pcScreenMixerPlane?.domElement;
+					if (iframeElement instanceof HTMLIFrameElement) {
 						this._onIframeMouseMoveCleanUp = iframeMouseMoveDispatcher(
 							iframeElement,
 							(e) => {
@@ -302,6 +300,8 @@ export class Interactions extends ExperienceBasedBlueprint {
 			this._outlineDefault.hiddenColor
 		);
 
+		this._composer?.addPass(this.passName, this.outlinePass);
+
 		this.timeline
 			.fromTo(
 				this.outlinePass,
@@ -327,7 +327,6 @@ export class Interactions extends ExperienceBasedBlueprint {
 
 		this.emit(events.STARTED);
 		this.emit(events.CHANGED);
-		this._composer?.addPass(this.passName, this.outlinePass);
 	}
 
 	public stop() {

@@ -10,7 +10,7 @@ import {
 	BufferGeometry,
 	LineBasicMaterial,
 } from "three";
-import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
+import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
@@ -31,6 +31,7 @@ import type {
 } from "~/common/models/experience-world.model";
 import type { NavigationView } from "~/common/models/experience-navigation.model";
 import type { SelectableObject } from "~/common/models/experience-interaction.model";
+import type { Marker } from "~/common/models/experience-ui.model";
 
 // CONFIG
 import { Config } from "~/config";
@@ -40,11 +41,7 @@ export interface SceneBlueprintProps {
 	modelName: string;
 	childrenMaterials: ModelChildrenMaterials;
 	onTraverseModelScene?: (child: Object3D<Object3DEventMap>) => unknown;
-	markers?: {
-		position: Vector3;
-		title: string;
-		content: string;
-	}[];
+	markers?: Marker[];
 }
 
 export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
@@ -105,7 +102,7 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 	 * > 🚧 Must be called before other initializers.
 	 */
 	protected _initModelScene() {
-		this._modelScene = this._model?.scene.clone();
+		this._modelScene = this._model?.scene;
 	}
 
 	/**

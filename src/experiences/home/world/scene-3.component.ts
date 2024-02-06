@@ -8,6 +8,7 @@ import {
 	DoubleSide,
 	CatmullRomCurve3,
 	Vector3,
+	PlaneGeometry,
 } from "three";
 import { gsap } from "gsap";
 import { HtmlMixerPlane } from "threex.htmlmixer-continued/lib/html-mixer";
@@ -34,7 +35,6 @@ import watchScreenFragment from "./shaders/scene-3/watch-screen/fragment.glsl";
 import watchScreenVertex from "./shaders/scene-3/watch-screen/vertex.glsl";
 import gamepadLedFragment from "./shaders/scene-3/gamepad_led/fragment.glsl";
 import gamepadLedVertex from "./shaders/scene-3/gamepad_led/vertex.glsl";
-import { iframeMouseMoveDispatcher } from "../../../utils/iframe-utils";
 
 export class Scene3Component extends SceneComponentBlueprint {
 	private readonly _appTime = this._experience.app.time;
@@ -50,7 +50,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 	public readonly timeline = gsap.timeline();
 	public readonly navigationLimits = {
 		spherical: {
-			radius: { min: 4, max: 7.5 },
+			radius: { min: 4, max: 8 },
 			phi: { min: 0.01, max: Math.PI * 0.5 },
 			theta: { min: 0, max: Math.PI * 0.5 },
 			enabled: true,
@@ -77,7 +77,6 @@ export class Scene3Component extends SceneComponentBlueprint {
 	);
 	public center = new Vector3(0, 1.3, 0);
 	public pcScreenMixerPlane?: HtmlMixerPlane;
-	public pcScreenDomElement?: HTMLIFrameElement;
 	public phoneScreen?: Mesh;
 	public watchScreen?: Mesh;
 	public gamepadLed?: Mesh;
@@ -109,9 +108,53 @@ export class Scene3Component extends SceneComponentBlueprint {
 				watch_screen: "watch_screen",
 				gamepad_led: "gamepad_led",
 			},
+			markers: [
+				{
+					icon: "❔",
+					content: "...",
+					position: new Vector3(-0.19, 2.52, 0.71),
+				},
+				{
+					icon: "💡",
+					content: "Twitter (not X)",
+					position: new Vector3(1.62, 1.54, 1.55),
+				},
+				{
+					icon: "💡",
+					content: "Linkedin",
+					position: new Vector3(-1.14, 0.8, -1.91),
+				},
+				{
+					icon: "💡",
+					content: "Discord",
+					position: new Vector3(0.39, 1.88, 0.41),
+				},
+				{
+					icon: "💡",
+					content: "Github",
+					position: new Vector3(1.33, 0.81, -0.97),
+				},
+			],
 			onTraverseModelScene: (child: Object3D<Object3DEventMap>) => {
 				this._setObjects(child);
 			},
+		});
+
+		this._experience.loader?.on(events.LOADED, () => {
+			if (!this._renderer?.mixerContext) return;
+			if (this._renderer) this._renderer.enableCssRender = true;
+
+			const pcScreenDomElement = document.createElement("iframe");
+			pcScreenDomElement.src = "/notes/about";
+			pcScreenDomElement.style.border = "none";
+
+			this.pcScreenMixerPlane = new HtmlMixerPlane(
+				this._renderer.mixerContext,
+				pcScreenDomElement,
+				{ planeH: 2, planeW: 3, elementW: 1129 }
+			);
+
+			this._experience.app.scene?.add(this.pcScreenMixerPlane.object3d);
 		});
 	}
 
@@ -219,23 +262,25 @@ export class Scene3Component extends SceneComponentBlueprint {
 		if (
 			!this._renderer?.mixerContext ||
 			!this.pcTopArticulation ||
-			!this.pcScreen
+			!this.pcScreen ||
+			!this.pcScreenMixerPlane
 		)
 			return;
 
 		const boundingBox = new Box3().setFromObject(this.pcScreen);
-		const _WIDTH = boundingBox.max.y - boundingBox.min.y - 0.075;
-		const _HEIGHT = boundingBox.max.x - boundingBox.min.x - 0.076;
+		const width = boundingBox.max.y - boundingBox.min.y - 0.075;
+		const height = boundingBox.max.x - boundingBox.min.x - 0.076;
 
-		this.pcScreenDomElement = document.createElement("iframe");
-		this.pcScreenDomElement.src = "/about";
-		this.pcScreenDomElement.style.border = "none";
-
-		this.pcScreenMixerPlane = new HtmlMixerPlane(
-			this._renderer.mixerContext,
-			this.pcScreenDomElement,
-			{ planeH: _HEIGHT, planeW: _WIDTH, elementW: 1129 }
+		this.pcScreenMixerPlane.object3d.removeFromParent();
+		this.pcScreenMixerPlane.setObject3D(
+			new Mesh(
+				new PlaneGeometry(width, height),
+				this.pcScreenMixerPlane.object3d.material
+			)
 		);
+		this.pcScreenMixerPlane.opts.planeW = width;
+		this.pcScreenMixerPlane.opts.planeH = height;
+		this.pcScreenMixerPlane.correctSizes();
 		this.pcScreenMixerPlane.object3d.position
 			.copy(this.pcScreen.position)
 			.add(new Vector3(0, -0.005, 0));
@@ -321,14 +366,6 @@ export class Scene3Component extends SceneComponentBlueprint {
 			...(this.linkedinLogo !== undefined
 				? [{ object: this.linkedinLogo, externalLink: Config.LINKEDIN_LINK }]
 				: []),
-			...(this.stackoverflowLogo !== undefined
-				? [
-						{
-							object: this.stackoverflowLogo,
-							externalLink: Config.STACKOVERFLOW_LINK,
-						},
-				  ]
-				: []),
 		];
 	}
 
@@ -391,12 +428,9 @@ export class Scene3Component extends SceneComponentBlueprint {
 			this.pcScreenMixerPlane.object3d.userData.visible = undefined;
 		};
 
-		~(() => {
-			const _MAT_KEYS = Object.keys(this._availableMaterials).slice(3);
+		const _MAT_KEYS = Object.keys(this._availableMaterials).slice(3);
 
-			for (const key of _MAT_KEYS)
-				this._availableMaterials[key].visible = false;
-		})();
+		for (const key of _MAT_KEYS) this._availableMaterials[key].visible = false;
 
 		this._experience.composer?.on(events.STARTED, this._onComposerStarted);
 		this._experience.composer?.on(events.ENDED, this._onComposerEnded);
@@ -475,7 +509,6 @@ export class Scene3Component extends SceneComponentBlueprint {
 	public update() {
 		this._uTime = this._appTime.elapsed * 0.001;
 		this._uTimestamps = this._currentDayTimestamp * 0.001 + this._uTime;
-
 		if (
 			this.phoneScreen?.material instanceof ShaderMaterial &&
 			typeof this.phoneScreen?.material.uniforms?.uTime?.value === "number"
@@ -486,25 +519,21 @@ export class Scene3Component extends SceneComponentBlueprint {
 			typeof this.phoneScreen?.material.uniforms?.uTimestamp?.value === "number"
 		)
 			this.phoneScreen.material.uniforms.uTimestamp.value = this._uTimestamps;
-
 		if (
 			this.watchScreen?.material instanceof ShaderMaterial &&
 			typeof this.watchScreen?.material.uniforms?.uTime?.value === "number"
 		)
 			this.watchScreen.material.uniforms.uTime.value = this._uTime;
-
 		if (
 			this.watchScreen?.material instanceof ShaderMaterial &&
 			typeof this.watchScreen?.material.uniforms?.uSec?.value === "number"
 		)
 			this.watchScreen.material.uniforms.uSec.value = Math.round(this._uTime);
-
 		if (
 			this.watchScreen?.material instanceof ShaderMaterial &&
 			typeof this.watchScreen?.material.uniforms?.uTimestamp?.value === "number"
 		)
 			this.watchScreen.material.uniforms.uTimestamp.value = this._uTimestamps;
-
 		if (
 			this.gamepadLed?.material instanceof ShaderMaterial &&
 			typeof this.gamepadLed?.material.uniforms?.uTime?.value === "number"

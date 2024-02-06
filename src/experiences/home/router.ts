@@ -31,8 +31,8 @@ export class Router extends ExperienceBasedBlueprint {
 			const cause = _.cause as RouteRecordNormalized | undefined;
 			if (!cause?.children.length) return;
 
-			cause.children.forEach((route) => {
-				this._availableRoutes[route.name?.toString() ?? ""] = route;
+			cause.children.forEach((route, index) => {
+				this._availableRoutes[(route.name ?? index).toString()] = route;
 			});
 		}
 

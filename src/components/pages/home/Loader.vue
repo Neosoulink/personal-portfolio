@@ -61,7 +61,11 @@ const onLoaderCompleted = () => {
 
 const initUI = () => {
 	const _exp = new HomeExperience();
-	if (!_exp) return;
+
+	if (!_exp.loader) return;
+	isLoadingEnded.value = !!Object.keys(_exp.loader.availableTextures).length;
+
+	if (isLoadingEnded.value) return;
 
 	// EVENTS
 	onLoadStart();
@@ -114,12 +118,6 @@ const watchStopHandle = watchEffect(
 		flush: "post",
 	}
 );
-
-onBeforeUnmount(() => {
-	const _exp = new HomeExperience();
-	_exp?.loader?.off(events.PROGRESSED, onLoaderProgress);
-	_exp?.loader?.off(events.LOADED, onLoaderCompleted);
-});
 </script>
 
 <template>
@@ -128,13 +126,15 @@ onBeforeUnmount(() => {
 		v-if="!isLoadingEnded"
 		class="fixed top-0 z-50 py-12 overflow-hidden h-safe w-safe text-light bg-dark"
 	>
-		<G-Container class="relative flex flex-col h-full">
+		<LazyGContainer class="relative flex flex-col h-full">
 			<section
 				class="flex flex-col items-center justify-center flex-1 text-center"
 			>
 				<p v-if="!isLoadingCompleted" class="text-sm">
 					{{
-						isLoadingStarted ? `${loadingProgress.toFixed(0)}%` : "Loading..."
+						isLoadingStarted
+							? `${loadingProgress.toFixed(0)}%`
+							: `${$t("loading")}...`
 					}}
 				</p>
 
@@ -149,22 +149,22 @@ onBeforeUnmount(() => {
 						}`"
 						@click.once="onPressStart"
 					>
-						Press to start
+						{{ $t("pressStart") }}
 					</button>
 
 					<span
 						class="text-[10px] opacity-40 mt-2 text-center group-data-[device=mobile]:hidden"
 					>
-						You can press
+						{{ $t("youCanPress") }}
 						<strong
 							><svg class="inline-block h-3 fill-light" viewBox="0 0 24 24">
 								<path
 									d="M21,9a1,1,0,0,0-1,1v3H4V10a1,1,0,0,0-2,0v4a1,1,0,0,0,1,1H21a1,1,0,0,0,1-1V10A1,1,0,0,0,21,9Z"
 								/>
 							</svg>
-							Space</strong
+							{{ $t("space") }}</strong
 						>
-						or
+						{{ $t("or") }}
 						<strong
 							><svg viewBox="0 0 24 24" class="inline-block h-3">
 								<path
@@ -175,13 +175,14 @@ onBeforeUnmount(() => {
 									stroke-linejoin="round"
 								/>
 							</svg>
-							Enter</strong
+							{{ $t("enter") }}</strong
 						>
-						to start.
+						{{ $t("toStart") }}.
 					</span>
 					<span
 						class="text-[10px] mt-1 opacity-40 text-center group-data-[device=mobile]:hidden"
-						>Better experience with
+					>
+						{{ $t("betterExperienceWith") }}
 						<strong>
 							<svg
 								viewBox="0 0 668 664"
@@ -198,7 +199,7 @@ onBeforeUnmount(() => {
 								/>
 							</svg>
 
-							headphones.</strong
+							{{ $t("headphones") }}.</strong
 						></span
 					>
 				</div>
@@ -227,9 +228,9 @@ onBeforeUnmount(() => {
 						{{
 							isLoadingStarted || loadedResources?.length
 								? isLoadingCompleted
-									? "Resources Loaded Successfully"
-									: `Loaded: ${loadedResources[0]}`
-								: "Loading resources..."
+									? $t("resourcesLoadedSuccessfully")
+									: `${$t("loaded")}: ${loadedResources?.[0] ?? "---"}`
+								: `${$t("loading")} ${$t("resources")}...`
 						}}
 					</div>
 
@@ -251,7 +252,7 @@ onBeforeUnmount(() => {
 					/>
 				</div>
 			</section>
-		</G-Container>
+		</LazyGContainer>
 	</div>
 </template>
 

@@ -142,13 +142,13 @@ export class Debug extends ExperienceBasedBlueprint {
 						if (!this._ui.markers.length) {
 							this._ui.markers = [
 								{
+									icon: "❔",
 									position: new Vector3(2, 3, 0),
-									title: "test 1",
 									content: "test content",
 								},
 								{
+									icon: "❔",
 									position: new Vector3(2, 2, 5),
-									title: "test 2",
 									content: "test content",
 								},
 							];
