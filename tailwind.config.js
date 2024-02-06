@@ -1,4 +1,3 @@
-const colors = require("tailwindcss/colors");
 const theme = require("tailwindcss/defaultTheme");
 
 const safeHeight = "calc(var(--vh, 1vh) * 100)";
@@ -15,24 +14,16 @@ module.exports = {
 	theme: {
 		...theme,
 		colors: {
-			...colors,
-			lightBlue: undefined,
-			warmGray: undefined,
-			trueGray: undefined,
-			coolGray: undefined,
-			blueGray: undefined,
+			transparent: "transparent",
+			white: "#fff",
+			black: "#000",
 			dark: "rgb(var(--dark))",
 			light: "rgb(var(--light))",
-			primary: {
-				900: "rgb(var(--primary))",
-			},
-			secondary: {
-				900: "rgb(var(--secondary))",
-			},
-			fontFamily: {
-				...theme.fontFamily,
-				exo: ["Exo", "Segoe UI", "Tahoma", "Geneva", "Verdana", "sans-serif"],
-			},
+			primary: "rgb(var(--primary))",
+			secondary: "rgb(var(--secondary))",
+		},
+		fontFamily: {
+			exo: ["Exo", "Segoe UI", "Tahoma", "Geneva", "Verdana", "sans-serif"],
 		},
 		screens: {
 			...theme.screens,
@@ -60,5 +51,5 @@ module.exports = {
 			},
 		},
 	},
-	plugins: [],
+	plugins: [require("@tailwindcss/typography")],
 };
