@@ -1,0 +1,137 @@
+* {
+	font-family: "Exo";
+	scroll-behavior: smooth;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+	&::-webkit-scrollbar {
+		width: 10px;
+		background-color: rgb(var(--dark));
+		border: 1px linear rgb(var(--dark));
+	}
+
+	&::-webkit-scrollbar-track {
+		background-color: transparent;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: rgb(var(--dark));
+		border-radius: 5px;
+		border: 1px solid rgb(var(--light));
+	}
+
+	&::-moz-selection {
+		color: rgb(var(--dark));
+		background: rgb(var(--primary));
+	}
+
+	&::selection {
+		color: rgb(var(--dark));
+		background: rgb(var(--primary));
+	}
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	overflow-x: hidden;
+}
+
+#cursor {
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	background: #fff;
+	mix-blend-mode: difference;
+	border-radius: 50%;
+	transform: translate(-50%, -50%);
+	transition: 180ms ease-out;
+	pointer-events: none;
+	z-index: 9999;
+}
+
+#cursor.active {
+	width: 35px;
+	height: 35px;
+	animation: cursor-bounce 0.8s ease-in-out;
+}
+
+#cursor.active-lg {
+	width: 60px;
+	height: 60px;
+	animation: cursor-bounce-lg 0.8s ease-in-out;
+}
+
+.exp-marker {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 0;
+	color: rgb(var(--light));
+	display: grid;
+	opacity: 0.7;
+	transition: opacity 0.3s, transform 0.05s;
+	z-index: 1;
+
+	& .icon,
+	& .content {
+		background-color: rgba(var(--dark), 0.5);
+		border: 1px solid rgb(var(--light));
+		border-radius: 15px;
+		transition: opacity 0.3s, transform 0.3s, background-color 0.3s;
+		will-change: opacity, transform, background-color;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: absolute;
+	}
+
+	& .icon {
+		top: -15px;
+		left: -15px;
+		width: 30px;
+		height: 30px;
+		font-size: 12px;
+		transform: scale(0, 0);
+		z-index: 2;
+	}
+
+	& .content {
+		width: 180px;
+		line-height: 1.3em;
+		padding: 10px 20px;
+		font-size: 14px;
+		transform: scale(0, 0);
+		transform-origin: 0 0;
+		z-index: 1;
+	}
+
+	&.visible .icon {
+		transform: scale(1.1, 1.1);
+	}
+
+	&:hover {
+		opacity: 1;
+		z-index: 11;
+
+		.icon {
+			background-color: rgba(var(--dark), 1);
+			transform: scale(1.2, 1.2);
+		}
+
+		.content {
+			transform: scale(1, 1);
+			background-color: rgba(var(--dark), 0.9);
+		}
+	}
+}
+
+@keyframes showWithTransition {
+	0% {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
