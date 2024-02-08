@@ -18,26 +18,31 @@ withDefaults(
 
 <template>
 	<header
-		class="flex flex-col items-end w-full text-light justify-stretch xs:items-center xs:flex-row"
+		class="flex flex-col items-start justify-between w-full text-light xs:items-center xs:flex-row "
 	>
 		<LazyGBrandLogo
 			v-if="showLogo"
-			class="z-[60] w-full xs:w-auto flex items-start justify-start !pointer-events-auto flex-1"
+			class="z-[60] xs:w-auto flex items-start justify-start !pointer-events-auto"
 			:link="logoLink"
 		/>
 
 		<div
 			v-if="!showMenuIcon"
-			class="flex flex-row items-center justify-end flex-1 space-x-2"
+			class="flex flex-row items-center justify-end flex-1 space-x-2 uppercase"
 		>
-			<NuxtLink v-for="(route, id) in routes" :key="id" :href="route.path">{{
-				route.title
-			}}</NuxtLink>
+			<NuxtLink
+				class="no-underline relative opacity-70 hover:opacity-100 nav-link before:absolute before:h-[1px] before:bottom-0 before:transition-[width] before:w-0 before:hover:w-full before:bg-light before:right-0 before:hover:right-[none] before:hover:left-0 tracking-wider sm:tracking-normal"
+				exact-active-class="!opacity-100 before:!w-full"
+				v-for="(route, id) in routes"
+				:key="id"
+				:href="route.path"
+				>{{ route.title }}</NuxtLink
+			>
 		</div>
 
 		<LazyGMenuButton
 			v-if="showMenuIcon"
-			class="z-40 mb-0 xs:mb-1 !pointer-events-auto"
+			class="z-40 mb-0 xs:mb-1 !pointer-events-auto self-end"
 			:active="isMenuOpen"
 			@click="
 				() => {

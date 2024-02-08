@@ -4,14 +4,14 @@ import gsap from "gsap";
 // DATA
 const links = [
 	{
-		label: "Blog",
-		icon: "",
-		path: "/blog",
+		label: "Writing",
+		icon: "?",
+		path: "/writing",
 	},
 	{
-		label: "Credits",
+		label: "Projects",
 		icon: "",
-		path: "/credits",
+		path: "/projects",
 	},
 ];
 
@@ -76,4 +76,3 @@ watch(isMenuOpen, async (newState) => {
 		</div>
 	</transition>
 </template>
-~/composables/useMenu

@@ -11,7 +11,7 @@ const isFocusMode = useState<boolean>("isFocusMode");
 		}`"
 	>
 		<ul
-			class="relative flex w-full sm:flex-col items-center justify-center sm:w-3 sm:space-y-[14vh] font-medium text-center text-light capitalize text-sm sm:text-base"
+			class="relative flex w-full sm:flex-col items-center justify-center sm:w-3 sm:space-y-[14vh] font-medium text-center text-light text-sm sm:text-base uppercase"
 		>
 			<li
 				class="flex justify-center w-full sm:w-auto !pointer-events-auto rotate-0 sm:rotate-90"
@@ -28,5 +28,3 @@ const isFocusMode = useState<boolean>("isFocusMode");
 		</ul>
 	</nav>
 </template>
-
-<style scoped lang="scss"></style>

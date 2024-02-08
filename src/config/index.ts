@@ -1,3 +1,5 @@
+import { repository } from "~~/package.json";
+
 export class Config {
 	static readonly ASSET_DIR = "/";
 	static readonly GSAP_ANIMATION_DURATION = 1.8;
@@ -30,28 +32,28 @@ export class Config {
 		try {
 			return useRuntimeConfig().public.GITHUB_LINK;
 		} catch {
-			return "https://google.com";
+			return repository.url;
 		}
 	})();
 	static readonly LINKEDIN_LINK: string = (() => {
 		try {
 			return useRuntimeConfig().public.LINKEDIN_LINK;
 		} catch {
-			return "https://google.com";
+			return repository.url;
 		}
 	})();
 	static readonly DISCORD_LINK: string = (() => {
 		try {
 			return useRuntimeConfig().public.DISCORD_LINK;
 		} catch {
-			return "https://google.com";
+			return repository.url;
 		}
 	})();
 	static readonly STACKOVERFLOW_LINK: string = (() => {
 		try {
 			return useRuntimeConfig().public.STACKOVERFLOW_LINK;
 		} catch {
-			return "https://google.com";
+			return repository.url;
 		}
 	})();
 
@@ -59,7 +61,7 @@ export class Config {
 		try {
 			return useRuntimeConfig().public.TWITTER_LINK;
 		} catch {
-			return "https://google.com";
+			return repository.url;
 		}
 	})();
 
@@ -67,7 +69,17 @@ export class Config {
 		try {
 			return useRuntimeConfig().public.TELEGRAM_LINK;
 		} catch {
-			return "https://google.com";
+			return repository.url;
+		}
+	})();
+
+	static readonly GITHUB_CONTENT_LINK: string = (() => {
+		try {
+			return `${repository.directory}${
+				useRuntimeConfig().public.GITHUB_CONTENT_LINK
+			}`;
+		} catch {
+			return repository.url;
 		}
 	})();
 }

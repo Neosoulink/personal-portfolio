@@ -30,6 +30,9 @@ export default defineNuxtConfig({
 	],
 	modules: ["@nuxtjs/i18n", "@nuxt/content", "@nuxtjs/tailwindcss"],
 	runtimeConfig: {
+		GITHUB_TOKEN: process.env.GITHUB_TOKEN,
+		GITHUB_USERNAME: process.env.GITHUB_USERNAME,
+		GITHUB_REPO_NAME: process.env.GITHUB_REPO_NAME,
 		public: {
 			MODE: process.env.MODE,
 			GITHUB_LINK: process.env.GITHUB_LINK,
@@ -38,6 +41,7 @@ export default defineNuxtConfig({
 			STACKOVERFLOW_LINK: process.env.STACKOVERFLOW_LINK,
 			TWITTER_LINK: process.env.TWITTER_LINK,
 			TELEGRAM_LINK: process.env.TELEGRAM_LINK,
+			GITHUB_CONTENT_LINK: process.env.GITHUB_REPO_NAME,
 		},
 	},
 	typescript: {
