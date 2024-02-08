@@ -23,6 +23,15 @@ export class Sound extends ExperienceBasedBlueprint {
 
 	public readonly listener = new AudioListener();
 
+	private _disposeAudio(audio?: PositionalAudio) {
+		if (!audio) return;
+		audio.stop();
+		audio.disconnect();
+		audio.source = null;
+		audio.buffer = null;
+		audio.removeFromParent();
+	}
+
 	public get keyboard_typing_audio() {
 		return this._keyboard_typing_audio;
 	}
@@ -102,12 +111,19 @@ export class Sound extends ExperienceBasedBlueprint {
 	}
 
 	public destruct() {
-		this._keyboard_typing_audio?.removeFromParent();
-		this.keyboard_typing_audio = undefined;
-		this._empty_room_audio?.removeFromParent();
-		this.empty_room_audio = undefined;
-		this._computer_startup_audio?.removeFromParent();
-		this.computer_startup_audio = undefined;
+		if (this._keyboard_typing_audio) {
+			this._disposeAudio(this._keyboard_typing_audio);
+			this.keyboard_typing_audio = undefined;
+		}
+		if (this._empty_room_audio) {
+			this._disposeAudio(this._empty_room_audio);
+			this.empty_room_audio = undefined;
+		}
+		if (this._computer_startup_audio) {
+			this._disposeAudio(this._computer_startup_audio);
+			this.computer_startup_audio = undefined;
+		}
+
 		this._onBeforeCameraSwitch &&
 			this._camera?.off(
 				events.BEFORE_CAMERA_SWITCH,
@@ -115,6 +131,7 @@ export class Sound extends ExperienceBasedBlueprint {
 			);
 		this._onCameraSwitched &&
 			this._camera?.off(events.CAMERA_SWITCHED, this._onCameraSwitched);
+		this.listener.removeFromParent();
 		this.emit(events.DESTRUCTED);
 		this.removeAllListeners();
 	}

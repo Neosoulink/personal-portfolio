@@ -1,11 +1,4 @@
-import {
-	Texture,
-	LinearSRGBColorSpace,
-	VideoTexture,
-	PositionalAudio,
-	Audio,
-	AudioListener,
-} from "three";
+import { Texture, LinearSRGBColorSpace, VideoTexture } from "three";
 import type { LoadedItem, Source } from "quick-threejs/lib/utils/Resources";
 
 // EXPERIENCE
@@ -60,7 +53,6 @@ export class Loader extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appResources = this._experience.app.resources;
-	private readonly _audioListener = new AudioListener();
 
 	private _progress = 0;
 	private _availableTextures: { [name: string]: Texture } = {};
@@ -70,7 +62,6 @@ export class Loader extends ExperienceBasedBlueprint {
 		super();
 
 		// RESOURCES
-
 		this._appResources.setDracoLoader(
 			"https://www.gstatic.com/draco/versioned/decoders/1.4.3/"
 		);
@@ -265,6 +256,9 @@ export class Loader extends ExperienceBasedBlueprint {
 		for (let i = 0; i < keys.length; i++) {
 			const item = this._appResources.items[keys[i]];
 			if (item instanceof Texture) item.dispose();
+			if (item instanceof AudioBuffer) {
+				console.log("triggered", this._appResources.items[keys[i]]);
+			}
 		}
 
 		this._appResources.setSources([]);
