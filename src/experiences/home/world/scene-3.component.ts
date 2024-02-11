@@ -281,6 +281,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 		this.pcScreenMixerPlane.opts.planeW = width;
 		this.pcScreenMixerPlane.opts.planeH = height;
 		this.pcScreenMixerPlane.correctSizes();
+		this.pcScreenMixerPlane.setDomElementSize();
 		this.pcScreenMixerPlane.object3d.position
 			.copy(this.pcScreen.position)
 			.add(new Vector3(0, -0.005, 0));
