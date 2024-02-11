@@ -1,5 +1,5 @@
 // EXPERIENCE
-import { ContentExperience } from ".";
+import { LiquidBgExperience } from ".";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
@@ -9,7 +9,7 @@ import { errors, events } from "~/static";
 
 /** Class in charge of all the direct interactions with the DOM HTML elements. */
 export class UI extends ExperienceBasedBlueprint {
-	protected readonly _experience = new ContentExperience();
+	protected readonly _experience = new LiquidBgExperience();
 
 	private readonly _appSizes = this._experience.app.sizes;
 

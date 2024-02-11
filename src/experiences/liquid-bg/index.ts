@@ -17,7 +17,7 @@ import { Camera } from "./camera";
 import { ErrorFactory } from "~/errors";
 import { events } from "~/static";
 
-export class ContentExperience extends ExperienceBlueprint {
+export class LiquidBgExperience extends ExperienceBlueprint {
 	public readonly world?: World;
 	public readonly ui?: UI;
 	public readonly debug?: Debug;
@@ -26,13 +26,13 @@ export class ContentExperience extends ExperienceBlueprint {
 	constructor(_?: Omit<ExperienceConstructorProps, "debug">) {
 		try {
 			super(
-				ContentExperience._self ?? {
+				LiquidBgExperience._self ?? {
 					..._,
 					debug: !Config.DEBUG,
 				}
 			);
-			if (ContentExperience._self) return ContentExperience._self;
-			ContentExperience._self = this;
+			if (LiquidBgExperience._self) return LiquidBgExperience._self;
+			LiquidBgExperience._self = this;
 
 			this.ui = new UI();
 			this.camera = new Camera();
@@ -50,7 +50,7 @@ export class ContentExperience extends ExperienceBlueprint {
 			this.world?.construct();
 			this.debug?.construct();
 
-			this.app?.setUpdateCallback(ContentExperience.name, () => this.update());
+			this.app?.setUpdateCallback(LiquidBgExperience.name, () => this.update());
 			this.emit?.(events.CONSTRUCTED);
 		} catch (_) {
 			throw new ErrorFactory(_);
@@ -58,8 +58,8 @@ export class ContentExperience extends ExperienceBlueprint {
 	}
 
 	public destruct() {
-		this.app.updateCallbacks[ContentExperience.name] &&
-			delete this.app.updateCallbacks[ContentExperience.name];
+		this.app.updateCallbacks[LiquidBgExperience.name] &&
+			delete this.app.updateCallbacks[LiquidBgExperience.name];
 
 		this.ui?.destruct();
 		this.camera?.destruct();
@@ -68,7 +68,7 @@ export class ContentExperience extends ExperienceBlueprint {
 		this.emit?.(events.DESTRUCTED);
 		this.removeAllListeners();
 		this.app.destroy();
-		ContentExperience._self = undefined;
+		LiquidBgExperience._self = undefined;
 	}
 
 	public update() {

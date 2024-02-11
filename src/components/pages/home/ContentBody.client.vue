@@ -4,7 +4,7 @@ defineProps<{ content: string; title?: string }>();
 
 <template>
 	<div
-		class="flex flex-col items-start opacity-0 animate-[0.5s_linear_showWithTransition_forwards] border-light text-[4vw] xs:text-[12px] sm:text-sm"
+		class="flex flex-col items-start opacity-0 animate-[0.5s_linear_show-with-transition_forwards] border-light text-[4vw] xs:text-[12px] sm:text-sm"
 	>
 		<h3
 			v-if="!!title"
@@ -33,7 +33,7 @@ div {
 
 		@for $i from 0 through 1 {
 			&:nth-of-type(2n - #{$i}) {
-				animation: #{0.2 * ($i + 1)}s linear showWithTransition forwards;
+				animation: #{0.2 * ($i + 1)}s linear show-with-transition forwards;
 			}
 		}
 

@@ -140,7 +140,7 @@ const watchStopHandle = watchEffect(
 
 				<div
 					v-if="isLoadingCompleted"
-					class="flex flex-col items-center opacity-0 animate-[.3s_linear_showWithTransition_forwards]"
+					class="flex flex-col items-center opacity-0 animate-[.3s_linear_show-with-transition_forwards]"
 				>
 					<button
 						ref="loaderButton"
@@ -207,7 +207,7 @@ const watchStopHandle = watchEffect(
 				<span
 					v-if="!!appLaunchedTimes"
 					v-show="appLaunchedTimes > 5"
-					class="animate-[.1s_linear_showWithTransition_forwards] mt-2 sm:mt-1 text-[8px]"
+					class="animate-[.1s_linear_show-with-transition_forwards] mt-2 sm:mt-1 text-[8px]"
 				>
 					<span class="opacity-40"
 						>You launched this app more then 5 times, Congratulation you

@@ -8,11 +8,11 @@ const route = useRoute();
 <template>
 	<NuxtLoadingIndicator color="#fff" />
 
-	<LazyGLiquidBg />
-
 	<div
-		class="w-screen z-10 h-dvh n overflow-hidden relative flex flex-col sm:flex-row sm:justify-center px-0 lg:px-[10vw] text-light"
+		class="w-screen z-10 h-dvh n overflow-hidden relative flex flex-col sm:flex-row sm:justify-center px-0 lg:px-[10vw] text-light bg-dark"
 	>
+		<LazyGLiquidBg />
+
 		<div
 			v-if="layoutState.displayLeftSide"
 			class="sm:relative sm:max-h-safe sm:group-data-[device=pc]:!max-h-screen text-sm sm:w-[30vw] lg:w-72 pt-[20px] sm:pt-0 sm:py-1 font-medium z-10"

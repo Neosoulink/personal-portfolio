@@ -12,7 +12,7 @@ import {
 import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
 // EXPERIENCE
-import { ContentExperience } from "..";
+import { LiquidBgExperience } from "..";
 
 // STATIC
 import { events } from "~/static";
@@ -23,7 +23,7 @@ import vertexShader from "./shader/vertex.glsl";
 import { MathUtils } from "three/src/math/MathUtils.js";
 
 export class World extends ExperienceBasedBlueprint {
-	protected _experience = new ContentExperience();
+	protected _experience = new LiquidBgExperience();
 
 	private readonly _appTime = this._experience.app.time;
 	private readonly _appScene = this._experience.app.scene;

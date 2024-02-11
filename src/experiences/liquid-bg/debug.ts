@@ -2,7 +2,7 @@ import { Mesh, MeshBasicMaterial, SphereGeometry } from "three";
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 // EXPERIENCE
-import { ContentExperience } from ".";
+import { LiquidBgExperience } from ".";
 
 // CONFIG
 import { Config } from "~/config";
@@ -15,7 +15,7 @@ import { DESTRUCTED } from "~/static/event.static";
 import { events } from "~/static";
 
 export class Debug extends ExperienceBasedBlueprint {
-	protected readonly _experience = new ContentExperience();
+	protected readonly _experience = new LiquidBgExperience();
 
 	private readonly _appScene = this._experience.app.scene;
 	private readonly _appDebug = this._experience.app.debug;
@@ -31,7 +31,7 @@ export class Debug extends ExperienceBasedBlueprint {
 		}
 
 		this._gui = this._experience.app.debug?.ui?.addFolder(
-			ContentExperience.name
+			LiquidBgExperience.name
 		);
 
 		if (!this._gui || !this._experience.world) return;

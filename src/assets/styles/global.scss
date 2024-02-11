@@ -5,7 +5,7 @@
 
 	&::-webkit-scrollbar {
 		width: 10px;
-		background-color: rgba(var(--dark), .3);
+		background-color: rgba(var(--dark), 0.3);
 		border: 1px linear rgb(var(--dark));
 	}
 
@@ -126,7 +126,7 @@ body {
 	}
 }
 
-@keyframes showWithTransition {
+@keyframes show-with-transition {
 	0% {
 		opacity: 0;
 	}

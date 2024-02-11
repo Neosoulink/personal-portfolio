@@ -2,7 +2,7 @@ import { PerspectiveCamera, Vector3 } from "three";
 import gsap from "gsap";
 
 // EXPERIENCES
-import { ContentExperience } from ".";
+import { LiquidBgExperience } from ".";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
@@ -18,7 +18,7 @@ import { Config } from "~/config";
  * Subset module. In charge of managing camera states.
  */
 export class Camera extends ExperienceBasedBlueprint {
-	protected readonly _experience = new ContentExperience();
+	protected readonly _experience = new LiquidBgExperience();
 
 	private readonly _appCamera = this._experience.app.camera;
 	private readonly _appCameraControls =
