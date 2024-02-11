@@ -1,22 +1,24 @@
 <script setup lang="ts">
 import { Config } from "~/config";
 
-const route = useRoute();
 const layoutState = useContentLayout();
+const route = useRoute();
 </script>
 
 <template>
 	<NuxtLoadingIndicator color="#fff" />
 
+	<LazyGLiquidBg />
+
 	<div
-		class="w-screen min-h-safe group-data-[device=pc]:!min-h-screen overflow-hidden bg-dark relative flex flex-col lg:justify-center sm:flex-row px-0 lg:px-[10vw]"
+		class="w-screen z-10 h-dvh n overflow-hidden relative flex flex-col sm:flex-row sm:justify-center px-0 lg:px-[10vw] text-light"
 	>
 		<div
 			v-if="layoutState.displayLeftSide"
-			class="relative max-h-safe group-data-[device=pc]:!max-h-screen text-sm overflow-hidden sm:w-[30vw] lg:w-72 pt-[20px] sm:pt-0 sm:py-1 text-light bg-dark sm:bg-transparent font-medium -mb-5 sm:mb-0"
+			class="sm:relative sm:max-h-safe sm:group-data-[device=pc]:!max-h-screen text-sm sm:w-[30vw] lg:w-72 pt-[20px] sm:pt-0 sm:py-1 font-medium z-10"
 		>
 			<div
-				class="top-0 flex flex-col justify-center h-full px-4 sm:px-5 sm:fixed sm:w-[30vw] lg:w-72"
+				class="top-0 sm:flex flex-col justify-center sm:h-full px-4 sm:px-5 sm:fixed sm:w-[30vw] lg:w-72"
 			>
 				<div
 					v-if="layoutState.displayTitle"
@@ -53,11 +55,11 @@ const layoutState = useContentLayout();
 							layoutState.displayTitle ? '' : 'sm:text-center'
 						}`"
 					>
-						Hey, I leave my socials here, just in case 👀
+						Hey, I leave some socials here, just in case 👀
 					</div>
 
 					<div
-						:class="`flex flex-row  mb-2 space-x-2 font-medium ${
+						:class="`flex flex-row space-x-2 font-medium ${
 							layoutState.displayTitle ? '' : 'sm:justify-center'
 						}`"
 					>
@@ -104,40 +106,26 @@ const layoutState = useContentLayout();
 		</div>
 
 		<div
-			:class="`flex-1 ${
-				layoutState.displayLeftSide ? '' : 'flex justify-center'
-			}`"
+			class="z-10 flex flex-col flex-1 px-4 py-5 overflow-hidden prose sm:py-10 prose-invert"
 		>
-			<div
-				class="top-0 flex-1 min-h-screen px-4 py-1 !mt-0 prose prose-invert w-full overflow-hidden"
-			>
-				<LazyGHeader
-					:show-logo="false"
-					:show-menu-icon="false"
-					:routes="
-						layoutState.headerLinks ?? route.path.includes('notes')
-							? [
-									{ title: 'About', path: '/notes/about' },
-									{ title: 'Credits', path: '/notes/credits' },
-							  ]
-							: [
-									{ title: 'Home', path: '/' },
-									{ title: 'Writing', path: '/writing' },
-									{ title: 'Projects', path: '/projects' },
-							  ]
-					"
-					class="my-5 sm:my-10"
-				/>
+			<LazyGHeader
+				:show-logo="false"
+				:show-menu-icon="false"
+				:routes="
+					layoutState.headerLinks ?? [
+						{ title: 'Home', path: '/' },
+						{ title: 'Writing', path: '/writing' },
+						{ title: 'Projects', path: '/projects' },
+					]
+				"
+				class="mb-5 sm:my-0 sm:mb-10"
+			/>
 
+			<div class="flex-1 overflow-y-auto">
 				<slot />
 			</div>
+
+			<LazyContentEditOnGithub class="font-medium" />
 		</div>
 	</div>
 </template>
-
-<style scoped lang="scss">
-.prose :deep(img) {
-	border-radius: 10px;
-	margin: auto;
-}
-</style>

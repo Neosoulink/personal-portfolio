@@ -18,7 +18,7 @@ withDefaults(
 
 <template>
 	<header
-		class="flex flex-col items-start justify-between w-full text-light xs:items-center xs:flex-row "
+		class="flex flex-col items-start justify-between w-full text-light xs:items-center xs:flex-row"
 	>
 		<LazyGBrandLogo
 			v-if="showLogo"
@@ -44,11 +44,7 @@ withDefaults(
 			v-if="showMenuIcon"
 			class="z-40 mb-0 xs:mb-1 !pointer-events-auto self-end"
 			:active="isMenuOpen"
-			@click="
-				() => {
-					isMenuOpen = !isMenuOpen;
-				}
-			"
+			@click="() => (isMenuOpen = !isMenuOpen)"
 		/>
 	</header>
 </template>

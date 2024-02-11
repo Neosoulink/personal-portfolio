@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="w-screen min-h-safe group-data-[device=pc]:!min-h-screen overflow-hidden d"
+		class="w-screen overflow-hidden min-h-dvh"
 	>
 		<G-Menu />
 

@@ -1,16 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
-	layout: "content",
-});
-
-const layoutState = useContentLayout();
-
-definePageMeta({
-	layout: "content",
-});
-
-onBeforeMount(async () => {
-	layoutState.value.displayLeftSide = false;
+	layout: "content-lite",
 });
 </script>
 

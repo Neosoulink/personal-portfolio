@@ -4,7 +4,7 @@ import { ServerConfig } from "~/config/server";
 </script>
 
 <template>
-	<div class="mt-10 text-xs opacity-55 text">
+	<div class="mt-4 text-xs opacity-55 text">
 		<svg
 			class="inline-block h-[10px] mb-[1.5px] mr-1 fill-none"
 			viewBox="0 0 653 649"

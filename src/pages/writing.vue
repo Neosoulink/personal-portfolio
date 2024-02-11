@@ -23,7 +23,7 @@ onMounted(async () => {
 	layoutState.value.displayLeftSide = true;
 	parsedContents.value = [];
 	layoutState.value.subTitle =
-		"I' sharing some cool tips and tricks, I 'll apreciate know one of them helped you :)";
+		"I share some cool tips and tricks, I 'll appreciate knowing one of them helped you :)";
 
 	dataPending.value = true;
 	const { data } = await $fetch("/api/writing");
@@ -73,7 +73,5 @@ onMounted(async () => {
 				</span>
 			</template>
 		</LazyContentCard>
-
-		<LazyContentEditOnGithub v-if="!!parsedContents.length" />
 	</div>
 </template>

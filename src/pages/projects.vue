@@ -95,7 +95,5 @@ onMounted(async () => {
 				</span>
 			</template>
 		</LazyContentCard>
-
-		<LazyContentEditOnGithub v-if="!!projectsList.length" />
 	</div>
 </template>

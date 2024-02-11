@@ -7,7 +7,7 @@ export const useContentLayout = () =>
 		subTitle?: string;
 		headerLinks?: { title: string; path: string }[];
 	}>("contentLayoutState", () => ({
-		displayLeftSide: false,
+		displayLeftSide: true,
 		displayTitle: true,
 		displayNetworks: true,
 		title: "",
