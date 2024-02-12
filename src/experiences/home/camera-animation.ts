@@ -6,7 +6,11 @@ import { HomeExperience } from ".";
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
+
+// CONFIG
 import { Config } from "~/config";
+
+// STATIC
 import { events } from "~/static";
 
 export const defaultCameraPath = new CatmullRomCurve3([
@@ -20,6 +24,7 @@ export const defaultCameraPath = new CatmullRomCurve3([
 export class CameraAnimation extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
+	private readonly _ui = this._experience.ui;
 	private readonly _navigation = this._experience.navigation;
 
 	private _enabled = false;
@@ -64,11 +69,12 @@ export class CameraAnimation extends ExperienceBasedBlueprint {
 	public construct() {
 		this._onWheel = (e) => this._wheelEvent(e);
 
-		window.addEventListener("wheel", this._onWheel);
+		this._ui?.on(events.WHEEL, this._onWheel);
 	}
 
 	public destruct() {
-		this._onWheel && window.removeEventListener("wheel", this._onWheel);
+		this.emit(events.DESTRUCTED);
+		this.removeAllListeners();
 	}
 
 	public enable(direct?: boolean) {

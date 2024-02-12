@@ -102,8 +102,9 @@ export class Navigation extends ExperienceBasedBlueprint {
 		onStartParams: [this._timelinePrevStates],
 		onCompleteParams: [this._timelinePrevStates],
 	});
+	private readonly _onResize = () => this._setConfig();
 
-	private _onResize?: () => unknown;
+	private _initialPinchDistance = 0;
 
 	public get timeline() {
 		return this._timeline;
@@ -141,259 +142,154 @@ export class Navigation extends ExperienceBasedBlueprint {
 		})();
 
 		// Init mouse events
-		~(() => {
-			this._view.down = (_x, _y) => {
-				if (!this._view.drag?.previous) return;
 
-				this._view.drag.previous.x = _x;
-				this._view.drag.previous.y = _y;
-			};
-			this._view.move = (_x, _y) => {
-				if (!this._view.controls || !this._view.enabled) return;
+		this._view.down = (x, y) => {
+			if (!this._view.drag?.previous) return;
 
-				this._view.drag.delta.x += _x - this._view.drag.previous.x;
-				this._view.drag.delta.y += _y - this._view.drag.previous.y;
+			this._view.drag.previous.x = x;
+			this._view.drag.previous.y = y;
+		};
+		this._view.move = (x, y) => {
+			if (!this._view.controls || !this._view.enabled) return;
 
-				this._view.drag.previous.x = _x;
-				this._view.drag.previous.y = _y;
-			};
-			this._view.up = () => {};
-			this._view.zooming = (_delta) => {
-				if (typeof this._view.zoom?.delta !== "number") return;
+			this._view.drag.delta.x += x - this._view.drag.previous.x;
+			this._view.drag.delta.y += y - this._view.drag.previous.y;
 
-				this._view.zoom.delta += _delta;
-			};
+			this._view.drag.previous.x = x;
+			this._view.drag.previous.y = y;
+		};
+		this._view.up = () => {};
+		this._view.zooming = (_delta) => {
+			if (typeof this._view.zoom?.delta !== "number") return;
 
-			this._view.onMouseDown = (_event) => {
-				_event.preventDefault();
+			this._view.zoom.delta += _delta;
+		};
 
-				if (
-					!this._view.controls ||
-					!this._view.enabled ||
-					!this._view.drag ||
-					!this._view.down ||
-					!this._view.onMouseUp ||
-					!this._view.onMouseMove ||
-					this._experience.cameraAnimation?.enabled
-				)
-					return;
+		this._view.onMouseDown = (e) => {
+			if (
+				!this._view.controls ||
+				!this._view.enabled ||
+				!this._view.drag ||
+				!this._view.down ||
+				!this._view.onMouseUp ||
+				!this._view.onMouseMove ||
+				this._experience.cameraAnimation?.enabled
+			)
+				return;
 
-				this._view.drag.alternative =
-					_event.button === 2 ||
-					_event.button === 1 ||
-					_event.ctrlKey ||
-					_event.shiftKey;
+			this._view.drag.alternative =
+				e.button === 2 || e.button === 1 || e.ctrlKey || e.shiftKey;
 
-				if (this._view.drag.alternative) {
-					const viewPosition = new Vector3();
-					viewPosition.setFromSpherical(this._view.spherical.smoothed);
-					viewPosition.add(this._view.target.smoothed);
-				}
+			if (this._view.drag.alternative) {
+				const viewPosition = new Vector3();
+				viewPosition.setFromSpherical(this._view.spherical.smoothed);
+				viewPosition.add(this._view.target.smoothed);
+			}
 
-				this._view?.down(_event.clientX, _event.clientY);
+			this._view?.down(e.clientX, e.clientY);
 
-				this._ui?.targetElement?.addEventListener(
-					"mouseup",
-					this._view.onMouseUp
+			this._ui?.on(events.MOUSE_UP, this._view.onMouseUp);
+			this._ui?.on(events.MOUSE_MOVE, this._view.onMouseMove);
+		};
+
+		this._view.onMouseMove = (e) => {
+			if (!this._view.move) return;
+
+			this._view.move(e.clientX, e.clientY);
+		};
+
+		this._view.onMouseUp = (e) => {
+			if (!this._view?.up || !this._view.onMouseUp || !this._view.onMouseMove)
+				return;
+
+			this._view.up();
+
+			this._ui?.off(events.MOUSE_UP, this._view.onMouseUp);
+			this._ui?.off(events.MOUSE_MOVE, this._view.onMouseMove);
+		};
+
+		this._view.onTouchStart = (e) => {
+			if (
+				!this._view.down ||
+				!this._view.onTouchEnd ||
+				!this._view.onTouchMove ||
+				this._experience.cameraAnimation?.enabled
+			)
+				return;
+
+			this._view.drag.alternative = e.touches.length > 1;
+			if (e.touches.length === 2)
+				this._initialPinchDistance = Math.hypot(
+					e.touches[0].clientX - e.touches[1].clientX,
+					e.touches[0].clientY - e.touches[1].clientY
 				);
-				this._ui?.targetElement?.addEventListener(
-					"mousemove",
-					this._view.onMouseMove
+			this._view.down(e.touches[0].clientX, e.touches[0].clientY);
+
+			this._ui?.on(events.TOUCH_END, this._view.onTouchEnd);
+			this._ui?.on(events.TOUCH_MOVE, this._view.onTouchMove);
+		};
+
+		this._view.onTouchMove = (e) => {
+			if (!this._view.move) return;
+
+			if (e.touches.length === 2 && this._view.zooming) {
+				const currentPinchDistance = Math.hypot(
+					e.touches[0].clientX - e.touches[1].clientX,
+					e.touches[0].clientY - e.touches[1].clientY
 				);
-			};
 
-			this._view.onMouseMove = (_event) => {
-				_event.preventDefault();
-				if (!this._view.move) return;
-
-				this._view.move(_event.clientX, _event.clientY);
-			};
-
-			this._view.onMouseUp = (_event) => {
-				_event.preventDefault();
-
-				if (!this._view?.up || !this._view.onMouseUp || !this._view.onMouseMove)
-					return;
-
-				this._view.up();
-
-				this._ui?.targetElement?.removeEventListener(
-					"mouseup",
-					this._view.onMouseUp
+				this._view.zooming(
+					-((currentPinchDistance - this._initialPinchDistance) * 2)
 				);
-				this._ui?.targetElement?.removeEventListener(
-					"mousemove",
-					this._view.onMouseMove
-				);
-			};
 
-			this._view.onTouchStart = (_event) => {
-				_event.preventDefault();
+				return (this._initialPinchDistance = currentPinchDistance);
+			}
 
-				if (
-					!this._view.down ||
-					!this._view.onTouchEnd ||
-					!this._view.onTouchMove ||
-					this._experience.cameraAnimation?.enabled
-				)
-					return;
+			this._view.move(e.touches[0].clientX, e.touches[0].clientY);
+		};
+		this._view.onTouchEnd = (e) => {
+			if (!this._view.up || !this._view.onTouchEnd || !this._view.onTouchMove)
+				return;
 
-				this._view.drag.alternative = _event.touches.length > 1;
-				this._view.down(_event.touches[0].clientX, _event.touches[0].clientY);
+			this._view.up();
 
-				this._ui?.targetElement?.addEventListener(
-					"touchend",
-					this._view.onTouchEnd
-				);
-				this._ui?.targetElement?.addEventListener(
-					"touchmove",
-					this._view.onTouchMove,
-					{ passive: false }
-				);
-			};
+			this._ui?.off(events.TOUCH_END, this._view.onTouchEnd);
+			this._ui?.off(events.TOUCH_MOVE, this._view.onTouchMove);
+		};
 
-			this._view.onTouchMove = (_event) => {
-				_event.preventDefault();
+		this._view.onContextMenu = (e) => {};
 
-				if (!this._view.move) return;
+		this._view.onWheel = (e) => {
+			if (
+				!this._view.controls ||
+				!this._view.enabled ||
+				!this._view.zooming ||
+				!this._view.onWheel
+			)
+				return;
 
-				this._view.move(_event.touches[0].clientX, _event.touches[0].clientY);
-			};
-			this._view.onTouchEnd = (_event) => {
-				_event.preventDefault();
+			const normalized = normalizeWheel(e);
 
-				if (!this._view.up || !this._view.onTouchEnd || !this._view.onTouchMove)
-					return;
+			this._view.zooming(normalized.pixelY);
+		};
 
-				this._view.up();
+		this._view.onLeave = (e) => {
+			if (this._view.onMouseMove)
+				this._ui?.off(events.MOUSE_MOVE, this._view.onMouseMove);
+		};
 
-				this._ui?.targetElement?.removeEventListener(
-					"touchend",
-					this._view.onTouchEnd
-				);
-				this._ui?.targetElement?.removeEventListener(
-					"touchmove",
-					this._view.onTouchMove
-				);
-			};
-
-			this._view.onContextMenu = (_event) => {
-				_event.preventDefault();
-			};
-
-			this._view.onWheel = (_event) => {
-				_event.preventDefault();
-
-				if (
-					!this._view.controls ||
-					!this._view.enabled ||
-					!this._view.zooming ||
-					!this._view.onWheel
-				)
-					return;
-
-				const normalized = normalizeWheel(_event);
-				this._view.zooming(normalized.pixelY);
-			};
-
-			this._view.onLeave = (_event) => {
-				if (this._view.onMouseMove)
-					this._ui?.targetElement?.removeEventListener(
-						"mousemove",
-						this._view.onMouseMove
-					);
-			};
-
-			this._ui?.targetElement?.addEventListener(
-				"mousedown",
-				this._view.onMouseDown
-			);
-			this._ui?.targetElement?.addEventListener(
-				"touchstart",
-				this._view.onTouchStart,
-				{ passive: false }
-			);
-			this._ui?.targetElement?.addEventListener(
-				"contextmenu",
-				this._view.onContextMenu
-			);
-			this._ui?.targetElement?.addEventListener(
-				"mousewheel",
-				this._view.onWheel,
-				{ passive: false }
-			);
-			this._ui?.targetElement?.addEventListener("wheel", this._view.onWheel, {
-				passive: false,
-			});
-			this._ui?.targetElement?.addEventListener(
-				"mouseleave",
-				this._view.onLeave
-			);
-			this._ui?.targetElement?.addEventListener(
-				"mouseenter",
-				this._view.onLeave
-			);
-		})();
-
-		this._onResize = () => this._setConfig();
+		this._ui?.on(events.MOUSE_DOWN, this._view.onMouseDown);
+		this._ui?.on(events.TOUCH_START, this._view.onTouchStart);
+		this._ui?.on(events.CONTEXT_MENU, this._view.onContextMenu);
+		this._ui?.on(events.WHEEL, this._view.onWheel);
+		this._ui?.on(events.POINTER_LEAVE, this._view.onLeave);
+		this._ui?.on(events.POINTER_ENTER, this._view.onLeave);
 		this._appSizes.on("resize", this._onResize);
 		this.emit(events.CONSTRUCTED);
 	}
 
 	public destruct() {
-		this._view.onMouseDown &&
-			this._ui?.targetElement?.removeEventListener(
-				"mousedown",
-				this._view.onMouseDown
-			);
-		this._view.onMouseUp &&
-			this._ui?.targetElement?.removeEventListener(
-				"mouseup",
-				this._view.onMouseUp
-			);
-		this._view.onMouseMove &&
-			this._ui?.targetElement?.removeEventListener(
-				"mousemove",
-				this._view.onMouseMove
-			);
-		this._view.onTouchEnd &&
-			this._ui?.targetElement?.removeEventListener(
-				"touchend",
-				this._view.onTouchEnd
-			);
-		this._view.onTouchMove &&
-			this._ui?.targetElement?.removeEventListener(
-				"touchmove",
-				this._view.onTouchMove
-			);
-		this._view.onTouchStart &&
-			this._ui?.targetElement?.removeEventListener(
-				"touchstart",
-				this._view.onTouchStart
-			);
-		this._view.onContextMenu &&
-			this._ui?.targetElement?.removeEventListener(
-				"contextmenu",
-				this._view.onContextMenu
-			);
-		this._view.onWheel &&
-			this._ui?.targetElement?.removeEventListener(
-				"mousewheel",
-				this._view.onWheel
-			);
-		this._view.onWheel &&
-			this._ui?.targetElement?.removeEventListener("wheel", this._view.onWheel);
-		this._view.onLeave &&
-			this._ui?.targetElement?.removeEventListener(
-				"mouseleave",
-				this._view.onLeave
-			);
-		this._view.onLeave &&
-			this._ui?.targetElement?.removeEventListener(
-				"mouseenter",
-				this._view.onLeave
-			);
-		this._onResize && this._appSizes.on("resize", this._onResize);
+		this._appSizes.off("resize", this._onResize);
 		this.emit(events.DESTRUCTED);
 		this.removeAllListeners();
 	}
@@ -472,7 +368,7 @@ export class Navigation extends ExperienceBasedBlueprint {
 		toPosition = new Vector3(),
 		lookAt = new Vector3(),
 		// TODO: Change it to TimelineVars instead.
-		duration = Config.GSAP_ANIMATION_DURATION,
+		duration = Config.GSAP_ANIMATION_DURATION
 	) {
 		if (!this._camera) return this._timeline;
 

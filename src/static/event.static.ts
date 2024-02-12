@@ -1,37 +1,59 @@
-export const CONSTRUCTED = Symbol("0");
-export const DESTRUCTED = Symbol("1");
-export const UPDATED = Symbol("2");
-export const STARTED = Symbol("3");
-export const ENDED = Symbol("4");
-export const PROGRESSED = Symbol("5");
-export const LOADED = Symbol("6");
-export const CHANGED = Symbol("7");
-export const ANIMATION_STARTED = Symbol("8");
-export const ANIMATION_ENDED = Symbol("9");
-export const ADDED = Symbol("10");
-export const REMOVED = Symbol("11");
-export const READY = Symbol("12");
-export const MARKER_ADDED = Symbol("13");
-export const MARKERS_ADDED = Symbol("14");
-export const MARKER_REMOVED = Symbol("15");
-export const MARKERS_REMOVED = Symbol("16");
-export const MARKERS_DISPLAYED = Symbol("17");
-export const PORTAL_ADDED = Symbol("18");
-export const PORTAL_REMOVED = Symbol("19");
-export const ALL_PORTALS_REMOVED = Symbol("20");
-export const BEFORE_RENDERER_ADDED = Symbol("21");
-export const BEFORE_RENDERER_REMOVED = Symbol("22");
-export const ALL_BEFORE_RENDERER_REMOVED = Symbol("23");
-export const INTERACTION_STARTED = Symbol("24");
-export const INTERACTION_ENDED = Symbol("25");
-export const INTERACTION_FOCUS_STARTED = Symbol("24");
-export const INTERACTION_FOCUS_ENDED = Symbol("25");
-export const INTERACTION_FOCUS_ANIMATION_DONE = Symbol("26");
-export const BEFORE_CAMERA_SWITCH = Symbol("27");
-export const CAMERA_SWITCHED = Symbol("28");
-export const CAMERA_FOV_CHANGED = Symbol("29");
-export const POINTER_MOVE = Symbol("30");
-export const POINTER_CLICK = Symbol("40");
-export const POINTER_DOWN = Symbol("41");
-export const POINTER_UP = Symbol("42");
-export const DEVICE_ORIENTATION = Symbol("43");
+export const CONSTRUCTED = Symbol();
+export const DESTRUCTED = Symbol();
+export const UPDATED = Symbol();
+export const STARTED = Symbol();
+export const ENDED = Symbol();
+export const PROGRESSED = Symbol();
+export const LOADED = Symbol();
+export const CHANGED = Symbol();
+export const ADDED = Symbol();
+export const REMOVED = Symbol();
+export const READY = Symbol();
+
+export const ANIMATION_STARTED = Symbol();
+export const ANIMATION_ENDED = Symbol();
+
+export const MARKER_ADDED = Symbol();
+export const MARKERS_ADDED = Symbol();
+export const MARKER_REMOVED = Symbol();
+export const MARKERS_REMOVED = Symbol();
+export const MARKERS_DISPLAYED = Symbol();
+
+export const PORTAL_ADDED = Symbol();
+export const PORTAL_REMOVED = Symbol();
+export const ALL_PORTALS_REMOVED = Symbol();
+
+export const BEFORE_RENDERER_ADDED = Symbol();
+export const BEFORE_RENDERER_REMOVED = Symbol();
+export const ALL_BEFORE_RENDERER_REMOVED = Symbol();
+
+export const INTERACTION_STARTED = Symbol();
+export const INTERACTION_ENDED = Symbol();
+export const INTERACTION_FOCUS_STARTED = Symbol();
+export const INTERACTION_FOCUS_ENDED = Symbol();
+export const INTERACTION_FOCUS_ANIMATION_DONE = Symbol();
+
+export const BEFORE_CAMERA_SWITCH = Symbol();
+export const CAMERA_SWITCHED = Symbol();
+export const CAMERA_FOV_CHANGED = Symbol();
+
+export const MOUSE_DOWN = Symbol();
+export const MOUSE_MOVE = Symbol();
+export const MOUSE_UP = Symbol();
+export const MOUSE_ENTER = Symbol();
+export const MOUSE_LEAVE = Symbol();
+
+export const TOUCH_START = Symbol();
+export const TOUCH_MOVE = Symbol();
+export const TOUCH_END = Symbol();
+
+export const POINTER_MOVE = Symbol();
+export const POINTER_CLICK = Symbol();
+export const POINTER_DOWN = Symbol();
+export const POINTER_UP = Symbol();
+export const POINTER_LEAVE = Symbol();
+export const POINTER_ENTER = Symbol();
+
+export const DEVICE_ORIENTATION = Symbol();
+export const WHEEL = Symbol();
+export const CONTEXT_MENU = Symbol();

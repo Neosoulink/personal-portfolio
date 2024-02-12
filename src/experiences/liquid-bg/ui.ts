@@ -12,7 +12,6 @@ export class UI extends ExperienceBasedBlueprint {
 	protected readonly _experience = new LiquidBgExperience();
 
 	private readonly _appSizes = this._experience.app.sizes;
-
 	private readonly _onPointerMove = (e: PointerEvent) => {
 		const x = (e.clientX / this._appSizes.width) * 2 - 1;
 		const y = -(e.clientY / this._appSizes.height) * 2 + 1;

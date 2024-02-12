@@ -23,6 +23,13 @@ import { events } from "~/static";
 export class Interactions extends ExperienceBasedBlueprint {
 	protected _experience = new HomeExperience();
 
+	private readonly _appScene = this._experience.app.scene;
+	private readonly _appSizes = this._experience.app.sizes;
+	private readonly _composer = this._experience.composer;
+	private readonly _camera = this._experience.camera;
+	private readonly _navigation = this._experience.navigation;
+	private readonly _ui = this._experience.ui;
+	private readonly _router = this._experience.router;
 	private readonly _mouseCoordinate = new Vector2();
 	private readonly _focusedMouseCoordinate = new Vector2();
 	private readonly _normalizedMouseCoordinate = new Vector2();
@@ -35,13 +42,6 @@ export class Interactions extends ExperienceBasedBlueprint {
 		hiddenColor: "#fff",
 	};
 
-	private _appScene = this._experience.app.scene;
-	private _appSizes = this._experience.app.sizes;
-	private _composer = this._experience.composer;
-	private _camera = this._experience.camera;
-	private _navigation = this._experience.navigation;
-	private _ui = this._experience.ui;
-	private _router = this._experience.router;
 	private _selectableObjects?: {
 		[uuid: string]: SelectableObject;
 	};
@@ -378,34 +378,13 @@ export class Interactions extends ExperienceBasedBlueprint {
 	}
 
 	public construct() {
-		window.addEventListener("pointermove", this._onPointerMoveEvent);
-		this._ui?.targetElement?.addEventListener(
-			"pointerdown",
-			this._onPointerDownEvent
-		);
-		this._ui?.targetElement?.addEventListener(
-			"pointerup",
-			this._onPointerUpEvent
-		);
+		this._ui?.on(events.POINTER_MOVE, this._onPointerMoveEvent);
+		this._ui?.on(events.POINTER_DOWN, this._onPointerDownEvent);
+		this._ui?.on(events.POINTER_UP, this._onPointerUpEvent);
 		this._router?.on(events.CHANGED, this._onRouteChange);
 	}
 
 	public destruct() {
-		this._onPointerMoveEvent &&
-			window.removeEventListener("pointermove", this._onPointerMoveEvent);
-		this._onPointerDownEvent &&
-			this._ui?.targetElement?.removeEventListener(
-				"pointerdown",
-				this._onPointerDownEvent
-			);
-		this._onPointerUpEvent &&
-			this._ui?.targetElement?.removeEventListener(
-				"pointerup",
-				this._onPointerUpEvent
-			);
-
-		this._onRouteChange &&
-			this._router?.off(events.CHANGED, this._onRouteChange);
 		this.emit(events.DESTRUCTED);
 		this.removeAllListeners();
 	}

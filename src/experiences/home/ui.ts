@@ -18,6 +18,70 @@ export class UI extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appCamera = this._experience.app.camera;
+	private readonly _appSizes = this._experience.app.sizes;
+	private readonly _onStateChange = () => this.removeMarkers();
+	private readonly _onPointerMove = (e: PointerEvent) => {
+		this.emit(events.POINTER_MOVE, e, this._getNormalizePointerCoord(e));
+	};
+	private readonly _onPointerDown = (e: PointerEvent) => {
+		this._pointerCount++;
+		this.emit(
+			events.POINTER_DOWN,
+			e,
+			this._getNormalizePointerCoord(e),
+			this._pointerCount
+		);
+	};
+	private readonly _onPointerUp = (e: PointerEvent) => {
+		this._pointerCount--;
+		this.emit(
+			events.POINTER_UP,
+			e,
+			this._getNormalizePointerCoord(e),
+			this._pointerCount
+		);
+	};
+	private readonly _onPointerEnter = (e: PointerEvent) =>
+		this.emit(events.POINTER_ENTER, e, this._getNormalizePointerCoord(e));
+	private readonly _onPointerLeave = (e: PointerEvent) =>
+		this.emit(events.POINTER_LEAVE, e, this._getNormalizePointerCoord(e));
+	private readonly _onMouseDown = (e: MouseEvent) => {
+		this.emit(events.MOUSE_DOWN, e, this._getNormalizePointerCoord(e));
+	};
+	private readonly _onMouseMove = (e: MouseEvent) =>
+		this.emit(events.MOUSE_MOVE, e, this._getNormalizePointerCoord(e));
+	private readonly _onMouseUp = (e: MouseEvent) =>
+		this.emit(events.MOUSE_UP, e, this._getNormalizePointerCoord(e));
+
+	private readonly _onMouseEnter = (e: MouseEvent) =>
+		this.emit(events.MOUSE_ENTER, e, this._getNormalizePointerCoord(e));
+
+	private readonly _onMouseLeave = (e: MouseEvent) =>
+		this.emit(events.MOUSE_LEAVE, e, this._getNormalizePointerCoord(e));
+
+	private readonly _onTouchStart = (e: TouchEvent) =>
+		this.emit(events.TOUCH_START, e);
+
+	private readonly _onTouchMove = (e: TouchEvent) =>
+		this.emit(events.TOUCH_MOVE, e);
+
+	private readonly _onTouchEnd = (e: TouchEvent) =>
+		this.emit(events.TOUCH_END, e);
+
+	private readonly _onContextMenu = (e: MouseEvent) => {
+		e.preventDefault();
+		this.emit(events.CONTEXT_MENU, e);
+	};
+	private readonly _onDeviceOrientation = (e: DeviceOrientationEvent) => {
+		const beta = Number(e.beta) / 180;
+		const gamma = -Number(e.gamma) / 90;
+
+		this.emit(events.DEVICE_ORIENTATION, e, gamma * 3, beta * 3);
+	};
+	private readonly _onWheel = (e: WheelEvent) => {
+		e.preventDefault();
+		this.emit(events.WHEEL, e);
+	};
 
 	private _cssTargetElement?: HTMLElement;
 	private _activeMarkers: {
@@ -26,7 +90,7 @@ export class UI extends ExperienceBasedBlueprint {
 		position: Vector3;
 	}[] = [];
 	private _isMarkersAnimating = false;
-	private _onStateChange?: () => unknown;
+	private _pointerCount = 0;
 
 	public _markersContainer?: HTMLDivElement;
 	public _markers: Marker[] = [];
@@ -38,6 +102,12 @@ export class UI extends ExperienceBasedBlueprint {
 	});
 	public readonly targetElement = this._experience.app.canvas;
 	public readonly targetElementParent = this.targetElement?.parentElement;
+
+	private _getNormalizePointerCoord(e: PointerEvent | MouseEvent) {
+		const x = (e.clientX / this._appSizes.width) * 2 - 1;
+		const y = -(e.clientY / this._appSizes.height) * 2 + 1;
+		return { x, y };
+	}
 
 	public get isMarkersDisplayed() {
 		return !!this._activeMarkers.length;
@@ -119,25 +189,57 @@ export class UI extends ExperienceBasedBlueprint {
 				this.targetElement
 			);
 		}
-		this._onStateChange = () => {
-			this.removeMarkers();
-		};
+
 		this._experience.router?.on(events.CHANGED, this._onStateChange);
 		this._experience.interactions?.on(
 			events.INTERACTION_FOCUS_STARTED,
 			this._onStateChange
 		);
+
+		window.addEventListener("mousedown", this._onMouseDown);
+		window.addEventListener("mousemove", this._onMouseMove);
+		window.addEventListener("mouseup", this._onMouseUp);
+		window.addEventListener("mouseenter", this._onMouseEnter);
+		window.addEventListener("mouseleave", this._onMouseLeave);
+		window.addEventListener("touchstart", this._onTouchStart);
+		window.addEventListener("touchmove", this._onTouchMove);
+		window.addEventListener("touchend", this._onTouchEnd);
+		window.addEventListener("pointermove", this._onPointerMove);
+		window.addEventListener("pointerdown", this._onPointerDown);
+		window.addEventListener("pointerup", this._onPointerUp);
+		window.addEventListener("pointerenter", this._onPointerEnter);
+		window.addEventListener("pointerleave", this._onPointerLeave);
+		window.addEventListener("contextmenu", this._onContextMenu);
+		window.addEventListener("deviceorientation", this._onDeviceOrientation);
+		window.addEventListener("wheel", this._onWheel, { passive: false });
+
 		this.emit(events.CONSTRUCTED);
 	}
 
 	public destruct() {
-		if (this._onStateChange) {
-			this._experience.router?.off(events.CHANGED, this._onStateChange);
-			this._experience.interactions?.off(
-				events.INTERACTION_FOCUS_STARTED,
-				this._onStateChange
-			);
-		}
+		this._experience.router?.off(events.CHANGED, this._onStateChange);
+		this._experience.interactions?.off(
+			events.INTERACTION_FOCUS_STARTED,
+			this._onStateChange
+		);
+
+		window.removeEventListener("mousedown", this._onMouseDown);
+		window.removeEventListener("mousemove", this._onMouseMove);
+		window.removeEventListener("mouseup", this._onMouseUp);
+		window.removeEventListener("mouseenter", this._onMouseEnter);
+		window.removeEventListener("mouseleave", this._onMouseLeave);
+		window.removeEventListener("touchstart", this._onTouchStart);
+		window.removeEventListener("touchmove", this._onTouchMove);
+		window.removeEventListener("touchend", this._onTouchEnd);
+		window.removeEventListener("pointermove", this._onPointerMove);
+		window.removeEventListener("pointerdown", this._onPointerDown);
+		window.removeEventListener("pointerup", this._onPointerUp);
+		window.removeEventListener("pointerenter", this._onPointerEnter);
+		window.removeEventListener("pointerleave", this._onPointerLeave);
+		window.removeEventListener("contextmenu", this._onContextMenu);
+		window.removeEventListener("deviceorientation", this._onDeviceOrientation);
+		window.removeEventListener("wheel", this._onWheel);
+
 		this.emit(events.DESTRUCTED);
 		this.removeAllListeners();
 	}
