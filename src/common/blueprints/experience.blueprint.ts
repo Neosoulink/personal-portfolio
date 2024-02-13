@@ -52,7 +52,7 @@ export abstract class ExperienceBlueprint
 				axesSizes: _?.debug ? 5 : undefined,
 				gridSizes: _?.debug ? 30 : undefined,
 				withMiniCamera: _?.debug,
-				camera: _?.camera || "Perspective",
+				camera: _?.camera || "perspective",
 			},
 			_?.domElementRef
 		);

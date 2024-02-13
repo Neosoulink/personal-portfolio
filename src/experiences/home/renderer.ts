@@ -1,15 +1,14 @@
 import {
-	Box3,
 	LinearSRGBColorSpace,
 	Matrix4,
 	Mesh,
 	NoToneMapping,
 	PCFShadowMap,
 	PerspectiveCamera,
-	Vector3,
 	WebGLRenderTarget,
 } from "three";
 import { HtmlMixerContext } from "threex.htmlmixer-continued/lib/html-mixer";
+import { events as quickEvents } from "quick-threejs/lib/static";
 
 // EXPERIENCE
 import { HomeExperience } from ".";
@@ -34,22 +33,24 @@ export interface PortalAssets {
 export class Renderer extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
-	private readonly _appRenderer = this._experience.app.renderer;
+	private readonly _app = this._experience.app;
+	private readonly _appRenderer = this._app.renderer;
 	private readonly _ui = this._experience.ui;
 	private readonly _camera = this._experience.camera;
 	private readonly _appSizes = this._experience.app.sizes;
 	private readonly _renderPortalAssets: {
 		[callbackName: string]: PortalAssets;
 	} = {};
-	private readonly beforeRenderUpdateCallbacks: {
-		[key: string]: () => unknown;
-	} = {};
 
 	private _currentRenderTarget = this._appRenderer.instance.getRenderTarget();
 	private _currentXrEnabled = this._appRenderer.instance.xr.enabled;
 	private _currentShadowAutoUpdate =
 		this._appRenderer.instance.shadowMap.autoUpdate;
-	private _onResize?: () => unknown;
+	private _onResize = () =>
+		this._mixerContext?.rendererCss?.setSize(
+			this._appSizes.width,
+			this._appSizes.height
+		);
 
 	public _mixerContext?: HtmlMixerContext;
 
@@ -106,26 +107,19 @@ export class Renderer extends ExperienceBasedBlueprint {
 			this._camera?.instance
 		);
 
-		const rendererCss = this._mixerContext.rendererCss;
-		rendererCss.setSize(this._appSizes.width, this._appSizes.height);
-		if (this._ui) this._ui.cssTargetElement = rendererCss.domElement;
-
-		this._onResize = () =>
-			rendererCss.setSize(this._appSizes.width, this._appSizes.height);
-		this._appSizes.on("resize", this._onResize);
-		this.addBeforeRenderUpdateCallBack(
-			"_mixerContext",
-			() => this.enableCssRender && this._mixerContext?.update()
+		this._mixerContext.rendererCss.setSize(
+			this._appSizes.width,
+			this._appSizes.height
 		);
+		if (this._ui)
+			this._ui.cssTargetElement = this._mixerContext.rendererCss.domElement;
 
-		this._experience.ui?.on(events.READY, () => {
-			// this.enableCssRender = false;
-		});
+		this._appSizes.on(quickEvents.RESIZED, this._onResize);
 
-		// PORTAL RENDERER
-		this.addBeforeRenderUpdateCallBack(Renderer.name, () => {
+		this._app.on(quickEvents.PRE_UPDATED, () => {
+			this.enableCssRender && this._mixerContext?.update();
+
 			if (!Object.keys(this._renderPortalAssets).length) return;
-
 			const keys = Object.keys(this._renderPortalAssets);
 			for (let i = 0; i < keys.length; i++) {
 				if (this._renderPortalAssets[keys[i]]) {
@@ -150,26 +144,11 @@ export class Renderer extends ExperienceBasedBlueprint {
 			}
 		});
 
-		this._appRenderer.beforeRenderUpdate = () => {
-			const keys = Object.keys(this.beforeRenderUpdateCallbacks);
-
-			for (let i = 0; i < keys.length; i++) {
-				this.beforeRenderUpdateCallbacks[keys[i]]?.();
-			}
-		};
-
 		this.emit(events.CONSTRUCTED);
 	}
 
 	public destruct() {
-		this._appRenderer.beforeRenderUpdate = undefined;
-		this._appRenderer.afterRenderUpdate = undefined;
-
-		const _KEYS_BEFORE_UPDATE = Object.keys(this.beforeRenderUpdateCallbacks);
 		const _KEYS_PORTAL_ASSETS = Object.keys(this._renderPortalAssets);
-
-		for (let i = 0; i < _KEYS_BEFORE_UPDATE.length; i++)
-			this.removeBeforeRenderUpdateCallBack(_KEYS_BEFORE_UPDATE[i]);
 
 		for (let i = 0; i < _KEYS_PORTAL_ASSETS.length; i++)
 			this.removePortalAssets(_KEYS_PORTAL_ASSETS[i]);
@@ -197,22 +176,6 @@ export class Renderer extends ExperienceBasedBlueprint {
 			this.emit(events.ALL_PORTALS_REMOVED, portalName);
 
 		this.emit(events.PORTAL_REMOVED, portalName);
-	}
-
-	public addBeforeRenderUpdateCallBack(key: string, callback: () => unknown) {
-		this.beforeRenderUpdateCallbacks[key] = callback;
-
-		this.emit(events.BEFORE_RENDERER_ADDED, key);
-	}
-
-	public removeBeforeRenderUpdateCallBack(key: string) {
-		if (!Object.keys(this.beforeRenderUpdateCallbacks).length) return;
-		if (this.beforeRenderUpdateCallbacks[key])
-			delete this.beforeRenderUpdateCallbacks[key];
-		if (!Object.keys(this.beforeRenderUpdateCallbacks).length)
-			this.emit(events.ALL_BEFORE_RENDERER_REMOVED, key);
-
-		this.emit(events.BEFORE_RENDERER_REMOVED, key);
 	}
 
 	public update(): void {

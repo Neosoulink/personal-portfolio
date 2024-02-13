@@ -1,3 +1,5 @@
+import { events as quickEvents } from "quick-threejs/lib/static";
+
 // EXPERIENCES
 import { UI } from "./ui";
 import { Router } from "./router";
@@ -75,9 +77,6 @@ export class HomeExperience extends ExperienceBlueprint {
 
 	public destruct() {
 		try {
-			this.app.updateCallbacks[HomeExperience.name] &&
-				delete this.app.updateCallbacks[HomeExperience.name];
-
 			this.ui?.destruct();
 			this.router?.destruct();
 			this.loader?.destruct();
@@ -90,7 +89,7 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.sound?.destruct();
 			this.world?.destruct();
 			this.debug?.destruct();
-			this.app.destroy();
+			this.app.destruct();
 
 			HomeExperience._self = undefined;
 			this.emit?.(events.DESTRUCTED);
@@ -110,12 +109,13 @@ export class HomeExperience extends ExperienceBlueprint {
 			this.navigation?.construct();
 			this.cameraAnimation?.construct();
 			this.interactions?.construct();
-			this.ui?.on(events.LOADED, () => {
+
+			this.loader?.on(events.LOADED, () => {
 				try {
 					this.sound?.construct();
 					this.world?.construct();
 					this.debug?.construct();
-					this.app?.setUpdateCallback(HomeExperience.name, () => this.update());
+					this.app?.on(quickEvents.UPDATED, () => this.update());
 					this.emit?.(events.CONSTRUCTED);
 				} catch (_) {
 					throw new ErrorFactory(_);

@@ -22,15 +22,15 @@ import { Scene3Component } from "./scene-3.component";
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
 
-// MODELS
+// STATIC
 import { events, errors, pages } from "~/static";
 
 // MODELS
 import type { Materials } from "~/common/models/experience-world.model";
-
-// MODELS
-import type { SceneComponentBlueprint } from "../blueprints/scene-component.blueprint";
 import type { Marker } from "~/common/models/experience-ui.model";
+
+// BLUEPRINTS
+import type { SceneComponentBlueprint } from "../blueprints/scene-component.blueprint";
 
 export class World extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
@@ -125,6 +125,7 @@ export class World extends ExperienceBasedBlueprint {
 			this.group?.clear();
 			this.group = undefined;
 			this.emit(events.DESTRUCTED, this);
+			this.removeAllListeners();
 		}
 	}
 
@@ -182,10 +183,7 @@ export class World extends ExperienceBasedBlueprint {
 			this.scene2.modelScene.position.copy(projectedScenePosition);
 			this.scene2.center.add(projectedScenePosition);
 			this._correctCameraPath(this.scene2.cameraPath, projectedScenePosition);
-			this._correctMarkersPosition(
-				this.scene2.markers,
-				projectedScenePosition
-			);
+			this._correctMarkersPosition(this.scene2.markers, projectedScenePosition);
 			this._availablePageScenes[pages.SKILL_PAGE] = this.scene2;
 			this.group?.add(this.scene2.modelScene);
 		}
@@ -194,10 +192,7 @@ export class World extends ExperienceBasedBlueprint {
 			this.scene3.modelScene.position.copy(projectedScenePosition);
 			this.scene3.center.add(projectedScenePosition);
 			this._correctCameraPath(this.scene3.cameraPath, projectedScenePosition);
-			this._correctMarkersPosition(
-				this.scene3.markers,
-				projectedScenePosition
-			);
+			this._correctMarkersPosition(this.scene3.markers, projectedScenePosition);
 			this._availablePageScenes[pages.CONTACT_PAGE] = this.scene3;
 			this.group?.add(this.scene3.modelScene);
 		}
@@ -209,11 +204,6 @@ export class World extends ExperienceBasedBlueprint {
 	}
 
 	public update() {
-		this.scene1?.update();
-		this.scene2?.update();
-		this.scene3?.update();
-		this.sceneContainer?.update();
 		this._manager?.update();
-		this.emit(events.UPDATED, this);
 	}
 }

@@ -7,8 +7,8 @@ const isFocusMode = useState<boolean>("isFocusMode");
 
 <template>
 	<footer
-		:class="`z-20 flex flex-row items-center justify-center p-4 text-light   bg-opacity-20 sm:backdrop-blur-none sm:bg-transparent sm:p-0 text-[3.5vw] xs:text-[12px] xs:justify-between transition-opacity flex-wrap ${
-			isFreeCamera ? '' : 'bg-black backdrop-blur-sm'
+		:class="`z-20 flex flex-row items-center justify-center p-4 text-light bg-opacity-20 sm:backdrop-blur-none sm:bg-transparent sm:p-0 text-[3.5vw] xs:text-[12px] xs:justify-between transition-opacity flex-wrap ${
+			isFreeCamera ? '' : 'bg-black'
 		}`"
 	>
 		<span

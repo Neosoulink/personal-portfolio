@@ -80,7 +80,6 @@ export class Sound extends ExperienceBasedBlueprint {
 			!computer_startup_audio
 		)
 			return;
-		this.listener;
 		this._camera?.instance.add(this.listener);
 
 		this.keyboard_typing_audio = new PositionalAudio(this.listener);

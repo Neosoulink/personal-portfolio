@@ -138,7 +138,7 @@ export abstract class SceneComponentBlueprint extends ExperienceBasedBlueprint {
 
 		if (!this.modelScene)
 			throw new ErrorFactory(
-				new Error("No model scene founded", { cause: errors.WRONG_PARAM })
+				new Error("No model scene found", { cause: errors.WRONG_PARAM })
 			);
 
 		if (typeof callback === "function") callback();

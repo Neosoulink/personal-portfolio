@@ -20,12 +20,14 @@ import camTransitionVert from "./shaders/glass-effect/vertex.glsl";
 
 // CONFIGS
 import { Config } from "~/config";
+import type { SceneComponentBlueprint } from "../blueprints/scene-component.blueprint";
 
 export class WorldManager extends ExperienceBasedBlueprint {
 	protected readonly _experience = new HomeExperience();
 
 	private readonly _appResources = this._experience.app.resources;
 	private readonly _router = this._experience.router;
+	private readonly _ui = this._experience.ui;
 	private readonly _camera = this._experience.camera;
 	private readonly _cameraAnimation = this._experience.cameraAnimation;
 	private readonly _navigation = this._experience.navigation;
@@ -37,12 +39,34 @@ export class WorldManager extends ExperienceBasedBlueprint {
 	};
 
 	private _world: typeof this._experience.world;
+	private _currentScene?: SceneComponentBlueprint;
 	private _prevSceneKey?: string;
 	private _prevProjectedSceneKey?: string;
-	private _onRouterChange?: () => unknown;
-	private _onCameraAnimationStart?: () => unknown;
-	private _onCameraAnimationEnd?: () => unknown;
-	private _onCameraAnimationChange?: () => unknown;
+	private _onUiReady = async () => {
+		await this._intro();
+		this._setScene();
+	};
+	private _onRouterChange = () => this._setScene();
+	private _onCameraAnimationStart = () => {
+		this._interactions?.stop();
+	};
+	private _onCameraAnimationEnd = () => {
+		if (!this._world || typeof this._router?.currentRouteKey !== "string")
+			return;
+
+		this._currentScene =
+			this._world.availablePageScenes[this._router.currentRouteKey];
+
+		this._currentScene.initSelectableObjects();
+		this._interactions?.start(
+			this._currentScene.selectableObjects,
+			this._currentScene.modelScene
+		);
+	};
+	private _onCameraAnimationChange = () => {
+		if (this._world?.manager?.timeline.isActive())
+			this._world.manager.timeline.progress(1);
+	};
 
 	public readonly timeline = gsap.timeline({
 		onStart: () => {},
@@ -127,7 +151,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		const prevScene = this?._prevSceneKey
 			? this._world.availablePageScenes[this._prevSceneKey]
 			: undefined;
-		const currentScene =
+		this._currentScene =
 			this._world.availablePageScenes[this._router.currentRouteKey];
 
 		if (this._camera?.timeline.isActive()) this._camera.timeline.progress(1);
@@ -135,7 +159,8 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			this._navigation.timeline.progress(1);
 		if (this.timeline.isActive()) this.timeline.progress(1);
 		if (prevScene?.timeline?.isActive()) prevScene.timeline.progress(1);
-		if (currentScene.timeline?.isActive()) currentScene.timeline.progress(1);
+		if (this._currentScene.timeline?.isActive())
+			this._currentScene.timeline.progress(1);
 
 		const scene1PcScreenPosition =
 			this._world.scene1?.pcScreen?.localToWorld(new Vector3()) ??
@@ -148,13 +173,15 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			this._router.currentRouteKey !== this._world.mainSceneKey &&
 			this._camera?.currentCameraIndex === 0;
 		const updateCameraToCurrentScene = (fast = true) => {
+			if (!this._currentScene) return;
+
 			if (this._navigation?.timeline.isActive())
 				this._navigation.timeline.progress(1);
 
 			return this._navigation
 				?.updateCameraPosition(
-					currentScene.cameraPath?.getPoint(0),
-					currentScene.center,
+					this._currentScene.cameraPath?.getPoint(0),
+					this._currentScene.center,
 					fast ? 0.84 : undefined
 				)
 				.add(() => {
@@ -165,7 +192,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 		if (this?._prevSceneKey !== this._world.mainSceneKey && !isSwitchingMain)
 			prevScene?.outro();
 		if (this._prevProjectedSceneKey !== this._router?.currentRouteKey) {
-			currentScene.intro();
+			this._currentScene.intro();
 
 			if (this._prevProjectedSceneKey && isSwitchingProjected) {
 				this._world.availablePageScenes[this._prevProjectedSceneKey]?.outro();
@@ -173,15 +200,16 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			}
 		}
 
-		this._navigation.setLimits(currentScene.navigationLimits);
-		this._navigation.setViewCenter(currentScene.center);
-		this._cameraAnimation.cameraPath = currentScene.cameraPath;
+		this._navigation.setLimits(this._currentScene.navigationLimits);
+		this._navigation.setViewCenter(this._currentScene.center);
+		this._cameraAnimation.cameraPath = this._currentScene.cameraPath;
 
 		this._cameraAnimation.progressCurrent = 0;
 		this._cameraAnimation.progressTarget = 0;
 		this._cameraAnimation.enable(true);
 
-		if (this._experience.ui) this._experience.ui.markers = currentScene.markers;
+		if (this._experience.ui)
+			this._experience.ui.markers = this._currentScene.markers;
 
 		if (isSwitchingMain || isSwitchingProjected)
 			this._navigation.view.limits = false;
@@ -290,29 +318,7 @@ export class WorldManager extends ExperienceBasedBlueprint {
 				cause: errors.WRONG_PARAM,
 			});
 
-		await this._intro();
-		this._setScene();
-		this._onRouterChange = () => this._setScene();
-		this._onCameraAnimationStart = () => {
-			this._interactions?.stop();
-		};
-		this._onCameraAnimationEnd = () => {
-			if (!this._world || typeof this._router?.currentRouteKey !== "string")
-				return;
-
-			const currentScene =
-				this._world.availablePageScenes[this._router.currentRouteKey];
-
-			currentScene.initSelectableObjects();
-			this._interactions?.start(
-				currentScene.selectableObjects,
-				currentScene.modelScene
-			);
-		};
-		this._onCameraAnimationChange = () => {
-			if (this._world?.manager?.timeline.isActive())
-				this._world.manager.timeline.progress(1);
-		};
+		this._ui?.on(events.LOADED, this._onUiReady);
 		this._router?.on(events.CHANGED, this._onRouterChange);
 		this._cameraAnimation?.on(events.CHANGED, this._onCameraAnimationChange);
 		this._cameraAnimation?.on(events.STARTED, this._onCameraAnimationStart);
@@ -321,16 +327,11 @@ export class WorldManager extends ExperienceBasedBlueprint {
 	}
 
 	public destruct() {
-		if (this._onRouterChange)
-			this._router?.off(events.CHANGED, this._onRouterChange);
-		if (this._onCameraAnimationStart)
-			this._cameraAnimation?.off(events.STARTED, this._onCameraAnimationStart);
-		if (this._onCameraAnimationEnd)
-			this._cameraAnimation?.off(events.ENDED, this._onCameraAnimationEnd);
-		this._onCameraAnimationChange &&
-			this._cameraAnimation?.off(events.CHANGED, this._onCameraAnimationChange);
-
 		this.emit(events.DESTRUCTED);
 		this.removeAllListeners();
+	}
+
+	public update(): void {
+		this._currentScene?.update();
 	}
 }

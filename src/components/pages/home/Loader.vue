@@ -94,7 +94,7 @@ const onPressStart = () => {
 	if (!isButtonPressable.value) return;
 	isButtonPressable.value = false;
 	window?.removeEventListener("keypress", onKeypress);
-	setTimeout(() => intro(), 200);
+	setTimeout(intro, 200);
 };
 
 const onKeypress = (e: KeyboardEvent) => {

@@ -34,7 +34,7 @@ const emits = defineEmits(["landingAnimationDone"]);
 
 		<LazyHomeContentBody
 			v-if="!canDisplayLanding && !!canDisplayBody"
-			class="w-full p-4 pb-0 bg-black sm:w-2/3 md:w-1/2 lg:w-[38%] text-light backdrop-blur-sm bg-opacity-20 sm:backdrop-blur-none sm:bg-transparent sm:p-0 sm:![text-shadow:_0_1px_3px_rgb(0_0_0_/_70%)] z-10"
+			class="w-full p-4 pb-0 bg-black sm:w-2/3 md:w-1/2 lg:w-[38%] text-light bg-opacity-20 sm:bg-transparent sm:p-0 sm:![text-shadow:_0_1px_3px_rgb(0_0_0_/_70%)] z-10"
 			:title="contentTitle"
 			:content="contentBody"
 		/>

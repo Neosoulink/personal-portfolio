@@ -22,7 +22,7 @@ export class UI extends ExperienceBasedBlueprint {
 		const beta = Number(e.beta) / 180;
 		const gamma = -Number(e.gamma) / 90;
 
-		this.emit(events.DEVICE_ORIENTATION, e, gamma * 3, beta * 3);
+		this.emit(events.DEVICE_ORIENTATION, e, gamma, beta);
 	};
 
 	public readonly targetElement = this._experience.app.canvas;

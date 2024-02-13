@@ -40,13 +40,13 @@ export class Debug extends ExperienceBasedBlueprint {
 
 	construct() {
 		if (!Config.DEBUG) {
-			this._appDebug?.ui?.destroy();
+			this._appDebug?.gui?.destroy();
 			return;
 		}
 
 		if (this._gui) this.destruct();
 
-		this._gui = this._experience.app.debug?.ui?.addFolder(HomeExperience.name);
+		this._gui = this._experience.app.debug?.gui?.addFolder(HomeExperience.name);
 		if (this._appDebug?.cameraControls) {
 			this._appDebug.cameraControls.dispose();
 			this._appDebug.cameraControls = undefined;

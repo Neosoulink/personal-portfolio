@@ -6,6 +6,15 @@ import { HomeExperience } from "~/experiences/home";
 import { events, pages } from "~/static";
 
 // DATA
+const head = useHead({
+	link: [
+		{
+			href: "/notes/about",
+			rel: "preload",
+			as: "document",
+		},
+	],
+});
 const appCanvasId = "home-experience";
 const availableRoutes = useState<{ name: string; path: string; key: string }[]>(
 	"availableRoutes",
@@ -111,6 +120,7 @@ const dispose = () => {
 	isExperienceConstructed.value = false;
 };
 
+prerenderRoutes(["/", "/skills", "/contact", "/notes/about", "/notes/credits"]);
 onMounted(init);
 onBeforeUnmount(dispose);
 onBeforeRouteUpdate((route) => {

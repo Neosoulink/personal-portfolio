@@ -132,14 +132,12 @@ export class Navigation extends ExperienceBasedBlueprint {
 		this._setConfig();
 
 		// Init view
-		~(() => {
-			this._view.spherical.value = new Spherical().setFromVector3(
-				this._camera?.instance.position ?? new Vector3()
-			);
-			this._view.spherical.smoothed = new Spherical().setFromVector3(
-				this._camera?.instance.position ?? new Vector3()
-			);
-		})();
+		this._view.spherical.value = new Spherical().setFromVector3(
+			this._camera?.instance.position ?? new Vector3()
+		);
+		this._view.spherical.smoothed = new Spherical().setFromVector3(
+			this._camera?.instance.position ?? new Vector3()
+		);
 
 		// Init mouse events
 

@@ -1,3 +1,5 @@
+import { events as quickEvents } from "quick-threejs/lib/static";
+
 // BLUEPRINTS
 import { ExperienceBlueprint } from "~/common/blueprints/experience.blueprint";
 
@@ -28,7 +30,7 @@ export class LiquidBgExperience extends ExperienceBlueprint {
 			super(
 				LiquidBgExperience._self ?? {
 					..._,
-					debug: !Config.DEBUG,
+					debug:  Config.DEBUG,
 				}
 			);
 			if (LiquidBgExperience._self) return LiquidBgExperience._self;
@@ -50,7 +52,7 @@ export class LiquidBgExperience extends ExperienceBlueprint {
 			this.world?.construct();
 			this.debug?.construct();
 
-			this.app?.setUpdateCallback(LiquidBgExperience.name, () => this.update());
+			this.app?.on(quickEvents.UPDATED, () => this.update());
 			this.emit?.(events.CONSTRUCTED);
 		} catch (_) {
 			throw new ErrorFactory(_);
@@ -58,17 +60,14 @@ export class LiquidBgExperience extends ExperienceBlueprint {
 	}
 
 	public destruct() {
-		this.app.updateCallbacks[LiquidBgExperience.name] &&
-			delete this.app.updateCallbacks[LiquidBgExperience.name];
-
 		this.ui?.destruct();
 		this.camera?.destruct();
 		this.world?.destruct();
 		this.debug?.destruct();
+		this.app.destruct();
+		LiquidBgExperience._self = undefined;
 		this.emit?.(events.DESTRUCTED);
 		this.removeAllListeners();
-		this.app.destroy();
-		LiquidBgExperience._self = undefined;
 	}
 
 	public update() {

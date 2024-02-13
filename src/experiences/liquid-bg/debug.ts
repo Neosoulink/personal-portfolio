@@ -26,11 +26,11 @@ export class Debug extends ExperienceBasedBlueprint {
 
 	construct() {
 		if (!Config.DEBUG) {
-			this._appDebug?.ui?.destroy();
+			this._appDebug?.gui?.destroy();
 			return;
 		}
 
-		this._gui = this._experience.app.debug?.ui?.addFolder(
+		this._gui = this._experience.app.debug?.gui?.addFolder(
 			LiquidBgExperience.name
 		);
 

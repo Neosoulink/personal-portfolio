@@ -44,8 +44,32 @@ export class Scene3Component extends SceneComponentBlueprint {
 	private _initialPcTopArticulation?: Object3D<Object3DEventMap>;
 	private _uTime = 0;
 	private _uTimestamps = 0;
-	private _onComposerStarted?: () => unknown;
-	private _onComposerEnded?: () => unknown;
+	private _onComposerStarted = () => {
+		if (
+			!this.pcScreenMixerPlane ||
+			!this._experience.composer?.passes ||
+			(Object.keys(this._experience.composer.passes).length > 0 &&
+				this._experience.interactions?.passName &&
+				this._experience.composer.passes[
+					this._experience.interactions.passName
+				])
+		)
+			return;
+		this.pcScreenMixerPlane.object3d.userData.visible =
+			this.pcScreenMixerPlane.object3d.visible;
+		this.pcScreenMixerPlane.object3d.visible = false;
+	};
+	private _onComposerEnded = () => {
+		if (
+			!this.pcScreenMixerPlane ||
+			typeof this.pcScreenMixerPlane?.object3d?.userData.visible !== "boolean"
+		)
+			return;
+
+		this.pcScreenMixerPlane.object3d.visible =
+			this.pcScreenMixerPlane.object3d.userData.visible;
+		this.pcScreenMixerPlane.object3d.userData.visible = undefined;
+	};
 
 	public readonly timeline = gsap.timeline();
 	public readonly navigationLimits = {
@@ -145,6 +169,8 @@ export class Scene3Component extends SceneComponentBlueprint {
 			if (this._renderer) this._renderer.enableCssRender = true;
 
 			const pcScreenDomElement = document.createElement("iframe");
+			pcScreenDomElement.setAttribute("seamless", "true");
+			pcScreenDomElement.loading = "lazy";
 			pcScreenDomElement.src = "/notes/about";
 			pcScreenDomElement.style.border = "none";
 
@@ -402,36 +428,10 @@ export class Scene3Component extends SceneComponentBlueprint {
 	public construct(): void {
 		super.construct();
 		this._initPcScreenIframe();
-		this._onComposerStarted = () => {
-			if (
-				!this.pcScreenMixerPlane ||
-				!this._experience.composer?.passes ||
-				(Object.keys(this._experience.composer.passes).length > 0 &&
-					this._experience.interactions?.passName &&
-					this._experience.composer.passes[
-						this._experience.interactions.passName
-					])
-			)
-				return;
-			this.pcScreenMixerPlane.object3d.userData.visible =
-				this.pcScreenMixerPlane.object3d.visible;
-			this.pcScreenMixerPlane.object3d.visible = false;
-		};
-		this._onComposerEnded = () => {
-			if (
-				!this.pcScreenMixerPlane ||
-				typeof this.pcScreenMixerPlane?.object3d?.userData.visible !== "boolean"
-			)
-				return;
 
-			this.pcScreenMixerPlane.object3d.visible =
-				this.pcScreenMixerPlane.object3d.userData.visible;
-			this.pcScreenMixerPlane.object3d.userData.visible = undefined;
-		};
+		const matKeys = Object.keys(this._availableMaterials).slice(3);
 
-		const _MAT_KEYS = Object.keys(this._availableMaterials).slice(3);
-
-		for (const key of _MAT_KEYS) this._availableMaterials[key].visible = false;
+		for (const key of matKeys) this._availableMaterials[key].visible = false;
 
 		this._experience.composer?.on(events.STARTED, this._onComposerStarted);
 		this._experience.composer?.on(events.ENDED, this._onComposerEnded);
@@ -439,11 +439,6 @@ export class Scene3Component extends SceneComponentBlueprint {
 
 	public destruct(): void {
 		super.destruct();
-
-		this._onComposerStarted &&
-			this._experience.composer?.off(events.STARTED, this._onComposerStarted);
-		this._onComposerEnded &&
-			this._experience.composer?.off(events.ENDED, this._onComposerEnded);
 	}
 
 	public intro() {
@@ -451,19 +446,19 @@ export class Scene3Component extends SceneComponentBlueprint {
 
 		this.modelScene.renderOrder = 1;
 
-		const _PARAMS = { alphaTest: 0 };
-		const _MAT_KEYS = Object.keys(this._availableMaterials);
-		const _ALPHA_MAT_KEYS = _MAT_KEYS.slice(0, 3);
-		const _OTHER_MAT_KEYS = _MAT_KEYS.slice(3);
+		const params = { alphaTest: 0 };
+		const matKeys = Object.keys(this._availableMaterials);
+		const alphaMatKeys = matKeys.slice(0, 3);
+		const otherMatKeys = matKeys.slice(3);
 
 		return this.togglePcOpening(1)
 			?.add(
-				gsap.to(_PARAMS, {
+				gsap.to(params, {
 					alphaTest: 1,
 					duration: Config.GSAP_ANIMATION_DURATION,
 					onUpdate: () => {
-						for (const key of _ALPHA_MAT_KEYS)
-							this._availableMaterials[key].alphaTest = 1 - _PARAMS.alphaTest;
+						for (const key of alphaMatKeys)
+							this._availableMaterials[key].alphaTest = 1 - params.alphaTest;
 					},
 				}),
 				"<"
@@ -472,7 +467,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 				if (this._renderer) this._renderer.enableCssRender = true;
 				if (this.pcScreenMixerPlane)
 					this.pcScreenMixerPlane.object3d.visible = true;
-				for (const key of _OTHER_MAT_KEYS)
+				for (const key of otherMatKeys)
 					this._availableMaterials[key].visible = true;
 			}, "<40%");
 	}
@@ -482,25 +477,25 @@ export class Scene3Component extends SceneComponentBlueprint {
 
 		this.modelScene.renderOrder = 2;
 
-		const _PARAMS = { alphaTest: 0 };
-		const _MAT_KEYS = Object.keys(this._availableMaterials);
-		const _ALPHA_MAT_KEYS = _MAT_KEYS.slice(0, 3);
-		const _OTHER_MAT_KEYS = _MAT_KEYS.slice(3);
+		const params = { alphaTest: 0 };
+		const matKeys = Object.keys(this._availableMaterials);
+		const alphaMatKeys = matKeys.slice(0, 3);
+		const otherMatKeys = matKeys.slice(3);
 
 		return this.togglePcOpening(0)?.add(
-			gsap.to(_PARAMS, {
+			gsap.to(params, {
 				alphaTest: 1,
 				duration: Config.GSAP_ANIMATION_DURATION,
 				onStart: () => {
 					if (this._renderer) this._renderer.enableCssRender = false;
 					if (this.pcScreenMixerPlane)
 						this.pcScreenMixerPlane.object3d.visible = false;
-					for (const key of _OTHER_MAT_KEYS)
+					for (const key of otherMatKeys)
 						this._availableMaterials[key].visible = false;
 				},
 				onUpdate: () => {
-					for (const key of _ALPHA_MAT_KEYS)
-						this._availableMaterials[key].alphaTest = _PARAMS.alphaTest;
+					for (const key of alphaMatKeys)
+						this._availableMaterials[key].alphaTest = params.alphaTest;
 				},
 			}),
 			"<"

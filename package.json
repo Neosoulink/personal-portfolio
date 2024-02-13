@@ -51,7 +51,7 @@
 		"glsl-blend": "^1.0.3",
 		"gsap": "^3.12.5",
 		"normalize-wheel": "^1.0.1",
-		"quick-threejs": "^0.1.32",
+		"quick-threejs": "^0.1.33",
 		"three": "^0.161.0",
 		"threex.htmlmixer-continued": "^0.0.5"
 	}

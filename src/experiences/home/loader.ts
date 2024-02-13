@@ -1,5 +1,6 @@
 import { Texture, LinearSRGBColorSpace, VideoTexture } from "three";
 import type { LoadedItem, Source } from "quick-threejs/lib/utils/Resources";
+import { events as quickEvents } from "quick-threejs/lib/static";
 
 // EXPERIENCE
 import { HomeExperience } from ".";
@@ -232,6 +233,7 @@ export class Loader extends ExperienceBasedBlueprint {
 			this.emit(PROGRESSED, this._progress, source.path);
 			this._initAvailableResource(source, file);
 		};
+
 		const onLoad = () => {
 			this._appResources.off("start", onStart);
 			this._appResources.off("progress", onProgress);
@@ -240,9 +242,9 @@ export class Loader extends ExperienceBasedBlueprint {
 		};
 
 		this._progress = 0;
-		this._appResources.on("start", onStart);
-		this._appResources.on("progress", onProgress);
-		this._appResources.on("load", onLoad);
+		this._appResources.on(quickEvents.STARTED, onStart);
+		this._appResources.on(quickEvents.PROGRESSED, onProgress);
+		this._appResources.on(quickEvents.LOADED, onLoad);
 		this._appResources.startLoading();
 		this.emit(CONSTRUCTED, this._progress);
 	}
@@ -256,12 +258,8 @@ export class Loader extends ExperienceBasedBlueprint {
 		for (let i = 0; i < keys.length; i++) {
 			const item = this._appResources.items[keys[i]];
 			if (item instanceof Texture) item.dispose();
-			if (item instanceof AudioBuffer) {
-				console.log("triggered", this._appResources.items[keys[i]]);
-			}
 		}
 
-		this._appResources.setSources([]);
 		this.emit(DESTRUCTED);
 		this.removeAllListeners();
 	}
