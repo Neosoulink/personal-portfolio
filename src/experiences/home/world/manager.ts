@@ -45,6 +45,12 @@ export class WorldManager extends ExperienceBasedBlueprint {
 	private _onUiReady = async () => {
 		await this._intro();
 		this._setScene();
+
+		this._router?.on(events.CHANGED, this._onRouterChange);
+		this._cameraAnimation?.on(events.CHANGED, this._onCameraAnimationChange);
+		this._cameraAnimation?.on(events.STARTED, this._onCameraAnimationStart);
+		this._cameraAnimation?.on(events.ENDED, this._onCameraAnimationEnd);
+		this.emit(events.CONSTRUCTED, this);
 	};
 	private _onRouterChange = () => this._setScene();
 	private _onCameraAnimationStart = () => {
@@ -319,11 +325,6 @@ export class WorldManager extends ExperienceBasedBlueprint {
 			});
 
 		this._ui?.on(events.LOADED, this._onUiReady);
-		this._router?.on(events.CHANGED, this._onRouterChange);
-		this._cameraAnimation?.on(events.CHANGED, this._onCameraAnimationChange);
-		this._cameraAnimation?.on(events.STARTED, this._onCameraAnimationStart);
-		this._cameraAnimation?.on(events.ENDED, this._onCameraAnimationEnd);
-		this.emit(events.CONSTRUCTED, this);
 	}
 
 	public destruct() {

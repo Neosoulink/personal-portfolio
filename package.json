@@ -8,9 +8,9 @@
 		"type": "git"
 	},
 	"contributors": [
-		"MNAth_"
+		"@MNAth_"
 	],
-	"description": "Official @MNAth_ website",
+	"description": "Official @MNAth_'s website",
 	"private": true,
 	"scripts": {
 		"prepare": "husky install",
