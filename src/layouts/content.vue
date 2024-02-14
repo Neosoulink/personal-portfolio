@@ -25,15 +25,19 @@ const route = useRoute();
 					class="relative w-full mb-2 sm:mb-4 sm:min-h-[220px] sm:h-[50vh] sm:max-h-[300px]"
 				>
 					<div
-						class="sm:absolute left-0 sm:w-[5px] sm:h-full sm:bg-light flex justify-start items-start sm:ml-[70px] w-full h-auto"
+						class="sm:absolute left-0 sm:w-[5px] motion-safe:animate-[.4s_ease-in-out_extend-height_forwards] s sm:bg-light flex justify-start items-start sm:ml-[70px] w-full h-auto"
 					>
 						<h1
-							class="text-4xl xs:text-5xl sm:text-6xl sm:top-0 sm:-left-3 rotate-0 sm:rotate-90 relative sm:after:absolute sm:after:h-1 sm:after:-top-5 sm:after:transition-[width] sm:after:w-full sm:after:bg-light sm:after:left-0 tracking-wider font-medium uppercase"
+							class="relative text-4xl font-medium tracking-wider uppercase rotate-0 xs:text-5xl sm:text-6xl sm:top-0 sm:-left-3 sm:rotate-90"
 						>
 							<span
 								class="sm:absolute sm:w-[100vh] nav-link sm:tracking-normal"
 								>{{
-									layoutState.title.length ? layoutState.title : route.name
+									layoutState.title.length
+										? layoutState.title
+										: route.name === "index"
+										? ""
+										: route.name
 								}}</span
 							>
 						</h1>

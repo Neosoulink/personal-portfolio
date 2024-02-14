@@ -52,7 +52,6 @@ export interface NavigationView {
 	onTouchStart?: (event: TouchEvent) => unknown;
 	onTouchEnd?: (event: TouchEvent) => unknown;
 	onTouchMove?: (event: TouchEvent) => unknown;
-	onContextMenu?: (event: MouseEvent) => unknown;
 	onWheel?: (event: Event) => unknown;
 	onLeave?: (event: Event) => unknown;
 }

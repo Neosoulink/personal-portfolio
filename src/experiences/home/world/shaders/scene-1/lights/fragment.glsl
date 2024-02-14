@@ -31,4 +31,6 @@ void main() {
 	float alpha = smoothstep(0.0, 1.0, 1.0);
 
 	gl_FragColor = vec4(bakedColor, alpha);
+
+	#include <colorspace_fragment>
 }

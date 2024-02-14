@@ -30,9 +30,10 @@ export class Interactions extends ExperienceBasedBlueprint {
 	private readonly _navigation = this._experience.navigation;
 	private readonly _ui = this._experience.ui;
 	private readonly _router = this._experience.router;
-	private readonly _mouseCoordinate = new Vector2();
-	private readonly _focusedMouseCoordinate = new Vector2();
-	private readonly _normalizedMouseCoordinate = new Vector2();
+	private readonly _cameraAnimation = this._experience.cameraAnimation;
+	private readonly _pointerCoord = new Vector2();
+	private readonly _focusCoord = new Vector2();
+	private readonly _normalizedFocusCoord = new Vector2();
 	private readonly _outlineDefault = {
 		strength: 2,
 		glow: 1,
@@ -65,22 +66,59 @@ export class Interactions extends ExperienceBasedBlueprint {
 	public outlinePass?: OutlinePass;
 	public controls = true;
 
-	private readonly _onPointerDownEvent = (e: PointerEvent) => {
-		this._onPointerMoveEvent(e);
-
+	private readonly _onTouchMove = (
+		e: PointerEvent | IframeMouseDispatcherEvent
+	) => {
 		if (
+			this._cameraAnimation?.enabled ||
+			(e instanceof PointerEvent && !e.isPrimary) ||
+			!this.controls ||
+			this.timeline.isActive() ||
+			this._navigation?.timeline.isActive()
+		)
+			return;
+		e.preventDefault();
+	};
+
+	private readonly _onPointerDown = (e: PointerEvent) => {
+		if (
+			this._cameraAnimation?.enabled ||
 			!e.isPrimary ||
+			!this.enabled ||
 			!this.controls ||
 			!this.outlinePass?.selectedObjects.length ||
-			!this._camera?.instance ||
 			!this._selectedObject?.uuid
 		)
 			return;
 
 		this._pointerDownSelectedObject = this._selectedObject;
 	};
+	private readonly _onPointerMove = (
+		e: PointerEvent | IframeMouseDispatcherEvent
+	) => {
+		if (
+			this._cameraAnimation?.enabled ||
+			(e instanceof PointerEvent && !e.isPrimary) ||
+			!this.controls ||
+			this.timeline.isActive() ||
+			this._navigation?.timeline.isActive()
+		)
+			return;
 
-	private readonly _onPointerUpEvent = (e: PointerEvent) => {
+		const clientX =
+			e instanceof PointerEvent ? e.clientX : e.detail?.clientX ?? 0.5;
+		const clientY =
+			e instanceof PointerEvent ? e.clientY : e.detail?.clientY ?? 0.5;
+
+		this._pointerCoord.x = (clientX / this._appSizes.width) * 2 - 1;
+		this._pointerCoord.y = -(clientY / this._appSizes.height) * 2 + 1;
+
+		this._normalizedFocusCoord.x = -(clientX / this._appSizes.width - 0.5);
+		this._normalizedFocusCoord.y = clientY / this._appSizes.height - 0.5;
+
+		this._checkIntersection();
+	};
+	private readonly _onPointerUp = (e: PointerEvent) => {
 		if (
 			!e.isPrimary ||
 			!this.controls ||
@@ -161,17 +199,14 @@ export class Interactions extends ExperienceBasedBlueprint {
 					if (currentObject) this.focusedObject = currentObject;
 					if (this._navigation?.view) this._navigation.view.limits = true;
 
-					// TODO: If you leave it like this in prod... wtf man
 					const iframeElement =
 						this._experience.world?.scene3?.pcScreenMixerPlane?.domElement;
-					if (iframeElement instanceof HTMLIFrameElement) {
+					if (iframeElement instanceof HTMLIFrameElement)
 						this._onIframeMouseMoveCleanUp = iframeMouseMoveDispatcher(
 							iframeElement,
-							(e) => {
-								this._onPointerMoveEvent(e);
-							}
+							(e) => this._onPointerMove(e)
 						);
-					}
+
 					this.emit(events.INTERACTION_FOCUS_ANIMATION_DONE);
 					this.emit(events.CHANGED);
 				});
@@ -182,30 +217,6 @@ export class Interactions extends ExperienceBasedBlueprint {
 		if (currentObject?.externalLink)
 			return window.open(currentObject.externalLink, "_blank");
 	};
-
-	private readonly _onPointerMoveEvent = (
-		e: PointerEvent | IframeMouseMoveDispatcherEvent
-	) => {
-		if (
-			(e instanceof PointerEvent && !e.isPrimary) ||
-			!this.controls ||
-			this.timeline.isActive() ||
-			this._navigation?.timeline.isActive()
-		)
-			return;
-
-		const clientX = e instanceof PointerEvent ? e.clientX : e.detail.clientX;
-		const clientY = e instanceof PointerEvent ? e.clientY : e.detail.clientY;
-
-		this._mouseCoordinate.x = (clientX / this._appSizes.width) * 2 - 1;
-		this._mouseCoordinate.y = -(clientY / this._appSizes.height) * 2 + 1;
-
-		this._normalizedMouseCoordinate.x = -(clientX / this._appSizes.width - 0.5);
-		this._normalizedMouseCoordinate.y = clientY / this._appSizes.height - 0.5;
-
-		this._checkIntersection();
-	};
-
 	private readonly _onRouteChange = () => {
 		if (this._ui?.targetElement) this._ui.targetElement.style.cursor = "auto";
 		this.stop();
@@ -214,9 +225,10 @@ export class Interactions extends ExperienceBasedBlueprint {
 	private _onIframeMouseMoveCleanUp?: () => unknown;
 
 	private _checkIntersection() {
-		if (!this._camera?.instance) throw new Error("Wrong params");
 		if (
+			!this._camera?.instance ||
 			!this.enabled ||
+			!this.controls ||
 			!this.outlinePass ||
 			!this._intersectableContainer ||
 			this.isFocusing
@@ -227,7 +239,7 @@ export class Interactions extends ExperienceBasedBlueprint {
 		this._selectedObject = undefined;
 		if (this._ui?.targetElement) this._ui.targetElement.style.cursor = "auto";
 
-		this.raycaster.setFromCamera(this._mouseCoordinate, this._camera.instance);
+		this.raycaster.setFromCamera(this._pointerCoord, this._camera.instance);
 
 		const intersects = this.raycaster.intersectObject(
 			this._intersectableContainer,
@@ -245,6 +257,33 @@ export class Interactions extends ExperienceBasedBlueprint {
 		this.outlinePass.selectedObjects = [selectedObj];
 		if (this._ui?.targetElement)
 			this._ui.targetElement.style.cursor = "pointer";
+	}
+
+	private _getFocusedPosition(object: SelectableObject) {
+		if (!object.focusTarget || !object.focusRadius || !this._camera?.instance)
+			return new Vector3();
+
+		return new Vector3(
+			object.focusTarget.x -
+				object.focusRadius *
+					Math.cos(
+						this._focusCoord.x -
+							this._camera.instance.rotation.y +
+							Math.PI * 0.5 +
+							Number(object.focusOffset?.x)
+					),
+			object.focusTarget.y -
+				object.focusRadius *
+					Math.sin(this._focusCoord.y + Number(object.focusOffset?.y)),
+			object.focusTarget.z -
+				object.focusRadius *
+					Math.sin(
+						this._focusCoord.x -
+							this._camera.instance.rotation.y +
+							Math.PI * 0.5 +
+							Number(object.focusOffset?.z)
+					)
+		);
 	}
 
 	public get enabled() {
@@ -378,44 +417,16 @@ export class Interactions extends ExperienceBasedBlueprint {
 	}
 
 	public construct() {
-		this._ui?.on(events.POINTER_MOVE, this._onPointerMoveEvent);
-		this._ui?.on(events.POINTER_DOWN, this._onPointerDownEvent);
-		this._ui?.on(events.POINTER_UP, this._onPointerUpEvent);
+		this._ui?.on(events.TOUCH_MOVE, this._onTouchMove);
+		this._ui?.on(events.POINTER_MOVE, this._onPointerMove);
+		this._ui?.on(events.POINTER_DOWN, this._onPointerDown);
+		this._ui?.on(events.POINTER_UP, this._onPointerUp);
 		this._router?.on(events.CHANGED, this._onRouteChange);
 	}
 
 	public destruct() {
 		this.emit(events.DESTRUCTED);
 		this.removeAllListeners();
-	}
-
-	private _getFocusedPosition(object: SelectableObject) {
-		if (!object.focusTarget || !object.focusRadius || !this._camera?.instance)
-			return new Vector3();
-
-		return new Vector3(
-			object.focusTarget.x -
-				object.focusRadius *
-					Math.cos(
-						this._focusedMouseCoordinate.x -
-							this._camera.instance.rotation.y +
-							Math.PI * 0.5 +
-							Number(object.focusOffset?.x)
-					),
-			object.focusTarget.y -
-				object.focusRadius *
-					Math.sin(
-						this._focusedMouseCoordinate.y + Number(object.focusOffset?.y)
-					),
-			object.focusTarget.z -
-				object.focusRadius *
-					Math.sin(
-						this._focusedMouseCoordinate.x -
-							this._camera.instance.rotation.y +
-							Math.PI * 0.5 +
-							Number(object.focusOffset?.z)
-					)
-		);
 	}
 
 	public update(): void {
@@ -428,12 +439,10 @@ export class Interactions extends ExperienceBasedBlueprint {
 		)
 			return;
 
-		this._focusedMouseCoordinate.x +=
-			(this._normalizedMouseCoordinate.x - this._focusedMouseCoordinate.x) *
-			0.1;
-		this._focusedMouseCoordinate.y +=
-			(this._normalizedMouseCoordinate.y - this._focusedMouseCoordinate.y) *
-			0.1;
+		this._focusCoord.x +=
+			(this._normalizedFocusCoord.x - this._focusCoord.x) * 0.1;
+		this._focusCoord.y +=
+			(this._normalizedFocusCoord.y - this._focusCoord.y) * 0.1;
 
 		const focusedPosition = this._getFocusedPosition(this.focusedObject);
 		if (!focusedPosition) return;

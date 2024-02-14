@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="w-screen overflow-hidden min-h-dvh"
+		class="w-screen overflow-hidden min-h-safe"
 	>
 		<G-Menu />
 

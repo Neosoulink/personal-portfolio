@@ -255,14 +255,13 @@ export class Navigation extends ExperienceBasedBlueprint {
 			this._ui?.off(events.TOUCH_MOVE, this._view.onTouchMove);
 		};
 
-		this._view.onContextMenu = (e) => {};
-
 		this._view.onWheel = (e) => {
 			if (
 				!this._view.controls ||
 				!this._view.enabled ||
 				!this._view.zooming ||
-				!this._view.onWheel
+				!this._view.onWheel ||
+				this._experience.cameraAnimation?.enabled
 			)
 				return;
 
@@ -278,7 +277,6 @@ export class Navigation extends ExperienceBasedBlueprint {
 
 		this._ui?.on(events.MOUSE_DOWN, this._view.onMouseDown);
 		this._ui?.on(events.TOUCH_START, this._view.onTouchStart);
-		this._ui?.on(events.CONTEXT_MENU, this._view.onContextMenu);
 		this._ui?.on(events.WHEEL, this._view.onWheel);
 		this._ui?.on(events.POINTER_LEAVE, this._view.onLeave);
 		this._ui?.on(events.POINTER_ENTER, this._view.onLeave);

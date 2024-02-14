@@ -52,35 +52,30 @@ export class UI extends ExperienceBasedBlueprint {
 		this.emit(events.MOUSE_MOVE, e, this._getNormalizePointerCoord(e));
 	private readonly _onMouseUp = (e: MouseEvent) =>
 		this.emit(events.MOUSE_UP, e, this._getNormalizePointerCoord(e));
-
 	private readonly _onMouseEnter = (e: MouseEvent) =>
 		this.emit(events.MOUSE_ENTER, e, this._getNormalizePointerCoord(e));
-
 	private readonly _onMouseLeave = (e: MouseEvent) =>
 		this.emit(events.MOUSE_LEAVE, e, this._getNormalizePointerCoord(e));
-
 	private readonly _onTouchStart = (e: TouchEvent) =>
 		this.emit(events.TOUCH_START, e);
-
 	private readonly _onTouchMove = (e: TouchEvent) =>
 		this.emit(events.TOUCH_MOVE, e);
-
 	private readonly _onTouchEnd = (e: TouchEvent) =>
 		this.emit(events.TOUCH_END, e);
-
 	private readonly _onContextMenu = (e: MouseEvent) => {
 		e.preventDefault();
 		this.emit(events.CONTEXT_MENU, e);
 	};
-	private readonly _onDeviceOrientation = (e: DeviceOrientationEvent) => {
-		const beta = Number(e.beta) / 180;
-		const gamma = -Number(e.gamma) / 90;
-
-		this.emit(events.DEVICE_ORIENTATION, e, gamma * 3, beta * 3);
-	};
 	private readonly _onWheel = (e: WheelEvent) => {
 		e.preventDefault();
 		this.emit(events.WHEEL, e);
+	};
+	private readonly _onIframeLinkClick = (e: any) => {
+		const event = e as CustomEvent<IframeLinkClickEventDetails> | undefined;
+		if (!event?.detail?.link) return;
+		event.preventDefault();
+
+		window.open(event.detail.link);
 	};
 
 	private _cssTargetElement?: HTMLElement;
@@ -201,17 +196,25 @@ export class UI extends ExperienceBasedBlueprint {
 		window.addEventListener("mouseup", this._onMouseUp);
 		window.addEventListener("mouseenter", this._onMouseEnter);
 		window.addEventListener("mouseleave", this._onMouseLeave);
-		window.addEventListener("touchstart", this._onTouchStart);
-		window.addEventListener("touchmove", this._onTouchMove);
+		window.addEventListener("touchstart", this._onTouchStart, {
+			passive: false,
+		});
+		window.addEventListener("touchmove", this._onTouchMove, { passive: false });
 		window.addEventListener("touchend", this._onTouchEnd);
-		window.addEventListener("pointermove", this._onPointerMove);
-		window.addEventListener("pointerdown", this._onPointerDown);
+		window.addEventListener("pointerdown", this._onPointerDown, {
+			passive: false,
+		});
+		window.addEventListener("pointermove", this._onPointerMove, {
+			passive: false,
+		});
 		window.addEventListener("pointerup", this._onPointerUp);
 		window.addEventListener("pointerenter", this._onPointerEnter);
 		window.addEventListener("pointerleave", this._onPointerLeave);
-		window.addEventListener("contextmenu", this._onContextMenu);
-		window.addEventListener("deviceorientation", this._onDeviceOrientation);
+		window.addEventListener("contextmenu", this._onContextMenu, {
+			passive: false,
+		});
 		window.addEventListener("wheel", this._onWheel, { passive: false });
+		window.addEventListener("iframelinkclick", this._onIframeLinkClick);
 
 		this.emit(events.CONSTRUCTED);
 	}
@@ -231,14 +234,14 @@ export class UI extends ExperienceBasedBlueprint {
 		window.removeEventListener("touchstart", this._onTouchStart);
 		window.removeEventListener("touchmove", this._onTouchMove);
 		window.removeEventListener("touchend", this._onTouchEnd);
-		window.removeEventListener("pointermove", this._onPointerMove);
 		window.removeEventListener("pointerdown", this._onPointerDown);
+		window.removeEventListener("pointermove", this._onPointerMove);
 		window.removeEventListener("pointerup", this._onPointerUp);
 		window.removeEventListener("pointerenter", this._onPointerEnter);
 		window.removeEventListener("pointerleave", this._onPointerLeave);
 		window.removeEventListener("contextmenu", this._onContextMenu);
-		window.removeEventListener("deviceorientation", this._onDeviceOrientation);
 		window.removeEventListener("wheel", this._onWheel);
+		window.removeEventListener("iframelinkclick", this._onIframeLinkClick);
 
 		this.emit(events.DESTRUCTED);
 		this.removeAllListeners();

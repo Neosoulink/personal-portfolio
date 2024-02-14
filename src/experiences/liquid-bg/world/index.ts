@@ -7,6 +7,8 @@ import {
 	Vector2,
 	Raycaster,
 } from "three";
+import { MathUtils } from "three/src/math/MathUtils.js";
+
 
 // BLUEPRINTS
 import { ExperienceBasedBlueprint } from "~/common/blueprints/experience-based.blueprint";
@@ -20,7 +22,6 @@ import { events } from "~/static";
 // SHADERS
 import fragmentShader from "./shader/fragment.glsl";
 import vertexShader from "./shader/vertex.glsl";
-import { MathUtils } from "three/src/math/MathUtils.js";
 
 export class World extends ExperienceBasedBlueprint {
 	protected _experience = new LiquidBgExperience();
@@ -30,12 +31,16 @@ export class World extends ExperienceBasedBlueprint {
 	private readonly _appSizes = this._experience.app.sizes;
 	private readonly _ui = this._experience.ui;
 	private readonly _camera = this._experience.camera;
-	private readonly _onPointerMove = (e: PointerEvent, x: number, y: number) => {
+	private readonly _onPointerMove = (
+		_e: PointerEvent,
+		x: number,
+		y: number
+	) => {
 		this._calculatePlaneUv(x, y);
 		this._calculatePlaneRotation(x, y);
 	};
 	private readonly _onDeviceOrientation = (
-		e: PointerEvent,
+		_e: DeviceOrientationEvent,
 		beta: number,
 		gamma: number
 	) => {
@@ -56,19 +61,11 @@ export class World extends ExperienceBasedBlueprint {
 		this._plane.scale.set(newScale, newScale, 1);
 	};
 
-	private _prevPointerCoord = {
-		x: 0,
-		y: 0,
-	};
-	private _planeTargetRotation = {
-		x: 0,
-		y: 0,
-	};
 	private _raycaster?: Raycaster;
-	private _cursorCurrentX = 0.5;
-	private _cursorCurrentY = 0.5;
-	private _planeCursorTargetX = 0.5;
-	private _planeCursorTargetY = 0.5;
+	private _prevPointerCoord = new Vector2();
+	private _planeTargetRotation = new Vector2();
+	private _cursorCoord = new Vector2(0.5);
+	private _planeCoord = new Vector2(0.5);
 	private _plane?: Mesh<PlaneGeometry, ShaderMaterial>;
 	private _uTime = 0;
 
@@ -106,8 +103,7 @@ export class World extends ExperienceBasedBlueprint {
 		const intersectedObject = intersects[0];
 
 		if (!intersectedObject?.uv) return;
-		this._planeCursorTargetX = intersectedObject.uv.x;
-		this._planeCursorTargetY = intersectedObject.uv.y;
+		this._planeCoord.set(intersectedObject.uv.x, intersectedObject.uv.y);
 	}
 	private _calculatePlaneRotation(x: number, y: number) {
 		if (!this._raycaster || !this._camera?.instance || !this._plane) return;
@@ -118,23 +114,14 @@ export class World extends ExperienceBasedBlueprint {
 		this._planeTargetRotation.x -= rotationX;
 		this._planeTargetRotation.y += rotationY;
 
-		this._prevPointerCoord = {
-			x,
-			y,
-		};
+		this._prevPointerCoord.set(x, y);
 	}
 
 	private _interpolatePointerCoord() {
 		const ease = 0.1;
-		this._cursorCurrentX = MathUtils.lerp(
-			this._cursorCurrentX,
-			this._planeCursorTargetX,
-			ease
-		);
-		this._cursorCurrentY = MathUtils.lerp(
-			this._cursorCurrentY,
-			this._planeCursorTargetY,
-			ease
+		this._cursorCoord.set(
+			MathUtils.lerp(this._cursorCoord.x, this._planeCoord.x, ease),
+			MathUtils.lerp(this._cursorCoord.y, this._planeCoord.y, ease)
 		);
 	}
 
@@ -191,8 +178,8 @@ export class World extends ExperienceBasedBlueprint {
 
 		if (this._plane.material.uniforms?.uCursor?.value instanceof Vector2)
 			this._plane.material.uniforms.uCursor.value.set(
-				this._cursorCurrentX,
-				this._cursorCurrentY
+				this._cursorCoord.x,
+				this._cursorCoord.y
 			);
 
 		this._interpolatePointerCoord();

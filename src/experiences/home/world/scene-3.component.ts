@@ -70,6 +70,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 			this.pcScreenMixerPlane.object3d.userData.visible;
 		this.pcScreenMixerPlane.object3d.userData.visible = undefined;
 	};
+	private _iframeUnloadCleanUp?: () => unknown;
 
 	public readonly timeline = gsap.timeline();
 	public readonly navigationLimits = {
@@ -170,7 +171,6 @@ export class Scene3Component extends SceneComponentBlueprint {
 
 			const pcScreenDomElement = document.createElement("iframe");
 			pcScreenDomElement.setAttribute("seamless", "true");
-			pcScreenDomElement.loading = "lazy";
 			pcScreenDomElement.src = "/notes/about";
 			pcScreenDomElement.style.border = "none";
 
@@ -439,6 +439,7 @@ export class Scene3Component extends SceneComponentBlueprint {
 
 	public destruct(): void {
 		super.destruct();
+		this._iframeUnloadCleanUp?.();
 	}
 
 	public intro() {

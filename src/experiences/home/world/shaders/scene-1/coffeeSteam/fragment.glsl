@@ -26,4 +26,6 @@ void main() {
     perlin = min(perlin, 1.0);
 
     gl_FragColor = vec4(uColor, perlin);
+
+    #include <colorspace_fragment>
 }
