@@ -13,12 +13,15 @@ definePageMeta({
 </script>
 
 <template>
-	<LazyHomeContent
-		:can-display-landing="canDisplayLanding"
-		:landing-head="$t('contactLandingHead')"
-		:landing-foot="$t('contactLandingFoot')"
-		:content-title="$t('contactTitle')"
-		:content-body="$t('contactContent')"
-		@landing-animation-done="() => (canDisplayLanding = false)"
-	/>
+	<div>
+		<Title>Nathan Mande - Contact</Title>
+		<LazyHomeContent
+			:can-display-landing="canDisplayLanding"
+			:landing-head="$t('contactLandingHead')"
+			:landing-foot="$t('contactLandingFoot')"
+			:content-title="$t('contactTitle')"
+			:content-body="$t('contactContent')"
+			@landing-animation-done="() => (canDisplayLanding = false)"
+		/>
+	</div>
 </template>

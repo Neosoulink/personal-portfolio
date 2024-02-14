@@ -16,6 +16,16 @@ const parsedContents = ref<
 	}[]
 >([]);
 
+useHead({
+	title: "Nathan Mande - Writing",
+	meta: [
+		{
+			name: "description",
+			content: t("iShareTips"),
+		},
+	],
+});
+
 definePageMeta({
 	layout: "content",
 });

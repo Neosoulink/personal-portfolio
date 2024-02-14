@@ -14,6 +14,16 @@ const projectsList = ref<
 >([]);
 const t = useI18n().t;
 
+useHead({
+	title: "Nathan Mande - Projects",
+	meta: [
+		{
+			name: "description",
+			content: t("iShareOpenSource"),
+		},
+	],
+});
+
 definePageMeta({
 	layout: "content",
 });

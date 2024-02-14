@@ -112,6 +112,7 @@ const dispose = () => {
 };
 
 useHead({
+	title: "Nathan Mande - Home",
 	link: [
 		{
 			href: "/notes/about",
@@ -127,6 +128,7 @@ useHead({
 		},
 	],
 });
+
 prerenderRoutes(["/notes/about", "/notes/credits"]);
 onMounted(init);
 onBeforeUnmount(dispose);
@@ -154,7 +156,7 @@ onBeforeRouteUpdate((route) => {
 
 			<section class="flex flex-col flex-1 sm:flex-row">
 				<LazyHomeNav />
-				<LazyNuxtPage class="relative flex" />
+				<LazyNuxtPage class="w-full h-full" />
 			</section>
 
 			<LazyHomeFooter />
