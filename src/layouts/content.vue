@@ -59,7 +59,7 @@ const route = useRoute();
 							layoutState.displayTitle ? '' : 'sm:text-center'
 						}`"
 					>
-						Hey, I leave some socials here, just in case 👀
+						{{ $t("mySocials") }}
 					</div>
 
 					<div

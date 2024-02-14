@@ -3,6 +3,7 @@ import markdownParser from "@nuxt/content/transformers/markdown";
 
 const layoutState = useContentLayout();
 const dataPending = ref<boolean>(true);
+const t = useI18n().t;
 
 const parsedContents = ref<
 	{
@@ -22,8 +23,7 @@ definePageMeta({
 onMounted(async () => {
 	layoutState.value.displayLeftSide = true;
 	parsedContents.value = [];
-	layoutState.value.subTitle =
-		"I share some cool tips and tricks, I 'll appreciate knowing one of them helped you :)";
+	layoutState.value.subTitle = t("iShareTips");
 
 	dataPending.value = true;
 	const { data } = await $fetch("/api/writing");

@@ -112,6 +112,7 @@ export class Scene1Component extends SceneComponentBlueprint {
 	public coffeeSteam?: Mesh;
 
 	constructor() {
+		const t = useI18n().t;
 		super({
 			modelName: "scene_1",
 			childrenMaterials: {
@@ -142,42 +143,42 @@ export class Scene1Component extends SceneComponentBlueprint {
 			markers: [
 				{
 					icon: "💡",
-					content: "Is that a portal!",
+					content: t("isThatAPortal"),
 					position: new Vector3(-2.11, 3.17, -1.52),
 				},
 				{
 					icon: "💡",
-					content: "Hardcore coding.",
+					content: t("hardcoreCoding"),
 					position: new Vector3(-0.7, 3.26, -2.22),
 				},
 				{
 					icon: "💡",
-					content: "Heavy process...",
+					content: t("heavyProcess"),
 					position: new Vector3(-2.7, 3.17, 0.08),
 				},
 				{
 					icon: "💡",
-					content: "Mobile development.",
+					content: t("mobileDevelopment"),
 					position: new Vector3(-2.34, 2.49, 0.34),
 				},
 				{
 					icon: "❔",
-					content: "No planning yet?",
+					content: t("itEmpty"),
 					position: new Vector3(-0.38, 4.7, -2.78),
 				},
 				{
 					icon: "❤",
-					content: "A gift from a friend.",
+					content: t("friendGift"),
 					position: new Vector3(-2.85, 4.3, 0.8),
 				},
 				{
 					icon: "❤",
-					content: "Never finished it.",
+					content: t("neverFinished"),
 					position: new Vector3(-2.82, 4.51, 1.99),
 				},
 				{
 					icon: "❔",
-					content: "I saw something...",
+					content: t("sawSomething"),
 					position: new Vector3(2.08, 3.11, -2.92),
 				},
 			],

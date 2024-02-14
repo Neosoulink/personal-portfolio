@@ -12,6 +12,7 @@ const projectsList = ref<
 		updated_at?: string | null | undefined;
 	}[]
 >([]);
+const t = useI18n().t;
 
 definePageMeta({
 	layout: "content",
@@ -19,8 +20,7 @@ definePageMeta({
 
 onMounted(async () => {
 	layoutState.value.displayLeftSide = true;
-	layoutState.value.subTitle =
-		"I often to share open source, you can start them to support my work!";
+	layoutState.value.subTitle = t("iShareOpenSource");
 	dataPending.value = true;
 
 	const { data } = await $fetch("/api/projects");

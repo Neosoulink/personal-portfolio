@@ -1,9 +1,7 @@
 import {
 	CatmullRomCurve3,
 	DoubleSide,
-	Mesh,
 	MeshBasicMaterial,
-	SphereGeometry,
 	Vector3,
 } from "three";
 import { gsap } from "gsap";

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Config } from "~/config";
-import { ServerConfig } from "~/config/server";
 </script>
 
 <template>
@@ -25,7 +24,7 @@ import { ServerConfig } from "~/config/server";
 			/>
 		</svg>
 
-		This content can be edited on
+		{{ $t("editableOn") }}
 		<a
 			:href="Config.GITHUB_CONTENT_LINK"
 			target="_blank"
