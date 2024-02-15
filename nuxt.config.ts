@@ -2,6 +2,7 @@ import glslify from "vite-plugin-glslify";
 
 export default defineNuxtConfig({
 	devtools: { enabled: true },
+	ssr: false,
 	app: {
 		head: {
 			title: "Nathan Mande's Site",
