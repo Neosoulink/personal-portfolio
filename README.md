@@ -1,42 +1,38 @@
-# Content v2 Minimal Starter
+# Nathan Mande's Site
 
-Look at the [Content documentation](https://content-v2.nuxtjs.org/) to learn more.
+Welcome to the repository of my personal website! 🚀
 
-## Setup
+![screenshot](./src/public/imgs/screenshot.png)
 
-Make sure to install the dependencies:
+Here, I'm showcasing my current room, almost exactly as it is. I must admit, I'm not one for loads of details in my workspace 😅.
 
-```bash
-# yarn
-yarn install
+I'm planning to improve some parts over time, and I'd love to hear your thoughts. Any feedback from you will be welcome!
 
-# npm
-npm install
+Please take a moment to explore the [credit section](./src/content/notes/credits.md) for more details about the resources used in this project.
 
-# pnpm
+## Open-source
+
+Despite being a personal space, I've chosen to keep my website open-source. Feel free to reuse any part of it as you see fit 😊.
+
+For those specifically interested in the 3D experience, head over to .`/src/experiences`
+
+## How to start
+
+To start the application locally, ensure you have the latest `NodeJS` version installed. Then, follow these steps:
+
+```shell
+# Install dependencies
 pnpm install
+
+# To run the local server at localhost:3000
+pnpm run dev
 ```
 
-## Development Server
+## Deployment
 
-Start the development server on http://localhost:3000
+[![Netlify Status](https://api.netlify.com/api/v1/badges/fcb9f79b-e19d-459f-8581-ace1d0fd96da/deploy-status)](https://app.netlify.com/sites/nathan-mande/deploys)
 
-```bash
-npm run dev
-```
+## Known issues
 
-## Production
-
-Build the application for production:
-
-```bash
-npm run build
-```
-
-Locally preview production build:
-
-```bash
-npm run preview
-```
-
-Checkout the [deployment documentation](https://v3.nuxtjs.org/docs/deployment) for more information.
+- **Iframe freeze**: On some devices, the contact page may cause the app to freeze when loading the content of the iframe for the first time.
+- **Link not active**: When using a `.md` file and clicking on a link, it fails to activate a `NuxtLink`.
